@@ -1,0 +1,47 @@
+---
+
+dto:
+  NodeDataInput:
+    properties:
+      nodeId: string label='서버 아이디'
+
+  NodeDataOutput:
+    properties:
+      data: byte[] size=10
+      nodeId: string size 20
+      title: string
+      count: int
+      nodeItemList:
+        type: List<Item>
+        properties:
+          title: string
+          name: int
+
+
+
+
+
+
+services:
+
+  getNodeData:
+    input: "NodeDataInput"
+    output: "List<NodeDataOutput>"
+    target: NodeData
+    operation: save
+
+
+
+    script:
+        type: javascript
+        code: |
+          query.save( NodeDat , input);
+
+
+
+
+
+
+
+
+

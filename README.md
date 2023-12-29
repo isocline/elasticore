@@ -1,1 +1,1 @@
-# elasticore
+# Elasticore
