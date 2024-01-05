@@ -1,17 +1,20 @@
 package io.elasticore.schema.service;
 
+import io.elasticore.schema.core.AbstractReplaceableModel;
 import lombok.AllArgsConstructor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@AllArgsConstructor
-public final class ServiceModel {
 
-    private final String domain;
-    private final String name;
+public final class ServiceModel extends AbstractReplaceableModel<ServiceModel> {
+
 
     private final Map<String, Operation> operationMap = new LinkedHashMap();
+
+    ServiceModel(String domain, String name) {
+        super(TYPE_OPERTATION, domain, name);
+    }
 
 
     void addOperation(Operation operation) {
@@ -23,7 +26,7 @@ public final class ServiceModel {
     }
 
     public Operation[] getOperationArray() {
-        return (Operation[]) operationMap.values().toArray();
+        return operationMap.values().toArray(new Operation[0]);
     }
 
     public Operation getOpertaionByName(String name) {

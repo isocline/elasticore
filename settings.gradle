@@ -5,3 +5,5 @@ plugins {
 
 rootProject.name = 'elasticore'
 include('elasticore-project:elasticore-schema')
+include('elasticore-project:elasticore-base')
+include('elasticore-project:elasticore-jpa')

@@ -10,6 +10,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/elasticore-project" />
+            <option value="$PROJECT_DIR$/elasticore-project/elasticore-base" />
+            <option value="$PROJECT_DIR$/elasticore-project/elasticore-jpa" />
             <option value="$PROJECT_DIR$/elasticore-project/elasticore-schema" />
           </set>
         </option>

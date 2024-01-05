@@ -1,6 +1,6 @@
-package io.elasticore.schema;
+package io.elasticore.base.model;
 
-public interface Replaceable<T extends Replaceable<T>> {
+public interface Replaceable<T extends Replaceable<T>> extends ModelComponent {
 
     String TYPE_ENTITY = "entity";
     String TYPE_IO = "io";
@@ -10,5 +10,5 @@ public interface Replaceable<T extends Replaceable<T>> {
 
     T getObject();
 
-    ModelIndentity getIdentity();
+
 }
