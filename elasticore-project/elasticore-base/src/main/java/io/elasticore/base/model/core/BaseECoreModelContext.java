@@ -4,6 +4,7 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.ModelLoader;
+import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.ECoreModel;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
     private Map<String, ModelDomain> modelDomainMap = new HashMap();
 
     private final ModelLoader loader;
+
     private BaseECoreModelContext(ModelLoader loader) {
         this.loader = loader;
     }
@@ -26,21 +28,32 @@ public class BaseECoreModelContext implements ECoreModelContext {
         defaultModelDomain = null;
 
         List<String> domainNameList = this.loader.getDomainNameList();
-        for(String domainNm: domainNameList) {
+        for (String domainNm : domainNameList) {
             ECoreModel model = this.loader.load(domainNm);
 
             ModelDomain modelDomain = BaseModelDomain.newInstance(domainNm, model);
             modelDomainMap.put(domainNm, modelDomain);
 
-            if(defaultModelDomain ==null) {
+            if (defaultModelDomain == null) {
                 defaultModelDomain = modelDomain;
             }
         }
     }
 
-    public static ECoreModelContext getContext(ModelLoader loader) {
+    public synchronized static ECoreModelContext getContext(ModelLoader loader) {
 
-        return new BaseECoreModelContext(loader);
+
+        BaseECoreModelContext context = new BaseECoreModelContext(loader);
+        context.load();
+        return context;
+
+
+    }
+
+
+    @Override
+    public String[] getDomanNames() {
+        return modelDomainMap.keySet().toArray(new String[0]);
     }
 
     @Override
@@ -54,7 +67,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
     @Override
-    public boolean publish(CodePublisher publisher) {
-        return false;
+    public boolean publish(CodePublisher publisher) throws ProcessException {
+        return publisher.publish(this);
     }
 }

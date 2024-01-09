@@ -3,6 +3,7 @@ package io.elasticore.base.model;
 public enum ComponentType {
 
     ENTITY("entity"),
+    FIELD("field"),
     ENTITY_GROUP("entityGrp"),
 
 

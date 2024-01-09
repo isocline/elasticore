@@ -7,7 +7,7 @@ import io.elasticore.base.model.ComponentType;
 
 import java.util.Objects;
 
-public class BaseComponentIdentity implements ComponentIdentity {
+public final class BaseComponentIdentity implements ComponentIdentity {
 
     private String id;
 
@@ -15,23 +15,23 @@ public class BaseComponentIdentity implements ComponentIdentity {
 
     private ComponentDesc info;
 
-    private final ComponentType type;
-    private final String domain;
-    private final String name;
+    private ComponentType type;
+    private String domain;
+    private String name;
 
 
     private BaseComponentIdentity(ComponentType type, String domain, String name) {
-        this.id = type.getName() + "://" + domain + "." + name;
-
         this.type = type;
         this.domain = domain;
         this.name = name;
+
+        this.id = type.getName() + "://" + domain + "." + name;
 
         this.hashId = makeHashId();
     }
 
     public static BaseComponentIdentity newInstance(ComponentType type, String domain, String name) {
-        return new BaseComponentIdentity(type,domain,name);
+        return new BaseComponentIdentity(type, domain, name);
     }
 
     private String makeHashId() {
@@ -58,13 +58,18 @@ public class BaseComponentIdentity implements ComponentIdentity {
 
 
     @Override
+    public String getHashId() {
+        return this.hashId;
+    }
+
+    @Override
     public String getId() {
         return this.id;
     }
 
     @Override
     public String getName() {
-        return this.getName();
+        return this.name;
     }
 
     public void setInfo(ComponentDesc info) {

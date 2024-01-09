@@ -5,7 +5,10 @@ import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
+import lombok.Getter;
 
+
+@Getter
 public class EntityModels {
 
     private final ComponentIdentity identity;

@@ -7,7 +7,9 @@ import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractReplaceableModel;
 import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
+import lombok.Getter;
 
+@Getter
 public class Entity extends AbstractReplaceableModel {
 
 

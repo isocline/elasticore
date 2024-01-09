@@ -3,8 +3,7 @@ package io.elasticore.base.model.core;
 import io.elasticore.base.model.ComponentIdentity;
 import io.elasticore.base.model.ModelComponent;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class Items<T extends ModelComponent> {
     private Map<ComponentIdentity, T> itemMap = new LinkedHashMap<>();
@@ -30,8 +29,19 @@ public final class Items<T extends ModelComponent> {
         return this.itemMap.get(identity);
     }
 
-    public T[] getItemArray() {
-        return (T[]) this.itemMap.values().toArray();
+    public List<T> getItemList() {
+        Object[] preItemArray = this.itemMap.values().toArray();
+
+
+        List<T> newList = new ArrayList<>();
+        for (int i = 0; i < preItemArray.length; i++) {
+            newList.add((T) preItemArray[i]);
+        }
+
+        return newList;
+
+        //return this.itemMap.values().stream().map(e -> (T) e).toArray();
+        //return this.itemMap.values().toArray(new ModelComponent[0]);
     }
 
 

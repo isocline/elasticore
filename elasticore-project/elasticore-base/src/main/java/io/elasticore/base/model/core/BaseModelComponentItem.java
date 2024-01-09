@@ -4,14 +4,16 @@ import io.elasticore.base.model.ComponentIdentity;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 
+import java.util.List;
+
 public final class BaseModelComponentItem<T extends ModelComponent> implements ModelComponentItems {
     private final Items<T> items;
 
-    private final T[] itemArray;
+    private final List<T> itemList;
 
     public BaseModelComponentItem(Items<T> items) {
         this.items = items;
-        this.itemArray = items.getItemArray();
+        this.itemList = items.getItemList();
     }
 
     public int size() {
@@ -23,7 +25,7 @@ public final class BaseModelComponentItem<T extends ModelComponent> implements M
     }
 
     public T get(int idx) {
-        return this.itemArray[idx];
+        return this.itemList.get(idx);
     }
 
 

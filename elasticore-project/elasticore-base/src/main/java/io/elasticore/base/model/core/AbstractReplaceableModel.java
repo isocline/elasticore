@@ -23,11 +23,11 @@ public abstract class AbstractReplaceableModel<T extends Replaceable<T>> impleme
 
     @Override
     public T getObject() {
-        return getModel(this.ComponentIdentity.getId());
+        return getModel(this.ComponentIdentity);
     }
 
-    public static <T extends Replaceable<T>> T getModel(String id) {
-        return (T) replaceableMap.get(new ComponentIdentityImpl(id));
+    public static <T extends Replaceable<T>> T getModel(ComponentIdentity id) {
+        return (T) replaceableMap.get(id);
     }
 
     @Override

@@ -15,6 +15,12 @@ import java.util.List;
 
 public class FileBasedModelLoader implements ModelLoader {
 
+    private static FileBasedModelLoader instance;
+
+    public static FileBasedModelLoader newInstance() {
+        return new FileBasedModelLoader();
+    }
+
 
     @Override
     public List<String> getDomainNameList() {
