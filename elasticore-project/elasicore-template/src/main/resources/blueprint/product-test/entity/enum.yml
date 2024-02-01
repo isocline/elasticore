@@ -10,24 +10,21 @@ entity:
     author: Richard
 
 
-  items:
-    TestPlan:
+  enum:
+    CarModel:
       meta:
         dbName: TBL_TEST_PLAN
 
-      fields:
-        testPlanId: string @key=12313 @id @length=10
-        productCode: string
-        productName: string
-        coveragePeriodClass: string
-        coveragePeriodValue: int
-        genderCode: string
-        payinPeriodClass: string
-        payinPeriodValue: int
-        status: string
-        description: string -lob:true
-        updateDt: date
 
+      fields:
+        carMaker: CarMaker
+        name: string
+        carModelType: CarModelType
+        imgStartYear: int
+        imgEndYear: int
+
+      items:
+        A1: A1,AUDI,SMALL0,0,
 
     TestPlanHistory:
 

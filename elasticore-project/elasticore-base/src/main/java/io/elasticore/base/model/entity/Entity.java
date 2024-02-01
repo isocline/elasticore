@@ -2,9 +2,11 @@ package io.elasticore.base.model.entity;
 
 
 import io.elasticore.base.model.ComponentIdentity;
+import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractReplaceableModel;
+import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
 import lombok.Getter;
@@ -12,10 +14,8 @@ import lombok.Getter;
 @Getter
 public class Entity extends AbstractReplaceableModel {
 
-
     private final MetaInfo metaInfo;
     private final ModelComponentItems<Field> items;
-
 
     private Entity(ComponentIdentity id, Items<Field> items, MetaInfo metaInfo) {
         super(id);
@@ -24,8 +24,9 @@ public class Entity extends AbstractReplaceableModel {
         this.metaInfo = metaInfo;
     }
 
-    public static Entity newInstance(ComponentIdentity id, Items<Field> items, MetaInfo metaInfo) {
-        return new Entity(id, items, metaInfo);
+    public static Entity create(String name, Items<Field> items, MetaInfo metaInfo) {
+        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY, name);
+        return new Entity(identity, items, metaInfo);
     }
 
 

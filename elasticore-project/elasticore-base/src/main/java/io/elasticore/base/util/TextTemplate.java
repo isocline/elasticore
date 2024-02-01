@@ -69,8 +69,8 @@ public class TextTemplate {
      */
     public TextTemplate set(String key, Object value) {
         String keyName = key;
-        if(key.indexOf("$")<0) {
-            keyName = "${"+key+"}";
+        if (key.indexOf("$") < 0) {
+            keyName = "${" + key + "}";
         }
         variableMap.put(keyName, value);
 
@@ -128,70 +128,5 @@ public class TextTemplate {
         }
         return strBuf;
     }
-
-    private static class LineInfo {
-        private final static String regex = "\\$\\{(.+?)\\}";
-
-        private Pattern pattern;
-        private Matcher matcher;
-
-
-        private String lineText;
-
-        private String[] keyNames;
-        private boolean isMultiLine = false;
-
-        LineInfo(String lineText, boolean isMultiLine) {
-            this.lineText = lineText;
-            this.isMultiLine = isMultiLine;
-
-            this.pattern = Pattern.compile(regex);
-            this.matcher = pattern.matcher(lineText);
-
-        }
-
-        public String toString(Map<String,Value> params) {
-            matcher.reset();
-
-            while (matcher.find()) {
-                Value replacement = params.get(matcher.group(1));
-                if (replacement != null) {
-                    // Matcher.quoteReplacement는 정규식 메타문자를 처리하기 위해 필요합니다.
-                    matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
-                }
-            }
-
-
-        }
-
-
-
-    }
-
-    private static class Value {
-        private List<Object> valueList = new ArrayList<>();
-
-        public Value(Object val) {
-            valueList.add(val);
-        }
-
-        public int size() {
-            return this.valueList.size();
-        }
-
-        public String toString() {
-            return toString(0);
-        }
-
-        public String toString(int idx) {
-            try {
-                return this.valueList.get(idx).toString();
-            }catch (NullPointerException npe) {
-                return null;
-            }
-        }
-
-    }
-
 
 }

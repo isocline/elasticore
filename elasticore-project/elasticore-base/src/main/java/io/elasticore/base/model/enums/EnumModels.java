@@ -1,4 +1,4 @@
-package io.elasticore.base.model.entity;
+package io.elasticore.base.model.enums;
 
 import io.elasticore.base.model.ComponentIdentity;
 import io.elasticore.base.model.ComponentType;
@@ -11,24 +11,22 @@ import lombok.Getter;
 
 
 @Getter
-public class EntityModels {
+public class EnumModels {
 
     private final ComponentIdentity identity;
     private final MetaInfo meta;
-    private final ModelComponentItems<Entity> items;
+    private final ModelComponentItems<EnumModel> items;
 
-    private EntityModels(ComponentIdentity identity, MetaInfo meta, Items<Entity> items) {
+    private EnumModels(ComponentIdentity identity, MetaInfo meta, Items<EnumModel> items) {
         this.identity = identity;
 
         this.meta = meta;
         this.items = new BaseModelComponentItem(items);
     }
 
-
-    public static EntityModels create(String name, MetaInfo meta, Items<Entity> items) {
-        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY_GROUP, name);
-        return new EntityModels(identity, meta, items);
-
+    public static EnumModels create(String name, MetaInfo meta, Items<EnumModel> items) {
+        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENUM_GROUP, name);
+        return new EnumModels(identity, meta, items);
     }
 
 

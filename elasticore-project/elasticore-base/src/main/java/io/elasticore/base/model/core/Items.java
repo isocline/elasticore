@@ -11,13 +11,14 @@ public final class Items<T extends ModelComponent> {
     private Items() {
     }
 
-    public static <T extends ModelComponent> Items<T> newInstance(Class<T> type) {
+    public static <T extends ModelComponent> Items<T> create(Class<T> type) {
         return new Items<>();
     }
 
 
-    public void addItem(T item) {
+    public Items<T> addItem(T item) {
         itemMap.put(item.getIdentity(), item);
+        return this;
     }
 
 

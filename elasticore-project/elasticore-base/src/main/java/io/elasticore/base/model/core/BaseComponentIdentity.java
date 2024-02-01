@@ -30,13 +30,22 @@ public final class BaseComponentIdentity implements ComponentIdentity {
         this.hashId = makeHashId();
     }
 
-    public static BaseComponentIdentity newInstance(ComponentType type, String domain, String name) {
+    public static BaseComponentIdentity create(ComponentType type, String name) {
+        return new BaseComponentIdentity(type, null, name);
+    }
+
+    public static BaseComponentIdentity create(ComponentType type, String domain, String name) {
         return new BaseComponentIdentity(type, domain, name);
     }
 
+
     private String makeHashId() {
         int hashCode = Objects.hash(this.id);
-        return type.getName().substring(0, 1) + domain.substring(0, 1) + name.substring(0, 1) + hashCode;
+        if(type==null ) {
+            System.err.println("outpuot");
+        }
+
+        return type.getName().substring(0, 1) + name.substring(0, 1) + hashCode;
     }
 
     BaseComponentIdentity(String id) {

@@ -29,4 +29,21 @@ public final class BaseModelComponentItem<T extends ModelComponent> implements M
     }
 
 
+    private int point = 0;
+    @Override
+    public boolean hasNext() {
+
+        if(this.items.size()>point){
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public Object next() {
+        int p = this.point;
+        this.point=this.point+1;
+        return this.get(p);
+    }
 }

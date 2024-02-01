@@ -1,10 +1,12 @@
 package io.elasticore.base.model;
 
-public interface ModelComponentItems<T> {
+import java.util.Iterator;
+
+public interface ModelComponentItems<E> extends Iterator<E> {
     
     int size();
 
-    T find(ComponentIdentity identity);
+    E find(ComponentIdentity identity);
 
-    T get(int idx);
+    E get(int idx);
 }

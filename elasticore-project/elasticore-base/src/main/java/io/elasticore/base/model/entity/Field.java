@@ -17,8 +17,29 @@ public class Field implements ModelComponent {
 
     private String type;
 
+
+    private String description;
+
+    @Builder.Default
+    private boolean nullable = true;
+
+    private int length;
+
+    // javax.persistence.EnumType
+    private String enumType;
+
+    @Builder.Default
+    private boolean isPrimaryKey = false;
+
+    private String generationType;
+
+    private String columnDefinition;
+
+    @Builder.Default
+    private boolean unique = false;
+
     @Override
     public ComponentIdentity getIdentity() {
-        return BaseComponentIdentity.newInstance(ComponentType.FIELD, "docmain", this.name);
+        return BaseComponentIdentity.create(ComponentType.FIELD, "field", this.name);
     }
 }

@@ -6,6 +6,9 @@ public enum ComponentType {
     FIELD("field"),
     ENTITY_GROUP("entityGrp"),
 
+    ENUM("enumeration"),
+    ENUM_GROUP("enumGrp"),
+
 
     IO("io"), //dto
     SERVICE("service");
