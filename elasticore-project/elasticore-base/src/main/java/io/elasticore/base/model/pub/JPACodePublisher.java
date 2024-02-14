@@ -8,7 +8,10 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
+import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.pub.jpa.EntityCodePublisher;
+import io.elasticore.base.model.pub.jpa.EnumCodePublisher;
 
 public class JPACodePublisher implements CodePublisher {
 
@@ -50,9 +53,16 @@ public class JPACodePublisher implements CodePublisher {
             String name = entity.getIdentity().getName();
 
             entityCodePublisher.publish(entity);
+        }
 
 
+        EnumCodePublisher enumCodePublisher = new EnumCodePublisher();
+        EnumModels enumModels=model.getEnumModels();
 
+        while(enumModels.getItems().hasNext()) {
+            EnumModel enumModel = enumModels.getItems().next();
+
+            enumCodePublisher.publish(enumModel);
         }
 
 

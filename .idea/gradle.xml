@@ -16,6 +16,21 @@
           </set>
         </option>
       </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/gatehub" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/../../xsko/gatehub" />
+            <option value="$PROJECT_DIR$/../../xsko/gatehub/apiservice" />
+            <option value="$PROJECT_DIR$/../../xsko/gatehub/core" />
+            <option value="$PROJECT_DIR$/../../xsko/gatehub/extract" />
+            <option value="$PROJECT_DIR$/../../xsko/gatehub/model" />
+            <option value="$PROJECT_DIR$/../../xsko/gatehub/rad-adapter" />
+            <option value="$PROJECT_DIR$/../../xsko/gatehub/webtool" />
+          </set>
+        </option>
+      </GradleProjectSettings>
     </option>
   </component>
 </project>

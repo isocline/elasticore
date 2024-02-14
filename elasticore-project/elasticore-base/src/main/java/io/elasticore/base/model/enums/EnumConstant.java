@@ -37,6 +37,9 @@ public class EnumConstant implements ModelComponent {
         return BaseComponentIdentity.create(ComponentType.FIELD, "param", this.name);
     }
 
+    public List<ConstructParam> getConstructParamList() {
+        return constructParamList;
+    }
 
     public static class ConstructParam {
 
@@ -45,14 +48,44 @@ public class EnumConstant implements ModelComponent {
             this.type = type;
         }
 
+        public static ConstructParam create(String line) {
+            if (line.startsWith("\"") && line.endsWith("\"")) {
+                String name =  line.substring(1, line.length() - 1);
+
+                return new ConstructParam(name, "string");
+            }
+            int p = line.indexOf(".");
+            if(p>0) {
+                String name = line.substring(p+1);
+                String type = line.substring(0,p);
+                return new ConstructParam(name, type);
+            }
+
+            return  new ConstructParam(line, null);
+        }
+
         private String name;
         private String type;
 
-        public String toString() {
-            if("String".equals(type)) {
-                return "\""+name+"\"";
-            }
+
+        public String getName() {
             return name;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String toString() {
+            if("String".equalsIgnoreCase(type)) {
+                return "\""+name+"\"";
+            }else if( "Integer".equalsIgnoreCase(type) || "int".equalsIgnoreCase(type)) {
+                return name;
+            }
+            if(type==null)
+                return name;
+
+            return type+"."+name;
         }
     }
 }

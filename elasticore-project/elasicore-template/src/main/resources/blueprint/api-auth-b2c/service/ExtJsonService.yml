@@ -1,0 +1,37 @@
+service:
+
+  ExtJsonService:
+    meta:
+      type: http-rest
+
+
+
+    operation:
+      callJsonApi2:
+        meta:
+          type: http-rest
+          endpoint: http://test.com/api
+          http-method: post
+          content-type: json
+
+        input:
+          age: int
+          name: string
+        output:
+          output:
+            name: string
+            addr: string
+
+        process:
+          type: dbms
+          sql:
+            - select * from test
+
+
+
+
+
+
+
+
+

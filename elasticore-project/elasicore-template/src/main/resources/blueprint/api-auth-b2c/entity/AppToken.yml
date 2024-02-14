@@ -1,0 +1,22 @@
+entity:
+
+  AppToken:
+    info:
+      name: API Token
+      desc: API Token information
+      author: Richard
+
+    meta:
+      dbName: AppToken
+
+    fields:
+      id: Long @id
+      member: Member @ManyToOne(FetchType.LAZY) @JoinColumn("memberId")
+      appToken: String @notNull
+      dateCreate: datetime @notNull
+
+    methods:
+      countByMember: long @param(Member member)
+      findByMember: Optional<AppToken>
+
+

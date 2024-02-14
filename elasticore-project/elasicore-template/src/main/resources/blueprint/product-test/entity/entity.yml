@@ -16,7 +16,7 @@ entity:
         dbName: TBL_TEST_PLAN
 
       fields:
-        testPlanId: string @key=12313 @id @length=10
+        testPlanId: string @key(12313) @id @length(10)
         productCode: string
         productName: string
         coveragePeriodClass: string

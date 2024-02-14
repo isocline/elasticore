@@ -1,0 +1,23 @@
+entity:
+
+
+  PhoneCertification:
+    info:
+      name: Member point
+      author: Richard
+    meta:
+      dbName: Phone_Certification
+
+    fields:
+      id: Long @id
+      phone: String @notNull @uniqeu @length(13)
+      certificationNumber: String @notNull @length(6)
+      sendTime: long @notNull
+      dateLastEnd: datetime @notNull @Column(nullable = false, length = 5)
+
+    methods:
+      findByPhone: PhoneCertification
+
+
+
+

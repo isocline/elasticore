@@ -1,0 +1,22 @@
+entity:
+
+  Member:
+    info:
+      name: Member
+      desc: Member information
+      author: Richard
+
+    fields:
+      id: Long @id @generatedValue(inherit)
+      memberGroup: MemberGroup @length(20) @notNull @Enumerated(EnumType.STRING) @label('제공자')
+      memberProvider: MemberProvider @length(20) @notNull @Enumerated(EnumType.STRING)
+      dateCreate: datetime @notNull
+      username: string @notNull @unique @langth(80) @label('이름')
+      password: string @nulNull
+      name: string @Column(nullable = false, length = 13)
+      phone: string @Column(nullable = false, length = 13)
+      isEnabled: Boolean @notNull @label('승인여부')
+
+    methods:
+      findByUsername: Member
+      countByUsername: int

@@ -1,0 +1,16 @@
+enumeration:
+  PointType:
+    info:
+      name: PointType
+      desc: PointType information
+      author: Richard
+
+    fields:
+      name: String
+      symbol: string
+
+    enum:
+      PLUS: 추가,+
+      MINUS: 차감,-
+
+

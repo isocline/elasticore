@@ -7,6 +7,10 @@ import io.elasticore.base.model.core.BaseComponentIdentity;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Builder
 @Getter
 public class Field implements ModelComponent {
@@ -38,8 +42,22 @@ public class Field implements ModelComponent {
     @Builder.Default
     private boolean unique = false;
 
+
+
     @Override
     public ComponentIdentity getIdentity() {
         return BaseComponentIdentity.create(ComponentType.FIELD, "field", this.name);
     }
+
+    private Map<String, Annotation> annotationMap;
+
+    public Annotation getAnnotation(String name) {
+        if(annotationMap==null) {
+            return null;
+        }
+
+        return annotationMap.get(name);
+    }
+
+
 }

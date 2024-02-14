@@ -1,6 +1,7 @@
 package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.entity.Annotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.util.CodeTemplate;
@@ -90,6 +91,11 @@ public class EntityCodePublisher {
     }
 
     private void setFieldPkInfo(Field field, CodeTemplate.Value value) {
+
+        if(field.getAnnotation("id")!=null) {
+            value.add("@Id");
+        }
+
         if(field.isPrimaryKey()) {
             value.add("@Id");
         }
@@ -101,23 +107,28 @@ public class EntityCodePublisher {
 
     private void setFieldColumnAnnotation(Field field, CodeTemplate.Value value) {
         List<String> list = new ArrayList<>();
-        boolean isNullable = field.isNullable();
-        if (!isNullable) {
+
+
+
+        Annotation notnull = field.getAnnotation("notnull");
+
+        if (notnull !=null && !"false".equals(notnull.getValue())) {
             list.add("nullable = false");
         }
+        Annotation length = field.getAnnotation("length");
 
-        int length = field.getLength();
-        if (length > 0) {
-            list.add("length = " + length);
+
+        if (length !=null && length.getValue() !=null) {
+            list.add("length = " + length.getValue());
         }
 
         if(field.getColumnDefinition()!=null) {
             list.add("columnDefinition=\""+field.getColumnDefinition()+"\"");
         }
 
-        if(field.isUnique()) {
+        Annotation uniqAnnot = field.getAnnotation("unique");
+        if(uniqAnnot!=null && !"false".equals(uniqAnnot.getValue()))
             list.add("unique = true");
-        }
 
         if (list.size() > 0) {
             String txt = "@Column(" + String.join(", ", list) + ")";

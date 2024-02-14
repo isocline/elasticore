@@ -15,19 +15,11 @@ entity:
       info:
         name: CoreParty
 
-      config: -abstract:true -rollup:true
+      config: @abstract @rollup
 
       properties:
-        oid:
-          type: string
-          size: 100
-          label: object id
-          isPrimary: true
-          keyGenerator: liquid.core.key.OidGenerator
-
-        oid2: string -size:100 -label:'object id' -isPrimary:true
-        oid2-max: 12
-        oid2-length: 100
+        oid: string @size(100) @label('object id') @isPrimary @keyGenerator(liquid.core.key.OidGenerator)
+        oid2: string @size(100) @label('object id') @isPrimary @max(12) @length(100)
 
         parentPath:
           type: string
@@ -45,37 +37,12 @@ entity:
 
 
     Person:
-      config: -extend:CoreParty
+      config: @extend(CoreParty)
       properties:
-        age2: int -min:0 -max:150 -execlusiveMax:true
-        age2-min: 0
-        age2-max: 150
-        age2-exclutesiveMax: true
-
-        age:
-          type: int
-          min: 0
-          max: 150
-          exclusiveMax: true
-
-        addr1: string
-        addr2_2: string -minLength:3 -maxLength:7
-        addr2:
-          type: string
-          minSize: 3
-          size: 7
-
-        currency2: int -max:1000000
-
-        currency:
-          type: int
-          multipleOf: 10
-          max: 100000000
-
-        email:
-          type: string
-          regx: '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
-
+        age: int @min(0) @max(150) @exclusiveMax
+        addr1: string @minLength(3) @maxLength(7)
+        currency: int @max(1000000) @multipleOf(10)
+        email: string @regx('^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
         child:
           type: array
           contains:
@@ -84,7 +51,7 @@ entity:
           maxContains: 2
 
         registDate: date
-        attendAge: int -derived=true -func=px:calc(age, regitst)
+        attendAge: int @derived @func(px:calc(age, regitst))
 
     Company:
       extend: CoreParty
