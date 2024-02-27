@@ -8,6 +8,8 @@ public interface ConstanParam {
 
     String KEYNAME_ENUMERATION = "enumeration";
 
+    String KEYNAME_REPOSITORY = "repository";
+
 
 
 
@@ -18,5 +20,7 @@ public interface ConstanParam {
     String PROPERTY_META = "meta";
 
     String PROPERTY_ENUM = "enum";
+
+    String PROPERTY_METHOD = "method";
 
 }

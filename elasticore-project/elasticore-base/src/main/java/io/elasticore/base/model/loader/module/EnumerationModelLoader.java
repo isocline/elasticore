@@ -6,6 +6,7 @@ import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.loader.ModelLoader;
+import io.elasticore.base.model.loader.ModelLoaderContext;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,6 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 public class EnumerationModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<EnumModel> {
+
+    public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
+        if (map.containsKey(ConstanParam.KEYNAME_ENUMERATION)) {
+            Map entityMap = map.get(ConstanParam.KEYNAME_ENUMERATION);
+
+            loadModel(ctx.getEnumModelItems(), entityMap);
+            return true;
+        }
+        return false;
+    }
+
 
     public void loadModel(Items<EnumModel> items, Map<String, LinkedHashMap> enumMap) {
         enumMap.forEach((enumNm, value) -> {

@@ -18,6 +18,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.base.model.loader.module.DataTransferModelLoader;
 import io.elasticore.base.model.loader.module.EntityModelLoader;
 import io.elasticore.base.model.loader.module.EnumerationModelLoader;
+import io.elasticore.base.model.loader.module.RepositoryModelLoader;
+import io.elasticore.base.model.repo.Repository;
 
 
 import java.io.File;
@@ -34,13 +36,13 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         return new FileBasedModelLoader();
     }
 
-    private String templateFileDirPath ;
+    private String templateFileDirPath;
 
 
     public void setTemplateFileDirPath(String dirPath) {
         this.templateFileDirPath = dirPath;
     }
-    
+
     @Override
     public List<String> getDomainNameList() {
         List<String> domainNmList = new ArrayList();
@@ -69,7 +71,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
 
     private FileSource getLoadData(File f) {
 
-        if(!f.getName().endsWith(".yml") && !f.getName().endsWith(".yaml")){
+        if (!f.getName().endsWith(".yml") && !f.getName().endsWith(".yaml")) {
             return null;
         }
 
@@ -98,7 +100,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         } else {
 
             FileSource fs = getLoadData(f);
-            if(fs!=null)
+            if (fs != null)
                 fileSources.add(fs);
         }
     }
@@ -114,54 +116,35 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
 
         //File f = new File("C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\resources\\blueprint\\api-auth-b2c");
 
-        if(templateFileDirPath==null)
+        if (templateFileDirPath == null)
             templateFileDirPath = "C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\resources\\blueprint\\api-auth-b2c";
         File f = new File(templateFileDirPath);
         loadData(f, fileSources);
 
-
-        Items<Entity> entityItems = Items.create(Entity.class);
-        Items<EnumModel> enumModelItems = Items.create(EnumModel.class);
-        Items<DataTransfer> dtoItems = Items.create(DataTransfer.class);
-
         io.elasticore.base.model.loader.ModelLoader<Entity> entityModelLoader = new EntityModelLoader();
         io.elasticore.base.model.loader.ModelLoader<EnumModel> enumerationModelLoader = new EnumerationModelLoader();
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new DataTransferModelLoader();
+        io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
+
+        ModelLoaderContext context = new ModelLoaderContext();
 
         for (FileSource fileSource : fileSources) {
 
-            Map map = fileSource.getInfoMap();
+            Map<String, Map> map = fileSource.getInfoMap();
 
             if (map == null) {
-                System.out.println("NULL " + fileSource.getFilepath());
                 continue;
             }
 
-            if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {
-                Map entityMap = (Map) map.get(ConstanParam.KEYNAME_ENTITY);
-                System.out.println("entity " + fileSource.getFilepath());
+            entityModelLoader.loadModel(context, map);
+            enumerationModelLoader.loadModel(context, map);
+            dataTransferModelLoader.loadModel(context, map);
+            repositoryModelLoader.loadModel(context, map);
 
-                entityModelLoader.loadModel(entityItems, entityMap);
-
-            }
-
-            if (map.containsKey(ConstanParam.KEYNAME_ENUMERATION)) {
-                Map entityMap = (Map) map.get(ConstanParam.KEYNAME_ENUMERATION);
-                System.out.println("ENUM " + fileSource.getFilepath());
-
-                enumerationModelLoader.loadModel(enumModelItems, entityMap);
-            }
-
-            if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
-                Map entityMap = (Map) map.get(ConstanParam.KEYNAME_DTO);
-                System.out.println("DTO " + fileSource.getFilepath());
-
-                dataTransferModelLoader.loadModel(dtoItems, entityMap);
-            }
         }
 
-        EntityModels entityModels = EntityModels.create("entityGrp", null, entityItems);
-        EnumModels enumModels = EnumModels.create("enumGroup",null, enumModelItems);
+        EntityModels entityModels = EntityModels.create("entityGrp", null, context.getEntityItems());
+        EnumModels enumModels = EnumModels.create("enumGroup", null, context.getEnumModelItems());
 
         //EnumModels enumModels = getEnumModels();
         //EntityModels entityModels = getEntityModels();

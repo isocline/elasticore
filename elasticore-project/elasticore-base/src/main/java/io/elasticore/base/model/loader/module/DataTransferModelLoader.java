@@ -6,11 +6,22 @@ import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.loader.ModelLoader;
+import io.elasticore.base.model.loader.ModelLoaderContext;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DataTransferModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<DataTransfer> {
+
+    public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
+        if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
+            Map entityMap = map.get(ConstanParam.KEYNAME_DTO);
+
+            loadModel(ctx.getDataTransferItems(), entityMap);
+            return true;
+        }
+        return false;
+    }
 
     public void loadModel(Items<DataTransfer> items, Map<String, LinkedHashMap> entityMap) {
         entityMap.forEach((entityNm, value) -> {

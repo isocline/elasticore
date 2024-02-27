@@ -4,7 +4,11 @@ public enum ComponentType {
 
     ENTITY("entity"),
     DTO("dto"),
+    REPOSITORY("repository"),
+
+
     FIELD("field"),
+    METHOD("method"),
 
     ENTITY_GROUP("entityGrp"),
     DTO_GROUP("dtoGrp"),
