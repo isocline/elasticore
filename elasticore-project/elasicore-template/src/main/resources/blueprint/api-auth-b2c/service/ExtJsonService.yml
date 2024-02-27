@@ -15,17 +15,36 @@ service:
           content-type: json
 
         input:
-          age: int
-          name: string
+          country2: string
+          country_iso_code2: string
+          region: string
         output:
-          output:
-            name: string
-            addr: string
+          cities:
+            city_id: string @label('도시아이디')
+            city_name: string @label('도시명')
+            country: string
 
         process:
           type: dbms
+          datasource: derbyPool
           sql:
-            - select * from test
+            -
+              id: sel1
+              query: SELECT country,country_iso_code ,region FROM countries WHERE country like '${country2}%'
+              mapping:
+                setProperty:
+                getProperty: country2,country_iso_code2 ,region
+            -
+              id: sel2
+              query: SELECT city_id,city_name,country,airport,language,country_iso_code FROM CITIES
+              mapping:
+                setProperty:
+                getProperty: city_id,city_name,country,airport,language,country_iso_code
+
+
+
+
+
 
 
 

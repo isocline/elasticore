@@ -7,16 +7,16 @@ import io.elasticore.schema.service.ServiceModel;
 
 public interface ECoreModel {
 
-    EntityModel getEntityModel(String domain, String name);
+    EntityModel getEntityModel(String name);
 
 
-    IoModel getIoModel(String domain, String name);
+    IoModel getIoModel(String name);
 
 
-    RepositoryModel getRepositoryModel(String domain, String name);
+    RepositoryModel getRepositoryModel( String name);
 
 
-    ServiceModel getServiceModel(String domain, String name);
+    ServiceModel getServiceModel( String name);
 
 
     EntityModel[] getAllEntityModel();

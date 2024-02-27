@@ -17,6 +17,20 @@ entity:
       phone: string @Column(nullable = false, length = 13)
       isEnabled: Boolean @notNull @label('승인여부')
 
+
+
+repository:
+  Member:
     methods:
-      findByUsername: Member
-      countByUsername: int
+      - id: findByUsername
+        query: select * from member where username=:username
+      - id: findAllByMemberGroupOrderByNameAsc
+        query: select * from member where MemberGroup =:memberGroup order by companyname asc
+      - id: findAllByMemberGroupOrderByCompanyNameAsc
+        query: select * from member where memberGroup =:memberGroup order by companyName asc
+      - id: findAllByMemberGroupAndCompanyNumber
+        query: select * from member where memberGroup = :memberGroup and companyNumber =companyNumber
+      - id: findAllByMemberGroupAndCompanyNameContainingOrderByCompanyNameAsc
+        native: true
+        query : select * from member where memberGroup = :memeberGroup and companyeName like '%:comanyName%' order by companyName asc
+

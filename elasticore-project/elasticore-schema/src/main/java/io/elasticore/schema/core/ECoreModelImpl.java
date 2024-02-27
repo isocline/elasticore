@@ -28,24 +28,24 @@ public final class ECoreModelImpl implements ECoreModel {
     }
 
 
-    public EntityModel getEntityModel(String domain, String name) {
-        ModelIndentity indentity = new ModelIndentityImpl(Replaceable.TYPE_ENTITY, domain, name);
+    public EntityModel getEntityModel(String name) {
+        ModelIndentity indentity = new ModelIndentityImpl(Replaceable.TYPE_ENTITY, name);
         return entityRepo.get(indentity).getObject();
     }
 
 
     @Override
-    public IoModel getIoModel(String domain, String name) {
+    public IoModel getIoModel( String name) {
         return null;
     }
 
     @Override
-    public RepositoryModel getRepositoryModel(String domain, String name) {
+    public RepositoryModel getRepositoryModel( String name) {
         return null;
     }
 
     @Override
-    public ServiceModel getServiceModel(String domain, String name) {
+    public ServiceModel getServiceModel( String name) {
         return null;
     }
 

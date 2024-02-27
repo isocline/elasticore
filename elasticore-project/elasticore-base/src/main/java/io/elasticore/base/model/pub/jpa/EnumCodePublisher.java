@@ -1,21 +1,24 @@
 package io.elasticore.base.model.pub.jpa;
 
+import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringList;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public class EnumCodePublisher {
+public class EnumCodePublisher extends CodePublisher{
 
     private final static CodeTemplate javaClassTmpl = CodeTemplate.newInstance()
             .line("package ${packageName};")
@@ -47,7 +50,22 @@ public class EnumCodePublisher {
             .line("}");
 
 
-    public void publish(EnumModel enumModel) {
+    private JPACodePublisher publisher;
+
+    private String fileBaseDir;
+
+    public EnumCodePublisher(JPACodePublisher publisher) {
+        this.publisher = publisher;
+
+        fileBaseDir= publisher.getDestBaseDirPath() + "/enum";
+        File f= new File(fileBaseDir);
+        if(!f.exists()) {
+            f.mkdirs();
+        }
+    }
+
+
+    public void publish(ModelDomain domain,EnumModel enumModel) {
         Items<EnumConstant> enumConstantItems = enumModel.getEnumConstantItems();
 
         StringList sbLine = StringList.create("\n    ,");
@@ -98,5 +116,8 @@ public class EnumCodePublisher {
 
         String code = javaClassTmpl.toString(p);
         System.err.println(code);
+
+        String filePaht = this.fileBaseDir +"/"+ enumModel.getIdentity().getName()+".java";
+        writeFile(filePaht, code);
     }
 }

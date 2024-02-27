@@ -9,8 +9,9 @@ public class ModelIndentityImpl implements ModelIndentity {
     private String id;
 
 
-    ModelIndentityImpl(String type, String domain, String name) {
-        this.id = type+"://"+domain+"."+name;
+    ModelIndentityImpl(String type, String name) {
+        //this.id = type+"://"+domain+"."+name;
+        this.id = name+"."+type;
     }
 
     ModelIndentityImpl(String id) {

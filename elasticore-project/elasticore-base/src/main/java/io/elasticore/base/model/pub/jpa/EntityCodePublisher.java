@@ -1,15 +1,19 @@
 package io.elasticore.base.model.pub.jpa;
 
+import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.entity.Annotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.util.CodeTemplate;
+import lombok.SneakyThrows;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityCodePublisher {
+public class EntityCodePublisher extends CodePublisher {
 
     private final static CodeTemplate javaClassTmpl = CodeTemplate.newInstance()
 
@@ -41,8 +45,22 @@ public class EntityCodePublisher {
             .line()
             .line("}");
 
+    private JPACodePublisher publisher;
 
-    public void publish(Entity entity) {
+    private String entityBaseDir;
+
+
+    public EntityCodePublisher(JPACodePublisher publisher) {
+        this.publisher = publisher;
+
+        entityBaseDir= publisher.getDestBaseDirPath() + "/entity";
+        File f= new File(entityBaseDir);
+        if(!f.exists()) {
+            f.mkdirs();
+        }
+    }
+
+    public void publish(ModelDomain domain, Entity entity) {
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
 
@@ -62,8 +80,16 @@ public class EntityCodePublisher {
 
         String code = javaClassTmpl.toString(p);
 
+
         System.err.println(code);
+
+        String filePaht = this.entityBaseDir +"/"+ entity.getIdentity().getName()+".java";
+        writeFile(filePaht, code);
+
+
+
     }
+
 
 
     private CodeTemplate.Value getFieldInfo(Entity entity) {
@@ -72,8 +98,8 @@ public class EntityCodePublisher {
         while (fields.hasNext()) {
             Field f = fields.next();
 
-            setFieldDesc(f,v);
-            setFieldPkInfo(f,v);
+            setFieldDesc(f, v);
+            setFieldPkInfo(f, v);
             setFieldColumnAnnotation(f, v);
 
             String code = String.format("%s %s %s;", "private", f.getType(), f.getName());
@@ -84,24 +110,24 @@ public class EntityCodePublisher {
     }
 
     private void setFieldDesc(Field field, CodeTemplate.Value value) {
-        if(field.getDescription()!=null) {
-            value.add("// "+field.getDescription());
+        if (field.getDescription() != null) {
+            value.add("// " + field.getDescription());
         }
 
     }
 
     private void setFieldPkInfo(Field field, CodeTemplate.Value value) {
 
-        if(field.getAnnotation("id")!=null) {
+        if (field.getAnnotation("id") != null) {
             value.add("@Id");
         }
 
-        if(field.isPrimaryKey()) {
+        if (field.isPrimaryKey()) {
             value.add("@Id");
         }
 
-        if(field.getGenerationType()!=null) {
-            value.add("@GeneratedValue(strategy = GenerationType."+field.getGenerationType());
+        if (field.getGenerationType() != null) {
+            value.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
         }
     }
 
@@ -109,25 +135,24 @@ public class EntityCodePublisher {
         List<String> list = new ArrayList<>();
 
 
-
         Annotation notnull = field.getAnnotation("notnull");
 
-        if (notnull !=null && !"false".equals(notnull.getValue())) {
+        if (notnull != null && !"false".equals(notnull.getValue())) {
             list.add("nullable = false");
         }
         Annotation length = field.getAnnotation("length");
 
 
-        if (length !=null && length.getValue() !=null) {
+        if (length != null && length.getValue() != null) {
             list.add("length = " + length.getValue());
         }
 
-        if(field.getColumnDefinition()!=null) {
-            list.add("columnDefinition=\""+field.getColumnDefinition()+"\"");
+        if (field.getColumnDefinition() != null) {
+            list.add("columnDefinition=\"" + field.getColumnDefinition() + "\"");
         }
 
         Annotation uniqAnnot = field.getAnnotation("unique");
-        if(uniqAnnot!=null && !"false".equals(uniqAnnot.getValue()))
+        if (uniqAnnot != null && !"false".equals(uniqAnnot.getValue()))
             list.add("unique = true");
 
         if (list.size() > 0) {

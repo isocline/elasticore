@@ -15,8 +15,19 @@ import io.elasticore.base.model.pub.jpa.EnumCodePublisher;
 
 public class JPACodePublisher implements CodePublisher {
 
+    private String destBaseDirPath;
+
     private JPACodePublisher() {
 
+    }
+
+
+    public void setDestBaseDirPath(String destBaseDirPath) {
+        this.destBaseDirPath = destBaseDirPath;
+    }
+
+    public String getDestBaseDirPath() {
+        return this.destBaseDirPath;
     }
 
     public static JPACodePublisher newInstance() {
@@ -46,23 +57,23 @@ public class JPACodePublisher implements CodePublisher {
 
         ModelComponentItems<Entity> items = entityModels.getItems();
 
-        EntityCodePublisher entityCodePublisher = new EntityCodePublisher();
+        EntityCodePublisher entityCodePublisher = new EntityCodePublisher(this);
         for(int i=0;i<items.size();i++) {
             Entity entity = items.get(i);
 
             String name = entity.getIdentity().getName();
 
-            entityCodePublisher.publish(entity);
+            entityCodePublisher.publish(domain ,entity);
         }
 
 
-        EnumCodePublisher enumCodePublisher = new EnumCodePublisher();
+        EnumCodePublisher enumCodePublisher = new EnumCodePublisher(this);
         EnumModels enumModels=model.getEnumModels();
 
         while(enumModels.getItems().hasNext()) {
             EnumModel enumModel = enumModels.getItems().next();
 
-            enumCodePublisher.publish(enumModel);
+            enumCodePublisher.publish(domain, enumModel);
         }
 
 

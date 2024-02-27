@@ -4,6 +4,7 @@ public interface ConstanParam {
 
     String KEYNAME_ENTITY = "entity";
 
+    String KEYNAME_DTO = "dto";
 
     String KEYNAME_ENUMERATION = "enumeration";
 

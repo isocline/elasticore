@@ -2,12 +2,16 @@ dto:
 
   MemberResponse:
     meta:
+      target:
+        entity: Member
+        execlude:
       relation:
         extends:
           - Member @rolldown
           -
         implements:
           - Member
+
 
 
 
