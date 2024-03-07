@@ -8,6 +8,8 @@ import java.util.*;
 public final class Items<T extends ModelComponent> {
     private Map<ComponentIdentity, T> itemMap = new LinkedHashMap<>();
 
+    private List<T> newList;
+
     private Items() {
     }
 
@@ -17,6 +19,7 @@ public final class Items<T extends ModelComponent> {
 
 
     public Items<T> addItem(T item) {
+        this.newList = null;
         itemMap.put(item.getIdentity(), item);
         return this;
     }
@@ -31,10 +34,13 @@ public final class Items<T extends ModelComponent> {
     }
 
     public List<T> getItemList() {
+        if(newList!=null)
+            return newList;
+
+        this.newList = new ArrayList<>();
+
         Object[] preItemArray = this.itemMap.values().toArray();
 
-
-        List<T> newList = new ArrayList<>();
         for (int i = 0; i < preItemArray.length; i++) {
             newList.add((T) preItemArray[i]);
         }

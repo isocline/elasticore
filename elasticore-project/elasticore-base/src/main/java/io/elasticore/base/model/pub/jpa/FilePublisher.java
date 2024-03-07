@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 
 import java.io.*;
 
-public class CodePublisher {
+public class FilePublisher {
 
 
 

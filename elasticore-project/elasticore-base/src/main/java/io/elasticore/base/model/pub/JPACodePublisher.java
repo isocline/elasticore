@@ -10,11 +10,15 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
-import io.elasticore.base.model.pub.jpa.EntityCodePublisher;
-import io.elasticore.base.model.pub.jpa.EnumCodePublisher;
+import io.elasticore.base.model.pub.jpa.EntityFilePublisher;
+import io.elasticore.base.model.pub.jpa.EnumFilePublisher;
+import io.elasticore.base.model.pub.jpa.RepositoryFilePublisher;
+import io.elasticore.base.model.repo.Repository;
+import io.elasticore.base.model.repo.RepositoryModels;
 
 public class JPACodePublisher implements CodePublisher {
 
+    private ECoreModelContext ctx;
     private String destBaseDirPath;
 
     private JPACodePublisher() {
@@ -36,7 +40,7 @@ public class JPACodePublisher implements CodePublisher {
 
     @Override
     public boolean publish(ECoreModelContext ctx) throws ProcessException {
-
+        this.ctx = ctx;
         String[] domainNames = ctx.getDomanNames();
 
         for(String domainName:domainNames) {
@@ -48,6 +52,10 @@ public class JPACodePublisher implements CodePublisher {
         return false;
     }
 
+    @Override
+    public ECoreModelContext getECoreModelContext() {
+        return this.ctx;
+    }
 
     private void publish(ModelDomain domain) {
 
@@ -57,7 +65,7 @@ public class JPACodePublisher implements CodePublisher {
 
         ModelComponentItems<Entity> items = entityModels.getItems();
 
-        EntityCodePublisher entityCodePublisher = new EntityCodePublisher(this);
+        EntityFilePublisher entityCodePublisher = new EntityFilePublisher(this);
         for(int i=0;i<items.size();i++) {
             Entity entity = items.get(i);
 
@@ -67,7 +75,7 @@ public class JPACodePublisher implements CodePublisher {
         }
 
 
-        EnumCodePublisher enumCodePublisher = new EnumCodePublisher(this);
+        EnumFilePublisher enumCodePublisher = new EnumFilePublisher(this);
         EnumModels enumModels=model.getEnumModels();
 
         while(enumModels.getItems().hasNext()) {
@@ -77,5 +85,14 @@ public class JPACodePublisher implements CodePublisher {
         }
 
 
+        // Repository
+        RepositoryFilePublisher repositoryCodePublisher = new RepositoryFilePublisher(this);
+        RepositoryModels repositoryModels=model.getRepositoryModels();
+
+        while(repositoryModels.getItems().hasNext()) {
+            Repository repoModel = repositoryModels.getItems().next();
+
+            repositoryCodePublisher.publish(domain, repoModel);
+        }
     }
 }

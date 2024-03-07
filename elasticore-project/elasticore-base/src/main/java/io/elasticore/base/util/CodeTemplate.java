@@ -66,8 +66,8 @@ public class CodeTemplate {
         return line(line, false);
     }
 
-    public static Value newValue() {
-        return new Value();
+    public static Paragraph newParagraph() {
+        return new Paragraph();
     }
 
     public static Parameters newParameters() {
@@ -125,9 +125,9 @@ public class CodeTemplate {
         private int getMaxCount(Parameters parameters) {
             int maxCount = 0;
             for (String keyNm : keyNameList) {
-                Value value = parameters.getParamMap().get(keyNm);
-                if(value==null) continue;
-                int valueCount = value.size();
+                Paragraph paragraph = parameters.getParamMap().get(keyNm);
+                if(paragraph ==null) continue;
+                int valueCount = paragraph.size();
                 if (valueCount > maxCount) {
                     maxCount = valueCount;
                 }
@@ -149,9 +149,9 @@ public class CodeTemplate {
             for (int i = 0; i < maxCount; i++) {
                 String regTmpTxt = replaceTxt;
                 for (String keyNm : keyNameList) {
-                    Value value = parameters.getParamMap().get(keyNm);
-                    if(value==null) continue;
-                    String valueTxt = value.toString(i);
+                    Paragraph paragraph = parameters.getParamMap().get(keyNm);
+                    if(paragraph ==null) continue;
+                    String valueTxt = paragraph.toString(i);
                     regTmpTxt = regTmpTxt.replace("${" + keyNm + "}", valueTxt);
                 }
                 lineList.add(regTmpTxt);
@@ -167,37 +167,37 @@ public class CodeTemplate {
 
     public static class Parameters {
 
-        private Map<String, Value> paramMap = new HashMap<>();
+        private Map<String, Paragraph> paramMap = new HashMap<>();
 
         private Parameters() {
         }
 
-        private Map<String, Value> getParamMap() {
+        private Map<String, Paragraph> getParamMap() {
             return this.paramMap;
         }
 
         public Parameters set(String keyName, String value) {
-            paramMap.put(keyName, new Value(value));
+            paramMap.put(keyName, new Paragraph(value));
             return this;
         }
 
-        public Parameters set(String keyName, Value value) {
-            paramMap.put(keyName, value);
+        public Parameters set(String keyName, Paragraph paragraph) {
+            paramMap.put(keyName, paragraph);
             return this;
         }
     }
 
-    public static class Value {
+    public static class Paragraph {
         private List<Object> valueList = new ArrayList<>();
 
-        private Value() {
+        private Paragraph() {
         }
 
-        private Value(Object val) {
+        private Paragraph(Object val) {
             valueList.add(val);
         }
 
-        public Value add(Object val) {
+        public Paragraph add(Object val) {
             valueList.add(val);
             return this;
         }

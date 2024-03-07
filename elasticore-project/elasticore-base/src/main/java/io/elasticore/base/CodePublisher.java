@@ -6,4 +6,6 @@ public interface CodePublisher {
 
 
     boolean publish(ECoreModelContext ctx) throws ProcessException;
+
+    ECoreModelContext getECoreModelContext();
 }

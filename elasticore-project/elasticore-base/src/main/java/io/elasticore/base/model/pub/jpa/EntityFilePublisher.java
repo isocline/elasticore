@@ -7,13 +7,12 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.util.CodeTemplate;
-import lombok.SneakyThrows;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityCodePublisher extends CodePublisher {
+public class EntityFilePublisher extends FilePublisher {
 
     private final static CodeTemplate javaClassTmpl = CodeTemplate.newInstance()
 
@@ -50,7 +49,7 @@ public class EntityCodePublisher extends CodePublisher {
     private String entityBaseDir;
 
 
-    public EntityCodePublisher(JPACodePublisher publisher) {
+    public EntityFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
 
         entityBaseDir= publisher.getDestBaseDirPath() + "/entity";
@@ -75,7 +74,7 @@ public class EntityCodePublisher extends CodePublisher {
                 .set("className", classNm);
 
 
-        CodeTemplate.Value v = getFieldInfo(entity);
+        CodeTemplate.Paragraph v = getFieldInfo(entity);
         p.set("fieldList", v);
 
         String code = javaClassTmpl.toString(p);
@@ -92,9 +91,9 @@ public class EntityCodePublisher extends CodePublisher {
 
 
 
-    private CodeTemplate.Value getFieldInfo(Entity entity) {
+    private CodeTemplate.Paragraph getFieldInfo(Entity entity) {
         ModelComponentItems<Field> fields = entity.getItems();
-        CodeTemplate.Value v = CodeTemplate.newValue();
+        CodeTemplate.Paragraph v = CodeTemplate.newParagraph();
         while (fields.hasNext()) {
             Field f = fields.next();
 
@@ -109,29 +108,29 @@ public class EntityCodePublisher extends CodePublisher {
         return v;
     }
 
-    private void setFieldDesc(Field field, CodeTemplate.Value value) {
+    private void setFieldDesc(Field field, CodeTemplate.Paragraph paragraph) {
         if (field.getDescription() != null) {
-            value.add("// " + field.getDescription());
+            paragraph.add("// " + field.getDescription());
         }
 
     }
 
-    private void setFieldPkInfo(Field field, CodeTemplate.Value value) {
+    private void setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
 
         if (field.getAnnotation("id") != null) {
-            value.add("@Id");
+            paragraph.add("@Id");
         }
 
         if (field.isPrimaryKey()) {
-            value.add("@Id");
+            paragraph.add("@Id");
         }
 
         if (field.getGenerationType() != null) {
-            value.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
+            paragraph.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
         }
     }
 
-    private void setFieldColumnAnnotation(Field field, CodeTemplate.Value value) {
+    private void setFieldColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
         List<String> list = new ArrayList<>();
 
 
@@ -157,7 +156,7 @@ public class EntityCodePublisher extends CodePublisher {
 
         if (list.size() > 0) {
             String txt = "@Column(" + String.join(", ", list) + ")";
-            value.add(txt);
+            paragraph.add(txt);
         }
     }
 }

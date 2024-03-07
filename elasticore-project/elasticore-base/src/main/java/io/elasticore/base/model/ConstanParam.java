@@ -21,6 +21,6 @@ public interface ConstanParam {
 
     String PROPERTY_ENUM = "enum";
 
-    String PROPERTY_METHOD = "method";
+    String PROPERTY_METHODS = "methods";
 
 }

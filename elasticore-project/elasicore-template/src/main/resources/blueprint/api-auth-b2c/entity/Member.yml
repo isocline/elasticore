@@ -23,14 +23,9 @@ repository:
   Member:
     methods:
       - id: findByUsername
-        query: select * from member where username=:username
-      - id: findAllByMemberGroupOrderByNameAsc
-        query: select * from member where MemberGroup =:memberGroup order by companyname asc
-      - id: findAllByMemberGroupOrderByCompanyNameAsc
-        query: select * from member where memberGroup =:memberGroup order by companyName asc
-      - id: findAllByMemberGroupAndCompanyNumber
-        query: select * from member where memberGroup = :memberGroup and companyNumber =companyNumber
-      - id: findAllByMemberGroupAndCompanyNameContainingOrderByCompanyNameAsc
-        native: true
-        query : select * from member where memberGroup = :memeberGroup and companyeName like '%:comanyName%' order by companyName asc
-
+        name: getMember
+        query: select * from member where username=:username and age=:age
+        params:
+          username: string
+          age: int
+        return: Member

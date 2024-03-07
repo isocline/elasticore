@@ -23,6 +23,10 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0'
 
 
+    implementation 'com.github.jsqlparser:jsqlparser:4.0'
+
+
+
     // Use JUnit Jupiter for testing.
     testImplementation libs.junit.jupiter
 

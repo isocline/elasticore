@@ -1,9 +1,7 @@
 package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Items;
-import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
@@ -12,13 +10,11 @@ import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  */
-public class EnumCodePublisher extends CodePublisher{
+public class EnumFilePublisher extends FilePublisher {
 
     private final static CodeTemplate javaClassTmpl = CodeTemplate.newInstance()
             .line("package ${packageName};")
@@ -54,7 +50,7 @@ public class EnumCodePublisher extends CodePublisher{
 
     private String fileBaseDir;
 
-    public EnumCodePublisher(JPACodePublisher publisher) {
+    public EnumFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
 
         fileBaseDir= publisher.getDestBaseDirPath() + "/enum";

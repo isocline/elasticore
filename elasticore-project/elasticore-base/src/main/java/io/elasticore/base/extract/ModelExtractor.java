@@ -29,9 +29,14 @@ public class ModelExtractor {
     }
 
     public static void main(String[] args) {
-        ModelExtractor extractor = new ModelExtractor();
-        extractor.extract();
-        ;
+
+        try {
+            ModelExtractor extractor = new ModelExtractor();
+            extractor.extract();
+        }catch (Throwable e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

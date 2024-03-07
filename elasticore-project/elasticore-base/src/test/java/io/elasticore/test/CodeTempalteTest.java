@@ -28,7 +28,7 @@ public class CodeTempalteTest {
         System.err.println(result);
 
 
-        CodeTemplate.Value v = CodeTemplate.newValue();
+        CodeTemplate.Paragraph v = CodeTemplate.newParagraph();
         v.add("pgk1").add("pkg2");
 
         p = CodeTemplate.newParameters()

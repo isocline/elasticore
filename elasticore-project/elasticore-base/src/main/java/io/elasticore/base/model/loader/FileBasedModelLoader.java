@@ -20,6 +20,7 @@ import io.elasticore.base.model.loader.module.EntityModelLoader;
 import io.elasticore.base.model.loader.module.EnumerationModelLoader;
 import io.elasticore.base.model.loader.module.RepositoryModelLoader;
 import io.elasticore.base.model.repo.Repository;
+import io.elasticore.base.model.repo.RepositoryModels;
 
 
 import java.io.File;
@@ -145,6 +146,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
 
         EntityModels entityModels = EntityModels.create("entityGrp", null, context.getEntityItems());
         EnumModels enumModels = EnumModels.create("enumGroup", null, context.getEnumModelItems());
+        RepositoryModels repositoryModels = RepositoryModels.create("repoGroup", null, context.getRepositoryItems());
 
         //EnumModels enumModels = getEnumModels();
         //EntityModels entityModels = getEntityModels();
@@ -152,6 +154,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         return ECoreModel.builder()
                 .entityModels(entityModels)
                 .enumModels(enumModels)
+                .repositoryModels(repositoryModels)
                 .build();
     }
 

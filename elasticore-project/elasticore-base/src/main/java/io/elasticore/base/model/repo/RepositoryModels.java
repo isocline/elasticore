@@ -16,7 +16,7 @@ public class RepositoryModels {
 
     private final ComponentIdentity identity;
     private final MetaInfo meta;
-    private final ModelComponentItems<Entity> items;
+    private final ModelComponentItems<Repository> items;
 
     private RepositoryModels(ComponentIdentity identity, MetaInfo meta, Items<Repository> items) {
         this.identity = identity;
