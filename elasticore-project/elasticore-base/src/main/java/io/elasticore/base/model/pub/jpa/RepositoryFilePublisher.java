@@ -1,8 +1,11 @@
 package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.ModelDomain;
+import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.model.repo.Method;
@@ -17,7 +20,10 @@ public class RepositoryFilePublisher extends FilePublisher {
             .line("package ${packageName};")
             .line()
             .line("import org.springframework.data.jpa.repository.JpaRepository;")
+            .line("import org.springframework.data.jpa.repository.Query;")
+
             .line("import java.util.*;")
+            .line("import ${entityPackageName}.*;")
 
 
             .line("import ${import};", true)
@@ -39,12 +45,18 @@ public class RepositoryFilePublisher extends FilePublisher {
     private JPACodePublisher publisher;
 
     private String entityBaseDir;
+    private String packageName;
+    private String entityPackageName;
 
 
     public RepositoryFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
 
-        entityBaseDir = publisher.getDestBaseDirPath() + "/repo";
+        ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
+        this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
+        this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+
+        entityBaseDir = publisher.getDestBaseDirPath() + "/"+getPath(this.packageName);
         File f = new File(entityBaseDir);
         if (!f.exists()) {
             f.mkdirs();
@@ -56,17 +68,28 @@ public class RepositoryFilePublisher extends FilePublisher {
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
 
-        String classNm = repo.getIdentity().getName()+"Repository";
+        String targetModelName=repo.getIdentity().getName();
+
+        String classNm = targetModelName+"Repository";
 
         params
+                .set("packageName", packageName)
+                .set("entityPackageName", entityPackageName)
+
                 .set("className", classNm)
-                .set("targetModel", repo.getIdentity().getName())
+                .set("targetModel", targetModelName)
                 .set("identity", "Long")
-                .set("packageName", "com.elasticore.sample.repo")
 
                 .set("extendInfo", "")
                 .set("implementInfo", "implements Serializable");
 
+        Entity entity = domain.getModel().getEntityModels().findByNamne(targetModelName);
+
+        if(entity!=null) {
+
+            params.set("identity",entity.getPkField().getType());
+
+        }
 
 
 

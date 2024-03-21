@@ -11,6 +11,7 @@ public class FilePublisher {
     @SneakyThrows
     protected void writeFile(String filePath, String content) {
 
+        System.err.println("write file: "+filePath);
 
         try (InputStream inputStream = new ByteArrayInputStream(content.getBytes("utf-8"));
              OutputStream outputStream = new FileOutputStream(filePath)) {
@@ -23,4 +24,10 @@ public class FilePublisher {
             e.printStackTrace();
         }
     }
+
+
+    protected String getPath(String packageName) {
+        return packageName.replace('.', '/');
+    }
+
 }

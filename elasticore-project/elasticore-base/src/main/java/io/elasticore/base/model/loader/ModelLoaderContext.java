@@ -5,8 +5,12 @@ import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.repo.Repository;
+import java.util.Map;
 
 public class ModelLoaderContext {
+
+    private Map<String, String> configMap;
+    private Map<String, String> nsMap;
 
     private Items<Entity> entityItems = Items.create(Entity.class);
 
@@ -17,7 +21,20 @@ public class ModelLoaderContext {
     private Items<Repository> repositoryItems = Items.create(Repository.class);
 
 
-    ModelLoaderContext() {
+    ModelLoaderContext(Map<String, String> configMap, Map<String, String> nsMap) {
+        this.configMap = configMap;
+        this.nsMap = nsMap;
+    }
+
+    public String getConfig(String key) {
+        if(configMap==null) return null;
+
+        return configMap.get(key);
+    }
+
+    public String getNamespace(String key) {
+        if(nsMap==null) return null;
+        return nsMap.get(key);
     }
 
 

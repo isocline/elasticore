@@ -67,7 +67,7 @@ public class CodeTemplate {
     }
 
     public static Paragraph newParagraph() {
-        return new Paragraph();
+        return new Paragraph(true);
     }
 
     public static Parameters newParameters() {
@@ -177,7 +177,7 @@ public class CodeTemplate {
         }
 
         public Parameters set(String keyName, String value) {
-            paramMap.put(keyName, new Paragraph(value));
+            paramMap.put(keyName, new Paragraph(true,value));
             return this;
         }
 
@@ -188,16 +188,28 @@ public class CodeTemplate {
     }
 
     public static class Paragraph {
+
         private List<Object> valueList = new ArrayList<>();
 
-        private Paragraph() {
+        private Map<Object,Object> checkMap;
+
+        private Paragraph(boolean isUnique) {
+            if(isUnique)
+                checkMap = new HashMap<>();
         }
 
-        private Paragraph(Object val) {
+        private Paragraph(boolean isUnique, Object val) {
+            this(isUnique);
             valueList.add(val);
         }
 
         public Paragraph add(Object val) {
+            if(checkMap!=null) {
+                if(checkMap.containsKey(val))
+                    return this;
+
+                checkMap.put(val, val);
+            }
             valueList.add(val);
             return this;
         }

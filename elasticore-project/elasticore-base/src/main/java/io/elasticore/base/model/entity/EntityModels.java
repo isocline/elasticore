@@ -32,4 +32,9 @@ public class EntityModels {
     }
 
 
+    public Entity findByNamne(String name) {
+        return this.items.find(BaseComponentIdentity.create(ComponentType.ENTITY, name));
+    }
+
+
 }

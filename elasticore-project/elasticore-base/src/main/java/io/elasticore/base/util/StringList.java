@@ -14,20 +14,25 @@ public class StringList {
 
     private String delimeter = ",";
 
+    private String postfix;
+
     private boolean isStart= false;
 
-    private StringList(String delimeter) {
+    private StringList(String delimeter, String postfix) {
         this.stringBuilder = new StringBuilder();
-
         this.delimeter = delimeter;
+        this.postfix = postfix;
     }
 
     public static StringList create() {
-        return new StringList(",");
+        return new StringList(",",null);
     }
 
     public static StringList create(String delimeter) {
-        return new StringList(delimeter);
+        return new StringList(delimeter, null);
+    }
+    public static StringList create(String delimeter, String postfix) {
+        return new StringList(delimeter, postfix);
     }
 
     public StringList append(String prefix) {
@@ -50,6 +55,9 @@ public class StringList {
 
     @Override
     public String toString() {
-        return this.stringBuilder.toString();
+        if(this.postfix == null)
+            return this.stringBuilder.toString();
+        else
+            return this.stringBuilder.toString()+postfix;
     }
 }

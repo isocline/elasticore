@@ -4,6 +4,8 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="true" />
+        <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
@@ -11,12 +13,13 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/elasticore-project" />
             <option value="$PROJECT_DIR$/elasticore-project/elasticore-base" />
-            <option value="$PROJECT_DIR$/elasticore-project/elasticore-jpa" />
-            <option value="$PROJECT_DIR$/elasticore-project/elasticore-schema" />
+            <option value="$PROJECT_DIR$/elasticore-project/elasticore-template" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="true" />
+        <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/gatehub" />
         <option name="modules">
@@ -28,6 +31,24 @@
             <option value="$PROJECT_DIR$/../../xsko/gatehub/model" />
             <option value="$PROJECT_DIR$/../../xsko/gatehub/rad-adapter" />
             <option value="$PROJECT_DIR$/../../xsko/gatehub/webtool" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/pfg_sft_bnd" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/../../xsko/pfg_sft_bnd" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/pfg_sft_frt" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/../../xsko/pfg_sft_frt" />
           </set>
         </option>
       </GradleProjectSettings>

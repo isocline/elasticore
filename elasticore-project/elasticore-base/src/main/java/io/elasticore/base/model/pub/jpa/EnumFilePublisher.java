@@ -1,6 +1,8 @@
 package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.ModelDomain;
+import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
@@ -20,7 +22,7 @@ public class EnumFilePublisher extends FilePublisher {
             .line("package ${packageName};")
             .line()
             .line("import lombok.Getter;")
-            .line("import lombok.AllArgsConstructor;")
+
             .line("import javax.persistence.*;")
             .line("import ${import};", true)
 
@@ -32,7 +34,7 @@ public class EnumFilePublisher extends FilePublisher {
 
             .line("${classAnotations}", true)
             .line("@Getter")
-            .line("@AllArgsConstructor")
+
 
             .line("public enum ${className} {")
             .line()
@@ -41,7 +43,7 @@ public class EnumFilePublisher extends FilePublisher {
             .line("    ${fieldLine}")
             .line()
             .line("    ${className}(${argLine}) {")
-            .line(" ${paramLine}")
+            .line("        ${paramLine}")
             .line(" }")
             .line("}");
 
@@ -49,11 +51,15 @@ public class EnumFilePublisher extends FilePublisher {
     private JPACodePublisher publisher;
 
     private String fileBaseDir;
+    private String packageName;
 
     public EnumFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
 
-        fileBaseDir= publisher.getDestBaseDirPath() + "/enum";
+        ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
+        this.packageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+
+        fileBaseDir= publisher.getDestBaseDirPath() + "/"+getPath(this.packageName);
         File f= new File(fileBaseDir);
         if(!f.exists()) {
             f.mkdirs();
@@ -61,8 +67,22 @@ public class EnumFilePublisher extends FilePublisher {
     }
 
 
+    private String getValue(EnumConstant.ConstructParam param, Field f) {
+        String baseVal = param.toString();
+        if(f.getType().equalsIgnoreCase("string")) {
+            if(baseVal.indexOf("\"")==0) {
+                return baseVal;
+            }
+            return "\""+baseVal+"\"";
+        }
+        return baseVal;
+
+    }
+
+
     public void publish(ModelDomain domain,EnumModel enumModel) {
         Items<EnumConstant> enumConstantItems = enumModel.getEnumConstantItems();
+        Items<Field> fieldItem = enumModel.getFieldItems();
 
         StringList sbLine = StringList.create("\n    ,");
         for (EnumConstant enumConstant : enumConstantItems.getItemList()) {
@@ -72,8 +92,13 @@ public class EnumFilePublisher extends FilePublisher {
 
             sb.append(name).append("(");
 
+            int seq=0;
             for (EnumConstant.ConstructParam param : enumConstant.getConstructParamList()) {
-                sb.add(param);
+                String val = getValue(param, fieldItem.getItemList().get(seq));
+
+
+                sb.add(val);
+                seq++;
             }
 
             sb.append(")");
@@ -81,12 +106,12 @@ public class EnumFilePublisher extends FilePublisher {
         }
         sbLine.append(";");
 
-        StringList fieldLine = StringList.create(";\n    ");
+        StringList fieldLine = StringList.create(";\n    ",";");
 
         StringList argLine = StringList.create(",");
-        StringList paramLine = StringList.create(";\n    ");
+        StringList paramLine = StringList.create(";\n    ",";");
 
-        Items<Field> fieldItem = enumModel.getFieldItems();
+
         for(Field f: fieldItem.getItemList() ) {
             fieldLine.add("private final "+f.getType() +" "+ f.getName());
 
@@ -100,7 +125,7 @@ public class EnumFilePublisher extends FilePublisher {
         String classNm = enumModel.getIdentity().getName();
 
         p
-                .set("packageName", "com.elasticore.sample.enum")
+                .set("packageName", packageName)
                 .set("className", classNm)
                 .set("enumConstant", sbLine.toString())
                 .set("fieldLine", fieldLine.toString())

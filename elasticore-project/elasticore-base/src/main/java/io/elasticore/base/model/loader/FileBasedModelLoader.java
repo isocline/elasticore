@@ -54,20 +54,6 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 
-    public void test() {
-
-        try {
-            String path = "C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\resources\\blueprint\\api-auth-b2c\\entity\\AppToken.yml";
-
-
-            Map member = mapper.readValue(new File(path), LinkedHashMap.class);
-
-            System.err.println(member);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private FileSource getLoadData(File f) {
@@ -111,14 +97,29 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
     public ECoreModel load(String domainName) {
 
 
-        test();
+        //test();
 
         List<FileSource> fileSources = new ArrayList<>();
 
-        //File f = new File("C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\resources\\blueprint\\api-auth-b2c");
 
-        if (templateFileDirPath == null)
-            templateFileDirPath = "C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\resources\\blueprint\\api-auth-b2c";
+
+        if (templateFileDirPath == null) {
+            throw new IllegalArgumentException("templateFileDirPath is empty");
+        }
+
+        File envFile = new File(templateFileDirPath+"/env.yml");
+        if(!envFile.exists())
+            throw new IllegalArgumentException("env.yaml does not exist.");
+
+        FileSource envFs = getLoadData(envFile);
+        Map envMap = (Map) envFs.getInfoMap().get("env");
+
+        Map<String,String> configMap = (Map) envMap.get("config");
+        Map<String,String> nsMap = (Map) envMap.get("namespace");
+
+
+        ModelLoaderContext context = new ModelLoaderContext(configMap, nsMap);
+
         File f = new File(templateFileDirPath);
         loadData(f, fileSources);
 
@@ -127,7 +128,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new DataTransferModelLoader();
         io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
 
-        ModelLoaderContext context = new ModelLoaderContext();
+
 
         for (FileSource fileSource : fileSources) {
 
@@ -155,6 +156,8 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
                 .entityModels(entityModels)
                 .enumModels(enumModels)
                 .repositoryModels(repositoryModels)
+                .configMap(configMap)
+                .namespaceMap(nsMap)
                 .build();
     }
 

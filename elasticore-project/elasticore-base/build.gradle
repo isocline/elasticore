@@ -50,8 +50,3 @@ java {
         languageVersion = JavaLanguageVersion.of(8)
     }
 }
-
-tasks.named('test') {
-    // Use JUnit Platform for unit tests.
-    useJUnitPlatform()
-}

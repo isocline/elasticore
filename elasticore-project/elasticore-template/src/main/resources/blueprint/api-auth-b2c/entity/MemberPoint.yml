@@ -1,0 +1,27 @@
+entity:
+
+
+  MemberPoint:
+    info:
+      name: Member point
+      author: Richard
+
+
+    meta:
+      dbName: Member point
+
+    fields:
+      id: Long @id @generatedValue(GenerationType.IDENTITY)
+      member: Member @ManyToOne(FetchType.LAZY) @JoinColumn("memberId")
+      currentPoint: Integer @notNull
+
+    methods:
+      countByMember:
+        return: int
+        param:
+          member: Member
+
+      findByMember: MemberPoint
+
+
+

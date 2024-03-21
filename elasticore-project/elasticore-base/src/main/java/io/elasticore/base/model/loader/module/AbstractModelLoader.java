@@ -59,7 +59,8 @@ public class AbstractModelLoader implements ConstanParam {
         String type = parts[0];
         fieldLine = parts.length > 1 ? parts[1] : "";
 
-        System.out.println("Type: " + type);
+        boolean isPrimaryKey = false;
+
 
         Pattern pattern = Pattern.compile("@(\\w+)(?:\\((.*?)\\))?");
         Matcher matcher = pattern.matcher(fieldLine);
@@ -68,6 +69,10 @@ public class AbstractModelLoader implements ConstanParam {
         while (matcher.find()) {
             String annotationName = matcher.group(1);
             String attributeParameters = matcher.group(2);
+
+            if("id".equals(annotationName)){
+                isPrimaryKey = true;
+            }
 
             System.out.println("Attribute Name: " + annotationName);
 
@@ -81,7 +86,10 @@ public class AbstractModelLoader implements ConstanParam {
             annotationMap.put(annotation.getName(), annotation);
         }
 
-        return Field.builder().name(fieldNm).type(type).annotationMap(annotationMap).build();
+        return Field.builder().name(fieldNm)
+                .type(type)
+                .isPrimaryKey(isPrimaryKey)
+                .annotationMap(annotationMap).build();
 
     }
 }

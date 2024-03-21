@@ -16,12 +16,22 @@ public class Entity extends AbstractReplaceableModel {
 
     private final MetaInfo metaInfo;
     private final ModelComponentItems<Field> items;
+    private final PkField pkField;
 
     private Entity(ComponentIdentity id, Items<Field> items, MetaInfo metaInfo) {
         super(id);
 
         this.items = new BaseModelComponentItem(items);
         this.metaInfo = metaInfo;
+
+        Items<Field> pkFields = Items.create(Field.class);
+        for(Field f:items.getItemList()) {
+            if(f.isPrimaryKey())
+                pkFields.addItem(f);
+        }
+
+        this.pkField = PkField.create(pkFields, null , this);
+
     }
 
     public static Entity create(String name, Items<Field> items, MetaInfo metaInfo) {
@@ -33,7 +43,6 @@ public class Entity extends AbstractReplaceableModel {
     public ModelComponentItems<Field> getItems() {
         return this.items;
     }
-
 
     public MetaInfo getMeta() {
         return metaInfo;

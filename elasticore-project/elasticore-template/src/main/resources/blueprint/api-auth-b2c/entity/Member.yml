@@ -1,0 +1,38 @@
+entity:
+
+  Member:
+    info:
+      name: Member
+      desc: Member information
+      author: Richard
+
+    fields:
+      id: Long @id @generatedValue(inherit)
+      id2: Long @id @generatedValue(inherit)
+      memberGroup: MemberGroup @length(20) @notNull @Enumerated(EnumType.STRING) @label('제공자')
+      memberProvider: MemberProvider @length(20) @notNull @Enumerated(EnumType.STRING)
+      dateCreate: datetime @notNull
+      username: string @notNull @unique @langth(80) @label('이름')
+      password: string @nulNull
+      name: string @Column(nullable = false, length = 13)
+      phone: string @Column(nullable = false, length = 13)
+      isEnabled: Boolean @notNull @label('승인여부')
+
+
+
+repository:
+  Member:
+    methods:
+      - id: findByUsername
+        name: getMember
+        query: select * from member where username=:username and age=:age
+        params:
+          username: String
+          age: int
+        return: Member
+
+
+
+
+
+

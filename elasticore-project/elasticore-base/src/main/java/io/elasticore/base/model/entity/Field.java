@@ -15,6 +15,7 @@ import java.util.Map;
 @Getter
 public class Field implements ModelComponent {
 
+
     private ComponentIdentity identity;
 
     private String name;

@@ -9,33 +9,90 @@ import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
 import io.elasticore.base.model.pub.JPACodePublisher;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ModelExtractor {
 
-    public void extract() {
-        FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
-        loader.setTemplateFileDirPath("C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\resources\\blueprint\\api-auth-b2c");
+    private final static String SRC_PATH = "src/main/java";
+
+    private final static String RESOURCE_PATH = "src/main/resources/blueprint";
+
+    private static void log(String msg) {
+        System.err.println(msg);
+    }
 
 
-        ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
-        ModelDomain defaultDomain = ctx.getDomain();
+    private List<String> findTemplateFilePath(String rootDir) throws FileNotFoundException {
 
-        ECoreModel model = defaultDomain.getModel();
+        String checkDir = rootDir +"/"+RESOURCE_PATH;
+
+        log("CHECK PATH:"+checkDir);
+
+        File f = new File(checkDir);
+
+        if(!f.exists()) {
+            throw new FileNotFoundException("Template directory not found:"+checkDir);
+        }
+
+        List<String> dirList = new ArrayList<>();
+
+        for(File chiild:f.listFiles()) {
+            if(chiild.isDirectory()) {
+                String envFilePath = chiild.getAbsolutePath()+"/env.yml";
+                log("check >>> "+envFilePath);
+                File envFile = new File(envFilePath);
+                if(envFile.exists()) {
+                    dirList.add(chiild.getAbsolutePath());
+                }
+
+            }
+        }
+        return dirList;
+    }
+
+    public void extract() throws FileNotFoundException{
+
+        String rootDir = System.getProperty("user.dir");
+
+        List<String> dirList = findTemplateFilePath(rootDir);
+
+        for(String path: dirList) {
+            FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
+            loader.setTemplateFileDirPath(path);
 
 
-        JPACodePublisher publisher = JPACodePublisher.newInstance();
-        publisher.setDestBaseDirPath("C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasicore-template\\src\\main\\java");
+            ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
+            ModelDomain defaultDomain = ctx.getDomain();
 
-        ctx.publish(publisher);
+            ECoreModel model = defaultDomain.getModel();
+
+
+            JPACodePublisher publisher = JPACodePublisher.newInstance();
+            publisher.setDestBaseDirPath(rootDir+"/"+SRC_PATH);
+
+            ctx.publish(publisher);
+        }
+
+
     }
 
     public static void main(String[] args) {
 
+        log("ModelExtractor start");
+
+
         try {
             ModelExtractor extractor = new ModelExtractor();
             extractor.extract();
+            log("ModelExtractor extract");
         }catch (Throwable e) {
             e.printStackTrace();
         }
+
+
 
     }
 
