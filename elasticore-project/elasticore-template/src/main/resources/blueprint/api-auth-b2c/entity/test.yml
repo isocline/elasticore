@@ -1,0 +1,32 @@
+entity:
+
+  User:
+    fields:
+      id: long @id @seqeunce
+      email: string @notnull @length(50)
+      name: string @notnull
+      grpCd: int
+      desc: string @text
+      posts: List<Post>
+
+
+  Post:
+    fields:
+      id: long @id
+      title: string
+      content: string
+      published: boolean @default(false)
+      author: User
+
+repository:
+  Post:
+    methods:
+      - id: findByUsername
+        name: findByTitle @auto
+        query: select * from post where title =:title
+      - id: test
+        query: |
+          select * from post
+          where 1=1
+            and content like '%content%' --@if
+            and title like '%title%' --@if

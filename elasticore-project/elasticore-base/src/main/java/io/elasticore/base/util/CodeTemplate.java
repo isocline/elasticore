@@ -56,7 +56,12 @@ public class CodeTemplate {
      * @return
      */
     public CodeTemplate line(String line, boolean isMultiLine) {
-        LineInfo lineInfo = new RegxLineInfo(line, isMultiLine);
+        return line(line, isMultiLine, null);
+    }
+
+
+    public CodeTemplate line(String line, boolean isMultiLine, String lineSuffix) {
+        LineInfo lineInfo = new RegxLineInfo(line, isMultiLine, lineSuffix);
         this.lineInfos.add(lineInfo);
 
         return this;
@@ -67,7 +72,7 @@ public class CodeTemplate {
     }
 
     public static Paragraph newParagraph() {
-        return new Paragraph(true);
+        return new Paragraph(false);
     }
 
     public static Parameters newParameters() {
@@ -103,15 +108,17 @@ public class CodeTemplate {
         private Matcher matcher;
 
         private String lineText;
+        private String lineSuffix;
 
         private String[] keyNames;
         private boolean isMultiLine = false;
 
         private List<String> keyNameList = new ArrayList<>();
 
-        RegxLineInfo(String lineText, boolean isMultiLine) {
+        RegxLineInfo(String lineText, boolean isMultiLine, String lineSuffix) {
             this.lineText = lineText;
             this.isMultiLine = isMultiLine;
+            this.lineSuffix = lineSuffix;
 
             this.pattern = Pattern.compile(regex);
             this.matcher = pattern.matcher(lineText);
@@ -160,6 +167,8 @@ public class CodeTemplate {
             StringBuilder sb = new StringBuilder();
             for (String line : lineList) {
                 sb.append(line).append("\n");
+                if(lineSuffix!=null)
+                    sb.append(lineSuffix);
             }
             return sb.toString();
         }

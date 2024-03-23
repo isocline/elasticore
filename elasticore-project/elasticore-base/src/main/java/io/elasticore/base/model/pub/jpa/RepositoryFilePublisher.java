@@ -134,7 +134,7 @@ public class RepositoryFilePublisher extends FilePublisher {
         for (Field f : params.getItemList()) {
             if (sb.length() > 0)
                 sb.append(" ,");
-            sb.append(f.getType()).append(" ").append(f.getName());
+            sb.append(f.getTypeInfo().getDefaultTypeName()).append(" ").append(f.getName());
         }
         return sb.toString();
     }

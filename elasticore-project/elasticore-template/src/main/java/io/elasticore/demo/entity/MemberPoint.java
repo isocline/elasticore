@@ -27,9 +27,16 @@ public class MemberPoint  implements java.io.Serializable  {
     @Id
     private Long id;
     
+
+    @ManyToOne
+    @JoinColumn(columnDefinition = "member_id")
     private Member member;
+    
+
     @Column(nullable = false)
     private Integer currentPoint;
+    
+
 
 
 }

@@ -27,13 +27,25 @@ public class PhoneCertification  implements java.io.Serializable  {
     @Id
     private Long id;
     
+
     @Column(nullable = false, length = 13)
     private String phone;
+    
+
     @Column(nullable = false, length = 6)
     private String certificationNumber;
+    
+
     @Column(nullable = false)
     private long sendTime;
+    
+
+    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(columnDefinition = "dateLastEnd_id")
     private Date dateLastEnd;
+    
+
 
 
 }

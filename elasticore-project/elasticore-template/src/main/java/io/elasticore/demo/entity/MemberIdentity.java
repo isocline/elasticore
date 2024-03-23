@@ -26,6 +26,7 @@ public class MemberIdentity  implements java.io.Serializable  {
     private Long id;
     
     private Long id2;
+    
 
 
 }

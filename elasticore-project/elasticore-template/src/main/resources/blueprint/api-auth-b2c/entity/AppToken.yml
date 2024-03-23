@@ -10,13 +10,26 @@ entity:
       dbName: AppToken
 
     fields:
-      id: Long @id
+      id: Long @id @sequence
       member: Member @ManyToOne(FetchType.LAZY) @JoinColumn("memberId")
-      appToken: String @notNull
+      appToken: string @notNull
       dateCreate: String @notNull
 
     methods:
       countByMember: long @param(Member member)
       findByMember: Optional<AppToken>
 
+
+      query:
+        select:
+          from: TB_SFT_PCTST_PLAN
+          cols:
+            - PCTST_PLAN_ID
+            - PROD_CD
+          where:
+            - 1=1
+            - PROD_CD != 'API'
+            - SUBSTR( PROD_CD,1,6) IN ( ${product}->${items} ) @if
+            - PROD_NM LIKE '%${item}%' @loop(productList)
+            - FST_REG_DDTM >= TO_TIMESTAMP( ${startDate} , 'yyyy-MM-dd') @if
 

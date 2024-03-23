@@ -7,6 +7,7 @@ import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.entity.Annotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.entity.TypeInfo;
 import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.util.CodeTemplate;
 
@@ -144,7 +145,7 @@ public class EntityFilePublisher extends FilePublisher {
             //setFieldPkInfo(f, p);
             setFieldColumnAnnotation(f, p);
 
-            String code = String.format("%s %s %s;", "private", f.getType(), f.getName());
+            String code = String.format("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
             p.add(code);
             p.add("");
         }
@@ -174,11 +175,28 @@ public class EntityFilePublisher extends FilePublisher {
             setFieldPkInfo(f, p);
             setFieldColumnAnnotation(f, p);
 
-            String code = String.format("%s %s %s;", "private", f.getType(), f.getName());
+            setRelationInfo(f,p);
+            setJoinColumnAnnotation(f, p);
+
+            String defaultValDefined = getDefaultValueSetup(f);
+
+
+            String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(),defaultValDefined);
             p.add(code);
-            p.add("");
+            p.add("\n");
+
         }
         return p;
+    }
+
+    private String getDefaultValueSetup(Field f) {
+        if(!f.hasAnnotation("default")) return "";
+        String val = f.getAnnotation("default").getValue();
+        if(f.getTypeInfo().isStringType()) {
+            return " = \""+val+"\"";
+        }else {
+            return " = "+val;
+        }
     }
 
     private void setFieldDesc(Field field, CodeTemplate.Paragraph paragraph) {
@@ -190,34 +208,70 @@ public class EntityFilePublisher extends FilePublisher {
 
     private void setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
 
-        if (field.getAnnotation("id") != null) {
+        if (field.hasAnnotation("id") || field.hasAnnotation("pk") || field.isPrimaryKey()) {
             paragraph.add("@Id");
+
+            if(field.hasAnnotation("sequence")) {
+                paragraph.add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+            }
         }
 
-        if (field.isPrimaryKey()) {
-            paragraph.add("@Id");
-        }
 
         if (field.getGenerationType() != null) {
             paragraph.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
         }
     }
 
+    /**
+     * Sets annotation information for configuring relational information in JPA.
+     *
+     * @param field Field
+     * @param paragraph paragraph
+     */
+    private void setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
+        TypeInfo typeInfo = field.getTypeInfo();
+        if(typeInfo.isList()) {
+            paragraph.add(("@OneToMany"));
+        }
+        else if(!typeInfo.isBaseType()) {
+            paragraph.add(("@ManyToOne"));
+
+            String joinFieldName = field.getName()+"_id";
+            if(!field.hasAnnotation("join")) {
+                paragraph.add(("@JoinColumn(columnDefinition = \""+joinFieldName+"\")"));
+            }
+
+            String targetEntityName = typeInfo.getDefaultTypeName();
+            Entity entity = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels()
+                    .findByNamne(targetEntityName);
+
+        }
+    }
+
+    /**
+     * Sets JPA annotation information according to the configuration information of each field.
+     *
+     * @param field
+     * @param paragraph
+     */
     private void setFieldColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
         List<String> list = new ArrayList<>();
 
 
-        Annotation notnull = field.getAnnotation("notnull");
+        if(field.hasAnnotation("text")) {
+            list.add("columnDefinition = \"TEXT\"");
+        }
 
-        if (notnull != null && !"false".equals(notnull.getValue())) {
+        if (field.hasAnnotation("notnull")) {
             list.add("nullable = false");
         }
         Annotation length = field.getAnnotation("length");
 
-
         if (length != null && length.getValue() != null) {
             list.add("length = " + length.getValue());
         }
+
+
 
         if (field.getColumnDefinition() != null) {
             list.add("columnDefinition=\"" + field.getColumnDefinition() + "\"");
@@ -229,6 +283,22 @@ public class EntityFilePublisher extends FilePublisher {
 
         if (list.size() > 0) {
             String txt = "@Column(" + String.join(", ", list) + ")";
+            paragraph.add(txt);
+        }
+    }
+
+
+
+    private void setJoinColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
+        List<String> list = new ArrayList<>();
+
+        if(field.hasAnnotation("join")) {
+            String fieldNm = field.getAnnotation("join").getValue();
+            list.add("columnDefinition=\""+fieldNm+"\"");
+        }
+
+        if (list.size() > 0) {
+            String txt = "@JoinColumn(" + String.join(", ", list) + ")";
             paragraph.add(txt);
         }
     }

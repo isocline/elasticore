@@ -25,7 +25,11 @@ public class PkField {
 
             this.type = parentEntity.getIdentity().getName() + "Identity";
         } else {
-            this.type = this.items.get(0).getType();
+            try {
+                this.type = this.items.get(0).getTypeInfo().getDefaultTypeName();
+            }catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
         }
     }
 

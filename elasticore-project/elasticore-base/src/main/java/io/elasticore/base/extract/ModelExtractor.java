@@ -53,9 +53,17 @@ public class ModelExtractor {
         return dirList;
     }
 
+    private String getRootDir() {
+        String basePath = System.getProperty("elasticore.base.path");
+        if(basePath ==null ) {
+            basePath = System.getProperty("user.dir");
+        }
+        return basePath;
+    }
+
     public void extract() throws FileNotFoundException{
 
-        String rootDir = System.getProperty("user.dir");
+        String rootDir = getRootDir();
 
         List<String> dirList = findTemplateFilePath(rootDir);
 

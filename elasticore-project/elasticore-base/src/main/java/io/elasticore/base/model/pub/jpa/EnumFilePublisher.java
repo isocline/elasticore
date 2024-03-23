@@ -69,7 +69,7 @@ public class EnumFilePublisher extends FilePublisher {
 
     private String getValue(EnumConstant.ConstructParam param, Field f) {
         String baseVal = param.toString();
-        if(f.getType().equalsIgnoreCase("string")) {
+        if(f.getTypeInfo().isStringType()) {
             if(baseVal.indexOf("\"")==0) {
                 return baseVal;
             }
@@ -113,9 +113,10 @@ public class EnumFilePublisher extends FilePublisher {
 
 
         for(Field f: fieldItem.getItemList() ) {
-            fieldLine.add("private final "+f.getType() +" "+ f.getName());
+            String fieldTypeNm = f.getTypeInfo().getDefaultTypeName();
+            fieldLine.add("private final "+fieldTypeNm +" "+ f.getName());
 
-            argLine.add(f.getType()+" "+f.getName());
+            argLine.add(fieldTypeNm+" "+f.getName());
 
             paramLine.add("this."+f.getName()+" = "+f.getName());
 
@@ -136,7 +137,6 @@ public class EnumFilePublisher extends FilePublisher {
 
 
         String code = javaClassTmpl.toString(p);
-        System.err.println(code);
 
         String filePaht = this.fileBaseDir +"/"+ enumModel.getIdentity().getName()+".java";
         writeFile(filePaht, code);

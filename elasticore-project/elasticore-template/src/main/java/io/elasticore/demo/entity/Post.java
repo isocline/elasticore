@@ -21,25 +21,25 @@ import java.util.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppToken  implements java.io.Serializable  {
+public class Post  implements java.io.Serializable  {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
+    
+
+    private String title;
+    
+
+    private String content;
+    
+
+    private boolean published = false;
     
 
     @ManyToOne
-    @JoinColumn(columnDefinition = "member_id")
-    private Member member;
-    
-
-    @Column(nullable = false)
-    private String appToken;
-    
-
-    @Column(nullable = false)
-    private String dateCreate;
+    @JoinColumn(columnDefinition = "author_id")
+    private User author;
     
 
 
