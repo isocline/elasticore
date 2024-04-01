@@ -1,6 +1,7 @@
 package io.elasticore.base.model.loader.module;
 
 import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
@@ -31,7 +32,7 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
     public void loadModel(Items<Entity> items, Map<String, LinkedHashMap> entityMap) {
         entityMap.forEach((entityNm, value) -> {
 
-            System.err.println(entityNm + " parsed");
+            //System.err.println(entityNm + " parsed");
 
 
             Entity entity = loadEntity(entityNm, value);
@@ -40,18 +41,16 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
     }
 
 
-    protected Entity loadEntity(String entityNm, Map<String, LinkedHashMap> entityMap) {
+    protected Entity loadEntity(String entityNm, Map<String, Object> entityMap) {
 
-        Map info = (Map) entityMap.get(PROPERTY_INFO);
-
-        Map meta = (Map) entityMap.get(PROPERTY_META);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;
         if (fields != null)
             fieldItems = parseField(fields);
 
-        return Entity.create(entityNm, fieldItems, null);
+        return Entity.create(entityNm, metaInfo, fieldItems);
 
     }
 

@@ -8,5 +8,7 @@ public interface ModelComponentItems<E> extends Iterator<E> {
 
     E find(ComponentIdentity identity);
 
+    E findByName(String name);
+
     E get(int idx);
 }

@@ -3,8 +3,9 @@ package io.elasticore.base.model.pub.jpa;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.ModelComponentItems;
-import io.elasticore.base.model.entity.Annotation;
+import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.TypeInfo;
@@ -14,6 +15,7 @@ import io.elasticore.base.util.CodeTemplate;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class EntityFilePublisher extends FilePublisher {
 
@@ -28,6 +30,7 @@ public class EntityFilePublisher extends FilePublisher {
             .line("import lombok.AllArgsConstructor;")
             .line("import javax.persistence.*;")
             .line("import java.util.*;")
+            .line("import java.time.*;")
             .line("import ${import};", true)
 
             .line()
@@ -42,7 +45,8 @@ public class EntityFilePublisher extends FilePublisher {
             .line("@NoArgsConstructor")
             .line("@AllArgsConstructor")
 
-            .line("public class ${className} ${extendInfo} ${implementInfo}  {")
+
+            .line("public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {")
             .line()
             .line("    ${fieldList}", true)
             .line()
@@ -73,6 +77,55 @@ public class EntityFilePublisher extends FilePublisher {
         }
     }
 
+    private String getExtendInfo(Entity entity) {
+
+        Annotation annotation = entity.getMetaInfo().getMetaAnnotation("extend");
+        if(annotation!=null)
+            return "extends "+annotation.getValue();
+
+        return "";
+
+
+    }
+
+
+    private String getAbstractInfo(Entity entity) {
+        if(entity.getMetaInfo().hasMetaAnnotation("abstract")) {
+            return "abstract";
+        }
+        return "";
+    }
+
+    private CodeTemplate.Paragraph getEntityAnnotation(Entity entity) {
+        CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
+        p.add("@Entity");
+
+        MetaInfo metaInfo = entity.getMetaInfo();
+        Annotation annotation = metaInfo.getMetaAnnotation("table");
+        if(annotation!=null) {
+            String dbTblNm = annotation.getValue();
+            p.add("@Table(name=\""+dbTblNm+"\")");
+        }
+
+
+        entity.getItems().forEachRemaining(field->{
+            if(field.hasAnnotation("discriminator")) {
+                p.add("@Inheritance(strategy = InheritanceType.SINGLE_TABLE)");
+                String dbColumnNm = field.getDbColumnName();
+                String type = field.getTypeInfo().getDefaultTypeName().toUpperCase(Locale.ROOT);
+                p.add("@DiscriminatorColumn(name = \"" +dbColumnNm+"\", discriminatorType = DiscriminatorType."+type+")");
+            }
+        });
+
+        if(metaInfo.hasMetaAnnotation("rollup")) {
+            String disVal = metaInfo.getMetaAnnotation("rollup").getValue();
+            p.add("@DiscriminatorValue(\""+disVal+"\")");
+        }
+
+
+        return p;
+    }
+
     public void publish(ModelDomain domain, Entity entity) {
 
         //for
@@ -85,9 +138,10 @@ public class EntityFilePublisher extends FilePublisher {
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName)
-                .set("classAnnotations", "@Entity")
+                .set("abstract", getAbstractInfo(entity))
+                .set("classAnnotations", getEntityAnnotation(entity))
 
-                .set("extendInfo", "")
+                .set("extendInfo", getExtendInfo(entity))
                 .set("implementInfo", "implements java.io.Serializable")
 
                 .set("className", classNm);
@@ -110,13 +164,14 @@ public class EntityFilePublisher extends FilePublisher {
      * @param entity
      */
     private void publishEntityIdentityClass(ModelDomain domain, Entity entity) {
-        if (entity.getPkField().isMultiple()) {
+        if (entity.getPkField() !=null && entity.getPkField().isMultiple()) {
 
             String classNm = entity.getPkField().getType();
 
             CodeTemplate.Parameters param = CodeTemplate.newParameters();
             param
                     .set("packageName", packageName)
+                    .set("abstract", "")
                     .set("extendInfo", "")
                     .set("implementInfo", "implements java.io.Serializable")
                     .set("classAnnotations", "@Embeddable")
@@ -162,6 +217,7 @@ public class EntityFilePublisher extends FilePublisher {
             String code = String.format("private %s id;", entity.getPkField().getType());
             p.add("@EmbeddedId");
             p.add(code);
+            p.add("");
         }
         while (fields.hasNext()) {
             Field f = fields.next();
@@ -231,19 +287,28 @@ public class EntityFilePublisher extends FilePublisher {
     private void setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
         TypeInfo typeInfo = field.getTypeInfo();
         if(typeInfo.isList()) {
-            paragraph.add(("@OneToMany"));
+            paragraph.add(("@OneToMany(fetch = FetchType.LAZY)"));
         }
         else if(!typeInfo.isBaseType()) {
-            paragraph.add(("@ManyToOne"));
 
-            String joinFieldName = field.getName()+"_id";
-            if(!field.hasAnnotation("join")) {
-                paragraph.add(("@JoinColumn(columnDefinition = \""+joinFieldName+"\")"));
-            }
 
             String targetEntityName = typeInfo.getDefaultTypeName();
             Entity entity = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels()
-                    .findByNamne(targetEntityName);
+                    .findByName(targetEntityName);
+
+            if(entity!=null) {
+                if(field.hasAnnotation("onetoone")) {
+                    paragraph.add(("@OneToOne"));
+                }else{
+                    paragraph.add(("@ManyToOne"));
+                }
+
+
+                String joinFieldName = field.getName()+"_id";
+                if(!field.hasAnnotation("join")) {
+                    paragraph.add(("@JoinColumn(columnDefinition = \""+joinFieldName+"\")"));
+                }
+            }
 
         }
     }
@@ -258,6 +323,10 @@ public class EntityFilePublisher extends FilePublisher {
         List<String> list = new ArrayList<>();
 
 
+        if(field.getTypeInfo().isBaseType())
+            list.add("name = \""+field.getDbColumnName()+"\"");
+
+
         if(field.hasAnnotation("text")) {
             list.add("columnDefinition = \"TEXT\"");
         }
@@ -265,6 +334,12 @@ public class EntityFilePublisher extends FilePublisher {
         if (field.hasAnnotation("notnull")) {
             list.add("nullable = false");
         }
+
+        if(field.hasAnnotation("updatable")) {
+            if("false".equals(field.getAnnotation("updatable")))
+                list.add("updatable = false");
+        }
+
         Annotation length = field.getAnnotation("length");
 
         if (length != null && length.getValue() != null) {
@@ -280,6 +355,13 @@ public class EntityFilePublisher extends FilePublisher {
         Annotation uniqAnnot = field.getAnnotation("unique");
         if (uniqAnnot != null && !"false".equals(uniqAnnot.getValue()))
             list.add("unique = true");
+
+        //insertable=false, updatable=false
+        if(field.hasAnnotation("discriminator")) {
+            list.add("insertable = false");
+            list.add("updatable = false");
+        }
+
 
         if (list.size() > 0) {
             String txt = "@Column(" + String.join(", ", list) + ")";

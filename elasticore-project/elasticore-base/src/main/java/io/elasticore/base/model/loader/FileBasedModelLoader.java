@@ -3,13 +3,9 @@ package io.elasticore.base.model.loader;
 import io.elasticore.base.ModelLoader;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
-import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.entity.Annotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
-import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
 
@@ -24,10 +20,7 @@ import io.elasticore.base.model.repo.RepositoryModels;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FileBasedModelLoader implements ModelLoader, ConstanParam {
 
@@ -144,6 +137,11 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
             repositoryModelLoader.loadModel(context, map);
 
         }
+
+        entityModelLoader.completeLoad();
+        enumerationModelLoader.completeLoad();
+        dataTransferModelLoader.completeLoad();
+        repositoryModelLoader.completeLoad();
 
         EntityModels entityModels = EntityModels.create("entityGrp", null, context.getEntityItems());
         EnumModels enumModels = EnumModels.create("enumGroup", null, context.getEnumModelItems());

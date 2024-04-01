@@ -3,13 +3,14 @@ package io.elasticore.base.model.entity;
 import io.elasticore.base.model.ComponentIdentity;
 import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ModelComponent;
+import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseComponentIdentity;
+import io.elasticore.base.util.StringUtils;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Map;
 
-@Builder
 @Getter
 public class Field implements ModelComponent {
 
@@ -27,10 +28,35 @@ public class Field implements ModelComponent {
     @Builder.Default
     private boolean nullable = true;
 
-    private int length;
 
-    // javax.persistence.EnumType
-    private String enumType;
+    @Builder(builderMethodName = "builder")
+    private Field(String name, String type, boolean isPrimaryKey, boolean unique, Map<String, Annotation> annotationMap) {
+        this.name = name;
+        this.type = type;
+        this.isPrimaryKey = isPrimaryKey;
+        this.unique = unique;
+        this.annotationMap = annotationMap;
+    }
+
+    public int getLength() {
+        Annotation annotation = getAnnotation("length");
+        if(annotation!=null) {
+            return Integer.parseInt(annotation.getValue());
+        }
+
+        return -1;
+    }
+
+    public String getDbColumnName() {
+        Annotation annotation = getAnnotation("col");
+        if(annotation!=null) {
+            return annotation.getValue();
+        }
+
+        return StringUtils.camelToSnake(name);
+    }
+
+
 
     @Builder.Default
     private boolean isPrimaryKey = false;
@@ -42,13 +68,16 @@ public class Field implements ModelComponent {
     @Builder.Default
     private boolean unique = false;
 
+    private Map<String, Annotation> annotationMap;
+
+
 
     @Override
     public ComponentIdentity getIdentity() {
         return BaseComponentIdentity.create(ComponentType.FIELD, "field", this.name);
     }
 
-    private Map<String, Annotation> annotationMap;
+
 
     public Annotation getAnnotation(String name) {
         if (annotationMap == null) {
@@ -68,7 +97,7 @@ public class Field implements ModelComponent {
 
     public TypeInfo getTypeInfo() {
         if (this.typeInfo == null) {
-            this.typeInfo = new TypeInfo(this.type);
+            this.typeInfo = new TypeInfo(this.type ,annotationMap);
         }
         return this.typeInfo;
     }

@@ -1,0 +1,130 @@
+---
+io:
+  ns: io.elasticore.demo.svc.party
+
+  items:
+    PartyInfoByPartyKeyInputMessage:
+
+      properties:
+        name: string
+        age: int
+        age-desc: int
+        age-maxsiz
+
+
+        time: date
+        adddItemList: list<AddressItem> size=1 prefix
+        adddItemList~:
+          type: 123
+          desc: |
+            address information
+
+      PartyInfoByPartyKeyOutputMessage:
+        properties:
+          result: boolean
+
+      AddressItem:
+        properties:
+          addr1: string
+          addr2: string
+
+
+
+
+
+services:
+  ns: io.elasticore.demo.svc.party
+  name: PartyService
+
+  methods:
+
+    insertPerson:
+      input: PersoneInfo
+      output: PersonResut
+      operation: save
+
+      opertaionType: create
+      action: $.entity.Person#save()
+
+
+
+    updatePerson:
+      input: PersoneInfo
+      output: PersonResut
+
+      opertaionType: update
+      action: $.entity.Person#save()
+
+
+
+    SearchPartyInfoByPartyKey:
+      opertaionType: list
+      target: $.entity.Party
+      input: PartyInfoByPartyKeyInputMessage
+      output: PartyInfoByPartyKeyOutputMessage
+
+      process:
+        type: auto
+
+        script:
+          type: typescript
+          initMethod: main
+          code: |
+            function main(input, output) {
+              var party = query.read("select u from CoreParty u where u.partyKey = S1", input.parkey);
+
+              var result= query.set("select u from CoreParty u where u.partyKey ")
+                .param("partyKey", input.partyKey)
+                .param("age", input.age)
+                .execute();
+
+
+              copy(party.PIIAddress, output.patyAddress);
+              copy(party.phoneOutput, output.phoneOutput);
+
+
+
+              var partyInfo = read("selPartyKey", input);
+              if(partyInfo.partyCode == '123') {
+
+              }
+
+            }
+        query:
+          insert:
+            sql: select u from CoreParty u where u.partyKey = $.input.partyKey
+          getTest:
+            sql: select u from CoreParty2 u where u.partyKey = $.input.partyKey
+
+
+
+
+    insertMultiple:
+      customize: true
+      opertaionType: create
+      traction: rollback
+
+      input: PartyInfoByPartyKeyInputMessage
+      output: PartyInfoByPartyKeyOutputMessage
+
+      process:
+        type: auto
+        script:
+          type: javascript
+          code: |
+
+
+        query:
+          insert:
+            sql: insert Person values( :input )
+
+
+          getTest:
+            sql: select name, age from person where age > :age and ${test}
+            mappigng:
+              output:
+                PersonDTO:
+                  properties:
+                    namm:
+                    ageYesr:
+

@@ -1,6 +1,7 @@
 package io.elasticore.base.model.loader.module;
 
 import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
@@ -16,7 +17,6 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
         if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
             Map entityMap = map.get(ConstanParam.KEYNAME_DTO);
-
             loadModel(ctx.getDataTransferItems(), entityMap);
             return true;
         }
@@ -25,27 +25,22 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
     public void loadModel(Items<DataTransfer> items, Map<String, LinkedHashMap> entityMap) {
         entityMap.forEach((entityNm, value) -> {
-
-            System.err.println(entityNm + " parsed[DTO]");
-            
             DataTransfer entity = loadDataTransfer(entityNm, value);
             items.addItem(entity);
         });
     }
 
 
-    protected DataTransfer loadDataTransfer(String entityNm, Map<String, LinkedHashMap> entityMap) {
+    protected DataTransfer loadDataTransfer(String entityNm, Map<String, Object> entityMap) {
 
-        Map info = (Map) entityMap.get(PROPERTY_INFO);
-
-        Map meta = (Map) entityMap.get(PROPERTY_META);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;
         if (fields != null)
             fieldItems = parseField(fields);
 
-        return DataTransfer.create(entityNm, fieldItems, null);
+        return DataTransfer.create(entityNm, fieldItems, metaInfo);
 
     }
 

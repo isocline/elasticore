@@ -4,6 +4,7 @@ import io.elasticore.base.model.ComponentIdentity;
 import io.elasticore.base.model.ModelComponent;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class Items<T extends ModelComponent> {
     private Map<ComponentIdentity, T> itemMap = new LinkedHashMap<>();
@@ -31,6 +32,27 @@ public final class Items<T extends ModelComponent> {
 
     public T find(ComponentIdentity identity) {
         return this.itemMap.get(identity);
+    }
+
+    public T filter(Predicate<T> predicate) {
+        List<T> list = this.getItemList();
+
+        List<T> filteredList = new ArrayList<>();
+        for (T element : list) {
+            if (predicate.test(element)) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    public T findByName(String name) {
+        List<T> list = this.getItemList();
+        for(T t: list) {
+            if(t.getIdentity().getName().equalsIgnoreCase(name))
+                return t;
+        }
+        return null;
     }
 
     public List<T> getItemList() {

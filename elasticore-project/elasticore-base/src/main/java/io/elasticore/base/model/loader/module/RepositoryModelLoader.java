@@ -1,25 +1,28 @@
 package io.elasticore.base.model.loader.module;
 
+import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.MetaInfo;
+import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.model.repo.Repository;
+import io.elasticore.base.model.repo.SqlQueryInfo;
+import io.elasticore.base.util.MapWrapper;
 import lombok.SneakyThrows;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +30,12 @@ import java.util.Map;
 public class RepositoryModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Repository> {
 
 
+    private ModelLoaderContext ctx;
+
+    private List<SqlQueryInfo> sqlQueryInfoList = new ArrayList<>();
+
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
+        this.ctx = ctx;
         if (map.containsKey(ConstanParam.KEYNAME_REPOSITORY)) {
             loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_REPOSITORY));
             return true;
@@ -45,11 +53,28 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
     }
 
 
+    @Override
+    public void completeLoad() {
+        for (Entity entity : this.ctx.getEntityItems().getItemList()) {
+            String entityNm = entity.getIdentity().getName();
+            BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, entityNm);
+            if (this.ctx.getRepositoryItems().find(identity) == null) {
+
+                Repository repo = Repository.create(entityNm, null, null);
+                this.ctx.getRepositoryItems().addItem(repo);
+            }
+        }
+
+        for (SqlQueryInfo sqlQueryInfo : this.sqlQueryInfoList) {
+            sqlQueryInfo.initialize(this.ctx);
+        }
+
+
+    }
+
     protected Repository loadRepository(String entityNm, Map<String, Object> entityMap) {
 
-        Map info = (Map) entityMap.get(PROPERTY_INFO);
-
-        Map meta = (Map) entityMap.get(PROPERTY_META);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
 
         List<Map> methods = (List) entityMap.get(PROPERTY_METHODS);
@@ -65,40 +90,53 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         }
 
 
-        System.err.println(methods);
-
         //return Repository.create(entityNm, methodItems, null);
-        return Repository.create(entityNm, methodItems, null);
+        return Repository.create(entityNm, methodItems, metaInfo);
 
     }
 
 
     /**
-     *
      * @param map
      * @return
      */
-    private Method loadMethodInfo(Map<String,Object> map) {
-        String id = (String) map.get("id");
-        String methodName = (String) map.get("name");
-        String query = (String) map.get("query");
-        parseSQL(query);
+    private Method loadMethodInfo(Map<String, Object> map) {
+        MapWrapper mapWrapper = new MapWrapper(map);
+        String id = mapWrapper.getString("id");
+        String methodName = mapWrapper.getString("name");
+        boolean isNativeQuery = mapWrapper.getBoolean("nativeQuery", false);
+        String query = mapWrapper.getString("query");
+        SqlQueryInfo queryInfo = null;
+        if(query !=null && query.length()>0) {
+            queryInfo = SqlQueryInfo.creat(query, isNativeQuery);
+            this.sqlQueryInfoList.add(queryInfo);
+        }
+
+
+
 
         String returnType = (String) map.get("return");
 
+        if (returnType != null) {
+            Field returnField = this.parseFieldLine("return", returnType);
+        }
 
 
-        Field returnField = this.parseFieldLine("return", returnType);
+        Items<Field> fieldItems = null;
         Map params = (Map) map.get("params");
+        if (params != null) {
+            fieldItems = this.parseField(params);
+        }
 
-        Items<Field> fieldItems = this.parseField(params);
 
 
         return Method.builder()
+                .identity(BaseComponentIdentity.create(ComponentType.METHOD,id))
                 .name(methodName)
                 .query(query)
                 .returnType(returnType)
                 .params(fieldItems)
+                .queryInfo(queryInfo)
                 .build();
     }
 
@@ -111,9 +149,9 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
             PlainSelect plainSelect = (PlainSelect) selectBody;
 
             List<SelectItem> selectItems = plainSelect.getSelectItems();
-            if(selectItems.size()==1) {
+            if (selectItems.size() == 1) {
                 SelectItem selectItem = selectItems.get(0);
-                if(selectItem instanceof AllColumns) {
+                if (selectItem instanceof AllColumns) {
                     sb.append("findByAll");
 
 
@@ -124,72 +162,13 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
             }
 
 
-
         }
-        if(sb.length()==0)
+        if (sb.length() == 0)
             return null;
 
         return sb.toString();
 
     }
 
-    @SneakyThrows
-    public void parseSQL(String sql) {
-
-        try {
-
-            Statement statement = CCJSqlParserUtil.parse(sql);
-            if (statement instanceof Select) {
-                Select selectStatement = (Select) statement;
-
-                String methodNm = getMethodName(selectStatement);
-                if(methodNm!=null)
-                    System.err.println(methodNm);
-
-                TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-                List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
-                System.out.println("Tables in the query: " + tableList);
-
-                SelectBody selectBody = selectStatement.getSelectBody();
-
-                if (selectBody instanceof PlainSelect) {
-                    PlainSelect plainSelect = (PlainSelect) selectBody;
-
-                    List<SelectItem> selectItems = plainSelect.getSelectItems();
-
-                    // AllColumns
-
-                    Expression expression = plainSelect.getWhere();
-                    if (expression instanceof EqualsTo) {
-                        EqualsTo equalsTo = (EqualsTo) expression;
-                        Expression e1 = equalsTo.getLeftExpression();
-                        Expression e2 = equalsTo.getRightExpression();
-
-                        System.err.println(e1 + " " + e2);
-                        //Column a = (Column) equalsTo.getLeftExpression();
-                        //Column b = (Column) equalsTo.getRightExpression();
-                    }
-                    else if(expression instanceof AndExpression) {
-                        AndExpression ae = (AndExpression) expression;
-                        Expression e1 = ae.getLeftExpression();
-                        Expression e2 = ae.getRightExpression();
-
-                        System.err.println(e1 + " " + e2);
-                    }
-                    else {
-                        System.err.println(expression);
-                    }
-
-
-                }
-
-
-            }
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-
-    }
 
 }

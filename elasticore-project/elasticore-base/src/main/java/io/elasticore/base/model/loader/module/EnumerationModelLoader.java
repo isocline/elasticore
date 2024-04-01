@@ -1,6 +1,7 @@
 package io.elasticore.base.model.loader.module;
 
 import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
@@ -29,7 +30,7 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
     public void loadModel(Items<EnumModel> items, Map<String, LinkedHashMap> enumMap) {
         enumMap.forEach((enumNm, value) -> {
 
-            System.err.println(enumNm + " parsed");
+            //System.err.println(enumNm + " parsed");
 
             EnumModel enumModel = loadEnumModel(enumNm, value);
             items.addItem(enumModel);
@@ -38,11 +39,9 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
     }
 
 
-    protected EnumModel loadEnumModel(String enumName, Map<String, LinkedHashMap> entityMap) {
+    protected EnumModel loadEnumModel(String enumName, Map<String, Object> entityMap) {
 
-        Map info = (Map) entityMap.get(PROPERTY_INFO);
-
-        Map meta = (Map) entityMap.get(PROPERTY_META);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;
@@ -55,7 +54,7 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
             enumItems = parseEnum(enumMap);
 
         //(String name, MetaInfo meta, Items<Field> items, Items<EnumConstant> enumConstantItems)
-        return EnumModel.create(enumName, null, fieldItems, enumItems);
+        return EnumModel.create(enumName, metaInfo, fieldItems, enumItems);
 
 
     }
@@ -64,8 +63,7 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
         Items<EnumConstant> enumConstantItems = Items.create(EnumConstant.class);
 
         fieldInfo.forEach((fieldNm, fieldPropery) -> {
-            System.out.println("* ENUM :" + fieldNm + " >>  " + fieldPropery);
-
+            //System.out.println("* ENUM :" + fieldNm + " >>  " + fieldPropery);
 
             EnumConstant f = parseEnumLine(fieldNm, fieldPropery);
             enumConstantItems.addItem(f);
@@ -77,11 +75,11 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
 
     private static EnumConstant parseEnumLine(String enumName, String valueLine) {
 
-        System.err.println(enumName + " > " + valueLine);
+        //System.err.println(enumName + " > " + valueLine);
 
         String[] items = valueLine.trim().split("\\s*,\\s*");
 
-        System.err.println(enumName + " > " + items.length);
+        //System.err.println(enumName + " > " + items.length);
         List<EnumConstant.ConstructParam> paramList = new ArrayList<>();
         for (String item : items) {
             paramList.add(EnumConstant.ConstructParam.create(item));

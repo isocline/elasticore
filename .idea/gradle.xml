@@ -4,7 +4,7 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="delegatedBuild" value="true" />
+        <option name="delegatedBuild" value="false" />
         <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -14,6 +14,15 @@
             <option value="$PROJECT_DIR$/elasticore-project" />
             <option value="$PROJECT_DIR$/elasticore-project/elasticore-base" />
             <option value="$PROJECT_DIR$/elasticore-project/elasticore-template" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/cbh_jps_bnd" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/../../xsko/cbh_jps_bnd" />
           </set>
         </option>
       </GradleProjectSettings>
@@ -35,6 +44,8 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="true" />
+        <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/pfg_sft_bnd" />
         <option name="modules">
@@ -44,6 +55,8 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="true" />
+        <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/../../xsko/pfg_sft_frt" />
         <option name="modules">

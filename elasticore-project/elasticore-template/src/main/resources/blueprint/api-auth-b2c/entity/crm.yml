@@ -1,0 +1,23 @@
+enum:
+  GenderCd:
+    field:
+      label: string
+
+    enum:
+      MAIL: 남성
+      FIELDMAIL: 여성
+
+
+entity:
+
+  Client:
+    meta: entity @table(T_CLIENT)
+
+    fields:
+      clientSeq: long @id @seqeunce
+      typeName: string
+      imsiNy: string
+
+
+
+

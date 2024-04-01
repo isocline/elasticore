@@ -45,6 +45,9 @@ public final class BaseComponentIdentity implements ComponentIdentity {
             System.err.println("outpuot");
         }
 
+        if(name ==null)
+            name = "undefined";
+
         return type.getName().substring(0, 1) + name.substring(0, 1) + hashCode;
     }
 

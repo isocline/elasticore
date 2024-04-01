@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$" />
+    <file type="web" url="file://$PROJECT_DIR$/../../xsko/cbh_jps_bnd" />
     <file type="web" url="file://$PROJECT_DIR$/../../xsko/gatehub" />
     <file type="web" url="file://$PROJECT_DIR$/../../xsko/pfg_sft_bnd" />
     <file type="web" url="file://$PROJECT_DIR$/../../xsko/pfg_sft_frt" />

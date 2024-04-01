@@ -1,6 +1,10 @@
 package io.elasticore.base.model.entity;
 
 
+import io.elasticore.base.model.core.Annotation;
+
+import java.util.Map;
+
 /**
  *
  */
@@ -17,8 +21,10 @@ public class TypeInfo {
 
     private boolean isGenericType = false;
 
+    private Map<String, Annotation> annotationMap;
 
-    TypeInfo(String typeInfo) {
+    TypeInfo(String typeInfo, Map<String, Annotation> annotationMap) {
+        this.annotationMap = annotationMap;
         if (typeInfo == null || typeInfo.length() < 2)
             throw new IllegalArgumentException("type info is not normal. [" + typeInfo + "]");
 
@@ -61,6 +67,11 @@ public class TypeInfo {
 
     public String getDefaultTypeName() {
         if(isBaseType() && !isList()) {
+
+            if(annotationMap.containsKey("id")) {
+                return this.baseFieldType.getWrapperClassName();
+            }
+
             return this.baseFieldType.getName();
         }
 

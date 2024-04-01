@@ -21,6 +21,8 @@ public class Repository extends AbstractReplaceableModel {
     private Repository(ComponentIdentity id, Items<Method> items, MetaInfo metaInfo) {
         super(id);
 
+        if(items==null)
+            items = Items.create(Method.class);
         this.items = new BaseModelComponentItem(items);
         this.metaInfo = metaInfo;
     }

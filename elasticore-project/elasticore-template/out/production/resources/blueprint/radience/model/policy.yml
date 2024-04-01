@@ -1,0 +1,55 @@
+## enumeration
+enumeration:
+  CurrencyCode:
+
+    fields:
+      code: string
+      unit: string
+
+    enum:
+      KRW: 410,won
+      USD: 840,dollar
+      CAD: 124,dollar
+
+## model
+entity:
+  Party:
+    meta: entity @abstract
+
+    fields:
+      partyKey: long @id @sequence
+      partyType: string @discriminator
+      preferCuurencyCode: CurrencyCode
+
+
+  Person:
+    meta: entity @extend(Party) @rollup(Person)
+    fields:
+      attainedAge: integer
+      dateOfBirth: string @date
+      birthLocation: string
+      deathRegistrationUserId: string
+
+  Organization:
+    meta: entity @extend(Party) @abstract
+    fields:
+      organizationStatusKey: string
+      estabDate: string
+      numOwners: integer
+
+  Company:
+    meta: entity @extend(Organization) @rollup(Compay)
+    fields:
+      onlineProcessingDate: string
+      contractIssueStartDay: string
+      numberOfHoldDays: integer
+
+
+
+
+
+
+
+
+
+

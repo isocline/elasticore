@@ -7,10 +7,12 @@ import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.StringUtils;
 
 import java.io.File;
 
@@ -21,6 +23,7 @@ public class RepositoryFilePublisher extends FilePublisher {
             .line()
             .line("import org.springframework.data.jpa.repository.JpaRepository;")
             .line("import org.springframework.data.jpa.repository.Query;")
+            .line("import org.springframework.data.repository.query.Param;")
 
             .line("import java.util.*;")
             .line("import ${entityPackageName}.*;")
@@ -65,10 +68,18 @@ public class RepositoryFilePublisher extends FilePublisher {
 
     public void publish(ModelDomain domain, Repository repo) {
 
+        String targetModelName=repo.getIdentity().getName();
+        Entity entity = domain.getModel().getEntityModels().findByName(targetModelName);
+        PkField pkField = entity.findPkField(domain);
+        if(entity==null
+                //|| entity.getMetaInfo().hasMetaAnnotation("abstract")
+                || pkField ==null) {
+            return;
+        }
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
 
-        String targetModelName=repo.getIdentity().getName();
+
 
         String classNm = targetModelName+"Repository";
 
@@ -81,16 +92,8 @@ public class RepositoryFilePublisher extends FilePublisher {
                 .set("identity", "Long")
 
                 .set("extendInfo", "")
-                .set("implementInfo", "implements Serializable");
-
-        Entity entity = domain.getModel().getEntityModels().findByNamne(targetModelName);
-
-        if(entity!=null) {
-
-            params.set("identity",entity.getPkField().getType());
-
-        }
-
+                .set("implementInfo", "implements Serializable")
+                .set("identity",pkField.getType());
 
 
         CodeTemplate.Paragraph p = getMethodInfo(repo);
@@ -116,26 +119,39 @@ public class RepositoryFilePublisher extends FilePublisher {
         while (methodItems.hasNext()) {
             Method method = methodItems.next();
 
-            if(method.getQuery()!=null) {
-                String queryAnnotation = String.format("@Query(value=\"%s\",nativeQuery=%s)",method.getQuery(), method.isNative());
+            //if(method.getName()==null) continue;
+            if(!method.isEnable()) continue;
+
+
+            boolean isNeedParamAnnotation = false;
+            if(method.getQuery()!=null && method.isNeedQueryAnnotation()) {
+                String query = StringUtils.splitByDoubleQuotation(method.getQuery());
+                String queryAnnotation = String.format("@Query(value=%s,nativeQuery=%s)",query, method.isNative());
                 p.add(queryAnnotation);
+                isNeedParamAnnotation = true;
             }
 
             String code = String.format("%s %s(%s);"
-                    , method.getReturnType(), method.getName(), getParametersForMethod(method.getParams()));
+                    , method.getReturnType(), method.getName(), getParametersForMethod(method.getParams(),isNeedParamAnnotation));
             p.add(code);
             p.add("");
         }
         return p;
     }
 
-    private String getParametersForMethod(Items<Field> params) {
+    private String getParametersForMethod(Items<Field> params, boolean isNeedParamAnnotation) {
         StringBuilder sb = new StringBuilder();
-        for (Field f : params.getItemList()) {
-            if (sb.length() > 0)
-                sb.append(" ,");
-            sb.append(f.getTypeInfo().getDefaultTypeName()).append(" ").append(f.getName());
+        if(params !=null) {
+            for (Field f : params.getItemList()) {
+                if (sb.length() > 0)
+                    sb.append(" ,");
+                // @Param("username")
+                if(isNeedParamAnnotation)
+                    sb.append("@Param(\"").append(f.getName()).append("\") ");
+                sb.append(f.getTypeInfo().getDefaultTypeName()).append(" ").append(f.getName());
+            }
         }
+
         return sb.toString();
     }
 

@@ -5,12 +5,9 @@ import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.Items;
-import io.elasticore.base.model.entity.Annotation;
 import io.elasticore.base.model.entity.Field;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @Builder
 @Getter
@@ -32,11 +29,71 @@ public class Method implements ModelComponent {
 
     public String returnType;
 
+    public SqlQueryInfo queryInfo;
 
-    @Override
-    public ComponentIdentity getIdentity() {
-        return BaseComponentIdentity.create(ComponentType.METHOD, this.name);
+
+    public boolean isNeedQueryAnnotation() {
+        if(queryInfo==null)
+            return false;
+
+        if(this.name !=null)
+            return true;
+
+        if( queryInfo.getJpaMethodName()!=null)
+            return false;
+
+        return true;
+    }
+
+    public boolean isEnable() {
+
+        if(queryInfo!=null)
+            return queryInfo.isEnableNativeJpaMethod();
+
+        return true;
+
+    }
+
+    public String getQuery() {
+        if(this.queryInfo==null)
+            return null;
+        return this.queryInfo.getSqlTxt();
     }
 
 
+
+
+    public Items<Field> getParams() {
+        if(params!=null)
+            return params;
+
+        if(this.queryInfo!=null)
+            return this.queryInfo.getSetVarFieldItems();
+
+        return null;
+    }
+
+
+    public String getReturnType() {
+        if(returnType!=null)
+            return returnType;
+        if(this.queryInfo!=null)
+            return this.queryInfo.getDefaultReturnType();
+
+        return "void";
+    }
+
+    public String getName() {
+        if(name !=null)
+            return name;
+
+
+        if(this.queryInfo!=null) {
+            return this.queryInfo.getJpaMethodName();
+        }
+
+
+
+        return "unknownMethod";
+    }
 }

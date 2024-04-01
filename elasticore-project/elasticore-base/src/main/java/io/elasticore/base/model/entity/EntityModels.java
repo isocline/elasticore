@@ -32,8 +32,20 @@ public class EntityModels {
     }
 
 
-    public Entity findByNamne(String name) {
+    public Entity findByName(String name) {
         return this.items.find(BaseComponentIdentity.create(ComponentType.ENTITY, name));
+    }
+
+
+    public Entity findByTableName(String tblName) {
+        int sz = this.items.size();
+        for(int i=0;i<sz;i++) {
+            Entity entity = this.items.get(i);
+            if(entity.getTableName().equalsIgnoreCase(tblName)) {
+                return entity;
+            }
+        }
+        return null;
     }
 
 

@@ -11,4 +11,6 @@ public interface ModelLoader<T extends ModelComponent> {
     boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map);
 
     void loadModel(Items<T> items, Map<String, LinkedHashMap> enumMap);
+
+    void completeLoad();
 }

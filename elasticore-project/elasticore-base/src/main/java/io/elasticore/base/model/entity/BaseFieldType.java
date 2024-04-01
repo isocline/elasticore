@@ -31,6 +31,8 @@ public enum BaseFieldType {
     DOUBLE("Double", "double", "Double"),
     BOOLEAN("boolean", "boolean", "Boolean"),
 
+    LocalDateTime("LocalDateTime", null, "LocalDateTime"),
+
 
     UNKNOWN("unknown", null, null);
 
