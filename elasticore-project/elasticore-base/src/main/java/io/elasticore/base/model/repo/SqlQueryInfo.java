@@ -109,7 +109,7 @@ public class SqlQueryInfo {
 
                     Expression expression = plainSelect.getWhere();
                     if (expression instanceof EqualsTo) {
-                        // where 1개일때
+                        // where
                         EqualsTo equalsTo = (EqualsTo) expression;
                         Expression e1 = equalsTo.getLeftExpression();
                         Expression e2 = equalsTo.getRightExpression();
@@ -118,7 +118,7 @@ public class SqlQueryInfo {
                         //Column a = (Column) equalsTo.getLeftExpression();
                         //Column b = (Column) equalsTo.getRightExpression();
                     } else if (expression instanceof AndExpression) {
-                        // 1개 이상일때
+                        // one more
                         AndExpression ae = (AndExpression) expression;
                         Expression e1 = ae.getLeftExpression();
                         Expression e2 = ae.getRightExpression();

@@ -1,9 +1,6 @@
 package io.elasticore.base.extract;
 
-import io.elasticore.base.CodePublisher;
-import io.elasticore.base.ECoreModelContext;
-import io.elasticore.base.ModelDomain;
-import io.elasticore.base.ModelLoader;
+import io.elasticore.base.*;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
@@ -20,21 +17,34 @@ public class ModelExtractor {
 
     private final static String RESOURCE_PATH = "src/main/resources/blueprint";
 
+    private String modelResourcePath;
+
     private static void log(String msg) {
         System.err.println(msg);
     }
 
 
-    private List<String> findTemplateFilePath(String rootDir) throws FileNotFoundException {
+    public ModelExtractor() {
+        this.modelResourcePath = getRootDir() + "/"+RESOURCE_PATH;
+    }
 
-        String checkDir = rootDir +"/"+RESOURCE_PATH;
+    public ModelExtractor(String modelResourcePath) {
+
+        this.modelResourcePath = modelResourcePath;
+    }
+
+
+    private List<String> findTemplateFilePath() throws FileNotFoundException {
+
+        String checkDir = this.modelResourcePath;
 
         log("CHECK PATH:"+checkDir);
 
         File f = new File(checkDir);
 
         if(!f.exists()) {
-            throw new FileNotFoundException("Template directory not found:"+checkDir);
+            //throw new FileNotFoundException("Template directory not found:"+checkDir);
+            return null;
         }
 
         List<String> dirList = new ArrayList<>();
@@ -58,14 +68,20 @@ public class ModelExtractor {
         if(basePath ==null ) {
             basePath = System.getProperty("user.dir");
         }
+        System.err.println(">>>>>>> "+basePath);
         return basePath;
     }
 
-    public void extract() throws FileNotFoundException{
+    public void extract(SrcCodeWriterFactory srcCodeWriterFactory) throws FileNotFoundException{
 
         String rootDir = getRootDir();
 
-        List<String> dirList = findTemplateFilePath(rootDir);
+        List<String> dirList = findTemplateFilePath();
+
+        if(dirList == null || dirList.size()==0) {
+            System.err.println(" NOT FOUND "+rootDir);
+            return;
+        }
 
         for(String path: dirList) {
             FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
@@ -79,7 +95,12 @@ public class ModelExtractor {
 
 
             JPACodePublisher publisher = JPACodePublisher.newInstance();
-            publisher.setDestBaseDirPath(rootDir+"/"+SRC_PATH);
+            //publisher.setDestBaseDirPath(rootDir+"/"+SRC_PATH);
+
+            if(srcCodeWriterFactory==null) {
+                srcCodeWriterFactory = new FileBasedSrcCodeWriterFactory(rootDir+"/"+SRC_PATH);
+            }
+            publisher.setSrcCodeWriterFactory(srcCodeWriterFactory);
 
             ctx.publish(publisher);
         }
@@ -94,7 +115,7 @@ public class ModelExtractor {
 
         try {
             ModelExtractor extractor = new ModelExtractor();
-            extractor.extract();
+            extractor.extract(null);
             log("ModelExtractor extract");
         }catch (Throwable e) {
             e.printStackTrace();

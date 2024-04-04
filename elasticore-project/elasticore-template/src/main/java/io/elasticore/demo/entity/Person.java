@@ -12,10 +12,12 @@ import java.util.*;
 import java.time.*;
 
 
+
 /**
 
 
- */
+*/
+
 @Entity
 @DiscriminatorValue("Person")
 
@@ -23,25 +25,24 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public  class Person extends Party implements java.io.Serializable  {
 
+	@Column(name = "attained_age")
+	private Integer attainedAge;
+	
 
-    @Column(name = "attained_age")
-    private Integer attainedAge;
-    
+	@Column(name = "date_of_birth")
+	private String dateOfBirth;
+	
 
-    @Column(name = "date_of_birth")
-    private String dateOfBirth;
-    
+	@Column(name = "birth_location")
+	private String birthLocation;
+	
 
-    @Column(name = "birth_location")
-    private String birthLocation;
-    
-
-    @Column(name = "death_registration_user_id")
-    private String deathRegistrationUserId;
-    
-
+	@Column(name = "death_registration_user_id")
+	private String deathRegistrationUserId;
+	
 
 
-}
+};

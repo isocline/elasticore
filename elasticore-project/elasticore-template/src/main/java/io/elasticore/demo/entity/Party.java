@@ -12,10 +12,12 @@ import java.util.*;
 import java.time.*;
 
 
+
 /**
 
 
- */
+*/
+
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "party_type", discriminatorType = DiscriminatorType.STRING)
@@ -24,22 +26,21 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public abstract class Party  implements java.io.Serializable  {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "party_key")
+	private Long partyKey;
+	
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "party_key")
-    private Long partyKey;
-    
+	@Column(name = "party_type", insertable = false, updatable = false)
+	private String partyType;
+	
 
-    @Column(name = "party_type", insertable = false, updatable = false)
-    private String partyType;
-    
-
-    private CurrencyCode preferCuurencyCode;
-    
-
+	private CurrencyCode preferCuurencyCode;
+	
 
 
-}
+};

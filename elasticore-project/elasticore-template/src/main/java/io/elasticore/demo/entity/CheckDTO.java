@@ -12,19 +12,27 @@ import java.util.*;
 import java.time.*;
 
 
+
 /**
 
 
- */
-@Entity
+*/
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public  class BaseModel  implements java.io.Serializable  {
+
+public  class CheckDTO  implements java.io.Serializable  {
+
+	@Column(name = "update_date")
+	private String updateDate;
+	
+
+	@Column(name = "created_by")
+	private String createdBy;
+	
 
 
-
-
-}
+};

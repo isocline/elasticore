@@ -10,7 +10,9 @@ import javax.persistence.*;
 
  */
 
+
 @Getter
+
 public enum CurrencyCode {
 
 
@@ -28,5 +30,5 @@ public enum CurrencyCode {
         this.code = code;
     this.unit = unit;
 
- }
+    }
 }

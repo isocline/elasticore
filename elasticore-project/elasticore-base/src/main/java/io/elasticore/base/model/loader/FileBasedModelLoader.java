@@ -107,7 +107,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         FileSource envFs = getLoadData(envFile);
         Map envMap = (Map) envFs.getInfoMap().get("env");
 
-        Map<String,String> configMap = (Map) envMap.get("config");
+        Map<String,Object> configMap = (Map) envMap.get("config");
         Map<String,String> nsMap = (Map) envMap.get("namespace");
 
 

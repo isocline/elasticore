@@ -17,15 +17,32 @@ public class ECoreModel {
 
     private RepositoryModels repositoryModels;
 
-    private Map<String, String> configMap;
+    private Map<String, Object> configMap;
 
     private Map<String, String> namespaceMap;
 
 
     public String getConfig(String key) {
-        if(configMap==null) return null;
+        if (configMap == null) {
+            return null;
+        }
+        String[] keys = key.split("\\.");
+        Map<String, Object> currentMap = configMap;
 
-        return configMap.get(key);
+        for (int i = 0; i < keys.length; i++) {
+            Object value = currentMap.get(keys[i]);
+
+            if (i < keys.length - 1) {
+                if (value instanceof Map) {
+                    currentMap = (Map<String, Object>) value;
+                } else {
+                    return null;
+                }
+            } else {
+                return value instanceof String ? (String) value : null;
+            }
+        }
+        return null;
     }
 
     public String getNamespace(String key) {

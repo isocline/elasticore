@@ -44,13 +44,9 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
     public synchronized static ECoreModelContext getContext(ModelLoader loader) {
-
-
         BaseECoreModelContext context = new BaseECoreModelContext(loader);
         context.load();
         return context;
-
-
     }
 
 
@@ -73,4 +69,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
     public boolean publish(CodePublisher publisher) throws ProcessException {
         return publisher.publish(this);
     }
+
+
+
 }

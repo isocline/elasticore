@@ -12,10 +12,15 @@ enumeration:
 
 ## model
 entity:
+  CheckDTO:
+    meta: entity @template(BaseModel,TES)
+  fields:
+    name: string
+
   BaseModel:
     meta: template
-    field:
-      updateDate: string @date @default(now())
+    fields:
+      updateDate: string @date
       createdBy: string @userId
 
 
@@ -49,6 +54,7 @@ entity:
       onlineProcessingDate: string
       contractIssueStartDay: string
       numberOfHoldDays: integer
+      age: int
 
 
 repository:
@@ -56,3 +62,26 @@ repository:
     methods:
       - id: test
         query: select m from Person m where attainedAge=:attainedAge and deathRegistrationUserId=:deathRegistrationUserId
+
+
+      - id: test2
+        query: select m from Person m where dateOfBirth = :dateOfBirth
+        sql2: |
+          select m
+          from person m,Department d,office c
+          where
+            d.name = :name --if
+            d.name = :name --if
+
+        sql:
+          select: Person
+          from: Person p, Department d
+          where:
+            - (
+            - ?attainedAge=:attainedAge
+            - ?deathRegistrationUserId=:deathRegistrationUserId
+            - ?department.name = :name
+            - ) OR (
+            - ?deathRegistrationUserId=:deathRegistrationUserId
+            - )
+

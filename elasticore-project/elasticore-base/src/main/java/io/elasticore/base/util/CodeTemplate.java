@@ -1,12 +1,16 @@
 package io.elasticore.base.util;
 
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  *
@@ -22,6 +26,31 @@ public class CodeTemplate {
     public static CodeTemplate newInstance() {
         return new CodeTemplate();
     }
+
+    public static CodeTemplate newInstance(String resourcePath) {
+        CodeTemplate codeTemplate = new CodeTemplate();
+        InputStream inputStream = CodeTemplate.class.getClassLoader().getResourceAsStream(resourcePath);
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Resource not found: " + resourcePath);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            Stream<String> lines = reader.lines();
+            lines.forEach(line -> {
+
+                if (line.contains("List}")) {
+                    codeTemplate.line(line, true);
+                } else {
+                    codeTemplate.line(line);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Resource parse error.", e);
+        }
+        return codeTemplate;
+    }
+
 
     /**
      * append new line

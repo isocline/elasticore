@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ModelLoaderContext {
 
-    private Map<String, String> configMap;
+    private Map<String, Object> configMap;
     private Map<String, String> nsMap;
 
     private Items<Entity> entityItems = Items.create(Entity.class);
@@ -21,15 +21,32 @@ public class ModelLoaderContext {
     private Items<Repository> repositoryItems = Items.create(Repository.class);
 
 
-    ModelLoaderContext(Map<String, String> configMap, Map<String, String> nsMap) {
+    ModelLoaderContext(Map<String, Object> configMap, Map<String, String> nsMap) {
         this.configMap = configMap;
         this.nsMap = nsMap;
     }
 
     public String getConfig(String key) {
-        if(configMap==null) return null;
+        if (configMap == null) {
+            return null;
+        }
+        String[] keys = key.split("\\.");
+        Map<String, Object> currentMap = configMap;
 
-        return configMap.get(key);
+        for (int i = 0; i < keys.length; i++) {
+            Object value = currentMap.get(keys[i]);
+
+            if (i < keys.length - 1) {
+                if (value instanceof Map) {
+                    currentMap = (Map<String, Object>) value;
+                } else {
+                    return null;
+                }
+            } else {
+                return value instanceof String ? (String) value : null;
+            }
+        }
+        return null;
     }
 
     public String getNamespace(String key) {

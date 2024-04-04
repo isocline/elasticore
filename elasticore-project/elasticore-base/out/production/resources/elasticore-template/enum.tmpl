@@ -1,0 +1,24 @@
+package ${packageName};
+
+import lombok.Getter;
+import javax.persistence.*;
+import ${importList};
+
+/**
+ * <pre>${description}</pre>
+ * hash:${hashCode}
+ */
+
+${classAnnotationList}
+@Getter
+
+public enum ${className} {
+
+    ${enumConstant}
+
+    ${fieldLine}
+
+    ${className}(${argLine}) {
+        ${paramLine}
+    }
+}

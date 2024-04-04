@@ -14,40 +14,13 @@ import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
-import java.io.File;
+public class RepositoryFilePublisher extends SrcFilePublisher {
 
-public class RepositoryFilePublisher extends FilePublisher {
-
-    private final static CodeTemplate baseCodeTmpl = CodeTemplate.newInstance()
-            .line("package ${packageName};")
-            .line()
-            .line("import org.springframework.data.jpa.repository.JpaRepository;")
-            .line("import org.springframework.data.jpa.repository.Query;")
-            .line("import org.springframework.data.repository.query.Param;")
-
-            .line("import java.util.*;")
-            .line("import ${entityPackageName}.*;")
-
-
-            .line("import ${import};", true)
-
-            .line()
-            .line("/**")
-            .line(" * <pre>${description}</pre>")
-            .line(" * hash:${hashCode}")
-            .line(" */")
-
-            .line("${classAnotations}", true)
-
-            .line("public interface ${className} extends JpaRepository<${targetModel},${identity}> {")
-            .line()
-            .line("    ${methodList}", true)
-            .line()
-            .line("}");
+    private CodeTemplate baseCodeTmpl;
 
     private JPACodePublisher publisher;
 
-    private String entityBaseDir;
+
     private String packageName;
     private String entityPackageName;
 
@@ -55,33 +28,34 @@ public class RepositoryFilePublisher extends FilePublisher {
     public RepositoryFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
 
+        String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.repository");
+        if(templatePath==null)
+            templatePath = "elasticore-template/repository.tmpl";
+
+        this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
+
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
         this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
 
-        entityBaseDir = publisher.getDestBaseDirPath() + "/"+getPath(this.packageName);
-        File f = new File(entityBaseDir);
-        if (!f.exists()) {
-            f.mkdirs();
-        }
+
     }
 
     public void publish(ModelDomain domain, Repository repo) {
 
-        String targetModelName=repo.getIdentity().getName();
+        String targetModelName = repo.getIdentity().getName();
         Entity entity = domain.getModel().getEntityModels().findByName(targetModelName);
         PkField pkField = entity.findPkField(domain);
-        if(entity==null
+        if (entity == null
                 //|| entity.getMetaInfo().hasMetaAnnotation("abstract")
-                || pkField ==null) {
+                || pkField == null) {
             return;
         }
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
 
 
-
-        String classNm = targetModelName+"Repository";
+        String classNm = targetModelName + "Repository";
 
         params
                 .set("packageName", packageName)
@@ -93,16 +67,16 @@ public class RepositoryFilePublisher extends FilePublisher {
 
                 .set("extendInfo", "")
                 .set("implementInfo", "implements Serializable")
-                .set("identity",pkField.getType());
+                .set("identity", pkField.getType());
 
 
         CodeTemplate.Paragraph p = getMethodInfo(repo);
         params.set("methodList", p);
 
         String code = baseCodeTmpl.toString(params);
+        String qualifiedClassName = packageName + "." + classNm;
 
-        String filePaht = this.entityBaseDir + "/" + classNm+ ".java";
-        writeFile(filePaht, code);
+        this.writeSrcCode(this.publisher, repo, qualifiedClassName, code);
     }
 
 
@@ -120,19 +94,19 @@ public class RepositoryFilePublisher extends FilePublisher {
             Method method = methodItems.next();
 
             //if(method.getName()==null) continue;
-            if(!method.isEnable()) continue;
+            if (!method.isEnable()) continue;
 
 
             boolean isNeedParamAnnotation = false;
-            if(method.getQuery()!=null && method.isNeedQueryAnnotation()) {
+            if (method.getQuery() != null && method.isNeedQueryAnnotation()) {
                 String query = StringUtils.splitByDoubleQuotation(method.getQuery());
-                String queryAnnotation = String.format("@Query(value=%s,nativeQuery=%s)",query, method.isNative());
+                String queryAnnotation = String.format("@Query(value=%s,nativeQuery=%s)", query, method.isNative());
                 p.add(queryAnnotation);
                 isNeedParamAnnotation = true;
             }
 
             String code = String.format("%s %s(%s);"
-                    , method.getReturnType(), method.getName(), getParametersForMethod(method.getParams(),isNeedParamAnnotation));
+                    , method.getReturnType(), method.getName(), getParametersForMethod(method.getParams(), isNeedParamAnnotation));
             p.add(code);
             p.add("");
         }
@@ -141,12 +115,12 @@ public class RepositoryFilePublisher extends FilePublisher {
 
     private String getParametersForMethod(Items<Field> params, boolean isNeedParamAnnotation) {
         StringBuilder sb = new StringBuilder();
-        if(params !=null) {
+        if (params != null) {
             for (Field f : params.getItemList()) {
                 if (sb.length() > 0)
                     sb.append(" ,");
                 // @Param("username")
-                if(isNeedParamAnnotation)
+                if (isNeedParamAnnotation)
                     sb.append("@Param(\"").append(f.getName()).append("\") ");
                 sb.append(f.getTypeInfo().getDefaultTypeName()).append(" ").append(f.getName());
             }

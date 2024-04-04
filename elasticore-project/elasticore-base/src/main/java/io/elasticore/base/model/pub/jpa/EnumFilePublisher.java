@@ -16,54 +16,25 @@ import java.io.File;
 /**
  *
  */
-public class EnumFilePublisher extends FilePublisher {
+public class EnumFilePublisher extends SrcFilePublisher {
 
-    private final static CodeTemplate javaClassTmpl = CodeTemplate.newInstance()
-            .line("package ${packageName};")
-            .line()
-            .line("import lombok.Getter;")
-
-            .line("import javax.persistence.*;")
-            .line("import ${import};", true)
-
-            .line()
-            .line("/**")
-            .line(" * <pre>${description}</pre>")
-            .line(" * hash:${hashCode}")
-            .line(" */")
-
-            .line("${classAnotations}", true)
-            .line("@Getter")
-
-
-            .line("public enum ${className} {")
-            .line()
-            .line("    ${enumConstant}")
-            .line()
-            .line("    ${fieldLine}")
-            .line()
-            .line("    ${className}(${argLine}) {")
-            .line("        ${paramLine}")
-            .line(" }")
-            .line("}");
-
+    private CodeTemplate javaClassTmpl;
 
     private JPACodePublisher publisher;
 
-    private String fileBaseDir;
     private String packageName;
 
     public EnumFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
 
+        String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.enum");
+        if(templatePath==null)
+            templatePath = "elasticore-template/enum.tmpl";
+
+        this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
+
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
-
-        fileBaseDir= publisher.getDestBaseDirPath() + "/"+getPath(this.packageName);
-        File f= new File(fileBaseDir);
-        if(!f.exists()) {
-            f.mkdirs();
-        }
     }
 
 
@@ -134,11 +105,9 @@ public class EnumFilePublisher extends FilePublisher {
                 .set("paramLine", paramLine.toString());
 
 
-
-
         String code = javaClassTmpl.toString(p);
+        String qualifiedClassName = packageName + "." + classNm;
 
-        String filePaht = this.fileBaseDir +"/"+ enumModel.getIdentity().getName()+".java";
-        writeFile(filePaht, code);
+        this.writeSrcCode(this.publisher, enumModel, qualifiedClassName, code);
     }
 }

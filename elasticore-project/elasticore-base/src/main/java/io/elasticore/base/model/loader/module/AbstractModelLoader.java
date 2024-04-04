@@ -47,20 +47,27 @@ public class AbstractModelLoader implements ConstanParam {
      * @return An Annotation object populated with the parsed data.
      */
     protected Annotation parseParameters(String annotationName, String parameters) {
-        Pattern kvPattern = Pattern.compile("(\\w+)\\s*=\\s*([^,]+)|([^,\\s]+)");
-        Matcher kvMatcher = kvPattern.matcher(parameters);
 
         String singleValue = null;
         Properties properties = new Properties();
-        while (kvMatcher.find()) {
-            if (kvMatcher.group(1) != null) {
-                String key = kvMatcher.group(1);
-                String value = kvMatcher.group(2);
-                properties.setProperty(key, value);
-            } else if (kvMatcher.group(3) != null) {
-                singleValue = kvMatcher.group(3);
+
+        if(parameters.indexOf("=")<0) {
+            singleValue = parameters;
+        }else {
+            Pattern kvPattern = Pattern.compile("(\\w+)\\s*=\\s*([^,]+)|([^,\\s]+)");
+            Matcher kvMatcher = kvPattern.matcher(parameters);
+
+            while (kvMatcher.find()) {
+                if (kvMatcher.group(1) != null) {
+                    String key = kvMatcher.group(1);
+                    String value = kvMatcher.group(2);
+                    properties.setProperty(key, value);
+                } else if (kvMatcher.group(3) != null) {
+                    singleValue = kvMatcher.group(3);
+                }
             }
         }
+
 
         return Annotation.create(annotationName, singleValue, properties);
     }
