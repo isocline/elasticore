@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.ModelDomain;
@@ -16,21 +34,39 @@ import io.elasticore.base.util.CodeTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+/**
+ * Handles the publishing of source files for entities.
+ * This class is responsible for generating Java source code
+ * based on entity definitions and their annotations.
+ */
 public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate javaClassTmpl;
 
     private JPACodePublisher publisher;
 
-
     private String packageName;
 
     private String enumPackageName;
 
+    // jps | hibernate | px
+    private String publishMode;
 
+    private CodeTemplate.Paragraph paragraphForEntity;
+
+
+    /**
+     * Initializes a new instance of the EntitySrcFilePublisher class.
+     * Sets up the template path and packages based on the provided publisher.
+     *
+     * @param publisher The JPACodePublisher instance used for publishing.
+     */
     public EntitySrcFilePublisher(JPACodePublisher publisher) {
         this.publisher = publisher;
+
+        this.publishMode = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("mode");
 
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.entity");
         if(templatePath==null)
@@ -44,6 +80,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     }
 
+    /**
+     * Retrieves the extension information for an entity.
+     * This method checks if the entity has an "extend" meta-annotation and
+     * returns the extension clause (e.g., "extends BaseClass") for the entity.
+     * If the "extend" meta-annotation is not present, an empty string is returned.
+     *
+     * @param entity The entity for which to retrieve the extension information.
+     * @return A string containing the extension clause, if applicable; otherwise, an empty string.
+     */
     private String getExtendInfo(Entity entity) {
 
         Annotation annotation = entity.getMetaInfo().getMetaAnnotation("extend");
@@ -51,8 +96,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             return "extends " + annotation.getValue();
 
         return "";
-
-
     }
 
 
@@ -94,6 +137,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return p;
     }
 
+
+    /**
+     * Generates and publishes Java source code for the specified entity.
+     * This method orchestrates the creation of entity classes based on
+     * entity definition and annotations.
+     *
+     * @param domain The model domain to which the entity belongs.
+     * @param entity The entity for which source code is to be published.
+     */
     public void publish(ModelDomain domain, Entity entity) {
 
         Annotation typeAnnotation = entity.getMetaInfo().getMetaAnnotation("type");
@@ -102,24 +154,30 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
-        //for
+
+
         publishEntityIdentityClass(domain, entity);
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
-
         String classNm = entity.getIdentity().getName();
+
+        this.paragraphForEntity = getEntityAnnotation(entity);
+
+        setNativeAnnotation(entity, this.paragraphForEntity);
+
+        // must call 'getFieldInfo' first
+        CodeTemplate.Paragraph pr = getFieldInfo(entity);
 
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(entity))
-                .set("classAnnotationList", getEntityAnnotation(entity))
+                .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(entity))
                 .set("implementInfo", "implements java.io.Serializable")
                 .set("className", classNm);
 
 
-        CodeTemplate.Paragraph pr = getFieldInfo(entity);
         p.set("fieldList", pr);
 
         String qualifiedClassName = packageName + "." + classNm;
@@ -189,7 +247,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private void loadFieldInfo(Entity entity, CodeTemplate.Paragraph p) {
         ModelComponentItems<Field> fields = entity.getItems();
 
-
         boolean isExtendIdentity = false;
         if (entity.getPkField() != null && entity.getPkField().isMultiple()) {
             isExtendIdentity = true;
@@ -212,6 +269,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setRelationInfo(f, p);
             setJoinColumnAnnotation(f, p);
+            setNativeAnnotation(f, p);
 
             String defaultValDefined = getDefaultValueSetup(f);
 
@@ -235,7 +293,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                         loadFieldInfo(templateEntity, p);
                 }
             }
-            System.err.println(templates);
+
         }
     }
 
@@ -373,6 +431,35 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         if (list.size() > 0) {
             String txt = "@JoinColumn(" + String.join(", ", list) + ")";
             paragraph.add(txt);
+        }
+    }
+
+    private void setNativeAnnotation(Entity entity, CodeTemplate.Paragraph paragraph) {
+        setNativeAnnotation(entity.getMetaInfo().getMetaAnnotationMap(), paragraph);
+    }
+
+    private void setNativeAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
+        setNativeAnnotation(field.getAnnotationMap(), paragraph);
+    }
+
+    private void setNativeAnnotation(Map<String, Annotation> annotationMap, CodeTemplate.Paragraph paragraph) {
+
+        if(this.publishMode==null) return;
+
+        String prefix = this.publishMode+":";
+        annotationMap.entrySet().stream()
+                .filter(entry -> entry.getKey().contains(prefix))
+                .map(Map.Entry::getValue)
+                .forEach(paragraph::add);
+
+
+    }
+
+
+
+    private void setSqlDeleteAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
+        if (field.hasAnnotation("chkdelete")) {
+
         }
     }
 }

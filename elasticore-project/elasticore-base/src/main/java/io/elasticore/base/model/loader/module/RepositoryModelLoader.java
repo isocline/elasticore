@@ -89,12 +89,10 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
             methodItems.addItem(methodInfo);
         }
 
-
         //return Repository.create(entityNm, methodItems, null);
         return Repository.create(entityNm, methodItems, metaInfo);
 
     }
-
 
     /**
      * @param map
@@ -113,22 +111,17 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         }
 
 
-
-
         String returnType = (String) map.get("return");
 
         if (returnType != null) {
             Field returnField = this.parseFieldLine("return", returnType);
         }
 
-
         Items<Field> fieldItems = null;
         Map params = (Map) map.get("params");
         if (params != null) {
             fieldItems = this.parseField(params);
         }
-
-
 
         return Method.builder()
                 .identity(BaseComponentIdentity.create(ComponentType.METHOD,id))

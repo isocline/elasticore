@@ -7,6 +7,7 @@ import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.util.StringUtils;
 import lombok.SneakyThrows;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -17,10 +18,11 @@ import net.sf.jsqlparser.util.TablesNamesFinder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SqlQueryInfo {
 
-    private String[] JPA_PREDEFIEND_METHODS = new String[] {"findById","findAllById"};
+    private String[] JPA_PREDEFIEND_METHODS = new String[]{"findById", "findAllById"};
 
     private String sqlTxt;
 
@@ -63,7 +65,7 @@ public class SqlQueryInfo {
 
 
         if (this.isNativeQuery) {
-            this.targetEntity = ctx.getEntityItems().filter(e->e.getTableName().equalsIgnoreCase(targetTableName));
+            this.targetEntity = ctx.getEntityItems().filter(e -> e.getTableName().equalsIgnoreCase(targetTableName));
         } else {
             this.targetEntity = ctx.getEntityItems().findByName(targetTableName);
         }
@@ -71,13 +73,16 @@ public class SqlQueryInfo {
         setVarNameList.stream()
                 .forEach(varName -> {
                     Field f = this.targetEntity.getItems().findByName(varName);
-                    if(f!=null)
+                    if (f != null)
                         this.setVarFieldItems.addItem(f);
                 });
 
 
         setRepositoryMethodName();
     }
+
+    private final AtomicInteger whereAndCount = new AtomicInteger(0);
+
 
     @SneakyThrows
     private void parseSQL2(String sql) {
@@ -108,6 +113,20 @@ public class SqlQueryInfo {
                     // AllColumns
 
                     Expression expression = plainSelect.getWhere();
+                    if (expression != null) {
+                        expression.accept(new ExpressionVisitorAdapter() {
+                            @Override
+                            public void visit(AndExpression expr) {
+
+                                whereAndCount.incrementAndGet();
+                                super.visit(expr);
+                            }
+                        });
+
+                    }
+
+                    System.out.println( whereAndCount.get() +" <<<<<<<<<<<<<<<<<" );
+
                     if (expression instanceof EqualsTo) {
                         // where
                         EqualsTo equalsTo = (EqualsTo) expression;
@@ -120,10 +139,12 @@ public class SqlQueryInfo {
                     } else if (expression instanceof AndExpression) {
                         // one more
                         AndExpression ae = (AndExpression) expression;
+
+
                         Expression e1 = ae.getLeftExpression();
                         Expression e2 = ae.getRightExpression();
 
-                        System.err.println(e1 + " " + e2);
+                        System.err.println(e1 + " ====***======== " + e2);
                     } else {
                         System.err.println(expression);
                     }
@@ -169,44 +190,79 @@ public class SqlQueryInfo {
 
     private String jpaMethodName;
 
+
+    private boolean isPredefinedJpaMethodName = false;
+
+
+    private boolean isJpaQueryAnnotationNeed = true;
+
     private boolean isEnableNativeJpaMethod = false;
 
     public void setRepositoryMethodName() {
 
         StringBuilder sb = new StringBuilder();
 
-        if(isSelectQuery) {
-
-            if(isUniqueSearch()) {
-                sb.append("findBy");
-            }else {
-                sb.append("findAllBy");
-            }
+        if (isSelectQuery) {
 
             List<Field> fieldList = setVarFieldItems.getItemList();
+
+
+            if(whereAndCount.get() == (fieldList.size()-1) ) {
+                isJpaQueryAnnotationNeed = false;
+            }
+
+
+            if (isUniqueSearch()) {
+                if(isJpaQueryAnnotationNeed)
+                    sb.append("getBy");
+                else
+                    sb.append("findBy");
+            } else {
+                if(isJpaQueryAnnotationNeed)
+                    sb.append("listBy");
+                else
+                    sb.append("findAllBy");
+            }
+
+
             int sz = setVarFieldItems.size();
-            for(int i=0;i<sz;i++) {
+            for (int i = 0; i < sz; i++) {
                 Field f = fieldList.get(i);
                 String srchField = StringUtils.capitalize(f.getName());
-                if(i>0)
+                if (i > 0)
                     sb.append("And");
                 sb.append(srchField);
             }
             this.jpaMethodName = sb.toString();
 
-            if(!Arrays.stream(JPA_PREDEFIEND_METHODS).anyMatch(this.jpaMethodName::equals))
-                this.isEnableNativeJpaMethod = true;
+
+
+
+            if (Arrays.stream(JPA_PREDEFIEND_METHODS).anyMatch(this.jpaMethodName::equals))
+                isPredefinedJpaMethodName = true;
+
+            //this.isEnableNativeJpaMethod = true;
+
 
         }
+    }
+
+    public boolean isJpaQueryAnnotationNeed() {
+        return isJpaQueryAnnotationNeed;
+    }
+
+    public boolean isPredefinedJpaMethodName() {
+        return isPredefinedJpaMethodName;
     }
 
     public String getJpaMethodName() {
         return jpaMethodName;
     }
 
+    /*
     public boolean isEnableNativeJpaMethod() {
         return isEnableNativeJpaMethod;
-    }
+    }*/
 
     public Items<Field> getSetVarFieldItems() {
         return setVarFieldItems;
@@ -219,8 +275,8 @@ public class SqlQueryInfo {
 
     public boolean isUniqueSearch() {
         boolean isUniqueSearch = false;
-        for(Field f: this.setVarFieldItems.getItemList()) {
-            if(f.isPrimaryKey() || f.isUnique()) {
+        for (Field f : this.setVarFieldItems.getItemList()) {
+            if (f.isPrimaryKey() || f.isUnique()) {
                 isUniqueSearch = true;
             }
         }
@@ -230,10 +286,10 @@ public class SqlQueryInfo {
     public String getDefaultReturnType() {
 
         String entityName = this.targetEntity.getIdentity().getName();
-        if(isUniqueSearch())
-            return "Optional<"+entityName+">";
+        if (isUniqueSearch())
+            return "Optional<" + entityName + ">";
         else
-            return "List<"+entityName+">";
+            return "List<" + entityName + ">";
     }
 
 

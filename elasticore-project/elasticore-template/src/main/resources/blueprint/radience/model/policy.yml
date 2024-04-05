@@ -14,8 +14,8 @@ enumeration:
 entity:
   CheckDTO:
     meta: entity @template(BaseModel,TES)
-  fields:
-    name: string
+    fields:
+      name: int
 
   BaseModel:
     meta: template
@@ -60,28 +60,14 @@ entity:
 repository:
   Person:
     methods:
-      - id: test
+      - id: sel1
         query: select m from Person m where attainedAge=:attainedAge and deathRegistrationUserId=:deathRegistrationUserId
 
-
-      - id: test2
-        query: select m from Person m where dateOfBirth = :dateOfBirth
-        sql2: |
-          select m
-          from person m,Department d,office c
+      - id: sel2
+        query: |
+          select m from Person m
           where
-            d.name = :name --if
-            d.name = :name --if
-
-        sql:
-          select: Person
-          from: Person p, Department d
-          where:
-            - (
-            - ?attainedAge=:attainedAge
-            - ?deathRegistrationUserId=:deathRegistrationUserId
-            - ?department.name = :name
-            - ) OR (
-            - ?deathRegistrationUserId=:deathRegistrationUserId
-            - )
+          1 =1
+          and dateOfBirth=:dateOfBirth --if
+          and deathRegistrationUserId=:deathRegistrationUserId --if
 

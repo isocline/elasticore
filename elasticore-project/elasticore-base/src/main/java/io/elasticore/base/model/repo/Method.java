@@ -36,20 +36,28 @@ public class Method implements ModelComponent {
         if(queryInfo==null)
             return false;
 
+        /*
         if(this.name !=null)
             return true;
 
-        if( queryInfo.getJpaMethodName()!=null)
-            return false;
+         */
 
-        return true;
+        return queryInfo.isJpaQueryAnnotationNeed();
     }
 
     public boolean isEnable() {
 
+        if(queryInfo!=null) {
+            if(queryInfo.isPredefinedJpaMethodName())
+                return false;
+        }
+
+        /*
         if(queryInfo!=null)
             return queryInfo.isEnableNativeJpaMethod();
 
+
+         */
         return true;
 
     }

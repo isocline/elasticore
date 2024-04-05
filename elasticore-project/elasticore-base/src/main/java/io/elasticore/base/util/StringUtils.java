@@ -21,7 +21,9 @@ public class StringUtils {
 
         char capitalFirstLetter = Character.toUpperCase(firstLetter);
 
-        return inputString.replace(inputString.charAt(0), capitalFirstLetter);
+        return capitalFirstLetter + inputString.substring(1);
+
+        //return inputString.replace(inputString.charAt(0), capitalFirstLetter);
     }
 
     /**
@@ -35,13 +37,13 @@ public class StringUtils {
 
         for (int i = 0; i < parts.length; i++) {
             if (i == 0)
-                formattedString.append("\"");
+                formattedString.append("\" ");
             else
-                formattedString.append(" \"");
+                formattedString.append(" \" ");
             formattedString.append(parts[i]).append("\"");
 
             if (i < parts.length - 1) {
-                formattedString.append("\n + ");
+                formattedString.append("\n \t\t + ");
             }
         }
         return formattedString.toString();

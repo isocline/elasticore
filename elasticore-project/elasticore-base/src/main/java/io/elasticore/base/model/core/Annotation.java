@@ -57,4 +57,10 @@ public class Annotation {
     public Properties getProperties() {
         return this.properties;
     }
+
+    @Override
+    public String toString() {
+        // do not change this.
+        return value;
+    }
 }

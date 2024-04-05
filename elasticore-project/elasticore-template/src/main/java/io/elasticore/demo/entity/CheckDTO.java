@@ -18,6 +18,7 @@ import java.time.*;
 
 */
 
+@Entity
 
 @Getter
 @Setter
@@ -25,6 +26,10 @@ import java.time.*;
 @AllArgsConstructor
 
 public  class CheckDTO  implements java.io.Serializable  {
+
+	@Column(name = "name")
+	private int name;
+	
 
 	@Column(name = "update_date")
 	private String updateDate;

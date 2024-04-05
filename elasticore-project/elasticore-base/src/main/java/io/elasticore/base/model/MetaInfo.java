@@ -35,6 +35,10 @@ public class MetaInfo {
         return infoAnnotationMap.containsKey(name);
     }
 
+    public Map<String, Annotation> getMetaAnnotationMap() {
+        return metaAnnotationMap;
+    }
+
     public Annotation getMetaAnnotation(String name) {
         if (metaAnnotationMap == null) {
             return null;

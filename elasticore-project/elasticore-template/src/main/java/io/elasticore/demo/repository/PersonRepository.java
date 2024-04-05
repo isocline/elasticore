@@ -21,9 +21,14 @@ import io.elasticore.demo.entity.*;
 public interface PersonRepository extends JpaRepository<Person,Long> {
 
 
-    List<Person> findAllByDeathRegistrationUserIDAndAttAinedAge(String deathRegistrationUserId ,Integer attainedAge);
+    List<Person> findAllByDeathRegistrationUserIdAndAttainedAge(String deathRegistrationUserId ,Integer attainedAge);
     
-    List<Person> findAllByDateOfBirth(String dateOfBirth);
+    @Query(nativeQuery=false, value=" select m from Person m"
+ 		 +  " where"
+ 		 +  " 1 =1"
+ 		 +  " and dateOfBirth=:dateOfBirth --if"
+ 		 +  " and deathRegistrationUserId=:deathRegistrationUserId")
+    List<Person> listByDateOfBirthAndDeathRegistrationUserId(@Param("dateOfBirth") String dateOfBirth ,@Param("deathRegistrationUserId") String deathRegistrationUserId);
     
 
 
