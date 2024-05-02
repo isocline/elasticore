@@ -10,12 +10,17 @@ enumeration:
       USD: 840,dollar
       CAD: 124,dollar
 
+
+
+
 ## model
 entity:
+
   CheckDTO:
     meta: entity @template(BaseModel,TES)
     fields:
       name: int
+
 
   BaseModel:
     meta: template
@@ -55,6 +60,18 @@ entity:
       contractIssueStartDay: string
       numberOfHoldDays: integer
       age: int
+
+
+
+  MyEntity:
+    meta: entity |
+      @jpa:SQLDelete(sql = "UPDATE my_entity SET end_date = CURRENT_TIMESTAMP WHERE id = ?")
+      @jpa:Where(clause = "end_date IS NULL")
+    fields:
+      data: string
+      endData: datetime
+
+
 
 
 repository:

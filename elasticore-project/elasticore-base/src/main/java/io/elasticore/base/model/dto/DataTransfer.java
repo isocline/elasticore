@@ -1,10 +1,7 @@
 package io.elasticore.base.model.dto;
 
 
-import io.elasticore.base.model.ComponentIdentity;
-import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.MetaInfo;
-import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.AbstractReplaceableModel;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.BaseModelComponentItem;
@@ -13,7 +10,7 @@ import io.elasticore.base.model.entity.Field;
 import lombok.Getter;
 
 @Getter
-public class DataTransfer extends AbstractReplaceableModel {
+public class DataTransfer extends AbstractReplaceableModel implements MetaInfoModel {
 
     private final MetaInfo metaInfo;
     private final ModelComponentItems<Field> items;
@@ -22,7 +19,11 @@ public class DataTransfer extends AbstractReplaceableModel {
         super(id);
 
         this.items = new BaseModelComponentItem(items);
-        this.metaInfo = metaInfo;
+
+        if(metaInfo==null)
+            this.metaInfo = MetaInfo.createEmpty();
+        else
+            this.metaInfo = metaInfo;
     }
 
     public static DataTransfer create(String name, Items<Field> items, MetaInfo metaInfo) {

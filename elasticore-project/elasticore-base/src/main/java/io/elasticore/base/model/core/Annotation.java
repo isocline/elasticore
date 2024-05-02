@@ -41,6 +41,10 @@ public class Annotation {
         return new Annotation(name);
     }
 
+    public static Annotation create(String name, String value) {
+
+        return create(name,value,null);
+    }
     public static Annotation create(String name, String value, Properties properties) {
         if(properties!=null && properties.size()>0)
             return new Annotation(name, properties);
@@ -51,7 +55,19 @@ public class Annotation {
     }
 
     public String getValue(){
+        if(this.value!=null) {
+            if(this.value.indexOf("'")==0)
+                if(this.value.lastIndexOf("'")==(this.value.length()-1))
+                    return this.value.substring(1, this.value.length()-1);
+        }
         return this.value;
+    }
+
+    public boolean hasValue() {
+        if(this.value == null)
+            return false;
+
+        return true;
     }
 
     public Properties getProperties() {

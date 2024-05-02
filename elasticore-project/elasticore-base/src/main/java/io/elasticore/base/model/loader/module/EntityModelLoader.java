@@ -7,6 +7,7 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 
@@ -17,6 +18,9 @@ import java.util.Map;
 
 public class EntityModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Entity> {
 
+    public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
+        return loadModel(ctx, source.getInfoMap());
+    }
 
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
         if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {

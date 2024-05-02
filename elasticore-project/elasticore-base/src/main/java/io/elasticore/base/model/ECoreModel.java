@@ -1,6 +1,8 @@
 package io.elasticore.base.model;
 
 import java.util.Map;
+
+import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.repo.RepositoryModels;
@@ -15,11 +17,21 @@ public class ECoreModel {
 
     private EnumModels enumModels;
 
+    private DataTransferModels dataTransferModels;
+
     private RepositoryModels repositoryModels;
 
     private Map<String, Object> configMap;
 
     private Map<String, String> namespaceMap;
+
+    public String getConfig(String key, String defualtValue) {
+        String val = getConfig(key);
+        if(val==null)
+            val = defualtValue;
+
+        return val;
+    }
 
 
     public String getConfig(String key) {

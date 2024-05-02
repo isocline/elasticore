@@ -66,13 +66,13 @@ public class TypeInfo {
 
 
     public String getDefaultTypeName() {
-        if(isBaseType() && !isList()) {
+        if(annotationMap!=null && isBaseType() && !isList()) {
 
             if(annotationMap.containsKey("id")) {
                 return this.baseFieldType.getWrapperClassName();
             }
 
-            return this.baseFieldType.getName();
+            return this.baseFieldType.getWrapperClassName();
         }
 
         return this.initTypeInfo;
@@ -80,6 +80,9 @@ public class TypeInfo {
 
     public boolean isBaseType() {
         if (baseFieldType == BaseFieldType.UNKNOWN) {
+            return false;
+        }
+        if (baseFieldType == BaseFieldType.LIST) {
             return false;
         }
         return true;

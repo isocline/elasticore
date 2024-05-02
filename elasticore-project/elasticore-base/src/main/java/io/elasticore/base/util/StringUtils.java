@@ -26,6 +26,16 @@ public class StringUtils {
         //return inputString.replace(inputString.charAt(0), capitalFirstLetter);
     }
 
+    public static String uncapitalize(String inputString) {
+        char firstLetter = inputString.charAt(0);
+
+        char capitalFirstLetter = Character.toLowerCase(firstLetter);
+
+        return capitalFirstLetter + inputString.substring(1);
+
+        //return inputString.replace(inputString.charAt(0), capitalFirstLetter);
+    }
+
     /**
      * @param line
      * @return

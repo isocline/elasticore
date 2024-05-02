@@ -32,5 +32,8 @@ public class DataTransferModels {
 
     }
 
+    public DataTransfer findByName(String name) {
+        return this.items.find(BaseComponentIdentity.create(ComponentType.DTO, name));
+    }
 
 }

@@ -1,0 +1,92 @@
+
+
+entity:
+
+  ContractGroup:
+    meta: entity @template(BaseModel)
+    fields:
+      grpSeq: int @id @sequence @labe('그릅 일련번호')
+      groupName: String @len(200) @label('그룹명')
+      contactInfoList: List<ContactInfo>
+
+  ContactInfo:
+      memta: entity @template(BaseModel)
+      fields:
+        grpSeq: int @id  @labe('그릅 일련번호')
+        contactSeq: int @id @sequence @labe('순번')
+        contractName: string @len(100) @labe('이용자명')
+        contractTel: string @len(20) @labe('연락처(전화번호)')
+
+
+Repository:
+  ContactInfo:
+    methods:
+      - id: searchConcatInfo
+        query: |
+          select * from ContactInfo where 1=1
+          and contractName like '%${?name}%'
+          and contractTel like'%${?tel}%'
+        pageable: true
+
+      - id: searchConcatInfo2
+        query: |
+          select b from #{#entityName} where 1=1
+          and contractName like '%${?name}%'
+          and contractTel like'%${?tel}%'
+
+      - id: update2
+          desc: @Modofying 오너테이션 추가되야 함.
+          query: |
+            UPDATE FROM PSDFILE f set f.sfdsfd=:newfileName where f.fno = :fno
+
+
+dto:
+  ContractGroupDTO:
+    meta: dto @template(ConctractGroup)
+
+
+
+Services:
+  PersonService:
+    methods:
+      - name: findById
+        action: searchConcatInfo@person
+        input:
+          - id: String
+        output: ContractGroupDTO
+      - name: test
+        inputs:
+          test: TestDTO
+        output: ResultDTO
+        action:
+          if(test.age>0 | test.name != 'name')
+            person.delete(
+
+
+
+API:
+  Person:
+    endpoints:
+      - method: GET
+        path: /persons
+        action: findAll
+
+      - method: POST
+        path: /persons
+        action: create
+      - method: PUT
+        path: /persons/{id}
+        action: update
+      - method: DELETE
+        path: /persons/{id}
+        action: delete
+
+
+
+
+
+
+
+
+
+

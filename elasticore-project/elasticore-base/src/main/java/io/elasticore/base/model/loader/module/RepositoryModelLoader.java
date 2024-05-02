@@ -7,6 +7,7 @@ import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.model.repo.Method;
@@ -33,6 +34,11 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
     private ModelLoaderContext ctx;
 
     private List<SqlQueryInfo> sqlQueryInfoList = new ArrayList<>();
+
+
+    public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
+        return loadModel(ctx, source.getInfoMap());
+    }
 
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
         this.ctx = ctx;

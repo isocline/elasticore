@@ -33,14 +33,5 @@ public interface ECoreModelContext {
      */
     ModelDomain getDomain(String name);
 
-    /**
-     * Publishes the model components of the current context using the specified code publisher.
-     * This method orchestrates the publishing process, delegating the publication of individual
-     * model components to the provided publisher.
-     *
-     * @param publisher The CodePublisher instance to use for publishing model components.
-     * @return True if the publication was successful; False otherwise.
-     * @throws ProcessException If an error occurs during the publishing process.
-     */
-    boolean publish(CodePublisher publisher) throws ProcessException;
+
 }

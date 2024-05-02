@@ -20,7 +20,12 @@ public class EnumModel extends AbstractReplaceableModel {
     private EnumModel(ComponentIdentity id, MetaInfo metaInfo, Items<Field> fieldItems, Items<EnumConstant> enumConstantItems) {
         super(id);
 
-        this.metaInfo = metaInfo;
+        if(metaInfo==null)
+            this.metaInfo = MetaInfo.createEmpty();
+        else
+            this.metaInfo = metaInfo;
+
+
         this.fieldItems = fieldItems;
         this.enumConstantItems = enumConstantItems;
     }

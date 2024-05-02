@@ -34,14 +34,9 @@ public interface CodePublisher {
      */
     ECoreModelContext getECoreModelContext();
 
-    /**
-     * Publishes the model components to source code based on the provided context.
-     *
-     * @param ctx The context containing model information for publishing.
-     * @return True if the publishing was successful; False otherwise.
-     * @throws ProcessException If an error occurs during the publishing process.
-     */
-    boolean publish(ECoreModelContext ctx) throws ProcessException;
+
+
+    void publish(ECoreModelContext ctx, ModelDomain domain);
 
     /**
      * Handles errors that occur during the publishing process.

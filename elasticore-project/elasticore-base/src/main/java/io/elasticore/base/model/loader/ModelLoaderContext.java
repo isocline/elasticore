@@ -26,6 +26,14 @@ public class ModelLoaderContext {
         this.nsMap = nsMap;
     }
 
+    public String getConfig(String key, String defaultValue) {
+        String val = getConfig(key);
+        if(val==null)
+            return defaultValue;
+
+        return val;
+    }
+
     public String getConfig(String key) {
         if (configMap == null) {
             return null;
@@ -71,4 +79,11 @@ public class ModelLoaderContext {
         return this.repositoryItems;
     }
 
+    public Map<String, Object> getConfigMap() {
+        return configMap;
+    }
+
+    public Map<String, String> getNsMap() {
+        return nsMap;
+    }
 }

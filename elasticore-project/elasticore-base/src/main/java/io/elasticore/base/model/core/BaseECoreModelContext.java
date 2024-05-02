@@ -19,6 +19,9 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
     private final ModelLoader loader;
 
+
+    private static BaseECoreModelContext context;
+
     private BaseECoreModelContext(ModelLoader loader) {
         this.loader = loader;
     }
@@ -44,10 +47,16 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
     public synchronized static ECoreModelContext getContext(ModelLoader loader) {
-        BaseECoreModelContext context = new BaseECoreModelContext(loader);
+        context = new BaseECoreModelContext(loader);
         context.load();
         return context;
     }
+
+    public synchronized static ECoreModelContext getContext() {
+        return context;
+    }
+
+
 
 
     @Override
@@ -64,12 +73,6 @@ public class BaseECoreModelContext implements ECoreModelContext {
     public ModelDomain getDomain(String name) {
         return modelDomainMap.get(name);
     }
-
-    @Override
-    public boolean publish(CodePublisher publisher) throws ProcessException {
-        return publisher.publish(this);
-    }
-
 
 
 }

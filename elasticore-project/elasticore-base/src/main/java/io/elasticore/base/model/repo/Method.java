@@ -104,4 +104,13 @@ public class Method implements ModelComponent {
 
         return "unknownMethod";
     }
+
+
+    public boolean isNative() {
+        if(this.queryInfo!=null) {
+            isNative =this.queryInfo.isNativeQuery();
+        }
+
+        return isNative;
+    }
 }

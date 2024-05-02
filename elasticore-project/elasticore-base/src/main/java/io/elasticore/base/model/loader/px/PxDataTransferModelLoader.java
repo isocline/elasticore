@@ -1,0 +1,259 @@
+package io.elasticore.base.model.loader.px;
+
+import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.core.Annotation;
+import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.loader.FileSource;
+import io.elasticore.base.model.loader.ModelLoader;
+import io.elasticore.base.model.loader.ModelLoaderContext;
+import io.elasticore.base.model.loader.module.AbstractModelLoader;
+import io.elasticore.base.util.StringUtils;
+import io.elasticore.base.util.XmlUtil;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+public class PxDataTransferModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<DataTransfer> {
+
+
+    private boolean isRequestAttr(Node n) {
+        try {
+            Node node = XmlUtil.getNodeByName(XmlUtil.getNodeByName(n, "ValueSource"), "Name");
+            if ("Entered".equals(node.getTextContent()))
+                return true;
+        } catch (NullPointerException npe) {
+        }
+
+        return false;
+    }
+
+
+    @Override
+    public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
+        Element e = source.getElement();
+
+        loadStructureInfo(e);
+        loadDataTypeInfo(e);
+
+        loadStrucuture(ctx, e);
+
+        return false;
+    }
+
+    protected void loadStrucuture(ModelLoaderContext ctx, Element e) {
+        NodeList list = XmlUtil.getNodeList(e, "/DeploymentPackage/DeploymentItem/DeployedPXML/FPMExport/StructureElement");
+
+        XmlUtil.iterable(list).forEach(info -> {
+            Element StructureElement = info.getElement();
+
+            DataTransfer dataTransfer = loadDataTransfer(StructureElement);
+
+            ctx.getDataTransferItems().addItem(dataTransfer);
+
+        });
+    }
+
+    private Map<String, ValueDefinition> ValueDefinitionMap = new HashMap<>();
+
+
+    protected void loadStructureInfo(Element e) {
+        NodeList list = XmlUtil.getNodeList(e, "/DeploymentPackage/DeploymentItem/DeployedPXML/FPMExport/StructureElement");
+
+        XmlUtil.iterable(list).forEach(info -> {
+            Element vdElement = info.getElement();
+
+            ValueDefinition valueDefinition = getValueDefinition(vdElement);
+            ValueDefinitionMap.put(valueDefinition.getLid(), valueDefinition);
+        });
+    }
+
+    ///DeploymentPackage/DeploymentItem[@id='FPM:7aed5b1e-e5de-41c6-82d7-42796dc6cc67.FinProductDeliverable']/DeployedPXML/FPMExport/ValueDefinition[@id='ID:02d46520-2ee5-4a78-b785-eef824f51dfd']
+    protected void loadDataTypeInfo(Element e) {
+        NodeList list = XmlUtil.getNodeList(e, "/DeploymentPackage/DeploymentItem/DeployedPXML/FPMExport/ValueDefinition");
+
+        XmlUtil.iterable(list).forEach(info -> {
+            Element vdElement = info.getElement();
+
+            ValueDefinition valueDefinition = getValueDefinition(vdElement);
+            ValueDefinitionMap.put(valueDefinition.getLid(), valueDefinition);
+        });
+    }
+
+    private ValueDefinition getValueDefinition(Element e) {
+
+        String id = XmlUtil.getAttributeValue(e, "id");
+        String vid = XmlUtil.getAttributeValue(e, "vid");
+        String lid = XmlUtil.getAttributeValue(e, "lid");
+
+        String name = XmlUtil.getNodeText(e, "Name");
+        String documentation = XmlUtil.getNodeText(e, "Documentation");
+        String structure = XmlUtil.getNodeText(e, "Structure");
+        String dataType = XmlUtil.getNodeText(e, "DataType");
+
+        return ValueDefinition.builder()
+                .id(id)
+                .vid(vid)
+                .lid(lid)
+                .name(name)
+                .documentation(documentation)
+                .structure(structure)
+                .dataType(dataType)
+                .build();
+    }
+
+
+    protected DataTransfer loadDataTransfer(Element StructureElement) {
+        Node node = XmlUtil.getNodeByName(StructureElement, "Name");
+        String name = node.getTextContent();
+        System.err.println(">> " + name);
+
+        Items<Field> fieldItems = loadFieldData(StructureElement);
+        return DataTransfer.create(name, fieldItems, null);
+    }
+
+
+    protected Items<Field> loadFieldData(Element StructureElement) {
+
+        Items<Field> fieldItems = Items.create(Field.class);
+
+        NodeList attrList = XmlUtil.getNodeList(StructureElement, "Attribute");
+        XmlUtil.iterable(attrList).forEach(attr -> {
+            Element attrElmnt = attr.getElement();
+            Node node = XmlUtil.getNodeByName(attrElmnt, "Name");
+            String fieldName = node.getTextContent();
+
+            System.err.println(" --  " + fieldName + " " + isRequestAttr(attrElmnt));
+
+            Map<String, Annotation> annotationMap = getAnnotationMap(attrElmnt);
+
+
+            String type = "String";
+            try {
+                Annotation typeAnnotation = annotationMap.get("typeref");
+                String typeLid = typeAnnotation.getValue();
+
+                ValueDefinition vd = this.ValueDefinitionMap.get(typeLid);
+                type = getTypeName(vd);
+            }catch (NullPointerException npe){}
+
+
+            Field f = Field.builder().annotationMap(annotationMap)
+                    .name(fieldName).type(type).build();
+            fieldItems.addItem(f);
+
+        });
+
+        //StructureLink
+        NodeList structureLinkList = XmlUtil.getNodeList(StructureElement, "StructureLink");
+        XmlUtil.iterable(structureLinkList).forEach(attr -> {
+            Element structureLink = attr.getElement();
+
+            Element target = (Element) XmlUtil.getNodeByName(structureLink,"Target");
+            String lidRef = target.getAttribute("lid-ref");
+
+
+            ValueDefinition vd = ValueDefinitionMap.get(lidRef);
+            if(vd!=null) {
+                Element multiple = (Element) XmlUtil.getNodeByName(structureLink,"Multiplicity");
+                String name = vd.getName();
+                String type = multiple.getAttribute("type");
+                //<Multiplicity type='multiple' mandatory='false'/>
+                String fieldType = null;
+                String fieldName = null;
+                if("multiple".equals(type))  {
+                    fieldType = "List<"+name+">";
+                    fieldName = StringUtils.uncapitalize(name)+"List";
+                }else {
+                    fieldType = name;
+                    fieldName = StringUtils.uncapitalize(name);
+                }
+
+                Map<String, Annotation> annotationMap = getAnnotationMap(multiple);
+                Field f = Field.builder().annotationMap(annotationMap)
+                        .name(fieldName).type(fieldType).build();
+                fieldItems.addItem(f);
+            }
+
+
+        });
+
+        return fieldItems;
+    }
+
+    private String getTypeName(ValueDefinition vd) {
+        String dt = vd.getDataType();
+        if("real".equals(dt))
+            return "Double";
+
+
+        return "String";
+    }
+    protected Map<String, Annotation> getAnnotationMap(Element attrElmnt) {
+        Map<String, Annotation> annotationMap = new HashMap<>();
+
+        NamedNodeMap namedNodeMap = attrElmnt.getAttributes();
+
+        for (int i = 0; i < namedNodeMap.getLength(); i++) {
+            Node n = namedNodeMap.item(i);
+            String key = n.getNodeName();
+            String val = n.getNodeValue();
+            Annotation annotation = Annotation.create(key, val);
+            annotationMap.put(key, annotation);
+        }
+
+        try {
+            String kind = XmlUtil.getNodeList(attrElmnt, "ValueSource/Kind").item(0).getTextContent();
+            Annotation annotation = Annotation.create("kind", kind);
+            annotationMap.put("kind", annotation);
+        } catch (NullPointerException npe) {
+        }
+
+        //<TypeRef lid-ref='ID:151ea245-6afb-4650-bba0-31d0f33cc9d4' type='ValueDefinition' def='external'/>
+        try {
+            NamedNodeMap namedNodeMap1 = XmlUtil.getNodeByName(attrElmnt, "TypeRef").getAttributes();
+            String typeref = namedNodeMap1.getNamedItem("lid-ref").getNodeValue();
+            Annotation annotation = Annotation.create("typeref", typeref);
+            annotationMap.put("typeref", annotation);
+        } catch (NullPointerException npe) {
+        }
+
+
+        return annotationMap;
+
+
+    }
+
+    /**
+     * <ValueDefinition id='ID:02d46520-2ee5-4a78-b785-eef824f51dfd' vid='ID:a91b863c-de34-4adf-bcc3-4d836467a69c' lid='ID:e5d0e982-8434-4a46-b436-d34e45a0c94c'>
+     * <Name>Table ID</Name>
+     * <CreationTime>2012-07-18 12:32:08</CreationTime><VersionNumber>3.0</VersionNumber>
+     * <Documentation>Value definition used to represent a ProductXpress table.</Documentation>
+     * <Structure>scalar</Structure>
+     * <DataType>tableId</DataType>
+     * </ValueDefinition>
+     */
+    @Getter
+    @Builder
+    private static class ValueDefinition {
+        private String id;
+        private String vid;
+        private String lid;
+        private String name;
+        private String documentation;
+        private String structure;
+        private String dataType;
+
+
+    }
+
+}

@@ -11,6 +11,12 @@ public class MetaInfo {
 
     private Map<String, Annotation> metaAnnotationMap;
 
+    private MetaInfo() {
+        this.infoAnnotationMap = null;
+        this.metaAnnotationMap = null;
+
+    }
+
     private MetaInfo(Map<String, Annotation> infoAnnotationMap, Map<String, Annotation> metaAnnotationMap) {
         this.infoAnnotationMap = infoAnnotationMap;
         this.metaAnnotationMap = metaAnnotationMap;
@@ -18,6 +24,10 @@ public class MetaInfo {
 
     public static MetaInfo creat(Map<String, Annotation> infoAnnotationMap, Map<String, Annotation> metaAnnotationMap) {
         return new MetaInfo(infoAnnotationMap, metaAnnotationMap);
+    }
+
+    public static MetaInfo createEmpty(){
+        return new MetaInfo();
     }
 
     public Annotation getInfoAnnotation(String name) {

@@ -2,10 +2,7 @@ package io.elasticore.base.model.entity;
 
 
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ComponentIdentity;
-import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.MetaInfo;
-import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.*;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
@@ -13,7 +10,7 @@ import io.elasticore.base.util.StringUtils;
 import lombok.Getter;
 
 @Getter
-public class Entity extends AbstractReplaceableModel {
+public class Entity extends AbstractReplaceableModel implements MetaInfoModel {
 
     private final MetaInfo metaInfo;
     private final Items<Field> items;
@@ -25,7 +22,11 @@ public class Entity extends AbstractReplaceableModel {
 
         this.items = items;
         //this.items = new BaseModelComponentItem(items);
-        this.metaInfo = metaInfo;
+        if(metaInfo ==null)
+            this.metaInfo = MetaInfo.createEmpty();
+        else
+            this.metaInfo = metaInfo;
+
 
         setRelationshipEntity();
 
@@ -152,6 +153,19 @@ public class Entity extends AbstractReplaceableModel {
         return null;
     }
 
+
+    public String findFieldName(String fieldName) {
+        String findName = null;
+        Field f = this.items.findByName(fieldName);
+
+        if(f==null) return null;
+
+        if(this.pkField.isMultiple()) {
+            return "Id"+StringUtils.capitalize(f.getName());
+        }
+
+        return f.getName();
+    }
 
 
 }

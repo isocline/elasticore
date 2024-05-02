@@ -24,7 +24,11 @@ public class Repository extends AbstractReplaceableModel {
         if(items==null)
             items = Items.create(Method.class);
         this.items = new BaseModelComponentItem(items);
-        this.metaInfo = metaInfo;
+        if(metaInfo ==null)
+            this.metaInfo = MetaInfo.createEmpty();
+        else
+            this.metaInfo = metaInfo;
+
     }
 
     public static Repository create(String name, Items<Method> items, MetaInfo metaInfo) {

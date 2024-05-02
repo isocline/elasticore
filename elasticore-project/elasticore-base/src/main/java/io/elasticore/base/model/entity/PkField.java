@@ -45,4 +45,9 @@ public class PkField {
     }
 
 
+    public int getKeyCount() {
+        return this.items.size();
+    }
+
+
 }

@@ -4,7 +4,7 @@ import io.elasticore.base.*;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
-import io.elasticore.base.model.pub.JPACodePublisher;
+import io.elasticore.base.model.pub.CodePublishManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,6 +83,8 @@ public class ModelExtractor {
             return;
         }
 
+        CodePublishManager codePublishManager = CodePublishManager.getInstance();
+
         for(String path: dirList) {
             FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
             loader.setTemplateFileDirPath(path);
@@ -94,15 +96,15 @@ public class ModelExtractor {
             ECoreModel model = defaultDomain.getModel();
 
 
-            JPACodePublisher publisher = JPACodePublisher.newInstance();
+
             //publisher.setDestBaseDirPath(rootDir+"/"+SRC_PATH);
 
             if(srcCodeWriterFactory==null) {
                 srcCodeWriterFactory = new FileBasedSrcCodeWriterFactory(rootDir+"/"+SRC_PATH);
             }
-            publisher.setSrcCodeWriterFactory(srcCodeWriterFactory);
+            codePublishManager.setSrcCodeWriterFactory(srcCodeWriterFactory);
+            codePublishManager.publish(ctx);
 
-            ctx.publish(publisher);
         }
 
 

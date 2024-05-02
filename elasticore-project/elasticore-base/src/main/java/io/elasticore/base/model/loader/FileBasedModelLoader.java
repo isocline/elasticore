@@ -11,10 +11,8 @@ import io.elasticore.base.model.enums.EnumModels;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.elasticore.base.model.loader.module.DataTransferModelLoader;
-import io.elasticore.base.model.loader.module.EntityModelLoader;
-import io.elasticore.base.model.loader.module.EnumerationModelLoader;
-import io.elasticore.base.model.loader.module.RepositoryModelLoader;
+import io.elasticore.base.model.loader.module.*;
+import io.elasticore.base.model.loader.px.PxFileMainModelLoader;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 
@@ -45,8 +43,6 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
     }
 
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
-
 
 
     private FileSource getLoadData(File f) {
@@ -86,32 +82,8 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
     }
 
 
-    @Override
-    public ECoreModel load(String domainName) {
+    private ECoreModel load(ModelLoaderContext context) {
 
-
-        //test();
-
-        List<FileSource> fileSources = new ArrayList<>();
-
-
-
-        if (templateFileDirPath == null) {
-            throw new IllegalArgumentException("templateFileDirPath is empty");
-        }
-
-        File envFile = new File(templateFileDirPath+"/env.yml");
-        if(!envFile.exists())
-            throw new IllegalArgumentException("env.yaml does not exist.");
-
-        FileSource envFs = getLoadData(envFile);
-        Map envMap = (Map) envFs.getInfoMap().get("env");
-
-        Map<String,Object> configMap = (Map) envMap.get("config");
-        Map<String,String> nsMap = (Map) envMap.get("namespace");
-
-
-        ModelLoaderContext context = new ModelLoaderContext(configMap, nsMap);
 
         File f = new File(templateFileDirPath);
         loadData(f, fileSources);
@@ -122,7 +94,6 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
 
 
-
         for (FileSource fileSource : fileSources) {
 
             Map<String, Map> map = fileSource.getInfoMap();
@@ -131,10 +102,10 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
                 continue;
             }
 
-            entityModelLoader.loadModel(context, map);
-            enumerationModelLoader.loadModel(context, map);
-            dataTransferModelLoader.loadModel(context, map);
-            repositoryModelLoader.loadModel(context, map);
+            entityModelLoader.loadModel(context, fileSource);
+            enumerationModelLoader.loadModel(context, fileSource);
+            dataTransferModelLoader.loadModel(context, fileSource);
+            repositoryModelLoader.loadModel(context, fileSource);
 
         }
 
@@ -154,9 +125,46 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
                 .entityModels(entityModels)
                 .enumModels(enumModels)
                 .repositoryModels(repositoryModels)
-                .configMap(configMap)
-                .namespaceMap(nsMap)
+                .configMap(context.getConfigMap())
+                .namespaceMap(context.getNsMap())
                 .build();
+    }
+
+
+    @Override
+    public ECoreModel load(String domainName) {
+        //test();
+        List<FileSource> fileSources = new ArrayList<>();
+
+        if (templateFileDirPath == null) {
+            throw new IllegalArgumentException("templateFileDirPath is empty");
+        }
+
+        File envFile = new File(templateFileDirPath + "/env.yml");
+        if (!envFile.exists())
+            throw new IllegalArgumentException("env.yaml does not exist.");
+
+        FileSource envFs = getLoadData(envFile);
+        Map envMap = (Map) envFs.getInfoMap().get("env");
+
+        Map<String, Object> configMap = (Map) envMap.get("config");
+        Map<String, String> nsMap = (Map) envMap.get("namespace");
+
+
+        ModelLoaderContext context = new ModelLoaderContext(configMap, nsMap);
+
+        MainModelLoader loader = getMainModelLoader(context, templateFileDirPath);
+
+        return loader.load(context);
+        //return load(context);
+    }
+
+    private MainModelLoader getMainModelLoader(ModelLoaderContext context, String baseFilePath) {
+        String mode = context.getConfig("mode", "jpa");
+        if("px".equals(mode)) {
+            return new PxFileMainModelLoader(baseFilePath);
+        }
+        return new YamlFileMainModelLoader(baseFilePath);
     }
 
 }

@@ -1,5 +1,6 @@
 package io.elasticore.base.model.pub.jpa;
 
+import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
@@ -8,7 +9,6 @@ import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.PkField;
-import io.elasticore.base.model.pub.JPACodePublisher;
 import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.util.CodeTemplate;
@@ -18,14 +18,14 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate baseCodeTmpl;
 
-    private JPACodePublisher publisher;
+    private CodePublisher publisher;
 
 
     private String packageName;
     private String entityPackageName;
 
 
-    public RepositoryFilePublisher(JPACodePublisher publisher) {
+    public RepositoryFilePublisher(CodePublisher publisher) {
         this.publisher = publisher;
 
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.repository");

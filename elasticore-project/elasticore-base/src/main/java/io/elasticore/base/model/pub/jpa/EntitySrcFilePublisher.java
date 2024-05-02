@@ -18,17 +18,14 @@
  */
 package io.elasticore.base.model.pub.jpa;
 
+import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Annotation;
-import io.elasticore.base.model.entity.Entity;
-import io.elasticore.base.model.entity.EntityModels;
-import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.entity.TypeInfo;
-import io.elasticore.base.model.pub.JPACodePublisher;
+import io.elasticore.base.model.entity.*;
 import io.elasticore.base.util.CodeTemplate;
 
 import java.util.ArrayList;
@@ -45,7 +42,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate javaClassTmpl;
 
-    private JPACodePublisher publisher;
+    private CodePublisher publisher;
 
     private String packageName;
 
@@ -63,7 +60,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      *
      * @param publisher The JPACodePublisher instance used for publishing.
      */
-    public EntitySrcFilePublisher(JPACodePublisher publisher) {
+    public EntitySrcFilePublisher(CodePublisher publisher) {
         this.publisher = publisher;
 
         this.publishMode = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("mode");
@@ -229,6 +226,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             //setFieldPkInfo(f, p);
             setFieldColumnAnnotation(f, p);
 
+            BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
+            if(ft == BaseFieldType.DATETIME)
+                p.add("@Temporal(TemporalType.TIMESTAMP)");
+            else if(ft == BaseFieldType.DATE)
+                p.add("@Temporal(TemporalType.DATE)");
+            else if(ft == BaseFieldType.TIME)
+                p.add("@Temporal(TemporalType.TIME)");
+
             String code = String.format("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
             p.add(code);
             p.add("");
@@ -272,6 +277,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             setNativeAnnotation(f, p);
 
             String defaultValDefined = getDefaultValueSetup(f);
+
+            BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
+            if(ft == BaseFieldType.DATETIME)
+                p.add("@Temporal(TemporalType.TIMESTAMP)");
+            else if(ft == BaseFieldType.DATE)
+                p.add("@Temporal(TemporalType.DATE)");
+            else if(ft == BaseFieldType.TIME)
+                p.add("@Temporal(TemporalType.TIME)");
 
 
             String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
@@ -374,8 +387,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         List<String> list = new ArrayList<>();
 
 
-        if (field.getTypeInfo().isBaseType())
-            list.add("name = \"" + field.getDbColumnName() + "\"");
+        String dbColumnName = null;
+        Annotation dbAnnot = field.getAnnotation("db");
+        if (dbAnnot != null && dbAnnot.hasValue()){
+            dbColumnName =dbAnnot.getValue();
+        }else if (field.getTypeInfo().isBaseType()){
+            dbColumnName = field.getDbColumnName();
+        }
+
+        if (dbColumnName !=null)
+            list.add("name = \"" + dbColumnName + "\"");
 
 
         if (field.hasAnnotation("text")) {
@@ -445,6 +466,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private void setNativeAnnotation(Map<String, Annotation> annotationMap, CodeTemplate.Paragraph paragraph) {
 
         if(this.publishMode==null) return;
+        if(annotationMap ==null) return;
 
         String prefix = this.publishMode+":";
         annotationMap.entrySet().stream()

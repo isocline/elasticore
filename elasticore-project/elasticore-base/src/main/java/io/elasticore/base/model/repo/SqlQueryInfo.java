@@ -1,8 +1,10 @@
 package io.elasticore.base.model.repo;
 
+import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.util.StringUtils;
 import lombok.SneakyThrows;
@@ -68,6 +70,9 @@ public class SqlQueryInfo {
             this.targetEntity = ctx.getEntityItems().filter(e -> e.getTableName().equalsIgnoreCase(targetTableName));
         } else {
             this.targetEntity = ctx.getEntityItems().findByName(targetTableName);
+            if(this.targetEntity ==null) {
+                throw new IllegalArgumentException("NOT FOUND TBL NAME: "+targetTableName);
+            }
         }
 
         setVarNameList.stream()
@@ -207,7 +212,7 @@ public class SqlQueryInfo {
             List<Field> fieldList = setVarFieldItems.getItemList();
 
 
-            if(whereAndCount.get() == (fieldList.size()-1) ) {
+            if(whereAndCount.get() == 0 || whereAndCount.get() == (fieldList.size()-1) ) {
                 isJpaQueryAnnotationNeed = false;
             }
 
@@ -228,11 +233,37 @@ public class SqlQueryInfo {
             int sz = setVarFieldItems.size();
             for (int i = 0; i < sz; i++) {
                 Field f = fieldList.get(i);
+                if(f.isPrimaryKey())
+                    sb.append(this.pkPrefix);
                 String srchField = StringUtils.capitalize(f.getName());
                 if (i > 0)
                     sb.append("And");
                 sb.append(srchField);
             }
+
+
+            int p = this.sqlTxt.lastIndexOf("order by");
+            if(p>0) {
+                String orderTxt = this.sqlTxt.substring(p);
+                String[] orderTxtItems = orderTxt.split(" ");
+
+                for(String t :orderTxtItems) {
+                    String findName = t;
+                    if(t.equalsIgnoreCase("order") ||t.equalsIgnoreCase("by")
+                            ||t.equalsIgnoreCase("asc")||t.equalsIgnoreCase("desc")) {
+
+                    }else {
+                        findName = this.targetEntity.findFieldName(t);
+                    }
+
+                    if(findName!=null) {
+                        sb.append(StringUtils.capitalize(findName));
+                    }
+
+                }
+            }
+
+
             this.jpaMethodName = sb.toString();
 
 
@@ -273,12 +304,34 @@ public class SqlQueryInfo {
         return this.targetEntity;
     }
 
+
+    private String pkPrefix = "";
+
+
     public boolean isUniqueSearch() {
+
+        int pkCount = 0;
+
+        PkField pk = this.targetEntity.findPkField(BaseECoreModelContext.getContext().getDomain());
+        if(pk!=null) {
+            pkCount = pk.getKeyCount();
+        }
+        if(pkCount>1) {
+            //pkPrefix = this.targetEntity.getIdentity().getName()+"sId";
+            pkPrefix = "Id";
+        }
+
+        int pkFoundCount=0;
         boolean isUniqueSearch = false;
         for (Field f : this.setVarFieldItems.getItemList()) {
             if (f.isPrimaryKey() || f.isUnique()) {
-                isUniqueSearch = true;
+                //isUniqueSearch = true;
+                pkFoundCount++;
             }
+        }
+
+        if(pkFoundCount == pkCount) {
+            isUniqueSearch = true;
         }
         return isUniqueSearch;
     }
@@ -295,5 +348,9 @@ public class SqlQueryInfo {
 
     public String getSqlTxt() {
         return sqlTxt;
+    }
+
+    public boolean isNativeQuery() {
+        return isNativeQuery;
     }
 }
