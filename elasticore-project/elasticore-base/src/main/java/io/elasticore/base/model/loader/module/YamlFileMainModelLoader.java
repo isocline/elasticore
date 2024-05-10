@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
@@ -63,10 +64,14 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         entityModelLoader.completeLoad();
         enumerationModelLoader.completeLoad();
         dataTransferModelLoader.completeLoad();
-        repositoryModelLoader.completeLoad();
+
 
         EntityModels entityModels = EntityModels.create("entityGrp", null, context.getEntityItems());
         EnumModels enumModels = EnumModels.create("enumGroup", null, context.getEnumModelItems());
+        DataTransferModels dataTransferModels = DataTransferModels.create("dto", null, context.getDataTransferItems());
+
+
+        repositoryModelLoader.completeLoad();
         RepositoryModels repositoryModels = RepositoryModels.create("repoGroup", null, context.getRepositoryItems());
 
         //EnumModels enumModels = getEnumModels();
@@ -75,6 +80,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         return ECoreModel.builder()
                 .entityModels(entityModels)
                 .enumModels(enumModels)
+                .dataTransferModels(dataTransferModels)
                 .repositoryModels(repositoryModels)
                 .configMap(context.getConfigMap())
                 .namespaceMap(context.getNsMap())

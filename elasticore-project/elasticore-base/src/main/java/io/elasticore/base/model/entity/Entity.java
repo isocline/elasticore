@@ -10,7 +10,7 @@ import io.elasticore.base.util.StringUtils;
 import lombok.Getter;
 
 @Getter
-public class Entity extends AbstractReplaceableModel implements MetaInfoModel {
+public class Entity extends AbstractReplaceableModel implements MetaInfoModel,DataModelComponent {
 
     private final MetaInfo metaInfo;
     private final Items<Field> items;

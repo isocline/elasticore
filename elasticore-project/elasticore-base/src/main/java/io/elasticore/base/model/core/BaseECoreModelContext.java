@@ -6,6 +6,7 @@ import io.elasticore.base.ModelDomain;
 import io.elasticore.base.ModelLoader;
 import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.listener.ModelObjectListener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,9 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
         List<String> domainNameList = this.loader.getDomainNameList();
         for (String domainNm : domainNameList) {
+
+            ModelObjectListener.getInstance().clear();
+
             ECoreModel model = this.loader.load(domainNm);
 
             ModelDomain modelDomain = BaseModelDomain.newInstance(domainNm, model);

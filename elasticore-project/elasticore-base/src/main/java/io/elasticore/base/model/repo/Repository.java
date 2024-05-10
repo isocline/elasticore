@@ -16,13 +16,17 @@ import lombok.Getter;
 public class Repository extends AbstractReplaceableModel {
 
     private final MetaInfo metaInfo;
-    private final ModelComponentItems<Method> items;
+    private ModelComponentItems<Method> items;
+
+    private Items<Method> orgItems;
 
     private Repository(ComponentIdentity id, Items<Method> items, MetaInfo metaInfo) {
         super(id);
 
         if(items==null)
             items = Items.create(Method.class);
+
+        this.orgItems =items;
         this.items = new BaseModelComponentItem(items);
         if(metaInfo ==null)
             this.metaInfo = MetaInfo.createEmpty();
@@ -37,6 +41,9 @@ public class Repository extends AbstractReplaceableModel {
     }
 
     public ModelComponentItems<Method> getItems() {
+        if(!this.items.hasNext())
+            this.items = new BaseModelComponentItem(orgItems);
+
         return this.items;
     }
 

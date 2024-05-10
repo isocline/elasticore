@@ -180,7 +180,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         return p;
     }
 
-    private CodeTemplate.Paragraph getFieldInfo(DataTransfer entity) {
+    private CodeTemplate.Paragraph getFieldInfo(DataModelComponent entity) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
         loadFieldInfo(entity, p);
@@ -188,12 +188,24 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
     }
 
 
-    private void loadFieldInfo(DataTransfer entity, CodeTemplate.Paragraph p) {
-        ModelComponentItems<Field> fields = entity.getItems();
+    private void loadFieldInfo(DataModelComponent entity, CodeTemplate.Paragraph p) {
 
+        boolean isEntity = false;
+        if(entity instanceof Entity) {
+            isEntity = true;
+        }
+
+        ModelComponentItems<Field> fields = entity.getItems();
 
         while (fields.hasNext()) {
             Field f = fields.next();
+
+            if(isEntity) {
+                // ebtity를 template으로 쓰는 경우는 primitive 계열 타입만
+                if(!f.getTypeInfo().isBaseType())
+                    continue;
+            }
+
 
 
             setFieldDesc(f, p);
@@ -230,6 +242,14 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 DataTransferModels models = this.publisher.getECoreModelContext().getDomain().getModel().getDataTransferModels();
                 for (String templateNm : templateNmArray) {
                     DataTransfer templateEntity = models.findByName(templateNm);
+                    if (templateEntity != null)
+                        loadFieldInfo(templateEntity, p);
+                }
+
+
+                EntityModels entityModels = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels();
+                for (String templateNm : templateNmArray) {
+                    Entity templateEntity = entityModels.findByName(templateNm);
                     if (templateEntity != null)
                         loadFieldInfo(templateEntity, p);
                 }

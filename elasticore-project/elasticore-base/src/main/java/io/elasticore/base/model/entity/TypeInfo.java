@@ -66,9 +66,9 @@ public class TypeInfo {
 
 
     public String getDefaultTypeName() {
-        if(annotationMap!=null && isBaseType() && !isList()) {
+        if(isBaseType() && !isList()) {
 
-            if(annotationMap.containsKey("id")) {
+            if(annotationMap!=null && annotationMap.containsKey("id")) {
                 return this.baseFieldType.getWrapperClassName();
             }
 

@@ -2,10 +2,13 @@ package io.elasticore.base.model.repo;
 
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.PkField;
+import io.elasticore.base.model.listener.ModelObjectListener;
 import io.elasticore.base.model.loader.ModelLoaderContext;
+import io.elasticore.base.util.MapWrapper;
 import io.elasticore.base.util.StringUtils;
 import lombok.SneakyThrows;
 import net.sf.jsqlparser.expression.Expression;
@@ -13,14 +16,15 @@ import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SqlQueryInfo {
 
@@ -39,22 +43,32 @@ public class SqlQueryInfo {
 
     private boolean isSelectQuery = false;
 
+    private boolean isOwnOutputDTO = false;
+
+    private DataTransfer outputDataTransfer = null;
+
 
     private Items<Field> setVarFieldItems = Items.create(Field.class);
 
-    private SqlQueryInfo(String sqlTxt, boolean isNativeQuery) {
+
+    private MapWrapper repositoryContext;
+
+    private SqlQueryInfo(String sqlTxt, boolean isNativeQuery, MapWrapper repositoryContext) {
         this.sqlTxt = sqlTxt;
         this.isNativeQuery = isNativeQuery;
+        this.repositoryContext = repositoryContext;
+
+
     }
 
-    public static SqlQueryInfo creat(String sqlTxt, boolean isNativeQuery) {
-        return new SqlQueryInfo(sqlTxt, isNativeQuery);
+    public static SqlQueryInfo creat(String sqlTxt, boolean isNativeQuery , MapWrapper mapWrapper) {
+        return new SqlQueryInfo(sqlTxt, isNativeQuery, mapWrapper);
     }
 
     public void initialize(ModelLoaderContext ctx) {
 
+        parseSQLGrama(this.sqlTxt);
 
-        parseSQL2(this.sqlTxt);
 
         this.setVarNameList = StringUtils.extractVariablesSet(this.sqlTxt);
         this.columnNameList = StringUtils.extractFirstSelectColumnNames(this.sqlTxt);
@@ -70,8 +84,8 @@ public class SqlQueryInfo {
             this.targetEntity = ctx.getEntityItems().filter(e -> e.getTableName().equalsIgnoreCase(targetTableName));
         } else {
             this.targetEntity = ctx.getEntityItems().findByName(targetTableName);
-            if(this.targetEntity ==null) {
-                throw new IllegalArgumentException("NOT FOUND TBL NAME: "+targetTableName);
+            if (this.targetEntity == null) {
+                throw new IllegalArgumentException("NOT FOUND TBL NAME: " + targetTableName);
             }
         }
 
@@ -89,13 +103,96 @@ public class SqlQueryInfo {
     private final AtomicInteger whereAndCount = new AtomicInteger(0);
 
 
-    @SneakyThrows
-    private void parseSQL2(String sql) {
+    private Map<String, String> typeMap;
+
+
+    private String getFieldType(String columnName) {
+        String type = typeMap.get(columnName);
+        if (type == null)
+            type = "string";
+
+        return type;
+    }
+
+
+    public boolean isOwnOutputDTO() {
+        return isOwnOutputDTO;
+    }
+
+
+    public DataTransfer getDataTransfer() {
+        return outputDataTransfer;
+    }
+
+
+
+    private void makeDtoModel(List<SelectItem> selectItems) {
+
+        if (typeMap == null) return;
+
+        if (selectItems == null || selectItems.size() == 0) return;
+
+        Items<Field> items = Items.create(Field.class);
+
+        // AllColumns
+        for (SelectItem item : selectItems) {
+
+            SelectExpressionItem s = (SelectExpressionItem) item;
+
+            String fieldName = null;
+            try {
+                Column c = s.getExpression(Column.class);
+                if (c != null) {
+                    fieldName = c.getColumnName();
+                }
+            } catch (ClassCastException cce) {
+            }
+
+            try {
+                fieldName = s.getAlias().getName();
+
+            } catch (NullPointerException npe) {
+            }
+
+
+            String newNAme = StringUtils.snakeToCamel(fieldName.toLowerCase(Locale.ROOT));
+            String type = getFieldType(fieldName);
+
+            System.err.println(fieldName + " >> " + newNAme + " type:" + type);
+
+            Field f=Field.builder().name(newNAme).type(type).build();
+            items.addItem(f);
+        }
+
+        String outputDtoName = StringUtils.capitalize(repositoryContext.getString("id")) + "Output";
 
         try {
 
+            outputDataTransfer = DataTransfer.create(outputDtoName, items, null);
+
+            ModelObjectListener.getInstance().onCreateDataTransfer(outputDataTransfer);
+
+            this.isOwnOutputDTO = true;
+
+        }catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SneakyThrows
+    private void parseSQLGrama(String sql) {
+
+        try {
+
+
             Statement statement = CCJSqlParserUtil.parse(sql);
             if (statement instanceof Select) {
+
+                if (this.isNativeQuery) {
+                    this.typeMap = getTypeMap(sql);
+                }
+
+
                 isSelectQuery = true;
 
                 Select selectStatement = (Select) statement;
@@ -115,7 +212,7 @@ public class SqlQueryInfo {
 
                     List<SelectItem> selectItems = plainSelect.getSelectItems();
 
-                    // AllColumns
+                    makeDtoModel(selectItems);
 
                     Expression expression = plainSelect.getWhere();
                     if (expression != null) {
@@ -127,10 +224,9 @@ public class SqlQueryInfo {
                                 super.visit(expr);
                             }
                         });
-
                     }
 
-                    System.out.println( whereAndCount.get() +" <<<<<<<<<<<<<<<<<" );
+                    System.out.println(whereAndCount.get() + " <<<<<<<<<<<<<<<<<");
 
                     if (expression instanceof EqualsTo) {
                         // where
@@ -205,6 +301,11 @@ public class SqlQueryInfo {
 
     public void setRepositoryMethodName() {
 
+        if(this.isNativeQuery) {
+            this.jpaMethodName = this.repositoryContext.getString("id");
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         if (isSelectQuery) {
@@ -212,18 +313,18 @@ public class SqlQueryInfo {
             List<Field> fieldList = setVarFieldItems.getItemList();
 
 
-            if(whereAndCount.get() == 0 || whereAndCount.get() == (fieldList.size()-1) ) {
+            if (whereAndCount.get() == 0 || whereAndCount.get() == (fieldList.size() - 1)) {
                 isJpaQueryAnnotationNeed = false;
             }
 
 
             if (isUniqueSearch()) {
-                if(isJpaQueryAnnotationNeed)
+                if (isJpaQueryAnnotationNeed)
                     sb.append("getBy");
                 else
                     sb.append("findBy");
             } else {
-                if(isJpaQueryAnnotationNeed)
+                if (isJpaQueryAnnotationNeed)
                     sb.append("listBy");
                 else
                     sb.append("findAllBy");
@@ -233,7 +334,7 @@ public class SqlQueryInfo {
             int sz = setVarFieldItems.size();
             for (int i = 0; i < sz; i++) {
                 Field f = fieldList.get(i);
-                if(f.isPrimaryKey())
+                if (f.isPrimaryKey())
                     sb.append(this.pkPrefix);
                 String srchField = StringUtils.capitalize(f.getName());
                 if (i > 0)
@@ -243,20 +344,20 @@ public class SqlQueryInfo {
 
 
             int p = this.sqlTxt.lastIndexOf("order by");
-            if(p>0) {
+            if (p > 0) {
                 String orderTxt = this.sqlTxt.substring(p);
                 String[] orderTxtItems = orderTxt.split(" ");
 
-                for(String t :orderTxtItems) {
+                for (String t : orderTxtItems) {
                     String findName = t;
-                    if(t.equalsIgnoreCase("order") ||t.equalsIgnoreCase("by")
-                            ||t.equalsIgnoreCase("asc")||t.equalsIgnoreCase("desc")) {
+                    if (t.equalsIgnoreCase("order") || t.equalsIgnoreCase("by")
+                            || t.equalsIgnoreCase("asc") || t.equalsIgnoreCase("desc")) {
 
-                    }else {
+                    } else {
                         findName = this.targetEntity.findFieldName(t);
                     }
 
-                    if(findName!=null) {
+                    if (findName != null) {
                         sb.append(StringUtils.capitalize(findName));
                     }
 
@@ -265,8 +366,6 @@ public class SqlQueryInfo {
 
 
             this.jpaMethodName = sb.toString();
-
-
 
 
             if (Arrays.stream(JPA_PREDEFIEND_METHODS).anyMatch(this.jpaMethodName::equals))
@@ -313,15 +412,15 @@ public class SqlQueryInfo {
         int pkCount = 0;
 
         PkField pk = this.targetEntity.findPkField(BaseECoreModelContext.getContext().getDomain());
-        if(pk!=null) {
+        if (pk != null) {
             pkCount = pk.getKeyCount();
         }
-        if(pkCount>1) {
+        if (pkCount > 1) {
             //pkPrefix = this.targetEntity.getIdentity().getName()+"sId";
             pkPrefix = "Id";
         }
 
-        int pkFoundCount=0;
+        int pkFoundCount = 0;
         boolean isUniqueSearch = false;
         for (Field f : this.setVarFieldItems.getItemList()) {
             if (f.isPrimaryKey() || f.isUnique()) {
@@ -330,7 +429,7 @@ public class SqlQueryInfo {
             }
         }
 
-        if(pkFoundCount == pkCount) {
+        if (pkFoundCount == pkCount) {
             isUniqueSearch = true;
         }
         return isUniqueSearch;
@@ -352,5 +451,31 @@ public class SqlQueryInfo {
 
     public boolean isNativeQuery() {
         return isNativeQuery;
+    }
+
+
+    private static Map getTypeMap(String sql) {
+        // 정규 표현식 패턴
+        Pattern pattern = Pattern.compile("(?<=\\W|^)(\\w+)\\s*/\\*\\s*type\\s*:\\s*(\\w+)\\s*\\*/");
+
+        Map<String, String> typeMap = new HashMap<>();
+        // 주석을 추출하여 처리
+        Matcher matcher = pattern.matcher(sql);
+        while (matcher.find()) {
+            String columnName = matcher.group(1);
+            String typeInfo = matcher.group(2);
+            typeMap.put(columnName, typeInfo);
+            System.out.println("Column Name: " + columnName + ", Type Info: " + typeInfo);
+        }
+        return typeMap;
+    }
+
+    public static void main(String[] args) {
+        String sql = "SELECT test /* type:int */,  c.age /* type:int */,\n" +
+                "      CASE WHEN C.CAR_SEQ IS NULL THEN -1 ELSE C.CAR_SEQ END AS CAR_SEQ  /* type:string */\n" +
+                "FROM TEST";
+
+        getTypeMap(sql);
+
     }
 }

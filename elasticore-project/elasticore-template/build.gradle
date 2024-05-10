@@ -34,6 +34,8 @@ dependencies {
 	implementation 'org.projectlombok:lombok:1.18.26'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'mysql:mysql-connector-java:8.0.23'
+
 
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor project(':elasticore-project:elasticore-base')

@@ -13,7 +13,10 @@ public class SrcFilePublisher {
         try (Writer writer = publisher.getSrcCodeWriterFactory().getWriter(qualifiedClassName)) {
             writer.write(content);
         } catch (Throwable e) {
-            publisher.errorOnPublish(modelComponent, e);
+            if(modelComponent!=null)
+                publisher.errorOnPublish(modelComponent, e);
+            else
+                e.printStackTrace();
         }
     }
 

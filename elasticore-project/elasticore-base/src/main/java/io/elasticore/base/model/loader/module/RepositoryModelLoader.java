@@ -112,7 +112,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         String query = mapWrapper.getString("query");
         SqlQueryInfo queryInfo = null;
         if(query !=null && query.length()>0) {
-            queryInfo = SqlQueryInfo.creat(query, isNativeQuery);
+            queryInfo = SqlQueryInfo.creat(query, isNativeQuery , mapWrapper);
             this.sqlQueryInfoList.add(queryInfo);
         }
 

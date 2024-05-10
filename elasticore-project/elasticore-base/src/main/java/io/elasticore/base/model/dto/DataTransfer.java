@@ -10,14 +10,16 @@ import io.elasticore.base.model.entity.Field;
 import lombok.Getter;
 
 @Getter
-public class DataTransfer extends AbstractReplaceableModel implements MetaInfoModel {
+public class DataTransfer extends AbstractReplaceableModel implements MetaInfoModel,DataModelComponent {
 
     private final MetaInfo metaInfo;
-    private final ModelComponentItems<Field> items;
+    private ModelComponentItems<Field> items;
+    private final Items<Field> orgItems;
 
     private DataTransfer(ComponentIdentity id, Items<Field> items, MetaInfo metaInfo) {
         super(id);
 
+        this.orgItems = items;
         this.items = new BaseModelComponentItem(items);
 
         if(metaInfo==null)
@@ -33,6 +35,8 @@ public class DataTransfer extends AbstractReplaceableModel implements MetaInfoMo
 
 
     public ModelComponentItems<Field> getItems() {
+        if(!this.items.hasNext())
+            this.items = new BaseModelComponentItem(orgItems);
         return this.items;
     }
 

@@ -7,6 +7,8 @@ import io.elasticore.base.SrcCodeWriterFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
@@ -83,15 +85,26 @@ public class JPACodePublisher implements CodePublisher {
             enumCodePublisher.publish(domain, enumModel);
         }
 
+        DtoSrcFilePublisher dtoSrcFilePublisher = new DtoSrcFilePublisher(this);
+        DataTransferModels dataTransferModels = model.getDataTransferModels();
+        ModelComponentItems<DataTransfer> dtoItems= dataTransferModels.getItems();
+        for (int i = 0; i < dtoItems.size(); i++) {
+            DataTransfer dto = dtoItems.get(i);
+            dtoSrcFilePublisher.publish(domain, dto);
+        }
+
 
         // Repository
         RepositoryFilePublisher repositoryCodePublisher = new RepositoryFilePublisher(this);
         RepositoryModels repositoryModels = model.getRepositoryModels();
 
-        while (repositoryModels.getItems().hasNext()) {
-            Repository repoModel = repositoryModels.getItems().next();
-
+        ModelComponentItems<Repository> items1 = repositoryModels.getItems();
+        while (items1.hasNext()) {
+            Repository repoModel = items1.next();
             repositoryCodePublisher.publish(domain, repoModel);
         }
+
+        RepositoryHelperFilePublisher repositoryHelperFilePublisher = new RepositoryHelperFilePublisher(this);
+        repositoryHelperFilePublisher.publish(domain, repositoryModels);
     }
 }

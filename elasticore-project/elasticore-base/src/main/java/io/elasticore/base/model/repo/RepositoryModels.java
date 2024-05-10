@@ -16,13 +16,24 @@ public class RepositoryModels {
 
     private final ComponentIdentity identity;
     private final MetaInfo meta;
-    private final ModelComponentItems<Repository> items;
+
+
+    private final Items<Repository> orgItems;
+
+    private ModelComponentItems<Repository> items;
 
     private RepositoryModels(ComponentIdentity identity, MetaInfo meta, Items<Repository> items) {
         this.identity = identity;
 
         this.meta = meta;
-        this.items = new BaseModelComponentItem(items);
+        this.orgItems = items;
+
+    }
+
+    public ModelComponentItems<Repository> getItems() {
+        if(items ==null ||  !items.hasNext())
+            this.items = new BaseModelComponentItem(orgItems);
+        return this.items;
     }
 
 

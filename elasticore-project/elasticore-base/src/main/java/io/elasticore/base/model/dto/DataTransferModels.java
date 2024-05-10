@@ -7,7 +7,7 @@ import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
-import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.listener.ModelObjectListener;
 import lombok.Getter;
 
 
@@ -16,20 +16,32 @@ public class DataTransferModels {
 
     private final ComponentIdentity identity;
     private final MetaInfo meta;
-    private final ModelComponentItems<DataTransfer> items;
+    private ModelComponentItems<DataTransfer> items;
+
+    private final Items<DataTransfer> orgItems;
 
     private DataTransferModels(ComponentIdentity identity, MetaInfo meta, Items<DataTransfer> items) {
         this.identity = identity;
 
         this.meta = meta;
+        this.orgItems = items;
         this.items = new BaseModelComponentItem(items);
     }
 
 
     public static DataTransferModels create(String name, MetaInfo meta, Items<DataTransfer> items) {
         ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.DTO_GROUP, name);
-        return new DataTransferModels(identity, meta, items);
+        DataTransferModels dataTransferModels = new DataTransferModels(identity, meta, items);
 
+        ModelObjectListener.getInstance().setDataTransferModels(dataTransferModels);
+
+        return dataTransferModels;
+    }
+
+    public void append(DataTransfer item) {
+
+        this.orgItems.addItem(item);
+        this.items = new BaseModelComponentItem(this.orgItems);
     }
 
     public DataTransfer findByName(String name) {

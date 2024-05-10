@@ -23,6 +23,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
     private String packageName;
     private String entityPackageName;
+    private String dtoPackageName;
 
 
     public RepositoryFilePublisher(CodePublisher publisher) {
@@ -37,6 +38,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
         this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
 
 
     }
@@ -60,6 +62,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         params
                 .set("packageName", packageName)
                 .set("entityPackageName", entityPackageName)
+                .set("dtoPackageName", dtoPackageName)
 
                 .set("className", classNm)
                 .set("targetModel", targetModelName)
