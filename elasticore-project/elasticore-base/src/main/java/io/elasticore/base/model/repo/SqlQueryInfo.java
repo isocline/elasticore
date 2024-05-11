@@ -455,11 +455,11 @@ public class SqlQueryInfo {
 
 
     private static Map getTypeMap(String sql) {
-        // 정규 표현식 패턴
+
         Pattern pattern = Pattern.compile("(?<=\\W|^)(\\w+)\\s*/\\*\\s*type\\s*:\\s*(\\w+)\\s*\\*/");
 
         Map<String, String> typeMap = new HashMap<>();
-        // 주석을 추출하여 처리
+
         Matcher matcher = pattern.matcher(sql);
         while (matcher.find()) {
             String columnName = matcher.group(1);

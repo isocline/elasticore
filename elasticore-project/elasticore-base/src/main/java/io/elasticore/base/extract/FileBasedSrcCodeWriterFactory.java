@@ -35,7 +35,7 @@ public class FileBasedSrcCodeWriterFactory implements SrcCodeWriterFactory {
             dir.mkdirs();
         }
 
-        System.err.println(">> "+f.getAbsolutePath());
+        System.err.println(">> "+f.getAbsolutePath() +" "+f.exists());
 
         return new FileWriter(f);
     }

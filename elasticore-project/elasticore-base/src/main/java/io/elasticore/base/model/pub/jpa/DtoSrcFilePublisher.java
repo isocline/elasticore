@@ -201,7 +201,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             Field f = fields.next();
 
             if(isEntity) {
-                // ebtity를 template으로 쓰는 경우는 primitive 계열 타입만
+
                 if(!f.getTypeInfo().isBaseType())
                     continue;
             }

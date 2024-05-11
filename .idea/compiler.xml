@@ -13,6 +13,7 @@
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
+        <option name="generatedPath" value="src/main/generated" />
         <option name="projectPath" value="C:\workspace\Isocline\elasticore\elasticore-project\elasticore-template" />
         <processorPath useClasspath="false">
           <entry name="$PROJECT_DIR$/elasticore-project/elasticore-base/build/libs/elasticore-base.jar" />

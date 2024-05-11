@@ -24,7 +24,7 @@ public class ModelTransList<E> extends AbstractList<E>
     private List<PropertyEditor> propertyEditors;
 
 
-    // 빈 객체를 생성하는 메서드
+
     private E createInstance(Object[] objects) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         if(this.fieldList!=null) {

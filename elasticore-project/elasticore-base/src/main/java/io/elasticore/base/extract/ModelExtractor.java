@@ -107,7 +107,6 @@ public class ModelExtractor {
 
         }
 
-
     }
 
     public static void main(String[] args) {

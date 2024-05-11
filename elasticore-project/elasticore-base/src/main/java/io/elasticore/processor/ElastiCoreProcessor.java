@@ -4,6 +4,7 @@ package io.elasticore.processor;
 import io.elasticore.base.extract.FileBasedSrcCodeWriterFactory;
 import io.elasticore.base.extract.FilerBasedSrcCodeWriterFactory;
 import io.elasticore.base.extract.ModelExtractor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -14,6 +15,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
@@ -27,6 +29,7 @@ import javax.tools.JavaFileObject;
 public class ElastiCoreProcessor extends AbstractProcessor {
 
     private String projectPath;
+    private String generatedPath;
     private String modelPath;
 
     @Override
@@ -39,25 +42,27 @@ public class ElastiCoreProcessor extends AbstractProcessor {
             System.out.println("==" + key);
         }
         this.projectPath = options.get("projectPath");
+        this.generatedPath = options.get("generatedPath");
         this.modelPath = this.projectPath + "/src/main/resources/blueprint";
-        //this.modelPath = this.projectPath+"/src/main/java/model-blueprint";
+
         System.err.println("projectPath>>>>>>>>>>>> " + this.projectPath);
+        System.err.println("generatedPath>>>>>>>>>>>> " + this.generatedPath);
     }
 
+    @SneakyThrows
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
-
 
         for (TypeElement annotation : annotations) {
             roundEnv.getElementsAnnotatedWith(annotation).forEach(element -> {
 
                 try {
                     ModelExtractor extractor = new ModelExtractor(this.modelPath);
-                    extractor.extract(new FileBasedSrcCodeWriterFactory(this.projectPath + "/src/main/java"));
+                    extractor.extract(new FileBasedSrcCodeWriterFactory(this.projectPath + "/"+this.generatedPath));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
 
 
                 String message = "Hello, " + element.getSimpleName();
@@ -69,6 +74,7 @@ public class ElastiCoreProcessor extends AbstractProcessor {
 
                 String qualifiedClassName = packageNm+ "."+clsNm;
 
+                /*
                 try {
                     JavaFileObject fileObject = processingEnv.getFiler().createSourceFile(qualifiedClassName);
                     try (Writer writer = fileObject.openWriter()) {
@@ -78,11 +84,15 @@ public class ElastiCoreProcessor extends AbstractProcessor {
                         writer.write("}\n");
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
-
-
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, message);
+
+                 */
+
+
+
+
             });
         }
         return true;

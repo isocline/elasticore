@@ -115,7 +115,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
     protected DataTransfer loadDataTransfer(Element StructureElement) {
         Node node = XmlUtil.getNodeByName(StructureElement, "Name");
         String name = node.getTextContent();
-        System.err.println(">> " + name);
+        //System.err.println(">> " + name);
 
         Items<Field> fieldItems = loadFieldData(StructureElement);
         return DataTransfer.create(name, fieldItems, null);
@@ -132,7 +132,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
             Node node = XmlUtil.getNodeByName(attrElmnt, "Name");
             String fieldName = node.getTextContent();
 
-            System.err.println(" --  " + fieldName + " " + isRequestAttr(attrElmnt));
+            //System.err.println(" --  " + fieldName + " " + isRequestAttr(attrElmnt));
 
             Map<String, Annotation> annotationMap = getAnnotationMap(attrElmnt);
 
