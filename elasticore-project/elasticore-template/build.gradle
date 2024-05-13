@@ -40,7 +40,8 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java:8.0.23'
 
 
-	annotationProcessor project(':elasticore-project:elasticore-base')
+	implementation project(':elasticore-project:elasticore-base')
+	//annotationProcessor project(':elasticore-project:elasticore-base')
 	annotationProcessor 'org.projectlombok:lombok'
 
 
@@ -59,12 +60,16 @@ compileJava.doFirst {
 }
 
 
-def generated = 'src/main/generated'
+
+
+def generated = 'src/main/java'
+
 
 tasks.withType(JavaCompile) {
 	options.compilerArgs += ["-AprojectPath=$projectDir", "-AgeneratedPath=$generated"]
 	options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
+
 
 sourceSets {
 	main.java.srcDirs += [generated]
@@ -72,3 +77,25 @@ sourceSets {
 }
 
 
+
+
+task genModel(type: JavaExec) {
+	println "genModel"
+	classpath = project(':elasticore-project:elasticore-base').sourceSets.main.runtimeClasspath
+	main = 'io.elasticore.base.extract.ModelExtractor'
+	args "$projectDir/$generated"
+
+	doLast {
+
+	}
+}
+
+compileJava {
+	dependsOn genModel
+
+}
+
+
+compileJava.doFirst {
+	println 'Starting Java compilation...'
+}

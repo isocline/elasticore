@@ -116,8 +116,17 @@ public class ModelExtractor {
 
         try {
             ModelExtractor extractor = new ModelExtractor();
-            extractor.extract(null);
+            if(args!=null && args.length>0) {
+                String srcTargetPath = args[0];
+                log("srcTargetPath: "+srcTargetPath);
+                extractor.extract(new FileBasedSrcCodeWriterFactory(srcTargetPath));
+            }else {
+                extractor.extract(null);
+            }
+
+
             log("ModelExtractor extract");
+
         }catch (Throwable e) {
             e.printStackTrace();
         }

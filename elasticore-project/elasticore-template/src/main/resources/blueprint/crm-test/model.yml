@@ -10,8 +10,8 @@ enumeration:
       name: String
 
     enum:
-      ROL_ASSOCIATE: "준회원"
-      ROLE_REGULAR: "정회원"
+      ROL_ASSOCIATE: "T1"
+      ROLE_REGULAR: "T2"
 
 
 entity:

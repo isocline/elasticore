@@ -45,15 +45,25 @@ public class ElastiCoreProcessor extends AbstractProcessor {
         this.generatedPath = options.get("generatedPath");
         this.modelPath = this.projectPath + "/src/main/resources/blueprint";
 
+        File f = new File(" C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasticore-template\\src\\main\\java\\io\\elasticore\\demo\\crm\\entity\\ContractGroup.java");
+        System.err.println("ContractGroup>>>>>>>>>>>> " + f.exists());
+
+
         System.err.println("projectPath>>>>>>>>>>>> " + this.projectPath);
         System.err.println("generatedPath>>>>>>>>>>>> " + this.generatedPath);
+
+
+
     }
+
+    private boolean isProcess = false;
 
     @SneakyThrows
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
         for (TypeElement annotation : annotations) {
+
             roundEnv.getElementsAnnotatedWith(annotation).forEach(element -> {
 
                 try {
@@ -62,8 +72,6 @@ public class ElastiCoreProcessor extends AbstractProcessor {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
 
                 String message = "Hello, " + element.getSimpleName();
 
@@ -90,11 +98,22 @@ public class ElastiCoreProcessor extends AbstractProcessor {
 
                  */
 
-
-
+                isProcess = true;
 
             });
+
+            if(isProcess) {
+
+                System.out.println("===================================================== ZZ");
+                System.out.println("=====================================================");
+                System.out.println("");
+                System.out.println("");
+
+                return true;
+            }
+
         }
-        return true;
+
+        return false;
     }
 }
