@@ -12,15 +12,22 @@ public class ModelRelationship {
     private String toName;
     private RelationType relationType;
 
+    private String relationName;
 
-    private ModelRelationship(String fromName, String toName, RelationType relationType) {
+
+    private ModelRelationship(String fromName, String toName, RelationType relationType ,String relationName) {
         this.fromName = fromName;
         this.toName = toName;
         this.relationType = relationType;
+        this.relationName = relationName;
     }
 
     public static ModelRelationship create(String fromName, String toName, RelationType relationType) {
-        return new ModelRelationship(fromName, toName, relationType);
+        return new ModelRelationship(fromName, toName, relationType, null);
+    }
+
+    public static ModelRelationship create(String fromName, String toName, RelationType relationType,String relationName) {
+        return new ModelRelationship(fromName, toName, relationType, relationName);
     }
 
 

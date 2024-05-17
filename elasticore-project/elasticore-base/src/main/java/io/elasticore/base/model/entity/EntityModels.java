@@ -25,15 +25,15 @@ public class EntityModels {
     }
 
 
-    public static EntityModels create(String name, MetaInfo meta, Items<Entity> items) {
-        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY_GROUP, name);
+    public static EntityModels create(String domainId, String name, MetaInfo meta, Items<Entity> items) {
+        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY_GROUP, domainId, name);
         return new EntityModels(identity, meta, items);
 
     }
 
 
     public Entity findByName(String name) {
-        return this.items.find(BaseComponentIdentity.create(ComponentType.ENTITY, name));
+        return this.items.find(BaseComponentIdentity.create(ComponentType.ENTITY, identity.getDomainId(), name));
     }
 
 

@@ -47,7 +47,7 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
     }
 
     private void setRelationshipEntity() {
-        RelationshipManager rm = RelationshipManager.getInstance();
+        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
         String fromName = getIdentity().getName();
 
         Annotation extendAnt = this.getMetaInfo().getMetaAnnotation("extend");
@@ -74,7 +74,7 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
     }
 
     private void setRelationship(Field f) {
-        RelationshipManager rm = RelationshipManager.getInstance();
+        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
         TypeInfo typeInfo = f.getTypeInfo();
         String fromName = getIdentity().getName();
         String toName = typeInfo.getBaseTypeName();
@@ -84,37 +84,43 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
         }
 
         if(f.hasAnnotation(RelationType.ONE_TO_ONE.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE));
+            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE, f.getName()));
+            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
         }
         else if(f.hasAnnotation(RelationType.ONE_TO_MANY.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_MANY));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_ONE));
+            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_MANY, f.getName()));
+            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_ONE, f.getName()));
         }
         else if(f.hasAnnotation(RelationType.MANY_TO_ONE.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY));
+            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE, f.getName()));
+            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY, f.getName()));
         }
         else if(f.hasAnnotation(RelationType.MANY_TO_MANY.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_MANY));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_MANY));
+            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_MANY, f.getName()));
+            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_MANY, f.getName()));
+        }
+        else if(f.hasAnnotation(RelationType.EMBEDDED.getName())) {
+            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.EMBEDDED, f.getName()));
+            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.EMBEDDABLE, f.getName()));
+
+
         }
         else if(!typeInfo.isBaseType()) {
             if(typeInfo.isGenericType()) {
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY));
+                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE, f.getName()));
+                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY, f.getName()));
 
             }
             else {
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE));
+                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE, f.getName()));
+                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
             }
 
         }
     }
 
-    public static Entity create(String name, MetaInfo metaInfo, Items<Field> items) {
-        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY, name);
+    public static Entity create(String domainId, String name, MetaInfo metaInfo, Items<Field> items) {
+        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY, domainId, name);
         return new Entity(identity, items, metaInfo);
     }
 
@@ -136,7 +142,13 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
         Annotation extendAnnotation = getMetaInfo().getMetaAnnotation("extend");
         if(extendAnnotation!=null){
             String parentNm = extendAnnotation.getValue();
-            return domain.getModel().getEntityModels().findByName(parentNm);
+            try {
+                ECoreModel eCoreModel = domain.getModel();
+                EntityModels entityModels = eCoreModel.getEntityModels();
+                return entityModels.findByName(parentNm);
+            }catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
         }
 
         return null;

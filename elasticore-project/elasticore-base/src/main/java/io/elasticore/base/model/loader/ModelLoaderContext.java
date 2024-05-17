@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class ModelLoaderContext {
 
+    private String domainId;
+
     private Map<String, Object> configMap;
     private Map<String, String> nsMap;
 
@@ -21,9 +23,14 @@ public class ModelLoaderContext {
     private Items<Repository> repositoryItems = Items.create(Repository.class);
 
 
-    ModelLoaderContext(Map<String, Object> configMap, Map<String, String> nsMap) {
+    ModelLoaderContext(String domainId, Map<String, Object> configMap, Map<String, String> nsMap) {
+        this.domainId = domainId;
         this.configMap = configMap;
         this.nsMap = nsMap;
+    }
+
+    public String getDomainId() {
+        return this.domainId;
     }
 
     public String getConfig(String key, String defaultValue) {

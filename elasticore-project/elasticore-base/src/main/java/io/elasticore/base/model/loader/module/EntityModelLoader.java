@@ -26,26 +26,26 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
         if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {
             Map entityMap = map.get(ConstanParam.KEYNAME_ENTITY);
 
-            loadModel(ctx.getEntityItems(), entityMap);
+            loadModel(ctx, ctx.getEntityItems(), entityMap);
             return true;
         }
         return false;
     }
 
 
-    public void loadModel(Items<Entity> items, Map<String, LinkedHashMap> entityMap) {
+    public void loadModel(ModelLoaderContext ctx, Items<Entity> items, Map<String, LinkedHashMap> entityMap) {
         entityMap.forEach((entityNm, value) -> {
 
             //System.err.println(entityNm + " parsed");
 
 
-            Entity entity = loadEntity(entityNm, value);
+            Entity entity = loadEntity(ctx, entityNm, value);
             items.addItem(entity);
         });
     }
 
 
-    protected Entity loadEntity(String entityNm, Map<String, Object> entityMap) {
+    protected Entity loadEntity(ModelLoaderContext ctx, String entityNm, Map<String, Object> entityMap) {
 
         MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
@@ -54,7 +54,7 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
         if (fields != null)
             fieldItems = parseField(fields);
 
-        return Entity.create(entityNm, metaInfo, fieldItems);
+        return Entity.create(ctx.getDomainId(), entityNm, metaInfo, fieldItems);
 
     }
 

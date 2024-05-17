@@ -16,26 +16,28 @@ public final class BaseComponentIdentity implements ComponentIdentity {
     private ComponentDesc info;
 
     private ComponentType type;
-    private String domain;
+    private String domainId;
     private String name;
 
 
-    private BaseComponentIdentity(ComponentType type, String domain, String name) {
+    private BaseComponentIdentity(ComponentType type, String domainId, String name) {
         this.type = type;
-        this.domain = domain;
+        this.domainId = domainId;
         this.name = name;
 
-        this.id = type.getName() + "://" + domain + "." + name;
+        this.id = type.getName() + "://" + domainId + "/" + name;
 
         this.hashId = makeHashId();
     }
 
+    /*
     public static BaseComponentIdentity create(ComponentType type, String name) {
         return new BaseComponentIdentity(type, null, name);
     }
+     */
 
-    public static BaseComponentIdentity create(ComponentType type, String domain, String name) {
-        return new BaseComponentIdentity(type, domain, name);
+    public static BaseComponentIdentity create(ComponentType type, String domainId, String name) {
+        return new BaseComponentIdentity(type, domainId, name);
     }
 
 
@@ -91,5 +93,11 @@ public final class BaseComponentIdentity implements ComponentIdentity {
     @Override
     public ComponentDesc getInfo() {
         return this.info;
+    }
+
+
+    @Override
+    public String getDomainId() {
+        return this.domainId;
     }
 }

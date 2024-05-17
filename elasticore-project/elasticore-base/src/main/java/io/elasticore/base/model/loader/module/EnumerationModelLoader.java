@@ -26,26 +26,26 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
         if (map.containsKey(ConstanParam.KEYNAME_ENUMERATION)) {
             Map entityMap = map.get(ConstanParam.KEYNAME_ENUMERATION);
 
-            loadModel(ctx.getEnumModelItems(), entityMap);
+            loadModel(ctx, ctx.getEnumModelItems(), entityMap);
             return true;
         }
         return false;
     }
 
 
-    public void loadModel(Items<EnumModel> items, Map<String, LinkedHashMap> enumMap) {
+    public void loadModel(ModelLoaderContext ctx,Items<EnumModel> items, Map<String, LinkedHashMap> enumMap) {
         enumMap.forEach((enumNm, value) -> {
 
             //System.err.println(enumNm + " parsed");
 
-            EnumModel enumModel = loadEnumModel(enumNm, value);
+            EnumModel enumModel = loadEnumModel(ctx, enumNm, value);
             items.addItem(enumModel);
 
         });
     }
 
 
-    protected EnumModel loadEnumModel(String enumName, Map<String, Object> entityMap) {
+    protected EnumModel loadEnumModel(ModelLoaderContext ctx,String enumName, Map<String, Object> entityMap) {
 
         MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
@@ -57,15 +57,15 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
         Map enumMap = (Map) entityMap.get(PROPERTY_ENUM);
         Items<EnumConstant> enumItems = null;
         if (enumMap != null)
-            enumItems = parseEnum(enumMap);
+            enumItems = parseEnum(ctx, enumMap);
 
         //(String name, MetaInfo meta, Items<Field> items, Items<EnumConstant> enumConstantItems)
-        return EnumModel.create(enumName, metaInfo, fieldItems, enumItems);
+        return EnumModel.create(ctx.getDomainId(), enumName, metaInfo, fieldItems, enumItems);
 
 
     }
 
-    protected Items<EnumConstant> parseEnum(Map<String, String> fieldInfo) {
+    protected Items<EnumConstant> parseEnum(ModelLoaderContext ctx,Map<String, String> fieldInfo) {
         Items<EnumConstant> enumConstantItems = Items.create(EnumConstant.class);
 
         fieldInfo.forEach((fieldNm, fieldPropery) -> {

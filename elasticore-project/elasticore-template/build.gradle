@@ -67,7 +67,7 @@ def generated = 'src/main/java'
 
 tasks.withType(JavaCompile) {
 	options.compilerArgs += ["-AprojectPath=$projectDir", "-AgeneratedPath=$generated"]
-	options.getGeneratedSourceOutputDirectory().set(file(generated))
+	//options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
 
 
@@ -83,7 +83,7 @@ task genModel(type: JavaExec) {
 	println "genModel"
 	classpath = project(':elasticore-project:elasticore-base').sourceSets.main.runtimeClasspath
 	main = 'io.elasticore.base.extract.ModelExtractor'
-	args "$projectDir/$generated"
+	args "$projectDir/src/main/java"
 
 	doLast {
 

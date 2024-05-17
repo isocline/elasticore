@@ -133,6 +133,13 @@ public class StringUtils {
         return columnNames;
     }
 
+    public static String escapeQuotes(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.replace("\"", "\\\"");
+    }
+
     public static void main(String[] args) {
         String sql = "SELECT test, test2 AS ZZZ FROM (SELECT test1, test2, test3 FROM XXX)";
         List<String> columnNames = extractFirstSelectColumnNames(sql);

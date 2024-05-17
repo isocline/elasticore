@@ -42,7 +42,8 @@ public class TypeInfo {
         if (p > 0) {
             isGenericType = true;
             baseTypeName = initTypeInfo.substring(0, p);
-            typeParameterName = initTypeInfo.substring(p + 1, initTypeInfo.length() - 2);
+            typeParameterName = initTypeInfo.substring(p + 1, initTypeInfo.length() - 1);
+            System.err.println("xx");
         } else
             baseTypeName = initTypeInfo;
 

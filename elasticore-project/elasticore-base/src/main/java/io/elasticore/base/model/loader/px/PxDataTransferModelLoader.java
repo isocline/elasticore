@@ -25,6 +25,7 @@ import java.util.Map;
 
 public class PxDataTransferModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<DataTransfer> {
 
+    private ModelLoaderContext ctx;
 
     private boolean isRequestAttr(Node n) {
         try {
@@ -40,6 +41,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
 
     @Override
     public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
+        this.ctx = ctx;
         Element e = source.getElement();
 
         loadStructureInfo(e);
@@ -118,7 +120,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         //System.err.println(">> " + name);
 
         Items<Field> fieldItems = loadFieldData(StructureElement);
-        return DataTransfer.create(name, fieldItems, null);
+        return DataTransfer.create(ctx.getDomainId(), name, fieldItems, null);
     }
 
 

@@ -24,8 +24,8 @@ public class EnumModels {
         this.items = new BaseModelComponentItem(items);
     }
 
-    public static EnumModels create(String name, MetaInfo meta, Items<EnumModel> items) {
-        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENUM_GROUP, name);
+    public static EnumModels create(String domainId, String name, MetaInfo meta, Items<EnumModel> items) {
+        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENUM_GROUP, domainId, name);
         return new EnumModels(identity, meta, items);
     }
 

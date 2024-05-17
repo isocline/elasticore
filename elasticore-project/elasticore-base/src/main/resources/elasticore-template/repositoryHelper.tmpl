@@ -7,12 +7,23 @@ import lombok.Getter;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+
+
+import ${entityPackageName}.*;
 import ${dtoPackageName}.*;
+
+
+
 
 @Getter
 @Service
 @AllArgsConstructor
 public class ${className} {
+
+    private final EntityManager entityManager;
 
     ${repositoryList}
 

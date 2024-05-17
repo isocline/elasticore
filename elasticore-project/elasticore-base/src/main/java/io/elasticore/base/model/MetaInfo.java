@@ -2,6 +2,7 @@ package io.elasticore.base.model;
 
 import io.elasticore.base.model.core.Annotation;
 
+import java.util.Locale;
 import java.util.Map;
 
 public class MetaInfo {
@@ -50,17 +51,18 @@ public class MetaInfo {
     }
 
     public Annotation getMetaAnnotation(String name) {
-        if (metaAnnotationMap == null) {
+        if (metaAnnotationMap == null || name ==null) {
             return null;
         }
-
-        return metaAnnotationMap.get(name);
+        String key = name.toLowerCase(Locale.ROOT);
+        return metaAnnotationMap.get(key);
     }
 
     public boolean hasMetaAnnotation(String name) {
-        if (metaAnnotationMap == null) {
+        if (metaAnnotationMap == null|| name ==null) {
             return false;
         }
-        return metaAnnotationMap.containsKey(name);
+        String key = name.toLowerCase(Locale.ROOT);
+        return metaAnnotationMap.containsKey(key);
     }
 }

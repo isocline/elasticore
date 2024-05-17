@@ -29,8 +29,8 @@ public class DataTransferModels {
     }
 
 
-    public static DataTransferModels create(String name, MetaInfo meta, Items<DataTransfer> items) {
-        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.DTO_GROUP, name);
+    public static DataTransferModels create(String domainId, String name, MetaInfo meta, Items<DataTransfer> items) {
+        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.DTO_GROUP, domainId, name);
         DataTransferModels dataTransferModels = new DataTransferModels(identity, meta, items);
 
         ModelObjectListener.getInstance().setDataTransferModels(dataTransferModels);
@@ -45,7 +45,7 @@ public class DataTransferModels {
     }
 
     public DataTransfer findByName(String name) {
-        return this.items.find(BaseComponentIdentity.create(ComponentType.DTO, name));
+        return this.items.find(BaseComponentIdentity.create(ComponentType.DTO, this.identity.getDomainId(), name));
     }
 
 }

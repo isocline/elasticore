@@ -2,10 +2,7 @@ package io.elasticore.base.model.core;
 
 import io.elasticore.base.model.relation.ModelRelationship;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RelationshipManager {
@@ -23,12 +20,16 @@ public class RelationshipManager {
         this.relationshipSet.clear();
     }
 
-    private static class Holder {
-        private static final RelationshipManager INSTANCE = new RelationshipManager();
-    }
+    private static Map<String, RelationshipManager> relationshipManagerMap = new HashMap<>();
 
-    public static RelationshipManager getInstance() {
-        return Holder.INSTANCE;
+
+    public static RelationshipManager getInstance(String domainId) {
+        RelationshipManager instance = relationshipManagerMap.get(domainId);
+        if(instance==null) {
+            instance = new RelationshipManager();
+            relationshipManagerMap.put(domainId, instance);
+        }
+        return instance;
     }
 
     public synchronized void addRelationship(ModelRelationship relationship) {

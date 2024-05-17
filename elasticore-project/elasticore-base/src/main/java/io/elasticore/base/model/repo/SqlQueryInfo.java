@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
 
 public class SqlQueryInfo {
 
-    private String[] JPA_PREDEFIEND_METHODS = new String[]{"findById", "findAllById"};
+        private String[] JPA_PREDEFIEND_METHODS = new String[]{"findById", "findAllById"};
+
+    private String domainId;
 
     private String sqlTxt;
 
@@ -45,6 +47,9 @@ public class SqlQueryInfo {
 
     private boolean isOwnOutputDTO = false;
 
+
+    private boolean isDynamicQuery = false;
+
     private DataTransfer outputDataTransfer = null;
 
 
@@ -53,7 +58,14 @@ public class SqlQueryInfo {
 
     private MapWrapper repositoryContext;
 
-    private SqlQueryInfo(String sqlTxt, boolean isNativeQuery, MapWrapper repositoryContext) {
+
+    private final AtomicInteger whereAndCount = new AtomicInteger(0);
+
+
+    private Map<String, String> typeMap;
+
+    private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, MapWrapper repositoryContext) {
+        this.domainId = domainId;
         this.sqlTxt = sqlTxt;
         this.isNativeQuery = isNativeQuery;
         this.repositoryContext = repositoryContext;
@@ -61,14 +73,28 @@ public class SqlQueryInfo {
 
     }
 
-    public static SqlQueryInfo creat(String sqlTxt, boolean isNativeQuery , MapWrapper mapWrapper) {
-        return new SqlQueryInfo(sqlTxt, isNativeQuery, mapWrapper);
+    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, MapWrapper mapWrapper) {
+        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, mapWrapper);
     }
+
+    public static boolean containsIfComment(String input) {
+        if (input == null) {
+            return false;
+        }
+        // Regex to match /* if:... */
+        String regex = "/\\*\\s*if:[^*]*\\*/";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.find();
+    }
+
 
     public void initialize(ModelLoaderContext ctx) {
 
-        parseSQLGrama(this.sqlTxt);
+        parseSqlQueryText(this.sqlTxt);
 
+        if(containsIfComment(this.sqlTxt))
+            this.isDynamicQuery = true;
 
         this.setVarNameList = StringUtils.extractVariablesSet(this.sqlTxt);
         this.columnNameList = StringUtils.extractFirstSelectColumnNames(this.sqlTxt);
@@ -100,11 +126,10 @@ public class SqlQueryInfo {
         setRepositoryMethodName();
     }
 
-    private final AtomicInteger whereAndCount = new AtomicInteger(0);
 
-
-    private Map<String, String> typeMap;
-
+    public boolean isDynamicQuery() {
+        return this.isDynamicQuery;
+    }
 
     private String getFieldType(String columnName) {
         String type = typeMap.get(columnName);
@@ -125,7 +150,6 @@ public class SqlQueryInfo {
     }
 
 
-
     private void makeDtoModel(List<SelectItem> selectItems) {
 
         if (typeMap == null) return;
@@ -137,50 +161,62 @@ public class SqlQueryInfo {
         // AllColumns
         for (SelectItem item : selectItems) {
 
-            SelectExpressionItem s = (SelectExpressionItem) item;
+            if (item instanceof SelectExpressionItem) {
+                SelectExpressionItem s = (SelectExpressionItem) item;
 
-            String fieldName = null;
-            try {
-                Column c = s.getExpression(Column.class);
-                if (c != null) {
-                    fieldName = c.getColumnName();
+                String fieldName = null;
+                try {
+                    Column c = s.getExpression(Column.class);
+                    if (c != null) {
+                        fieldName = c.getColumnName();
+                    }
+                } catch (ClassCastException cce) {
                 }
-            } catch (ClassCastException cce) {
+
+                try {
+                    fieldName = s.getAlias().getName();
+
+                } catch (NullPointerException npe) {
+                }
+
+
+                String newNAme = StringUtils.snakeToCamel(fieldName.toLowerCase(Locale.ROOT));
+                String type = getFieldType(fieldName);
+
+                System.err.println(fieldName + " >> " + newNAme + " type:" + type);
+
+                Field f = Field.builder().name(newNAme).type(type).build();
+                items.addItem(f);
+            } else if (item instanceof AllColumns) {
+
+            } else {
+                System.err.println("[WARN] CHECK SELECT SQL : " + this.sqlTxt + " " + item.getClass().getName());
             }
 
-            try {
-                fieldName = s.getAlias().getName();
 
-            } catch (NullPointerException npe) {
-            }
-
-
-            String newNAme = StringUtils.snakeToCamel(fieldName.toLowerCase(Locale.ROOT));
-            String type = getFieldType(fieldName);
-
-            System.err.println(fieldName + " >> " + newNAme + " type:" + type);
-
-            Field f=Field.builder().name(newNAme).type(type).build();
-            items.addItem(f);
         }
+
+        if(items.size()<1)
+            return;
 
         String outputDtoName = StringUtils.capitalize(repositoryContext.getString("id")) + "Output";
 
         try {
 
-            outputDataTransfer = DataTransfer.create(outputDtoName, items, null);
+            outputDataTransfer = DataTransfer.create(this.domainId, outputDtoName, items, null);
 
             ModelObjectListener.getInstance().onCreateDataTransfer(outputDataTransfer);
 
             this.isOwnOutputDTO = true;
 
-        }catch (Throwable e) {
+
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     @SneakyThrows
-    private void parseSQLGrama(String sql) {
+    private void parseSqlQueryText(String sql) {
 
         try {
 
@@ -301,7 +337,7 @@ public class SqlQueryInfo {
 
     public void setRepositoryMethodName() {
 
-        if(this.isNativeQuery) {
+        if (this.isNativeQuery) {
             this.jpaMethodName = this.repositoryContext.getString("id");
             return;
         }

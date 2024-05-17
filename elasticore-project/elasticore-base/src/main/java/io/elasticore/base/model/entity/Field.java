@@ -9,6 +9,7 @@ import io.elasticore.base.util.StringUtils;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Locale;
 import java.util.Map;
 
 @Getter
@@ -88,10 +89,11 @@ public class Field implements ModelComponent {
     }
 
     public boolean hasAnnotation(String name) {
-        if (annotationMap == null) {
+        if (annotationMap == null || name ==null) {
             return false;
         }
-        return annotationMap.containsKey(name);
+        String key = name.toLowerCase(Locale.ROOT);
+        return annotationMap.containsKey(key);
     }
 
 

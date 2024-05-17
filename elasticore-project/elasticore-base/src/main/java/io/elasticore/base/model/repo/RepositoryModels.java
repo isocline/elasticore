@@ -37,8 +37,8 @@ public class RepositoryModels {
     }
 
 
-    public static RepositoryModels create(String name, MetaInfo meta, Items<Repository> items) {
-        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY_GROUP, name);
+    public static RepositoryModels create(String domainId, String name, MetaInfo meta, Items<Repository> items) {
+        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY_GROUP, domainId, name);
         return new RepositoryModels(identity, meta, items);
 
     }

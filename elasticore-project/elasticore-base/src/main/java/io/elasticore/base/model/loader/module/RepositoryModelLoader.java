@@ -63,10 +63,10 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
     public void completeLoad() {
         for (Entity entity : this.ctx.getEntityItems().getItemList()) {
             String entityNm = entity.getIdentity().getName();
-            BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, entityNm);
+            BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, ctx.getDomainId(), entityNm);
             if (this.ctx.getRepositoryItems().find(identity) == null) {
 
-                Repository repo = Repository.create(entityNm, null, null);
+                Repository repo = Repository.create(ctx.getDomainId(), entityNm, null, null);
                 this.ctx.getRepositoryItems().addItem(repo);
             }
         }
@@ -96,7 +96,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         }
 
         //return Repository.create(entityNm, methodItems, null);
-        return Repository.create(entityNm, methodItems, metaInfo);
+        return Repository.create(ctx.getDomainId(), entityNm, methodItems, metaInfo);
 
     }
 
@@ -112,7 +112,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         String query = mapWrapper.getString("query");
         SqlQueryInfo queryInfo = null;
         if(query !=null && query.length()>0) {
-            queryInfo = SqlQueryInfo.creat(query, isNativeQuery , mapWrapper);
+            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , mapWrapper);
             this.sqlQueryInfoList.add(queryInfo);
         }
 
@@ -130,7 +130,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         }
 
         return Method.builder()
-                .identity(BaseComponentIdentity.create(ComponentType.METHOD,id))
+                .identity(BaseComponentIdentity.create(ComponentType.METHOD,ctx.getDomainId(),id))
                 .name(methodName)
                 .query(query)
                 .returnType(returnType)

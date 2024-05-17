@@ -20,12 +20,12 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ConstanParam;
-import io.elasticore.base.model.ECoreModel;
-import io.elasticore.base.model.MetaInfo;
-import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
+import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.*;
+import io.elasticore.base.model.relation.ModelRelationship;
+import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
 
 import java.util.ArrayList;
@@ -115,6 +115,27 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("@Table(name=\"" + dbTblNm + "\")");
         }
 
+        if(metaInfo.hasMetaAnnotation("DynamicUpdate"))
+            p.add("@org.hibernate.annotations.DynamicUpdate");
+        if(metaInfo.hasMetaAnnotation("DynamicInsert"))
+            p.add("@org.hibernate.annotations.DynamicInsert");
+
+
+
+        //Entity = BaseModelDomain.getModelDomain(this.getIdentity().getDomainId()).getModel().getEntityModels().findByName(toName);
+        if (metaInfo.hasMetaAnnotation("Embeddable")) {
+            p.add("@Embeddable");
+        }else {
+            ComponentIdentity identity = entity.getIdentity();
+
+            List<ModelRelationship> relationshipList = RelationshipManager.getInstance(identity.getDomainId()).getRelationshipsForToObj(identity.getName());
+            for(ModelRelationship r : relationshipList){
+                if(r.getRelationType() == RelationType.EMBEDDED) {
+                    p.add("@Embeddable");
+                    break;
+                }
+            }
+        }
 
         entity.getItems().forEachRemaining(field -> {
             if (field.hasAnnotation("discriminator")) {
@@ -351,7 +372,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      */
     private void setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
         TypeInfo typeInfo = field.getTypeInfo();
-        if (typeInfo.isList()) {
+
+        if (field.hasAnnotation("Embedded")) {
+            paragraph.add("@Embedded");
+        }
+
+        else if (typeInfo.isList()) {
             paragraph.add(("@OneToMany(fetch = FetchType.LAZY)"));
         } else if (!typeInfo.isBaseType()) {
 
@@ -384,6 +410,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      * @param paragraph
      */
     private void setFieldColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
+
+        if (field.hasAnnotation("label")) {
+            paragraph.add("@Comment(\"%s\")", field.getAnnotation("label").getValue());
+        }
+        else if (field.hasAnnotation("comment")) {
+            paragraph.add("@Comment(\"%s\")", field.getAnnotation("comment").getValue());
+        }
+
+
         List<String> list = new ArrayList<>();
 
 
@@ -399,8 +434,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list.add("name = \"" + dbColumnName + "\"");
 
 
+
         if (field.hasAnnotation("text")) {
             list.add("columnDefinition = \"TEXT\"");
+        }
+        else if (field.hasAnnotation("longtext")) {
+            list.add("columnDefinition = \"LONGTEXT\"");
         }
 
         if (field.hasAnnotation("notnull")) {

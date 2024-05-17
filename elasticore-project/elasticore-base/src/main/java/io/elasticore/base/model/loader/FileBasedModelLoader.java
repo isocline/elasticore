@@ -35,10 +35,18 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         this.templateFileDirPath = dirPath;
     }
 
+    List<String> domainNmList = null;
+
     @Override
     public List<String> getDomainNameList() {
-        List<String> domainNmList = new ArrayList();
-        domainNmList.add("default");
+        if(domainNmList ==null) {
+            domainNmList = new ArrayList();
+            File f = new File(templateFileDirPath);
+
+            domainNmList.add(f.getName());
+        }
+
+
         return domainNmList;
     }
 
@@ -114,9 +122,9 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         dataTransferModelLoader.completeLoad();
         repositoryModelLoader.completeLoad();
 
-        EntityModels entityModels = EntityModels.create("entityGrp", null, context.getEntityItems());
-        EnumModels enumModels = EnumModels.create("enumGroup", null, context.getEnumModelItems());
-        RepositoryModels repositoryModels = RepositoryModels.create("repoGroup", null, context.getRepositoryItems());
+        EntityModels entityModels = EntityModels.create(context.getDomainId(), "entityGrp", null, context.getEntityItems());
+        EnumModels enumModels = EnumModels.create(context.getDomainId(), "enumGroup", null, context.getEnumModelItems());
+        RepositoryModels repositoryModels = RepositoryModels.create(context.getDomainId(), "repoGroup", null, context.getRepositoryItems());
 
         //EnumModels enumModels = getEnumModels();
         //EntityModels entityModels = getEntityModels();
@@ -151,7 +159,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         Map<String, String> nsMap = (Map) envMap.get("namespace");
 
 
-        ModelLoaderContext context = new ModelLoaderContext(configMap, nsMap);
+        ModelLoaderContext context = new ModelLoaderContext(domainName, configMap, nsMap);
 
         MainModelLoader loader = getMainModelLoader(context, templateFileDirPath);
 

@@ -28,8 +28,8 @@ public class DataTransfer extends AbstractReplaceableModel implements MetaInfoMo
             this.metaInfo = metaInfo;
     }
 
-    public static DataTransfer create(String name, Items<Field> items, MetaInfo metaInfo) {
-        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.DTO, name);
+    public static DataTransfer create(String domainId, String name, Items<Field> items, MetaInfo metaInfo) {
+        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.DTO, domainId, name);
         return new DataTransfer(identity, items, metaInfo);
     }
 

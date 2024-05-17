@@ -102,6 +102,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
             boolean isNeedParamAnnotation = false;
             if (method.getQuery() != null && method.isNeedQueryAnnotation()) {
+                if(method.getQuery().indexOf("/* if:")>0) continue;
                 String query = StringUtils.splitByDoubleQuotation(method.getQuery());
                 String queryAnnotation = String.format("@Query(nativeQuery=%s, value=%s)", method.isNative(), query);
                 p.add(queryAnnotation);

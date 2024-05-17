@@ -30,8 +30,8 @@ public class EnumModel extends AbstractReplaceableModel {
         this.enumConstantItems = enumConstantItems;
     }
 
-    public static EnumModel create(String name, MetaInfo meta, Items<Field> items, Items<EnumConstant> enumConstantItems) {
-        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENUM, name);
+    public static EnumModel create(String domainId, String name, MetaInfo meta, Items<Field> items, Items<EnumConstant> enumConstantItems) {
+        ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENUM, domainId, name);
         return new EnumModel(identity, meta, items, enumConstantItems);
     }
 

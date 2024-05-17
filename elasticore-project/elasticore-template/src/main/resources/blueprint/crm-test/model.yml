@@ -15,12 +15,14 @@ enumeration:
 
 
 entity:
+
   ContractGroup:
-    meta: entity @table('T_CNCT_GRP')
+    meta: entity @table('T_CNCT_GRP') @DynamicUpdate @DynamicInsert
     fields:
       grpSeq: int @id @sequence @labe('그릅 일련번호') @db('GRP_SEQ')
       groupName: String @len(200) @label('그룹명') @db('GROUP_NAME')
       contactInfoList: List<ContactInfo>
+
 
   ContactInfo:
     meta: entity @table('T_CNCT_LST')
@@ -49,6 +51,32 @@ repository:
       - id: selectCnctList
         query: select a from ContactInfo where a.grpSeq=:grpSeq order by contactSeq desc
 
+      - id: selectCnctList2
+        nativeQuery: true
+        query: |
+          select * from T_CNCT_LST
+          where 1=1
+           and contractName = :contractName /* if:contractName */
+          and contractTel = :contractTel /* if:contractTel */
+
+      - id: selectCnctList3
+        query: |
+          select * from ContactInfo
+          where 1=1
+           and contractName = :contractName /* if:contractName */
+          and contractTel = :contractTel /* if:contractTel */
+
+      - id: selectCnctList4
+        nativeQuery: true
+        query: |
+          select
+           B.CONTRACT_NO
+          , B.DRIVER_SEQ_NO
+          , C.CUST_NO
+          from T_CNCT_LST
+          where 1=1
+           and contractName = :contractName /* if:contractName */
+          and contractTel = :contractTel /* if:contractTel */
 
       - id: selectCnctCustList
         return: List<Object[]>

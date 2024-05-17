@@ -23,21 +23,21 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
         if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
             Map entityMap = map.get(ConstanParam.KEYNAME_DTO);
-            loadModel(ctx.getDataTransferItems(), entityMap);
+            loadModel(ctx, ctx.getDataTransferItems(), entityMap);
             return true;
         }
         return false;
     }
 
-    public void loadModel(Items<DataTransfer> items, Map<String, LinkedHashMap> entityMap) {
+    public void loadModel(ModelLoaderContext ctx, Items<DataTransfer> items, Map<String, LinkedHashMap> entityMap) {
         entityMap.forEach((entityNm, value) -> {
-            DataTransfer entity = loadDataTransfer(entityNm, value);
+            DataTransfer entity = loadDataTransfer(ctx, entityNm, value);
             items.addItem(entity);
         });
     }
 
 
-    protected DataTransfer loadDataTransfer(String entityNm, Map<String, Object> entityMap) {
+    protected DataTransfer loadDataTransfer(ModelLoaderContext ctx, String entityNm, Map<String, Object> entityMap) {
 
         MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
@@ -46,7 +46,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
         if (fields != null)
             fieldItems = parseField(fields);
 
-        return DataTransfer.create(entityNm, fieldItems, metaInfo);
+        return DataTransfer.create(ctx.getDomainId(), entityNm, fieldItems, metaInfo);
 
     }
 

@@ -66,13 +66,13 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         dataTransferModelLoader.completeLoad();
 
 
-        EntityModels entityModels = EntityModels.create("entityGrp", null, context.getEntityItems());
-        EnumModels enumModels = EnumModels.create("enumGroup", null, context.getEnumModelItems());
-        DataTransferModels dataTransferModels = DataTransferModels.create("dto", null, context.getDataTransferItems());
+        EntityModels entityModels = EntityModels.create(context.getDomainId(), "entityGrp", null, context.getEntityItems());
+        EnumModels enumModels = EnumModels.create(context.getDomainId(), "enumGroup", null, context.getEnumModelItems());
+        DataTransferModels dataTransferModels = DataTransferModels.create(context.getDomainId(), "dto", null, context.getDataTransferItems());
 
 
         repositoryModelLoader.completeLoad();
-        RepositoryModels repositoryModels = RepositoryModels.create("repoGroup", null, context.getRepositoryItems());
+        RepositoryModels repositoryModels = RepositoryModels.create(context.getDomainId(), "repoGroup", null, context.getRepositoryItems());
 
         //EnumModels enumModels = getEnumModels();
         //EntityModels entityModels = getEntityModels();

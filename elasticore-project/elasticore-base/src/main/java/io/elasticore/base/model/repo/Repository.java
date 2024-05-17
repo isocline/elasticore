@@ -35,8 +35,8 @@ public class Repository extends AbstractReplaceableModel {
 
     }
 
-    public static Repository create(String name, Items<Method> items, MetaInfo metaInfo) {
-        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, name);
+    public static Repository create(String domainId, String name, Items<Method> items, MetaInfo metaInfo) {
+        BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, domainId, name);
         return new Repository(identity, items, metaInfo);
     }
 

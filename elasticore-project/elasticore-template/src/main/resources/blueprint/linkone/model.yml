@@ -1,0 +1,120 @@
+enumeration:
+  Indicator:
+    fields:
+      msg: String
+
+    enum:
+      Y: "YES"
+      N: "NO"
+
+  AaccidentType:
+    fields:
+      msg: string
+    enum:
+      D: "피해"
+      I: "가해"
+      S: "단독"
+      R: "정비"
+      E: "기타"
+      U: "미정"
+
+  NoWayType:
+    fields:
+      msg: string
+    enum:
+      R: "수리만진행"
+      A: "지역변경"
+      E: "기타"
+
+  StatusType:
+    fields:
+      msg: string
+    enum:
+      CONFIRM: "확정"
+      CHANGE: "변경"
+      FAIL: "불가"
+
+
+
+
+entity:
+
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime
+      createdBy: string
+      lastModifiedBy: string
+      lastModifiedDate: datetime
+
+  PictureInfo:
+    fields:
+      uri: string
+      fileName: string
+      type: string
+
+
+  CallInfo:
+    meta: entity
+    fields:
+      seq: long @id
+      callDate: date
+      callTime: time
+
+
+  LoanCarProcess:
+    meta: entity @template(AuditEntity)
+    fields:
+      seq: long @id
+      loanCar: LoanCar
+      lcFixCode: StatusType
+
+
+  Capital:
+    meta: entity
+    fields:
+      cptCode: string @id
+      cptName: string
+      enableStatus: Indicator @label('활성화 여부') @default('Y')
+
+
+  LoanCar:
+    meta: entity @template(AuditEntity)
+    fields:
+      lcCode: long @id @label('아이디')
+      customName: string @label('고객명')
+      customPh: string @label('연락처')
+      alarmStatus: Indicator @label('콜센터에서 링크원으로 보낸 알람 수신') @default('N')
+      lcReceiveLocation: string @label('입고지')
+      content: text @label('문자내용')
+      carModel: string @label('차량모델')
+      carNumber: string @label('차량번호')
+      memo: text @label('메모')
+      insuranceCode: string @label('보험사 접수번호')
+      lcRepairShopName: string @label('미제휴 공장명')
+      lcRepairShopReason: string @label('미제휴 공장기입 사유')
+      accidentType: AaccidentType @label('사고타입 피해:D 가해:I 단독:S 정비:R 기타:E 미정:U') @default('U')
+      lcReason: string @label('대차미진행 사유')
+
+      rentAlarmStatus: Indicator @label('링크원에서 렌터카으로 보낸 알람 수신') @default('N')
+      lcView: Indicator @label('목록 노출') @default('Y')
+      noWayType: NoWayType @label('대차미진행타입 수리만진행:R 지역변경:A 기타:E')
+
+      agentName: string @label('소개처(고객사기타)')
+      agentPicName: string @label('영업담당자')
+      areaName: string @label('지역(고객사기타)')
+      capitalName: string @label('고객사명(고객사기타)')
+      smsParseType: Indicator @label('문자파싱 성공여부')
+
+      capital: Capital
+      picInfo: PictureInfo @embedded
+
+
+      lcFixCode: StatusType
+
+      callInfos: List<CallInfo>
+      processHistory: List<LoanCarProcess>
+
+
+
+

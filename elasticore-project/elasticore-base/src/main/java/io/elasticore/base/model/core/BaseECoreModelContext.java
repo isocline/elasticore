@@ -29,7 +29,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
     public void load() {
 
-        RelationshipManager.getInstance().reset();
+
 
         modelDomainMap.clear();
         defaultModelDomain = null;

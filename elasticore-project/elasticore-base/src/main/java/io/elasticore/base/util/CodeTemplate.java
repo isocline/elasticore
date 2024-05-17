@@ -241,6 +241,12 @@ public class CodeTemplate {
             valueList.add(val);
         }
 
+        public Paragraph add(String template, Object... parameter) {
+            String code = String.format(template,parameter);
+            return add(code);
+        }
+
+
         public Paragraph add(Object val) {
             if(checkMap!=null) {
                 if(checkMap.containsKey(val))
