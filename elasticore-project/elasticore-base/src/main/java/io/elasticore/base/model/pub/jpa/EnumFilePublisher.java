@@ -28,6 +28,8 @@ public class EnumFilePublisher extends SrcFilePublisher {
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.enum");
         if(templatePath==null)
             templatePath = "elasticore-template/enum.tmpl";
+        else
+            templatePath = "resource://"+templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 

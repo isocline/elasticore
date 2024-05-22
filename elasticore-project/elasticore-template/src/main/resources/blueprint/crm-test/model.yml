@@ -1,25 +1,20 @@
-
 enumeration:
   MemberGroup:
     info:
       name: MemberGroup
       desc: MemberGroup information
-      author: Richard
-
     fields:
       name: String
-
     enum:
       ROL_ASSOCIATE: "T1"
       ROLE_REGULAR: "T2"
 
 
 entity:
-
   ContractGroup:
     meta: entity @table('T_CNCT_GRP') @DynamicUpdate @DynamicInsert
     fields:
-      grpSeq: int @id @sequence @labe('그릅 일련번호') @db('GRP_SEQ')
+      grpSeq: int @id @sequence @label('그릅 일련번호') @db('GRP_SEQ')
       groupName: String @len(200) @label('그룹명') @db('GROUP_NAME')
       contactInfoList: List<ContactInfo>
 
@@ -27,10 +22,10 @@ entity:
   ContactInfo:
     meta: entity @table('T_CNCT_LST')
     fields:
-      grpSeq: int @id  @labe('그릅 일련번호') @db('GRP_SEQ')
-      contactSeq: int @id @sequence @labe('순번') @db('CTR_SEQ')
-      contractName: string @len(100) @labe('이용자명') @db('CONTACT_NAME')
-      contractTel: string @len(20) @labe('연락처(전화번호)') @db('contractTel')
+      grpSeq: int @id  @label('그릅 일련번호') @db('GRP_SEQ') @p
+      contactSeq: int @id @sequence @label('순번') @db('CTR_SEQ')
+      contractName: string @len(100) @label('이용자명') @db('CONTACT_NAME')
+      contractTel: string @len(20) @label('전화번호') @db('contractTel')
       contractGrp: ContractGroup
 
 dto:
@@ -39,6 +34,7 @@ dto:
     fields:
       carSeq: int
       contrNm: string
+      contactInfoList: string @disable
 
 repository:
   ContractGroup:

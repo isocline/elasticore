@@ -1,4 +1,4 @@
-//ecd:-1158745113H20240517105348V0.7
+//ecd:-1704814840H20240521223026V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -20,7 +20,6 @@ import java.time.*;
 
 */
 
-@Entity
 
 @Getter
 @Setter
@@ -33,19 +32,19 @@ public abstract class AuditEntity  implements java.io.Serializable  {
 	@Temporal(TemporalType.TIMESTAMP)
 	private java.util.Date createDate;
 	
-
+	
 	@Column(name = "created_by")
 	private String createdBy;
 	
-
+	
 	@Column(name = "last_modified_by")
 	private String lastModifiedBy;
 	
-
+	
 	@Column(name = "last_modified_date")
 	@Temporal(TemporalType.TIMESTAMP)
 	private java.util.Date lastModifiedDate;
 	
-
+	
 
 };

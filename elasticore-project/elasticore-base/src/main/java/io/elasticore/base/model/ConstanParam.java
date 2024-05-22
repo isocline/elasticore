@@ -13,6 +13,8 @@ public interface ConstanParam {
 
     String KEYNAME_REPOSITORY = "repository";
 
+    String KEYNAME_MAPPER = "mapper";
+
 
 
 

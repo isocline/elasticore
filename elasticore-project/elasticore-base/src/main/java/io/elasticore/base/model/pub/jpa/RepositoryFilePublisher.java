@@ -32,6 +32,8 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.repository");
         if(templatePath==null)
             templatePath = "elasticore-template/repository.tmpl";
+        else
+            templatePath = "resource://"+templatePath;
 
         this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
 
@@ -109,15 +111,18 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
                 isNeedParamAnnotation = true;
             }
 
-            String code = String.format("%s %s(%s);"
-                    , method.getReturnType(), method.getName(), getParametersForMethod(method.getParams(), isNeedParamAnnotation));
-            p.add(code);
+
+            p.add("%s %s(%s);"
+                    , method.getReturnType()
+                    , method.getName()
+                    , getParametersForMethod(method, isNeedParamAnnotation));
             p.add("");
         }
         return p;
     }
 
-    private String getParametersForMethod(Items<Field> params, boolean isNeedParamAnnotation) {
+    private String getParametersForMethod(Method method, boolean isNeedParamAnnotation) {
+        Items<Field> params = method.getParams();
         StringBuilder sb = new StringBuilder();
         if (params != null) {
             for (Field f : params.getItemList()) {
@@ -128,6 +133,11 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
                     sb.append("@Param(\"").append(f.getName()).append("\") ");
                 sb.append(f.getTypeInfo().getDefaultTypeName()).append(" ").append(f.getName());
             }
+        }
+
+        if(!method.isNative() && method.isPageable()) {
+            if(sb.length()>0) sb.append(",");
+            sb.append(" Pageable pageable");
         }
 
         return sb.toString();

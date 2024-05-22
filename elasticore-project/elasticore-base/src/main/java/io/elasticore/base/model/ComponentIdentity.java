@@ -10,5 +10,7 @@ public interface ComponentIdentity {
 
     String getName();
 
+    ComponentType getComponentType();
+
     ComponentDesc getInfo();
 }

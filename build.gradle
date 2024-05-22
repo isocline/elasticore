@@ -1,8 +1,41 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
 allprojects {
+    group = 'io.elasticore'
+    version = '1.0.0-SNAPSHOT'
+
     repositories {
         mavenCentral()
-
     }
+}
 
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
+    println  project.name
+    if (project.name != 'elasticore-template') {
+        apply plugin: 'maven-publish'
+
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    from components.java
+                }
+            }
+            repositories {
+                maven {
+                    name = "nexus"
+                    url = "https://nexus.xsolcorp.co.kr/repository/maven-snapshots/"
+                    credentials {
+                        username = project.findProperty("nexusUsername") ?: "your-nexus-username"
+                        password = project.findProperty("nexusPassword") ?: "your-nexus-password"
+                    }
+                }
+            }
+        }
+    }
 }

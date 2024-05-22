@@ -1,4 +1,4 @@
-//ecd:1725153161H20240517105348V0.7
+//ecd:-854988692H20240521223026V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -34,18 +34,19 @@ public  class ContractGroup  implements java.io.Serializable  {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Comment("그릅 일련번호")
 	@Column(name = "GRP_SEQ")
 	private Integer grpSeq;
 	
-
+	
 	@Comment("그룹명")
 	@Column(name = "GROUP_NAME")
 	private String groupName;
 	
-
+	
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<ContactInfo> contactInfoList;
 	
-
+	
 
 };

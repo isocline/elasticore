@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class SqlQueryInfo {
 
-        private String[] JPA_PREDEFIEND_METHODS = new String[]{"findById", "findAllById"};
+    private String[] JPA_PREDEFIEND_METHODS = new String[]{"findById", "findAllById"};
 
     private String domainId;
 
@@ -64,17 +64,20 @@ public class SqlQueryInfo {
 
     private Map<String, String> typeMap;
 
-    private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, MapWrapper repositoryContext) {
+    private boolean pageable;
+
+    private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper repositoryContext) {
         this.domainId = domainId;
         this.sqlTxt = sqlTxt;
         this.isNativeQuery = isNativeQuery;
+        this.pageable = pageable;
         this.repositoryContext = repositoryContext;
 
 
     }
 
-    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, MapWrapper mapWrapper) {
-        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, mapWrapper);
+    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper mapWrapper) {
+        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, pageable, mapWrapper);
     }
 
     public static boolean containsIfComment(String input) {
@@ -93,7 +96,7 @@ public class SqlQueryInfo {
 
         parseSqlQueryText(this.sqlTxt);
 
-        if(containsIfComment(this.sqlTxt))
+        if (containsIfComment(this.sqlTxt))
             this.isDynamicQuery = true;
 
         this.setVarNameList = StringUtils.extractVariablesSet(this.sqlTxt);
@@ -183,7 +186,6 @@ public class SqlQueryInfo {
                 String newNAme = StringUtils.snakeToCamel(fieldName.toLowerCase(Locale.ROOT));
                 String type = getFieldType(fieldName);
 
-                System.err.println(fieldName + " >> " + newNAme + " type:" + type);
 
                 Field f = Field.builder().name(newNAme).type(type).build();
                 items.addItem(f);
@@ -196,7 +198,7 @@ public class SqlQueryInfo {
 
         }
 
-        if(items.size()<1)
+        if (items.size() < 1)
             return;
 
         String outputDtoName = StringUtils.capitalize(repositoryContext.getString("id")) + "Output";
@@ -281,7 +283,7 @@ public class SqlQueryInfo {
                         Expression e1 = ae.getLeftExpression();
                         Expression e2 = ae.getRightExpression();
 
-                        System.err.println(e1 + " ====***======== " + e2);
+
                     } else {
                         System.err.println(expression);
                     }
@@ -476,6 +478,8 @@ public class SqlQueryInfo {
         String entityName = this.targetEntity.getIdentity().getName();
         if (isUniqueSearch())
             return "Optional<" + entityName + ">";
+        else if(!this.isNativeQuery && this.pageable)
+            return "Page<" + entityName + ">";
         else
             return "List<" + entityName + ">";
     }

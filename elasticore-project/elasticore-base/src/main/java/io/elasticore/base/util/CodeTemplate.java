@@ -1,9 +1,9 @@
 package io.elasticore.base.util;
 
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import lombok.SneakyThrows;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,13 +23,37 @@ public class CodeTemplate {
     private CodeTemplate() {
     }
 
+    private static String getRootDir() {
+        String basePath = System.getProperty("elasticore.base.path");
+        if (basePath == null) {
+            basePath = System.getProperty("user.dir");
+        }
+
+        return basePath;
+    }
+
+
+    private static InputStream getTemplateInputStream(String resourcePath) throws FileNotFoundException {
+        InputStream inputStream = null;
+        if (resourcePath.indexOf("resource://") == 0) {
+
+            String path = getRootDir() + "/src/main/resources/" + resourcePath.substring(11);
+            inputStream = new FileInputStream(path);
+        } else {
+            inputStream = CodeTemplate.class.getClassLoader().getResourceAsStream(resourcePath);
+        }
+
+        return inputStream;
+    }
+
     public static CodeTemplate newInstance() {
         return new CodeTemplate();
     }
 
+    @SneakyThrows
     public static CodeTemplate newInstance(String resourcePath) {
         CodeTemplate codeTemplate = new CodeTemplate();
-        InputStream inputStream = CodeTemplate.class.getClassLoader().getResourceAsStream(resourcePath);
+        InputStream inputStream = getTemplateInputStream(resourcePath);
         if (inputStream == null) {
             throw new IllegalArgumentException("Resource not found: " + resourcePath);
         }
@@ -79,7 +103,6 @@ public class CodeTemplate {
     }
 
     /**
-     *
      * @param line
      * @param isMultiLine
      * @return
@@ -162,7 +185,7 @@ public class CodeTemplate {
             int maxCount = 0;
             for (String keyNm : keyNameList) {
                 Paragraph paragraph = parameters.getParamMap().get(keyNm);
-                if(paragraph ==null) continue;
+                if (paragraph == null) continue;
                 int valueCount = paragraph.size();
                 if (valueCount > maxCount) {
                     maxCount = valueCount;
@@ -186,7 +209,7 @@ public class CodeTemplate {
                 String regTmpTxt = replaceTxt;
                 for (String keyNm : keyNameList) {
                     Paragraph paragraph = parameters.getParamMap().get(keyNm);
-                    if(paragraph ==null) continue;
+                    if (paragraph == null) continue;
                     String valueTxt = paragraph.toString(i);
                     regTmpTxt = regTmpTxt.replace("${" + keyNm + "}", valueTxt);
                 }
@@ -196,7 +219,7 @@ public class CodeTemplate {
             StringBuilder sb = new StringBuilder();
             for (String line : lineList) {
                 sb.append(line).append("\n");
-                if(lineSuffix!=null)
+                if (lineSuffix != null)
                     sb.append(lineSuffix);
             }
             return sb.toString();
@@ -215,7 +238,7 @@ public class CodeTemplate {
         }
 
         public Parameters set(String keyName, String value) {
-            paramMap.put(keyName, new Paragraph(true,value));
+            paramMap.put(keyName, new Paragraph(true, value));
             return this;
         }
 
@@ -229,10 +252,10 @@ public class CodeTemplate {
 
         private List<Object> valueList = new ArrayList<>();
 
-        private Map<Object,Object> checkMap;
+        private Map<Object, Object> checkMap;
 
         private Paragraph(boolean isUnique) {
-            if(isUnique)
+            if (isUnique)
                 checkMap = new HashMap<>();
         }
 
@@ -242,19 +265,29 @@ public class CodeTemplate {
         }
 
         public Paragraph add(String template, Object... parameter) {
-            String code = String.format(template,parameter);
+            String code = String.format(template, parameter);
             return add(code);
         }
 
 
         public Paragraph add(Object val) {
-            if(checkMap!=null) {
-                if(checkMap.containsKey(val))
-                    return this;
 
-                checkMap.put(val, val);
+            if (val != null) {
+
+                if (checkMap != null) {
+                    if (checkMap.containsKey(val))
+                        return this;
+
+                    checkMap.put(val, val);
+                }
+                String txt = val.toString();
+                String[] linesArray = txt.split("\n");
+                for (String line : linesArray) {
+                    valueList.add(line);
+                }
+
+
             }
-            valueList.add(val);
             return this;
         }
 
@@ -271,9 +304,13 @@ public class CodeTemplate {
                 return this.valueList.get(idx).toString();
             } catch (NullPointerException npe) {
                 if (valueList.size() == 1) {
-                    return valueList.get(0).toString();
+                    try {
+                        return valueList.get(0).toString();
+                    } catch (NullPointerException noe2) {
+
+                    }
                 }
-                return null;
+                return "";
             }
         }
 

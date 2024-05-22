@@ -1,0 +1,11 @@
+dto:
+  LoanCarDTO:
+    meta: dto @template('LoanCar')
+    fields:
+      carSeq: int
+      contrNm: string
+      capital: string @disable
+      picInfo: string @disable
+      callInfos: string @disable
+      processHistory: string @disable
+

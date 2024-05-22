@@ -1,4 +1,4 @@
-//ecd:290684443H20240517105348V0.7
+//ecd:567075501H20240521223026V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -33,14 +33,14 @@ public  class Capital  implements java.io.Serializable  {
 	@Column(name = "cpt_code")
 	private String cptCode;
 	
-
+	
 	@Column(name = "cpt_name")
 	private String cptName;
 	
-
-	@Comment("활성화 여부")
-	private Indicator enableStatus = Y;
 	
-
+	@Comment("활성화 여부")
+	private Indicator enableStatus = Indicator.Y;
+	
+	
 
 };

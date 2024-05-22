@@ -22,14 +22,13 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
+import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.util.CodeTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -67,12 +66,18 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.dto");
         if (templatePath == null)
             templatePath = "elasticore-template/dto.tmpl";
+        else
+            templatePath = "resource://"+templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
-        this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+
+        if(model.getEnumModels().getItems().size()>0)
+            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+        else
+            this.enumPackageName ="";
 
     }
 
@@ -195,17 +200,19 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             isEntity = true;
         }
 
-        ModelComponentItems<Field> fields = entity.getItems();
+        ListMap<String, Field> fields = entity.getAllFieldListMap();
 
-        while (fields.hasNext()) {
-            Field f = fields.next();
+        List<Field> fieldList = fields.getList();
+
+        for(Field f: fieldList) {
+
+            if(f.hasAnnotation("disable"))
+                continue;
 
             if(isEntity) {
-
                 if(!f.getTypeInfo().isBaseType())
                     continue;
             }
-
 
 
             setFieldDesc(f, p);
@@ -226,34 +233,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             else if (ft == BaseFieldType.TIME)
                 p.add("@Temporal(TemporalType.TIME)");
 
-
             String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
             p.add(code);
             p.add("\n");
-
-        }
-
-        Annotation templateAnt = entity.getMetaInfo().getMetaAnnotation("template");
-        if (templateAnt != null) {
-            String templates = templateAnt.getValue();
-
-            if (templates != null && templates.length() > 0) {
-                String[] templateNmArray = templates.split(",");
-                DataTransferModels models = this.publisher.getECoreModelContext().getDomain().getModel().getDataTransferModels();
-                for (String templateNm : templateNmArray) {
-                    DataTransfer templateEntity = models.findByName(templateNm);
-                    if (templateEntity != null)
-                        loadFieldInfo(templateEntity, p);
-                }
-
-
-                EntityModels entityModels = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels();
-                for (String templateNm : templateNmArray) {
-                    Entity templateEntity = entityModels.findByName(templateNm);
-                    if (templateEntity != null)
-                        loadFieldInfo(templateEntity, p);
-                }
-            }
 
         }
     }

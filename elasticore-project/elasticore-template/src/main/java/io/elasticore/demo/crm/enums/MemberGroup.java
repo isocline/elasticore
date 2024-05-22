@@ -1,9 +1,9 @@
-//ecd:-2131938162H20240517105348V0.7
+//ecd:693085757H20240521223026V0.7
 package io.elasticore.demo.crm.enums;
 
 
 import lombok.Getter;
-import javax.persistence.*;
+
 
 
 /**

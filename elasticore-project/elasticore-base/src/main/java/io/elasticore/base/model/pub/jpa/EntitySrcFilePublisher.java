@@ -68,6 +68,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.entity");
         if(templatePath==null)
             templatePath = "elasticore-template/entity.tmpl";
+        else
+            templatePath = "resource://"+templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
@@ -105,8 +107,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate.Paragraph getEntityAnnotation(Entity entity) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
-        if(entity.getItems()!=null && entity.getItems().size()>0)
-            p.add("@Entity");
+        if(entity.getItems()!=null && entity.getItems().size()>0) {
+
+            if (!entity.getMetaInfo().hasMetaAnnotation("abstract")) {
+                p.add("@Entity");
+            }
+        }
 
         MetaInfo metaInfo = entity.getMetaInfo();
         Annotation annotation = metaInfo.getMetaAnnotation("table");
@@ -255,9 +261,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             else if(ft == BaseFieldType.TIME)
                 p.add("@Temporal(TemporalType.TIME)");
 
-            String code = String.format("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
-            p.add(code);
+            p.add("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
             p.add("");
+
         }
         return p;
     }
@@ -276,9 +282,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         boolean isExtendIdentity = false;
         if (entity.getPkField() != null && entity.getPkField().isMultiple()) {
             isExtendIdentity = true;
-            String code = String.format("private %s id;", entity.getPkField().getType());
+
             p.add("@EmbeddedId");
-            p.add(code);
+            p.add("private %s id;", entity.getPkField().getType());
             p.add("");
         }
         while (fields.hasNext()) {
@@ -308,9 +314,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 p.add("@Temporal(TemporalType.TIME)");
 
 
-            String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
-            p.add(code);
-            p.add("\n");
+            p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
+            p.add("");
+            p.add("");
 
         }
 
@@ -412,10 +418,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private void setFieldColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
 
         if (field.hasAnnotation("label")) {
-            paragraph.add("@Comment(\"%s\")", field.getAnnotation("label").getValue());
+            String val = field.getAnnotation("label").getValue();
+            paragraph.add("@Comment(\"%s\")", val);
         }
         else if (field.hasAnnotation("comment")) {
-            paragraph.add("@Comment(\"%s\")", field.getAnnotation("comment").getValue());
+            String val = field.getAnnotation("label").getValue();
+            paragraph.add("@Comment(\"%s\")", val);
         }
 
 

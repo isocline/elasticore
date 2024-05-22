@@ -10,7 +10,7 @@ import io.elasticore.base.util.StringUtils;
 import lombok.Getter;
 
 @Getter
-public class Entity extends AbstractReplaceableModel implements MetaInfoModel,DataModelComponent {
+public class Entity extends AbstractDataModel implements MetaInfoModel, DataModelComponent {
 
     private final MetaInfo metaInfo;
     private final Items<Field> items;
@@ -22,102 +22,31 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
 
         this.items = items;
         //this.items = new BaseModelComponentItem(items);
-        if(metaInfo ==null)
+        if (metaInfo == null)
             this.metaInfo = MetaInfo.createEmpty();
         else
             this.metaInfo = metaInfo;
 
 
-        setRelationshipEntity();
+        setRelationModel();
 
         Items<Field> pkFields = Items.create(Field.class);
-        if(items!=null) {
-            for(Field f:items.getItemList()) {
-                if(f.isPrimaryKey())
+        if (items != null) {
+            for (Field f : items.getItemList()) {
+                if (f.isPrimaryKey())
                     pkFields.addItem(f);
 
                 setRelationship(f);
             }
         }
 
-        if(pkFields.size()>0)
-            this.pkField = PkField.create(pkFields, null , this);
+        if (pkFields.size() > 0)
+            this.pkField = PkField.create(pkFields, null, this);
         else
             this.pkField = null;
     }
 
-    private void setRelationshipEntity() {
-        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
-        String fromName = getIdentity().getName();
 
-        Annotation extendAnt = this.getMetaInfo().getMetaAnnotation("extend");
-        if(extendAnt!=null) {
-            String toName = extendAnt.getValue();
-
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SUPER));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.CHILD));
-        }
-        Annotation rollupAnt = this.getMetaInfo().getMetaAnnotation("rollup");
-        if(rollupAnt!=null) {
-            String toName = extendAnt.getValue();
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLUP));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ROLLDOWN));
-        }else {
-            Annotation rolldownAnt = this.getMetaInfo().getMetaAnnotation("rolldown");
-            if(rolldownAnt!=null) {
-                String toName = extendAnt.getValue();
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLDOWN));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ROLLUP));
-            }
-
-        }
-    }
-
-    private void setRelationship(Field f) {
-        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
-        TypeInfo typeInfo = f.getTypeInfo();
-        String fromName = getIdentity().getName();
-        String toName = typeInfo.getBaseTypeName();
-
-        if(typeInfo.isGenericType()) {
-            toName = typeInfo.getTypeParameterName();
-        }
-
-        if(f.hasAnnotation(RelationType.ONE_TO_ONE.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE, f.getName()));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
-        }
-        else if(f.hasAnnotation(RelationType.ONE_TO_MANY.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_MANY, f.getName()));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_ONE, f.getName()));
-        }
-        else if(f.hasAnnotation(RelationType.MANY_TO_ONE.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE, f.getName()));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY, f.getName()));
-        }
-        else if(f.hasAnnotation(RelationType.MANY_TO_MANY.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_MANY, f.getName()));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_MANY, f.getName()));
-        }
-        else if(f.hasAnnotation(RelationType.EMBEDDED.getName())) {
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.EMBEDDED, f.getName()));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.EMBEDDABLE, f.getName()));
-
-
-        }
-        else if(!typeInfo.isBaseType()) {
-            if(typeInfo.isGenericType()) {
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE, f.getName()));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY, f.getName()));
-
-            }
-            else {
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE, f.getName()));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
-            }
-
-        }
-    }
 
     public static Entity create(String domainId, String name, MetaInfo metaInfo, Items<Field> items) {
         BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY, domainId, name);
@@ -131,7 +60,7 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
 
     public String getTableName() {
         Annotation annotation = getMetaInfo().getMetaAnnotation("table");
-        if(annotation!=null) {
+        if (annotation != null) {
             return annotation.getValue();
         }
         return StringUtils.camelToSnake(this.getIdentity().getName());
@@ -140,13 +69,13 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
 
     public Entity findParentEntity(ModelDomain domain) {
         Annotation extendAnnotation = getMetaInfo().getMetaAnnotation("extend");
-        if(extendAnnotation!=null){
+        if (extendAnnotation != null) {
             String parentNm = extendAnnotation.getValue();
             try {
                 ECoreModel eCoreModel = domain.getModel();
                 EntityModels entityModels = eCoreModel.getEntityModels();
                 return entityModels.findByName(parentNm);
-            }catch (NullPointerException npe) {
+            } catch (NullPointerException npe) {
                 npe.printStackTrace();
             }
         }
@@ -155,11 +84,11 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
     }
 
     public PkField findPkField(ModelDomain domain) {
-        if(this.pkField!=null)
+        if (this.pkField != null)
             return pkField;
 
         Entity parentEntity = findParentEntity(domain);
-        if(parentEntity!=null)
+        if (parentEntity != null)
             return parentEntity.findPkField(domain);
 
         return null;
@@ -170,10 +99,10 @@ public class Entity extends AbstractReplaceableModel implements MetaInfoModel,Da
         String findName = null;
         Field f = this.items.findByName(fieldName);
 
-        if(f==null) return null;
+        if (f == null) return null;
 
-        if(this.pkField.isMultiple()) {
-            return "Id"+StringUtils.capitalize(f.getName());
+        if (this.pkField.isMultiple()) {
+            return "Id" + StringUtils.capitalize(f.getName());
         }
 
         return f.getName();

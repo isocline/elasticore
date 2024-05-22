@@ -9,6 +9,7 @@ public enum RelationType {
     ROLLUP_("rollup"),
     ROLLDOWN("rolldown"),
     TEMPLATE("template"),
+    TEMPLATE_TO("templateTo"),
     ONE_TO_ONE("ontToOne"),
     ONE_TO_MANY("oneToMany"),
     MANY_TO_ONE("manyToOne"),

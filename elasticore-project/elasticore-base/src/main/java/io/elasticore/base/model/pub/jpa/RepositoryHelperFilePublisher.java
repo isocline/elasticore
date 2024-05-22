@@ -5,6 +5,7 @@ import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
@@ -37,9 +38,11 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
     public RepositoryHelperFilePublisher(CodePublisher publisher) {
         this.publisher = publisher;
 
-        String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("templateHelper.repository");
+        String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.templateHelper");
         if (templatePath == null)
             templatePath = "elasticore-template/repositoryHelper.tmpl";
+        else
+            templatePath = "resource://"+templatePath;
 
         this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
 
@@ -55,7 +58,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
 
-        String classNm = "RepositoryHelper";
+        String name = StringUtils.snakeToCamel(domain.getName(),"-");
+
+        String classNm = StringUtils.capitalize(name)+"RepositoryHelper";
 
         params
                 .set("packageName", packageName)
@@ -77,36 +82,19 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
     }
 
+    private boolean isEnable(Repository repo) {
+        String targetModelName = repo.getIdentity().getName();
+        ModelDomain modelDomain =BaseModelDomain.getModelDomain(repo.getIdentity().getDomainId());
 
-    private CodeTemplate.Paragraph getRepositoryInfo(RepositoryModels repositoryModels) {
-        //private final ContactInfoRepository contactInfo;
-        CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
-        ModelComponentItems<Repository> repoItems = repositoryModels.getItems();
-
-        while (repoItems.hasNext()) {
-            Repository repo = repoItems.next();
-
-            String repoName = repo.getIdentity().getName();
-
-            String fieldNm = StringUtils.uncapitalize(repoName);
-
-            String code = String.format("private final %s %s;", repoName + "Repository", fieldNm);
-            p.add(code);
-            p.add("");
-
-
-            ModelComponentItems<Method> methods = repo.getItems();
-            while (methods.hasNext()) {
-                Method method = methods.next();
-                if (method.getQueryInfo() != null && method.getQueryInfo().isOwnOutputDTO()) {
-                    System.err.println(method.getName() + "<<< ");
-                }
-            }
-
+        Entity entity = modelDomain.getModel().getEntityModels().findByName(targetModelName);
+        PkField pkField = entity.findPkField(modelDomain);
+        if (entity == null
+                //|| entity.getMetaInfo().hasMetaAnnotation("abstract")
+                || pkField == null) {
+            return false;
         }
 
-        return p;
-
+        return true;
     }
 
     private void loadRepositoryInfo(RepositoryModels repositoryModels, CodeTemplate.Paragraph fieldP, CodeTemplate.Paragraph methodP) {
@@ -116,6 +104,8 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         while (repoItems.hasNext()) {
             Repository repo = repoItems.next();
+            if(!isEnable(repo))
+                continue;
 
             String repoName = repo.getIdentity().getName();
 
@@ -207,7 +197,12 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         }
         String methodName = method.getName();
-        p.add("public List<%s> %s(%s) {", outputClassNm, methodName, params);
+
+        boolean isPageable = method.isPageable() && !queryInfo.isNativeQuery();
+        if(isPageable)
+            p.add("public Page<%s> %s(%s ,Pageable pageable) {", outputClassNm, methodName, params);
+        else
+            p.add("public List<%s> %s(%s) {", outputClassNm, methodName, params);
 
         if (fieldNames != null)
             p.add("    String[] fieldNames = {%s};", fieldNames);
@@ -250,12 +245,20 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
             p.add("      query.setParameter(\"" + var + "\" , " + var + ");");
         }
 
-
-        if (fieldNames != null) {
-            p.add("    return new ModelTransList<%s>(query.getResultList(), %s.class, fieldNames);", outputClassNm, outputClassNm);
-        } else {
-            p.add("    return query.getResultList();");
+        if(isPageable) {
+            p.add("    int totalRows = query.getResultList().size();");
+            p.add("    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());");
+            p.add("    query.setMaxResults(pageable.getPageSize());");
+            p.add("    return new PageImpl<%s>(query.getResultList(), pageable, totalRows);",outputClassNm);
+        }else {
+            if (fieldNames != null) {
+                p.add("    return new ModelTransList<%s>(query.getResultList(), %s.class, fieldNames);", outputClassNm, outputClassNm);
+            } else {
+                p.add("    return query.getResultList();");
+            }
         }
+
+
 
         p.add("}");
         p.add("");
@@ -268,9 +271,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         Matcher matcher = pattern.matcher(input);
 
         if (matcher.find()) {
-            return matcher.group(1);  // 1번 그룹은 괄호 안의 내용을 나타냅니다.
+            return matcher.group(1);
         }
-        return "";  // 매치되는 패턴이 없으면 빈 문자열 반환
+        return "";
     }
 
 

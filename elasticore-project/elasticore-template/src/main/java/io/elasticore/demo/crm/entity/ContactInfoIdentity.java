@@ -1,4 +1,4 @@
-//ecd:-1726190120H20240517105348V0.7
+//ecd:735110069H20240521223026V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -28,9 +28,11 @@ import java.time.*;
 
 public  class ContactInfoIdentity  implements java.io.Serializable  {
 
+	@Comment("그릅 일련번호")
 	@Column(name = "GRP_SEQ")
 	private Integer grpSeq;
 	
+	@Comment("순번")
 	@Column(name = "CTR_SEQ")
 	private Integer contactSeq;
 	

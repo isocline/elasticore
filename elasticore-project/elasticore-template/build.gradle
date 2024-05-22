@@ -91,7 +91,7 @@ task genModel(type: JavaExec) {
 }
 
 compileJava {
-	dependsOn genModel
+	//dependsOn genModel
 
 }
 

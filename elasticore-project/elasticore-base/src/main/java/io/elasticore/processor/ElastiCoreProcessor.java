@@ -37,7 +37,7 @@ public class ElastiCoreProcessor extends AbstractProcessor {
         super.init(processingEnv);
 
         Map<String, String> options = processingEnv.getOptions();
-        System.err.println(">>>>>>>>>>>> " + getSupportedOptions().toString());
+
         for (String key : options.keySet()) {
             System.out.println("==" + key);
         }
@@ -46,7 +46,7 @@ public class ElastiCoreProcessor extends AbstractProcessor {
         this.modelPath = this.projectPath + "/src/main/resources/blueprint";
 
         File f = new File(" C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasticore-template\\src\\main\\java\\io\\elasticore\\demo\\crm\\entity\\ContractGroup.java");
-        System.err.println("ContractGroup>>>>>>>>>>>> " + f.exists());
+
 
 
         System.err.println("projectPath>>>>>>>>>>>> " + this.projectPath);

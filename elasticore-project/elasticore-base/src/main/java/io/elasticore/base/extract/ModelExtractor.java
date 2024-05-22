@@ -57,7 +57,6 @@ public class ModelExtractor {
                 if(envFile.exists()) {
                     dirList.add(chiild.getAbsolutePath());
                 }
-
             }
         }
         return dirList;
@@ -68,7 +67,7 @@ public class ModelExtractor {
         if(basePath ==null ) {
             basePath = System.getProperty("user.dir");
         }
-        System.err.println(">>>>>>> "+basePath);
+
         return basePath;
     }
 

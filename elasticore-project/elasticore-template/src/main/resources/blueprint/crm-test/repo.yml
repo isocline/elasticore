@@ -1,0 +1,63 @@
+
+repository:
+  ContractGroup:
+    methods:
+      - id: selectCnctCodeList
+        query: select a from ContractGroup order by grpSeq desc
+
+  ContactInfo:
+    methods:
+      - id: selectCnctList
+        query: select a from ContactInfo where a.grpSeq=:grpSeq order by contactSeq desc
+
+      - id: selectCnctList2
+        nativeQuery: true
+        query: |
+          select * from T_CNCT_LST
+          where 1=1
+           and contractName = :contractName /* if:contractName */
+          and contractTel = :contractTel /* if:contractTel */
+
+      - id: selectCnctList3
+        query: |
+          select * from ContactInfo
+          where 1=1
+           and contractName = :contractName /* if:contractName */
+          and contractTel = :contractTel /* if:contractTel */
+
+      - id: selectCnctList4
+        nativeQuery: true
+        query: |
+          select
+           B.CONTRACT_NO
+          , B.DRIVER_SEQ_NO
+          , C.CUST_NO
+          from T_CNCT_LST
+          where 1=1
+           and contractName = :contractName /* if:contractName */
+          and contractTel = :contractTel /* if:contractTel */
+
+      - id: selectCnctCustList
+        return: List<Object[]>
+        nativeQuery: true
+        query: |
+          SELECT CASE WHEN C.CAR_SEQ IS NULL THEN -1 ELSE C.CAR_SEQ END AS CAR_SEQ /* type:int */
+                       , CASE WHEN B.CONTR_NM IS NULL THEN A.CONTACT_NAME ELSE B.CONTR_NM END AS CONTR_NM
+                       , CASE WHEN D.CUST_NM IS NULL THEN '' ELSE D.CUST_NM END AS CUST_NM
+                       , CASE WHEN B.CONTR_TEL IS NULL THEN A.CONTACT_TEL ELSE B.CONTR_TEL END AS CONTR_TEL
+                       , CASE WHEN C.RENT_AMT IS NULL THEN 0 ELSE C.RENT_AMT END AS RENT_AMT /* type:int */
+                       , CASE WHEN C.EXCEPT_AMT IS NULL THEN 0 ELSE C.EXCEPT_AMT END AS EXCEPT_AMT /* type:int */
+                       , CASE WHEN B.PENALTY_RATE IS NULL THEN 0 ELSE B.PENALTY_RATE END AS PENALTY_RATE
+                       , B.CONTRACT_NO
+                       , B.DRIVER_SEQ_NO
+                       , C.CUST_NO
+                  FROM T_CNCT_LST A
+                           LEFT OUTER JOIN T_CONTRACT B ON A.CONTRACT_NO = B.CONTRACT_NO
+                           LEFT OUTER JOIN T_CAR C ON A.CONTRACT_NO = C.CONTRACT_NO
+                           LEFT OUTER JOIN T_CUST D ON C.CUST_NO = D.CUST_NO
+                  WHERE 1 = 1
+                    AND A.GRP_SEQ = :grpSeq
+                  ORDER BY A.CTR_SEQ;
+
+
+

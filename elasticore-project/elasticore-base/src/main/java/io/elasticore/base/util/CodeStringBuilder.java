@@ -36,12 +36,22 @@ public class CodeStringBuilder {
 
     private String indent = "";
 
+    private String indentTxt = "    ";
+
     public CodeStringBuilder(){
     }
 
     public CodeStringBuilder(String blockStartText, String blockEndText) {
+        this(blockStartText, blockEndText, 4);
+    }
+
+    public CodeStringBuilder(String blockStartText, String blockEndText, int spaceSize) {
         this.blockStartText = blockStartText;
         this.blockEndText = blockEndText;
+        StringBuilder sb =new StringBuilder();
+        for(int i=0;i<spaceSize;i++)
+            sb.append(" ");
+        indentTxt = sb.toString();
     }
 
 
@@ -72,7 +82,7 @@ public class CodeStringBuilder {
 
         StringBuilder sbb = new StringBuilder();
         for(int i=0;i<blockDepth;i++) {
-            sbb.append("  ");
+            sbb.append(indentTxt);
         }
         indent = sbb.toString();
         return this;
@@ -90,7 +100,7 @@ public class CodeStringBuilder {
 
         StringBuilder sbb = new StringBuilder();
         for(int i=0;i<blockDepth;i++) {
-            sbb.append("  ");
+            sbb.append(indentTxt);
         }
         indent = sbb.toString();
 

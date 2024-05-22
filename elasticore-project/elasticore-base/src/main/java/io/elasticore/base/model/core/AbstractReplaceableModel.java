@@ -11,19 +11,19 @@ import java.util.Map;
 public abstract class AbstractReplaceableModel<T extends Replaceable<T>> implements Replaceable<T> {
 
 
-    private final ComponentIdentity ComponentIdentity;
+    private final ComponentIdentity componentIdentity;
 
     private final static Map<ComponentIdentity, Replaceable> replaceableMap = new HashMap<>();
 
-    protected AbstractReplaceableModel(ComponentIdentity ComponentIdentity) {
-        this.ComponentIdentity = ComponentIdentity;
-        replaceableMap.put(this.ComponentIdentity, this);
+    protected AbstractReplaceableModel(ComponentIdentity componentIdentity) {
+        this.componentIdentity = componentIdentity;
+        replaceableMap.put(this.componentIdentity, this);
     }
 
 
     @Override
     public T getObject() {
-        return getModel(this.ComponentIdentity);
+        return getModel(this.componentIdentity);
     }
 
     public static <T extends Replaceable<T>> T getModel(ComponentIdentity id) {
@@ -32,6 +32,6 @@ public abstract class AbstractReplaceableModel<T extends Replaceable<T>> impleme
 
     @Override
     public ComponentIdentity getIdentity() {
-        return ComponentIdentity;
+        return componentIdentity;
     }
 }

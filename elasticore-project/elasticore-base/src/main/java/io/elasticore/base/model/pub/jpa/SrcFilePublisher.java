@@ -20,7 +20,6 @@ public class SrcFilePublisher {
             writer.write(getMarkText(content));
             writer.write(content);
             writer.flush();
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+qualifiedClassName);
         } catch (Throwable e) {
             e.printStackTrace();
             if(modelComponent!=null)

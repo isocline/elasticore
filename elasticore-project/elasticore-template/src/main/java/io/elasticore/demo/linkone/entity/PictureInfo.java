@@ -1,4 +1,4 @@
-//ecd:1210844210H20240517105348V0.7
+//ecd:286210146H20240521223026V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -20,7 +20,6 @@ import java.time.*;
 
 */
 
-@Entity
 @Embeddable
 
 @Getter
@@ -28,19 +27,19 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public  class PictureInfo  implements java.io.Serializable  {
+public abstract class PictureInfo  implements java.io.Serializable  {
 
 	@Column(name = "uri")
 	private String uri;
 	
-
+	
 	@Column(name = "file_name")
 	private String fileName;
 	
-
+	
 	@Column(name = "type")
 	private String type;
 	
-
+	
 
 };

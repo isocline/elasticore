@@ -48,6 +48,7 @@ entity:
       lastModifiedDate: datetime
 
   PictureInfo:
+    meta: entity @abstract
     fields:
       uri: string
       fileName: string
@@ -75,7 +76,7 @@ entity:
     fields:
       cptCode: string @id
       cptName: string
-      enableStatus: Indicator @label('활성화 여부') @default('Y')
+      enableStatus: Indicator @label('활성화 여부') @default(Indicator.Y)
 
 
   LoanCar:
@@ -84,26 +85,26 @@ entity:
       lcCode: long @id @label('아이디')
       customName: string @label('고객명')
       customPh: string @label('연락처')
-      alarmStatus: Indicator @label('콜센터에서 링크원으로 보낸 알람 수신') @default('N')
+      alarmStatus: Indicator @label('콜센터에서 링크원으로 보낸 알람 수신') @default(Indicator.N)
       lcReceiveLocation: string @label('입고지')
-      content: text @label('문자내용')
+      content: string @text @label('문자내용')
       carModel: string @label('차량모델')
       carNumber: string @label('차량번호')
-      memo: text @label('메모')
+      memo: string @text @label('메모')
       insuranceCode: string @label('보험사 접수번호')
       lcRepairShopName: string @label('미제휴 공장명')
       lcRepairShopReason: string @label('미제휴 공장기입 사유')
-      accidentType: AaccidentType @label('사고타입 피해:D 가해:I 단독:S 정비:R 기타:E 미정:U') @default('U')
+      accidentType: AaccidentType @label('사고타입 피해:D 가해:I 단독:S 정비:R 기타:E 미정:U') @default(AaccidentType.U)
       lcReason: string @label('대차미진행 사유')
 
-      rentAlarmStatus: Indicator @label('링크원에서 렌터카으로 보낸 알람 수신') @default('N')
-      lcView: Indicator @label('목록 노출') @default('Y')
+      rentAlarmStatus: Indicator @label('링크원에서 렌터카으로 보낸 알람 수신') @default(Indicator.N)
+      lcView: Indicator @label('목록 노출') @default(Indicator.Y)
       noWayType: NoWayType @label('대차미진행타입 수리만진행:R 지역변경:A 기타:E')
 
-      agentName: string @label('소개처(고객사기타)')
+      agentName: string @label('소개처(고객사기타)test')
       agentPicName: string @label('영업담당자')
       areaName: string @label('지역(고객사기타)')
-      capitalName: string @label('고객사명(고객사기타)')
+      capitalName: string @label('고객사명 (고객사기타)')
       smsParseType: Indicator @label('문자파싱 성공여부')
 
       capital: Capital

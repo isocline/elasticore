@@ -1,14 +1,14 @@
-//ecd:1569079549H20240517105348V0.7
+//ecd:-894001494H20240521223026V0.7
 package io.elasticore.demo.crm.dto;
 
 
-//import io.elasticore.demo.crm.enums.*;
+import io.elasticore.demo.crm.enums.*;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import javax.persistence.*;
+
 import java.util.*;
 import java.time.*;
 
@@ -27,17 +27,9 @@ import java.time.*;
 
 public  class ContractGroupDTO  implements java.io.Serializable  {
 
-	private Integer carSeq;
-	
-
-	private String contrNm;
-	
-
 	private Integer grpSeq;
-	
-
 	private String groupName;
-	
-
+	private Integer carSeq;
+	private String contrNm;
 
 };

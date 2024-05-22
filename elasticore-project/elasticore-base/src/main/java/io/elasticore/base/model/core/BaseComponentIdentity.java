@@ -100,4 +100,9 @@ public final class BaseComponentIdentity implements ComponentIdentity {
     public String getDomainId() {
         return this.domainId;
     }
+
+
+    public ComponentType getComponentType() {
+        return this.type;
+    }
 }

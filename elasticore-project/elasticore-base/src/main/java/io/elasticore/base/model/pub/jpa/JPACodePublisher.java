@@ -106,5 +106,11 @@ public class JPACodePublisher implements CodePublisher {
 
         RepositoryHelperFilePublisher repositoryHelperFilePublisher = new RepositoryHelperFilePublisher(this);
         repositoryHelperFilePublisher.publish(domain, repositoryModels);
+
+
+
+        MapperSrcPublisher mapperSrcPublisher = new MapperSrcPublisher(this);
+        mapperSrcPublisher.publish(domain);
+
     }
 }

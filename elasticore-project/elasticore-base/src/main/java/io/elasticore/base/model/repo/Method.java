@@ -31,6 +31,8 @@ public class Method implements ModelComponent {
 
     public SqlQueryInfo queryInfo;
 
+    private boolean pageable;
+
 
     public boolean isNeedQueryAnnotation() {
         if(queryInfo==null)

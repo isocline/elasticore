@@ -1,4 +1,4 @@
-//ecd:-705505384H20240517105348V0.7
+//ecd:-1111891515H20240521223026V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -33,16 +33,16 @@ public  class CallInfo  implements java.io.Serializable  {
 	@Column(name = "seq")
 	private Long seq;
 	
-
+	
 	@Column(name = "call_date")
 	@Temporal(TemporalType.DATE)
 	private java.util.Date callDate;
 	
-
+	
 	@Column(name = "call_time")
 	@Temporal(TemporalType.TIME)
 	private java.util.Date callTime;
 	
-
+	
 
 };

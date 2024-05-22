@@ -144,7 +144,11 @@ public class AbstractModelLoader implements ConstanParam {
     protected Map<String, Annotation> loadAnnotationMap(String fieldLine) {
 
         //Pattern pattern = Pattern.compile("@(\\w+)(?:\\((.*?)\\))?");
-        Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\((.*?)\\))?");
+        //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\((.*?)\\))?");
+        //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\('([^']*?)'\\))?");
+        Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(('([^']*?)'|[^()]*?)\\))?");
+
+
         Matcher matcher = pattern.matcher(fieldLine);
 
         Map<String, Annotation> annotationMap = new HashMap<>();

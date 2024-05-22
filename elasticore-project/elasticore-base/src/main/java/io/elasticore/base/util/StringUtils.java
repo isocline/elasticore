@@ -63,9 +63,12 @@ public class StringUtils {
         return name.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
     }
 
-
     public static String snakeToCamel(String name) {
-        String[] parts = name.split("_");
+        return snakeToCamel(name, "_");
+    }
+
+    public static String snakeToCamel(String name, String splitText) {
+        String[] parts = name.split(splitText);
         StringBuilder camelCaseName = new StringBuilder(parts[0]);
         for (int i = 1; i < parts.length; i++) {
             camelCaseName.append(parts[i].substring(0, 1).toUpperCase()).append(parts[i].substring(1).toLowerCase());

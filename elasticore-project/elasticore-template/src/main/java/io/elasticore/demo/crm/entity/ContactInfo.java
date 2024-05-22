@@ -1,4 +1,4 @@
-//ecd:-1354764707H20240517105348V0.7
+//ecd:-1085828850H20240521223026V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -33,18 +33,20 @@ public  class ContactInfo  implements java.io.Serializable  {
 	@EmbeddedId
 	private ContactInfoIdentity id;
 	
+	@Comment("이용자명")
 	@Column(name = "CONTACT_NAME")
 	private String contractName;
 	
-
+	
+	@Comment("전화번호")
 	@Column(name = "contractTel")
 	private String contractTel;
 	
-
+	
 	@ManyToOne
 	@JoinColumn(columnDefinition = "contractGrp_id")
 	private ContractGroup contractGrp;
 	
-
+	
 
 };

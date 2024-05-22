@@ -63,12 +63,7 @@ entity:
     fields:
       data: string
 
-
-
-
-
       endData: datetime
-
 
 
 
