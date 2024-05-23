@@ -1,4 +1,4 @@
-//ecd:-1085828850H20240521223026V0.7
+//ecd:-1319144545H20240523142719V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
+
 import java.util.*;
 import java.time.*;
 
@@ -34,12 +35,12 @@ public  class ContactInfo  implements java.io.Serializable  {
 	private ContactInfoIdentity id;
 	
 	@Comment("이용자명")
-	@Column(name = "CONTACT_NAME")
+	@Column(name = "CONTACT_NAME", length = 100)
 	private String contractName;
 	
 	
 	@Comment("전화번호")
-	@Column(name = "contractTel")
+	@Column(name = "contractTel", length = 20)
 	private String contractTel;
 	
 	

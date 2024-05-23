@@ -64,15 +64,9 @@ public class MermaidCodePublisher implements CodePublisher {
     }
 
     public void publish(ECoreModelContext ctx, ModelDomain domain) {
-
-        System.out.println("UML >> ---- >>  &&&&&&&&&&&&&&&&&&");
-
         this.ctx = ctx;
-
         ECoreModel model = domain.getModel();
-
         EntityModels entityModels = model.getEntityModels();
-
         ModelComponentItems<Entity> items = entityModels.getItems();
 
         CodeStringBuilder cb = new CodeStringBuilder("{","}");
@@ -80,24 +74,13 @@ public class MermaidCodePublisher implements CodePublisher {
         // entity
         for (int i = 0; i < items.size(); i++) {
             Entity entity = items.get(i);
-
             String entityNm = entity.getIdentity().getName();
 
             makeClassInfoScript(entity,cb);
-
-
-
         }
-
-
-
-
-
         cb.end("");
-
         System.err.println( cb.toString());
     }
-
 
     private void makeClassInfoScript(Entity entity, CodeStringBuilder cb) {
         StringBuilder sb = new StringBuilder();

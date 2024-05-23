@@ -1,9 +1,15 @@
-//ecd:-359555548H20240521223026V0.7
+//ecd:-894934441H20240523142719V0.7
 package io.elasticore.demo.linkone.enums;
 
 
 import lombok.Getter;
 
+
+
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+import java.io.IOException;
 
 
 /**
@@ -12,8 +18,10 @@ import lombok.Getter;
  */
 
 
-@Getter
 
+
+
+@Getter
 public enum AaccidentType {
 
 
@@ -33,4 +41,29 @@ public enum AaccidentType {
         this.msg = msg;
 
     }
+
+    
+    public static AaccidentType fromMsg(String msg){
+        for (AaccidentType type : AaccidentType.values()){
+            if (type.msg.equals(msg)) return type;
+        }
+        throw new IllegalArgumentException("Unknown msg: " + msg);
+    }
+    
+    @Converter(autoApply = true)
+    public static class EntityConverter implements AttributeConverter<AaccidentType, String>{
+        @Override
+        public String convertToDatabaseColumn(AaccidentType e){
+            if (e == null) return null;
+            return e.getMsg();
+        }
+        
+        @Override
+        public AaccidentType convertToEntityAttribute(String val){
+            if (val == null) return null;
+            return AaccidentType.fromMsg(val);
+        }
+    }
+
+
 }

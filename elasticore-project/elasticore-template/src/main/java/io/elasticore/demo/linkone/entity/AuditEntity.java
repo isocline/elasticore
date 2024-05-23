@@ -1,4 +1,4 @@
-//ecd:-1704814840H20240521223026V0.7
+//ecd:-1026963986H20240523142719V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
+
 import java.util.*;
 import java.time.*;
 

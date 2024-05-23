@@ -2,6 +2,7 @@
 package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
+import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.util.HashUtils;
 import lombok.SneakyThrows;
@@ -32,6 +33,16 @@ public class SrcFilePublisher {
 
     protected String getPath(String packageName) {
         return packageName.replace('.', '/');
+    }
+
+
+    public String getPersistentPackageName(ModelDomain domain) {
+        try {
+            if ("jakarta".equals(domain.getModel().getConfig("j2ee")))
+                return "jakarta";
+        }catch (RuntimeException re){}
+
+        return "javax";
     }
 
 }

@@ -269,6 +269,14 @@ public class CodeTemplate {
             return add(code);
         }
 
+        public boolean contains(String content) {
+            for(Object t:valueList) {
+                if(t!=null && t.toString().contains(content))
+                    return true;
+            }
+            return false;
+        }
+
 
         public Paragraph add(Object val) {
 

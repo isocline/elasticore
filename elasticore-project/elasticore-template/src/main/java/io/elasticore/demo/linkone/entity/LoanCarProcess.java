@@ -1,4 +1,4 @@
-//ecd:950522285H20240521223026V0.7
+//ecd:294432806H20240523142719V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
+
 import java.util.*;
 import java.time.*;
 
@@ -27,7 +28,7 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public  class LoanCarProcess  implements java.io.Serializable  {
+public  class LoanCarProcess extends AuditEntity implements java.io.Serializable  {
 
 	@Id
 	@Column(name = "seq")
@@ -40,24 +41,6 @@ public  class LoanCarProcess  implements java.io.Serializable  {
 	
 	
 	private StatusType lcFixCode;
-	
-	
-	@Column(name = "create_date")
-	@Temporal(TemporalType.TIMESTAMP)
-	private java.util.Date createDate;
-	
-	
-	@Column(name = "created_by")
-	private String createdBy;
-	
-	
-	@Column(name = "last_modified_by")
-	private String lastModifiedBy;
-	
-	
-	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.TIMESTAMP)
-	private java.util.Date lastModifiedDate;
 	
 	
 

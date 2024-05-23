@@ -1,4 +1,4 @@
-//ecd:-727669071H20240521223026V0.7
+//ecd:-440356519H20240523142719V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
+
 import java.util.*;
 import java.time.*;
 
@@ -35,8 +36,8 @@ public  class LoanCar  implements java.io.Serializable  {
 	private Long lcCode;
 	
 	
-	@Comment("고객명")
-	@Column(name = "custom_name")
+	@Comment("ZZZ")
+	@Column(name = "custom_name", nullable = false, length = 20)
 	private String customName;
 	
 	
@@ -46,6 +47,8 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Comment("콜센터에서 링크원으로 보낸 알람 수신")
+	@Column(length = 5)
+	@Convert(converter = Indicator.EntityConverter.class)
 	private Indicator alarmStatus = Indicator.N;
 	
 	
@@ -75,12 +78,12 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Comment("보험사 접수번호")
-	@Column(name = "insurance_code")
+	@Column(name = "insurance_code", length = 32)
 	private String insuranceCode;
 	
 	
 	@Comment("미제휴 공장명")
-	@Column(name = "lc_repair_shop_name")
+	@Column(name = "lc_repair_shop_name", length = 64)
 	private String lcRepairShopName;
 	
 	
@@ -90,6 +93,7 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Comment("사고타입 피해:D 가해:I 단독:S 정비:R 기타:E 미정:U")
+	@Convert(converter = AaccidentType.EntityConverter.class)
 	private AaccidentType accidentType = AaccidentType.U;
 	
 	
@@ -99,10 +103,14 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Comment("링크원에서 렌터카으로 보낸 알람 수신")
+	@Column(length = 5)
+	@Convert(converter = Indicator.EntityConverter.class)
 	private Indicator rentAlarmStatus = Indicator.N;
 	
 	
 	@Comment("목록 노출")
+	@Column(length = 5)
+	@Convert(converter = Indicator.EntityConverter.class)
 	private Indicator lcView = Indicator.Y;
 	
 	
@@ -111,26 +119,28 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Comment("소개처(고객사기타)test")
-	@Column(name = "agent_name")
+	@Column(name = "agent_name", length = 64)
 	private String agentName;
 	
 	
 	@Comment("영업담당자")
-	@Column(name = "agent_pic_name")
+	@Column(name = "agent_pic_name", length = 64)
 	private String agentPicName;
 	
 	
 	@Comment("지역(고객사기타)")
-	@Column(name = "area_name")
+	@Column(name = "area_name", length = 64)
 	private String areaName;
 	
 	
 	@Comment("고객사명 (고객사기타)")
-	@Column(name = "capital_name")
+	@Column(name = "capital_name", length = 64)
 	private String capitalName;
 	
 	
 	@Comment("문자파싱 성공여부")
+	@Column(length = 5)
+	@Convert(converter = Indicator.EntityConverter.class)
 	private Indicator smsParseType;
 	
 	

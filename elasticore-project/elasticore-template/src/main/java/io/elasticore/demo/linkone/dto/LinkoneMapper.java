@@ -1,4 +1,4 @@
-//ecd:-514437159H20240521223026V0.7
+//ecd:-11343962H20240523142719V0.7
 package io.elasticore.demo.linkone.dto;
 
 
@@ -53,7 +53,7 @@ public class LinkoneMapper {
     }
     
     
-    public static LoanCarDTO toLoanCarDTO(LoanCar from){
+    public static LoanCarDTO toDTO(LoanCar from){
         LoanCarDTO to = new LoanCarDTO();
         mapping(from, to);
         return to;
@@ -62,7 +62,7 @@ public class LinkoneMapper {
     
     public static List<LoanCarDTO> toLoanCarDTOList(List<LoanCar> fromList){
         if(fromList==null) return null;
-        return fromList.stream().map(LinkoneMapper::toLoanCarDTO).collect(Collectors.toList());
+        return fromList.stream().map(LinkoneMapper::toDTO).collect(Collectors.toList());
     }
     
     
@@ -70,7 +70,7 @@ public class LinkoneMapper {
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                LoanCarDTO to = toLoanCarDTO(from);
+                LoanCarDTO to = toDTO(from);
                 return modifier.apply(from, to);
             }
             )
@@ -107,7 +107,7 @@ public class LinkoneMapper {
     }
     
     
-    public static LoanCar toLoanCar(LoanCarDTO from){
+    public static LoanCar toEntity(LoanCarDTO from){
         LoanCar to = new LoanCar();
         mapping(from, to);
         return to;
@@ -116,7 +116,7 @@ public class LinkoneMapper {
     
     public static List<LoanCar> toLoanCarList(List<LoanCarDTO> fromList){
         if(fromList==null) return null;
-        return fromList.stream().map(LinkoneMapper::toLoanCar).collect(Collectors.toList());
+        return fromList.stream().map(LinkoneMapper::toEntity).collect(Collectors.toList());
     }
     
     
@@ -124,7 +124,7 @@ public class LinkoneMapper {
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                LoanCar to = toLoanCar(from);
+                LoanCar to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )

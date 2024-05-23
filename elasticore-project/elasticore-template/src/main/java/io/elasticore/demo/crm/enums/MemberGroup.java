@@ -1,8 +1,11 @@
-//ecd:693085757H20240521223026V0.7
+//ecd:199806955H20240523142719V0.7
 package io.elasticore.demo.crm.enums;
 
 
 import lombok.Getter;
+
+
+
 
 
 
@@ -12,8 +15,10 @@ import lombok.Getter;
  */
 
 
-@Getter
 
+
+
+@Getter
 public enum MemberGroup {
 
 
@@ -29,4 +34,7 @@ public enum MemberGroup {
         this.name = name;
 
     }
+
+    
+
 }

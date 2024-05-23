@@ -189,9 +189,47 @@ public class AbstractModelLoader implements ConstanParam {
      * @return A Field object populated with the parsed information.
      */
     protected Field parseFieldLine(String fieldNm, String fieldLine) {
+
+        // for comment
+        int p0 = fieldLine.indexOf(" --");
+        if(p0>0) {
+            String comment = fieldLine.substring(p0+3).trim();
+            if(!comment.isEmpty()) {
+                fieldLine = fieldLine.substring(0,p0);
+                fieldLine = fieldLine +" @label("+comment+")";
+            }
+        }
+
+
         String[] parts = fieldLine.split(" ", 2);
         String type = parts[0];
         fieldLine = parts.length > 1 ? parts[1] : "";
+
+
+
+        // for require
+        int p =type.indexOf("!");
+        if(p>0) {
+            type = type.replace("!", "");
+            fieldLine = fieldLine +" @notnull";
+        }
+        // for length
+        int p2 =type.indexOf("(");
+        if(p2>0) {
+            String lenInfo = type.substring(p2);
+            type = type.substring(0,p2);
+            fieldLine = fieldLine +" @length"+lenInfo;
+        }
+
+        if("longtext".equals(type)) {
+            type="string";
+            fieldLine = fieldLine +" @longtext";
+        }
+        else if("text".equals(type)) {
+            type="string";
+            fieldLine = fieldLine +" @text";
+        }
+
 
 
         Map<String, Annotation> annotationMap = loadAnnotationMap(fieldLine);

@@ -4,12 +4,17 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringList;
+import io.elasticore.base.util.StringUtils;
+
+import java.util.List;
 
 /**
  *
@@ -26,10 +31,10 @@ public class EnumFilePublisher extends SrcFilePublisher {
         this.publisher = publisher;
 
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.enum");
-        if(templatePath==null)
+        if (templatePath == null)
             templatePath = "elasticore-template/enum.tmpl";
         else
-            templatePath = "resource://"+templatePath;
+            templatePath = "resource://" + templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
@@ -40,18 +45,184 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
     private String getValue(EnumConstant.ConstructParam param, Field f) {
         String baseVal = param.toString();
-        if(f.getTypeInfo().isStringType()) {
-            if(baseVal.indexOf("\"")==0) {
+        if (f.getTypeInfo().isStringType()) {
+            if (baseVal.indexOf("\"") == 0) {
                 return baseVal;
             }
-            return "\""+baseVal+"\"";
+            return "\"" + baseVal + "\"";
         }
         return baseVal;
 
     }
 
 
-    public void publish(ModelDomain domain,EnumModel enumModel) {
+    private void makeConverFunc(CodeStringBuilder cb, CodeStringBuilder importInfo, CodeStringBuilder classAnnotationList,
+                                ModelDomain domain, EnumModel enumModel) {
+
+        String enumName = enumModel.getIdentity().getName();
+
+        Items<Field> fieldItem = enumModel.getFieldItems();
+        List<Field> list = fieldItem.getItemList();
+
+        Annotation jsonAnt = enumModel.getMetaInfo().getMetaAnnotation("json");
+        Annotation dbAnt = enumModel.getMetaInfo().getMetaAnnotation("db");
+
+        Field jsonField = null;
+        Field dbField = null;
+        String jsonFieldNm = null;
+        String dbFieldNm = null;
+        if(jsonAnt!=null) {
+            jsonFieldNm = jsonAnt.getValue();
+            if(jsonFieldNm!=null)
+                jsonField = fieldItem.findByName(jsonFieldNm);
+
+        }
+        if(dbAnt!=null) {
+            dbFieldNm = dbAnt.getValue();
+            if(dbFieldNm!=null)
+                dbField = fieldItem.findByName(dbFieldNm);
+        }
+
+        boolean isJsonImport = false;
+        boolean isDbImport = false;
+
+        if(jsonField!=null || dbField !=null) {
+            boolean isSame = false;
+            if(jsonField !=null && dbField !=null) {
+                if(jsonFieldNm.equals(dbFieldNm)) {
+                    makeFindEnumCode(cb, enumName, jsonField, true, true);
+                    isJsonImport = true;
+                    isDbImport = true;
+                    isSame = true;
+                }
+            }
+
+            if(!isSame) {
+                if(jsonField !=null) {
+                    makeFindEnumCode(cb, enumName, jsonField, true, false);
+                    isJsonImport = true;
+
+                }
+                if(dbField !=null) {
+                    makeFindEnumCode(cb, enumName, dbField, false, true);
+                    isDbImport = true;
+                }
+            }
+
+
+        }
+
+        if(isJsonImport) {
+            importInfo.line("import com.fasterxml.jackson.core.JsonGenerator;")
+                    .line("import com.fasterxml.jackson.core.JsonParser;")
+                    .line("import com.fasterxml.jackson.core.JsonProcessingException;")
+                    .line("import com.fasterxml.jackson.databind.DeserializationContext;")
+                    .line("import com.fasterxml.jackson.databind.JsonDeserializer;")
+                    .line("import com.fasterxml.jackson.databind.JsonSerializer;")
+                    .line("import com.fasterxml.jackson.databind.SerializerProvider;")
+                    .line("import com.fasterxml.jackson.databind.annotation.JsonDeserialize;")
+                    .line("import com.fasterxml.jackson.databind.annotation.JsonSerialize;");
+
+
+            classAnnotationList.line("@JsonSerialize(using = %s.CustomSerializer.class)",enumName)
+                    .line("@JsonDeserialize(using = %s.CustomDeserializer.class)",enumName);
+        }
+
+
+        if(isDbImport) {
+            String j2eePkgName = this.getPersistentPackageName(domain);
+            importInfo.line("import %s.persistence.AttributeConverter;", j2eePkgName)
+                    .line("import %s.persistence.Converter;", j2eePkgName)
+                    .line("import java.io.IOException;");
+        }
+
+    }
+
+    /**
+     * public static AaccidentType fromCode(String code) {
+     * for (AaccidentType type : AaccidentType.values()) {
+     * if (type.code.equals(code))
+     * return type;
+     * <p>
+     * }
+     * throw new IllegalArgumentException("Unknown code: " + code);
+     * }
+     *
+     * @param cb
+     * @param enumName
+     * @param f
+     */
+    private void makeFindEnumCode(CodeStringBuilder cb, String enumName, Field f, boolean isJsonConv, boolean isDbConv) {
+
+        cb.block("");
+
+        String fieldName = f.getIdentity().getName();
+        String type = f.getTypeInfo().getDefaultTypeName();
+
+        String capitalNm = StringUtils.capitalize(fieldName);
+
+        cb.line("public static %s from%s(%s %s)", enumName, capitalNm, type, fieldName).block();
+        cb.line("for (%s type : %s.values())", enumName, enumName).block();
+        cb.line("if (type.%s.equals(%s)) return type;", fieldName, fieldName);
+        cb.end();
+        cb.line("throw new IllegalArgumentException(\"Unknown %s: \" + %s);", fieldName, fieldName);
+        cb.end();
+
+        if (isJsonConv) {
+            cb.line("");
+
+            cb.line("public static class CustomSerializer extends JsonSerializer<%s>", enumName);
+            cb.block();
+            cb.line("@Override");
+            cb.line("public void serialize(%s value, JsonGenerator gen, SerializerProvider serializers) throws IOException", enumName);
+            cb.block();
+            cb.line("gen.writeString(value.get%s());", capitalNm);
+            cb.end();
+            cb.end();
+
+            cb.line("");
+            cb.line("public static class CustomDeserializer extends JsonDeserializer<%s>", enumName);
+            cb.block();
+            cb.line("@Override");
+            cb.line("public %s deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException", enumName);
+            cb.block();
+            cb.line("return %s.from%s(p.getText());", enumName, capitalNm);
+            cb.end();
+            cb.end();
+        }
+
+        if (isDbConv) {
+            cb.line("");
+
+            cb.line("@Converter(autoApply = true)");
+            cb.line("public static class EntityConverter implements AttributeConverter<%s, %s>", enumName, type);
+            cb.block();
+            cb.line("@Override");
+            cb.line("public %s convertToDatabaseColumn(%s e)", type, enumName);
+            cb.block();
+            cb.line("if (e == null) return null;");
+            cb.line("return e.get%s();", capitalNm);
+            cb.end();
+
+            cb.line("");
+            cb.line("@Override");
+            cb.line("public %s convertToEntityAttribute(%s val)", enumName, type);
+            cb.block();
+            cb.line("if (val == null) return null;");
+            cb.line("return %s.from%s(val);", enumName, capitalNm);
+            cb.end();
+
+
+            cb.end();
+        }
+
+        cb.end("");
+
+    }
+
+    public void publish(ModelDomain domain, EnumModel enumModel) {
+
+
         Items<EnumConstant> enumConstantItems = enumModel.getEnumConstantItems();
         Items<Field> fieldItem = enumModel.getFieldItems();
 
@@ -63,11 +234,9 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
             sb.append(name).append("(");
 
-            int seq=0;
+            int seq = 0;
             for (EnumConstant.ConstructParam param : enumConstant.getConstructParamList()) {
                 String val = getValue(param, fieldItem.getItemList().get(seq));
-
-
                 sb.add(val);
                 seq++;
             }
@@ -77,31 +246,43 @@ public class EnumFilePublisher extends SrcFilePublisher {
         }
         sbLine.append(";");
 
-        StringList fieldLine = StringList.create(";\n    ",";");
+        StringList fieldLine = StringList.create(";\n    ", ";");
 
         StringList argLine = StringList.create(",");
-        StringList paramLine = StringList.create(";\n    ",";");
+        StringList paramLine = StringList.create(";\n    ", ";");
 
 
-        for(Field f: fieldItem.getItemList() ) {
+        for (Field f : fieldItem.getItemList()) {
             String fieldTypeNm = f.getTypeInfo().getDefaultTypeName();
-            fieldLine.add("private final "+fieldTypeNm +" "+ f.getName());
+            fieldLine.add("private final " + fieldTypeNm + " " + f.getName());
 
-            argLine.add(fieldTypeNm+" "+f.getName());
+            argLine.add(fieldTypeNm + " " + f.getName());
 
-            paramLine.add("this."+f.getName()+" = "+f.getName());
+            paramLine.add("this." + f.getName() + " = " + f.getName());
 
         }
 
-        CodeTemplate.Parameters p = CodeTemplate.newParameters();
+        CodeStringBuilder classAnnotationList = new CodeStringBuilder();
+        CodeStringBuilder extraImportInfos = new CodeStringBuilder();
+        CodeStringBuilder cb = new CodeStringBuilder("{", "}");
+        makeConverFunc(cb, extraImportInfos, classAnnotationList, domain, enumModel);
+
+
+        String j2eePkgName = this.getPersistentPackageName(domain);
+
         String classNm = enumModel.getIdentity().getName();
 
+        CodeTemplate.Parameters p = CodeTemplate.newParameters();
         p
                 .set("packageName", packageName)
                 .set("className", classNm)
                 .set("enumConstant", sbLine.toString())
+                .set("classAnnotationList", classAnnotationList.toString())
                 .set("fieldLine", fieldLine.toString())
                 .set("argLine", argLine.toString())
+                .set("extraLine", cb.toString())
+                .set("j2eePkgName", j2eePkgName)
+                .set("extraImportList", extraImportInfos.toString())
                 .set("paramLine", paramLine.toString());
 
 

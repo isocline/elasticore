@@ -2,6 +2,7 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
+import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
@@ -155,6 +156,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         if (fromModel == null || toModel == null || fromModel.getIdentity().getComponentType() == toModel.getIdentity().getComponentType())
             return;
 
+        boolean isEntityTarget = (toModel.getIdentity().getComponentType()== ComponentType.ENTITY);
+        String toMethodName = "toDTO";
+        if(isEntityTarget)
+            toMethodName = "toEntity";
 
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         cb.line("public static void mapping(%s from, %s to)", fromModel.getIdentity().getName(), toModel.getIdentity().getName()).block();
@@ -189,7 +194,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         CodeStringBuilder cb2 = new CodeStringBuilder("{", "}");
         String toClassNm = toModel.getIdentity().getName();
         String fromClassNm = fromModel.getIdentity().getName();
-        cb2.line("public static %s to%s(%s from)", toClassNm, toClassNm, fromClassNm).block();
+        cb2.line("public static %s %s(%s from)", toClassNm, toMethodName, fromClassNm).block();
 
         cb2.line("%s to = new %s();", toClassNm, toClassNm);
         cb2.line("mapping(from, to);");
@@ -213,7 +218,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         //return fromList.stream().map(LoanCarMapper::toLoanCarDTO).collect(Collectors.toList());
         cb3.line("if(fromList==null) return null;");
-        cb3.line("return fromList.stream().map(%s::to%s).collect(Collectors.toList());", this.className, toClassNm);
+        cb3.line("return fromList.stream().map(%s::%s).collect(Collectors.toList());", this.className, toMethodName);
 
         /*
         cb3.line("List<%s> toList = new java.util.ArrayList<>();",toClassNm);
@@ -240,7 +245,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         cb4.line("if(fromList==null) return null;");
         cb4.line("return fromList.stream()").block("");
         cb4.line(".map(from -> ").block();
-        cb4.line("%s to = to%s(from);", toClassNm, toClassNm);
+        cb4.line("%s to = %s(from);", toClassNm, toMethodName);
         cb4.line("return modifier.apply(from, to);").end();
         cb4.line(")");
 

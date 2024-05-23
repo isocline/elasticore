@@ -1,4 +1,4 @@
-//ecd:2118944817H20240521223026V0.7
+//ecd:-424058073H20240523142719V0.7
 package io.elasticore.demo.crm.repository;
 
 
@@ -14,7 +14,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
+
 import javax.persistence.Query;
+
 
 
 

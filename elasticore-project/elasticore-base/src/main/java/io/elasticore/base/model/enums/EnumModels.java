@@ -7,6 +7,7 @@ import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.entity.Entity;
 import lombok.Getter;
 
 
@@ -29,5 +30,9 @@ public class EnumModels {
         return new EnumModels(identity, meta, items);
     }
 
+
+    public EnumModel findByName(String name) {
+        return this.items.find(BaseComponentIdentity.create(ComponentType.ENUM, identity.getDomainId(), name));
+    }
 
 }

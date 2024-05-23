@@ -1,4 +1,4 @@
-//ecd:-1099695460H20240521223026V0.7
+//ecd:1888853266H20240523142719V0.7
 package io.elasticore.demo.linkone.repository;
 
 
@@ -14,7 +14,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
+
 import javax.persistence.Query;
+
 
 
 

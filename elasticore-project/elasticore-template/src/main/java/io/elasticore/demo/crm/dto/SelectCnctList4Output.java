@@ -1,4 +1,4 @@
-//ecd:-349697738H20240521223026V0.7
+//ecd:901713146H20240523142719V0.7
 package io.elasticore.demo.crm.dto;
 
 
@@ -24,7 +24,6 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public  class SelectCnctList4Output  implements java.io.Serializable  {
 
 	private String contractNo;

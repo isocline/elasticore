@@ -1,4 +1,4 @@
-//ecd:-894001494H20240521223026V0.7
+//ecd:-956982674H20240523142719V0.7
 package io.elasticore.demo.crm.dto;
 
 
@@ -24,7 +24,6 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public  class ContractGroupDTO  implements java.io.Serializable  {
 
 	private Integer grpSeq;

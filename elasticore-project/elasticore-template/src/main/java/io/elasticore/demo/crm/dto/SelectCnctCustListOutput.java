@@ -1,4 +1,4 @@
-//ecd:538279580H20240521223026V0.7
+//ecd:-1806482080H20240523142719V0.7
 package io.elasticore.demo.crm.dto;
 
 
@@ -24,7 +24,6 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public  class SelectCnctCustListOutput  implements java.io.Serializable  {
 
 	private Integer carSeq;

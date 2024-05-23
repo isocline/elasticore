@@ -1,13 +1,15 @@
 enumeration:
   Indicator:
+    meta: enum @db(msg)
     fields:
-      msg: String
+      msg: String @len(5)
 
     enum:
       Y: "YES"
       N: "NO"
 
   AaccidentType:
+    meta: enum   @db(msg)
     fields:
       msg: string
     enum:
@@ -64,7 +66,7 @@ entity:
 
 
   LoanCarProcess:
-    meta: entity @template(AuditEntity)
+    meta: entity @extend(AuditEntity)
     fields:
       seq: long @id
       loanCar: LoanCar
@@ -83,7 +85,7 @@ entity:
     meta: entity @template(AuditEntity)
     fields:
       lcCode: long @id @label('아이디')
-      customName: string @label('고객명')
+      customName: string(20)! -- ZZZ
       customPh: string @label('연락처')
       alarmStatus: Indicator @label('콜센터에서 링크원으로 보낸 알람 수신') @default(Indicator.N)
       lcReceiveLocation: string @label('입고지')

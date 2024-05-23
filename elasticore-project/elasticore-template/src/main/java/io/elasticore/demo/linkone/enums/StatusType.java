@@ -1,8 +1,11 @@
-//ecd:-674906967H20240521223026V0.7
+//ecd:-238918365H20240523142719V0.7
 package io.elasticore.demo.linkone.enums;
 
 
 import lombok.Getter;
+
+
+
 
 
 
@@ -12,8 +15,10 @@ import lombok.Getter;
  */
 
 
-@Getter
 
+
+
+@Getter
 public enum StatusType {
 
 
@@ -30,4 +35,7 @@ public enum StatusType {
         this.msg = msg;
 
     }
+
+    
+
 }

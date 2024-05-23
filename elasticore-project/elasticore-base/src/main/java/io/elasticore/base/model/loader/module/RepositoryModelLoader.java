@@ -54,7 +54,8 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         entityMap.forEach((repoName, value) -> {
 
             Repository repo = loadRepository(repoName, value);
-            items.addItem(repo);
+            if(repo!=null)
+                items.addItem(repo);
         });
     }
 
@@ -82,8 +83,10 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
 
         MetaInfo metaInfo = parseMetaInfoObject(entityMap);
 
-
         List<Map> methods = (List) entityMap.get(PROPERTY_METHODS);
+
+        if(methods==null)
+            return null;
 
         Items<Method> methodItems = null;
 

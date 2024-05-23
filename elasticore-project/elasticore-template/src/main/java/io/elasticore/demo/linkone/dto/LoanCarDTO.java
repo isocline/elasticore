@@ -1,4 +1,4 @@
-//ecd:1468601341H20240521223026V0.7
+//ecd:-1362368191H20240523142719V0.7
 package io.elasticore.demo.linkone.dto;
 
 
@@ -24,7 +24,6 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public  class LoanCarDTO  implements java.io.Serializable  {
 
 	private Long lcCode;

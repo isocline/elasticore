@@ -1,9 +1,15 @@
-//ecd:-1483381650H20240521223026V0.7
+//ecd:-295439736H20240523142719V0.7
 package io.elasticore.demo.linkone.enums;
 
 
 import lombok.Getter;
 
+
+
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+import java.io.IOException;
 
 
 /**
@@ -12,8 +18,10 @@ import lombok.Getter;
  */
 
 
-@Getter
 
+
+
+@Getter
 public enum Indicator {
 
 
@@ -29,4 +37,29 @@ public enum Indicator {
         this.msg = msg;
 
     }
+
+    
+    public static Indicator fromMsg(String msg){
+        for (Indicator type : Indicator.values()){
+            if (type.msg.equals(msg)) return type;
+        }
+        throw new IllegalArgumentException("Unknown msg: " + msg);
+    }
+    
+    @Converter(autoApply = true)
+    public static class EntityConverter implements AttributeConverter<Indicator, String>{
+        @Override
+        public String convertToDatabaseColumn(Indicator e){
+            if (e == null) return null;
+            return e.getMsg();
+        }
+        
+        @Override
+        public Indicator convertToEntityAttribute(String val){
+            if (val == null) return null;
+            return Indicator.fromMsg(val);
+        }
+    }
+
+
 }

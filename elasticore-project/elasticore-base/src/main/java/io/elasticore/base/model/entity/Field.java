@@ -40,19 +40,21 @@ public class Field implements ModelComponent {
     }
 
     public int getLength() {
-        Annotation annotation = getAnnotation("length");
-        if(annotation!=null) {
-            return Integer.parseInt(annotation.getValue());
-        }
+        String lenTxt = getAnnotationValue("length, len");
+        if(lenTxt!=null)
+            return Integer.parseInt(lenTxt);
 
         return -1;
     }
 
     public String getDbColumnName() {
-        Annotation annotation = getAnnotation("col");
-        if(annotation!=null) {
-            return annotation.getValue();
-        }
+
+        if(!this.typeInfo.isBaseType())
+            return null;
+
+        String dbColumnName = getAnnotationValue("column", "col" ,"db");
+        if(dbColumnName!=null)
+            return dbColumnName;
 
         return StringUtils.camelToSnake(name);
     }
@@ -75,7 +77,8 @@ public class Field implements ModelComponent {
 
     @Override
     public ComponentIdentity getIdentity() {
-        return BaseComponentIdentity.create(ComponentType.FIELD, "field", this.name);
+        // TODO
+        return BaseComponentIdentity.create(ComponentType.FIELD, null, this.name);
     }
 
 
@@ -87,6 +90,20 @@ public class Field implements ModelComponent {
 
         return annotationMap.get(name);
     }
+
+    public String getAnnotationValue(String... names) {
+        for(String name: names) {
+            Annotation an = getAnnotation(name);
+            if(an!=null) {
+                String val = an.getValue();
+                if(val !=null) return val;
+            }
+        }
+
+        return null;
+    }
+
+
 
     public boolean hasAnnotation(String name) {
         if (annotationMap == null || name ==null) {

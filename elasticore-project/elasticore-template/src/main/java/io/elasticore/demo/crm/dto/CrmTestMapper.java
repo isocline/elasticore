@@ -1,4 +1,4 @@
-//ecd:906803833H20240521223026V0.7
+//ecd:-1836282140H20240523142719V0.7
 package io.elasticore.demo.crm.dto;
 
 
@@ -32,7 +32,7 @@ public class CrmTestMapper {
     }
     
     
-    public static ContractGroupDTO toContractGroupDTO(ContractGroup from){
+    public static ContractGroupDTO toDTO(ContractGroup from){
         ContractGroupDTO to = new ContractGroupDTO();
         mapping(from, to);
         return to;
@@ -41,7 +41,7 @@ public class CrmTestMapper {
     
     public static List<ContractGroupDTO> toContractGroupDTOList(List<ContractGroup> fromList){
         if(fromList==null) return null;
-        return fromList.stream().map(CrmTestMapper::toContractGroupDTO).collect(Collectors.toList());
+        return fromList.stream().map(CrmTestMapper::toDTO).collect(Collectors.toList());
     }
     
     
@@ -49,7 +49,7 @@ public class CrmTestMapper {
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                ContractGroupDTO to = toContractGroupDTO(from);
+                ContractGroupDTO to = toDTO(from);
                 return modifier.apply(from, to);
             }
             )
@@ -65,7 +65,7 @@ public class CrmTestMapper {
     }
     
     
-    public static ContractGroup toContractGroup(ContractGroupDTO from){
+    public static ContractGroup toEntity(ContractGroupDTO from){
         ContractGroup to = new ContractGroup();
         mapping(from, to);
         return to;
@@ -74,7 +74,7 @@ public class CrmTestMapper {
     
     public static List<ContractGroup> toContractGroupList(List<ContractGroupDTO> fromList){
         if(fromList==null) return null;
-        return fromList.stream().map(CrmTestMapper::toContractGroup).collect(Collectors.toList());
+        return fromList.stream().map(CrmTestMapper::toEntity).collect(Collectors.toList());
     }
     
     
@@ -82,7 +82,7 @@ public class CrmTestMapper {
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                ContractGroup to = toContractGroup(from);
+                ContractGroup to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )

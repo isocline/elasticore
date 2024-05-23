@@ -1,4 +1,4 @@
-//ecd:-854988692H20240521223026V0.7
+//ecd:-1603932203H20240523142719V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
+
 import java.util.*;
 import java.time.*;
 
@@ -40,7 +41,7 @@ public  class ContractGroup  implements java.io.Serializable  {
 	
 	
 	@Comment("그룹명")
-	@Column(name = "GROUP_NAME")
+	@Column(name = "GROUP_NAME", length = 200)
 	private String groupName;
 	
 	

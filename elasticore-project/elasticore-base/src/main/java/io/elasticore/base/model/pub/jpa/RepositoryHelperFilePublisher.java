@@ -64,6 +64,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         params
                 .set("packageName", packageName)
+                .set("j2eePkgName",getPersistentPackageName(domain))
                 .set("entityPackageName", entityPackageName)
                 .set("dtoPackageName", dtoPackageName)
                 .set("className", classNm);

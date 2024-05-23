@@ -22,8 +22,10 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
+import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.*;
+import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
@@ -192,12 +194,19 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         // must call 'getFieldInfo' first
         CodeTemplate.Paragraph pr = getFieldInfo(entity);
 
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+        if(pr.contains("@Convert(")) {
+             // TODO
+        }
+
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(entity))
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(entity))
+                .set("j2eePkgName",getPersistentPackageName(domain))
+                .set("importList", importList)
                 .set("implementInfo", "implements java.io.Serializable")
                 .set("className", classNm);
 
@@ -251,7 +260,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setFieldDesc(f, p);
             //setFieldPkInfo(f, p);
-            setFieldColumnAnnotation(f, p);
+            setFieldColumnAnnotation( entity, f, p);
 
             BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
             if(ft == BaseFieldType.DATETIME)
@@ -297,11 +306,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setFieldDesc(f, p);
             setFieldPkInfo(f, p);
-            setFieldColumnAnnotation(f, p);
+            setFieldColumnAnnotation(entity, f, p);
 
             setRelationInfo(f, p);
             setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
+            setConvertAnnotation(entity.getIdentity().getDomainId(), f,p);
 
             String defaultValDefined = getDefaultValueSetup(f);
 
@@ -409,34 +419,54 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
     }
 
+    private String makeLengthInfo(Field field) {
+        if(!field.getTypeInfo().isStringType())
+            return null;
+
+        String fieldNm = field.getName();
+
+        if(fieldNm.contains("Addr")) {
+            return "256";
+        }
+        else if(fieldNm.contains("Type")) {
+            return "10";
+        }
+        else if(fieldNm.contains("Name") || fieldNm.contains("Nm")) {
+            return "64";
+        }else if(fieldNm.contains("Code")) {
+            return "32";
+        }else if(fieldNm.contains("Status")) {
+            return "10";
+        }else if(fieldNm.contains("Date")) {
+            return "8";
+        }else if(fieldNm.contains("Time")) {
+            return "6";
+        }else if(fieldNm.contains("Zip")) {
+            return "7";
+        }else if(fieldNm.contains("Tel")) {
+            return "15";
+        }
+
+        return null;
+    }
+
     /**
      * Sets JPA annotation information according to the configuration information of each field.
      *
      * @param field
      * @param paragraph
      */
-    private void setFieldColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
+    private void setFieldColumnAnnotation(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
 
-        if (field.hasAnnotation("label")) {
-            String val = field.getAnnotation("label").getValue();
-            paragraph.add("@Comment(\"%s\")", val);
-        }
-        else if (field.hasAnnotation("comment")) {
-            String val = field.getAnnotation("label").getValue();
-            paragraph.add("@Comment(\"%s\")", val);
-        }
+        String labelTxt = field.getAnnotationValue("label", "comment");
+        if(labelTxt!=null && !labelTxt.isEmpty())
+            paragraph.add("@Comment(\"%s\")", labelTxt);
 
 
         List<String> list = new ArrayList<>();
 
 
-        String dbColumnName = null;
-        Annotation dbAnnot = field.getAnnotation("db");
-        if (dbAnnot != null && dbAnnot.hasValue()){
-            dbColumnName =dbAnnot.getValue();
-        }else if (field.getTypeInfo().isBaseType()){
-            dbColumnName = field.getDbColumnName();
-        }
+        String dbColumnName = field.getDbColumnName();
 
         if (dbColumnName !=null)
             list.add("name = \"" + dbColumnName + "\"");
@@ -459,12 +489,39 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 list.add("updatable = false");
         }
 
-        Annotation length = field.getAnnotation("length");
+        EnumModel enumModel = this.getEnumModelFromType(entity.getIdentity().getDomainId(),field);
 
-        if (length != null && length.getValue() != null) {
-            list.add("length = " + length.getValue());
+        boolean isLengthDefine = false;
+        String lengthVal = field.getAnnotationValue("length", "len");
+        if (lengthVal != null) {
+            list.add("length = " + lengthVal);
+            isLengthDefine = true;
+        }else {
+            if(enumModel!=null) {
+                Annotation dbAnt = enumModel.getMetaInfo().getMetaAnnotation("db");
+                if(dbAnt!=null) {
+                    String dbFieldNm = dbAnt.getValue();
+                    if(dbFieldNm!=null) {
+                        Field enumField = enumModel.getFieldItems().findByName(dbFieldNm);
+                        if(enumField!=null) {
+                            lengthVal = enumField.getAnnotationValue("length", "len");
+                            if (lengthVal != null) {
+                                list.add("length = " + lengthVal);
+                                isLengthDefine = true;
+                            }
+                        }
+                    }
+                }
+
+            }
         }
 
+        if(!isLengthDefine) {
+            lengthVal = makeLengthInfo(field);
+            if (lengthVal != null) {
+                list.add("length = " + lengthVal);
+            }
+        }
 
         if (field.getColumnDefinition() != null) {
             list.add("columnDefinition=\"" + field.getColumnDefinition() + "\"");
@@ -508,6 +565,32 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     private void setNativeAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
         setNativeAnnotation(field.getAnnotationMap(), paragraph);
+    }
+
+
+    private EnumModel getEnumModelFromType(String domainId, Field field) {
+        if(field.getTypeInfo().isBaseType()) return null;
+
+        String typeName = field.getTypeInfo().getDefaultTypeName();
+        try {
+            ModelDomain domain = BaseModelDomain.getModelDomain(domainId);
+            EnumModel enumModel = domain.getModel()
+                    .getEnumModels().findByName(typeName);
+
+            return enumModel;
+        }catch (NullPointerException npe) {}
+        return null;
+    }
+
+    private void setConvertAnnotation(String domainId, Field field, CodeTemplate.Paragraph paragraph) {
+        String type=  field.getTypeInfo().getDefaultTypeName();
+
+        EnumModel enumModel = getEnumModelFromType(domainId, field);
+        if (enumModel != null) {
+            if (enumModel.getMetaInfo().hasMetaAnnotation("db")) {
+                paragraph.add("@Convert(converter = %s.EntityConverter.class)", type);
+            }
+        }
     }
 
     private void setNativeAnnotation(Map<String, Annotation> annotationMap, CodeTemplate.Paragraph paragraph) {

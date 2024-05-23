@@ -4,14 +4,17 @@ import lombok.Getter;
 
 import ${importList};
 
+${extraImportList}
+
 /**
  * <pre>${description}</pre>
  * hash:${hashCode}
  */
 
+
+
 ${classAnnotationList}
 @Getter
-
 public enum ${className} {
 
     ${enumConstant}
@@ -21,4 +24,6 @@ public enum ${className} {
     ${className}(${argLine}) {
         ${paramLine}
     }
+
+    ${extraLine}
 }

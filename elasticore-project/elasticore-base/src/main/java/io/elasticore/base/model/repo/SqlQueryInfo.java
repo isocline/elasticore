@@ -393,6 +393,8 @@ public class SqlQueryInfo {
 
                     } else {
                         findName = this.targetEntity.findFieldName(t);
+                        if( findName ==null)
+                            throw new IllegalArgumentException("not found order field: "+t+" SQL: "+orderTxt);
                     }
 
                     if (findName != null) {
