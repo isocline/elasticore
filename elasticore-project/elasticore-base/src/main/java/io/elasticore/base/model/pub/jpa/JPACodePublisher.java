@@ -93,6 +93,12 @@ public class JPACodePublisher implements CodePublisher {
             dtoSrcFilePublisher.publish(domain, dto);
         }
 
+        SearchDtoSrcFilePublisher searchDtoSrcFilePublisher = new SearchDtoSrcFilePublisher(this);
+        for (int i = 0; i < dtoItems.size(); i++) {
+            DataTransfer dto = dtoItems.get(i);
+            searchDtoSrcFilePublisher.publish(domain, dto);
+        }
+
 
         // Repository
         RepositoryFilePublisher repositoryCodePublisher = new RepositoryFilePublisher(this);

@@ -21,9 +21,9 @@ public enum BaseFieldType {
     P_DOUBLE("double", "double", "Double"),
     P_BOOLEAN("boolean", "boolean", "Boolean"),
 
-    DATETIME("DateTime", null, "java.util.Date"),
-    TIME("Time", null, "java.util.Date"),
-    DATE("Date", null, "java.util.Date"),
+    DATETIME("DateTime", null, "java.time.LocalDateTime"),
+    TIME("Time", null, "java.time.LocalTime"),
+    DATE("Date", null, "java.time.LocalDate"),
 
     LIST("List", null, "java.util.List"),
 
@@ -33,7 +33,9 @@ public enum BaseFieldType {
     DOUBLE("Double", "double", "Double"),
     BOOLEAN("boolean", "boolean", "Boolean"),
 
-    LocalDateTime("LocalDateTime", null, "LocalDateTime"),
+    LocalDateTime("LocalDateTime", null, "java.time.LocalDateTime"),
+    LocalDate("LocalDate", null, "java.time.LocalDate"),
+    LocalTime("LocalTime", null, "java.time.LocalTime"),
 
 
     UNKNOWN("unknown", null, null);

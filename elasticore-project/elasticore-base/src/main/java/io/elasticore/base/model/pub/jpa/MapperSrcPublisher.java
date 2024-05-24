@@ -6,28 +6,22 @@ import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
-import io.elasticore.base.model.core.*;
+import io.elasticore.base.model.core.AbstractDataModel;
+import io.elasticore.base.model.core.ListMap;
+import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
-import io.elasticore.base.model.repo.Method;
-import io.elasticore.base.model.repo.Repository;
-import io.elasticore.base.model.repo.RepositoryModels;
-import io.elasticore.base.model.repo.SqlQueryInfo;
 import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
+import static io.elasticore.base.util.StringUtils.*;
 
-import java.beans.FeatureDescriptor;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MapperSrcPublisher extends SrcFilePublisher {
 
@@ -87,7 +81,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
 
         CodeTemplate.Paragraph methodP = CodeTemplate.newParagraph();
-        test(domain.getModel(), methodP);
+        makeMapper(domain.getModel(), methodP);
+
+        makeMapper(domain, methodP);
 
         params.set("methodList", methodP);
 
@@ -97,10 +93,117 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
     }
 
+    private void makeMapper(ModelDomain domain, CodeTemplate.Paragraph methodP) {
+        List<ModelRelationship> list = RelationshipManager.getInstance(domain.getName())
+                .getRelationshipList(RelationType.SEARCHABLE);
 
-    private void test(ECoreModel model, CodeTemplate.Paragraph methodP) {
 
 
+        for(ModelRelationship mrs: list) {
+            String searchDtoNm = mrs.getFromName();
+            String targetEntityNm = mrs.getToName();
+
+            Entity  entity = domain.getModel().getEntityModels().findByName(targetEntityNm);
+            DataTransfer dto = domain.getModel().getDataTransferModels().findByName(searchDtoNm);
+
+            makeSpecificationCode(dto, entity ,methodP);
+        }
+    }
+
+    private void makeSpecificationFieldCode(DataTransfer searchDto, CodeStringBuilder cb) {
+
+        ListMap<String, Field> listMap = searchDto.getAllFieldListMap();
+
+        for(Field f:listMap.getList()) {
+            if(!f.hasAnnotation("search")) continue;
+
+            String condition = f.getAnnotationValue("search"); // =, eq, like, between, !=, neq
+
+            String type = f.getTypeInfo().getDefaultTypeName();
+            String fieldNm = f.getName();
+            String capFidNm = StringUtils.capitalize(fieldNm);
+
+            if(!"between".equals(condition)) {
+                cb.line("%s %s = searchDTO.get%s();",type,fieldNm,capFidNm);
+                cb.line("if(%s != null)",fieldNm);
+                cb.block();
+            }
+
+
+            if("like".equals(condition)) {
+                String percent = quoteString("%");
+                cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s),%s +%s+ %s));", quoteString(fieldNm),percent,fieldNm,percent);
+            }
+
+            else if("between".equals(condition)) {
+                String fromNm = fieldNm+"From";
+                String toNm = fieldNm+"To";
+                cb.line("%s %s = searchDTO.get%s();",type,fromNm,capitalize(fromNm));
+                cb.line("%s %s = searchDTO.get%s();",type,toNm,capitalize(toNm));
+
+                cb.line("if(%s !=null && %s !=null)", fromNm, toNm);
+                cb.block();
+                cb.line("sp = sp.and((r,q,c) -> c.between(r.get(%s),%s,%s));", quoteString(fieldNm),fromNm,toNm);
+
+                cb.end();
+
+
+                cb.line("else if(%s !=null)", fromNm);
+                cb.block();
+                cb.line("sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get(%s),%s));", quoteString(fieldNm),fromNm);
+
+                cb.end();
+
+
+                cb.line("else if(%s !=null)", toNm);
+                cb.block();
+                cb.line("sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get(%s),%s));", quoteString(fieldNm),toNm);
+
+                cb.end();
+            }
+            else {
+                // equals
+                cb.line("sp = sp.and((r,q,c) -> c.equal(r.get(%s),%s));", quoteString(fieldNm),fieldNm);
+            }
+
+            if(!"between".equals(condition))
+                cb.end();
+        }
+
+
+    }
+
+    private void makeSpecificationCode(DataTransfer searchDto, Entity targetEntity, CodeTemplate.Paragraph p) {
+
+        String dtoNm = searchDto.getIdentity().getName();
+        String entityNm = targetEntity.getIdentity().getName();
+
+        String mainMethodNm = "toSpec";
+
+        CodeStringBuilder cb = new CodeStringBuilder("{","}");
+        cb.line("public static Specification<%s> %s(%s searchDTO)", entityNm, mainMethodNm, dtoNm);
+        cb.block();
+        cb.line("return %s(searchDTO, Specification.where(null));",mainMethodNm);
+        cb.end();
+
+        p.add(cb);
+        p.add("");
+
+
+        CodeStringBuilder cb2 = new CodeStringBuilder("{","}");
+        cb2.line("public static Specification<%s> %s(%s searchDTO, Specification<%s> sp)", entityNm, mainMethodNm, dtoNm, entityNm);
+        cb2.block();
+
+        makeSpecificationFieldCode(searchDto, cb2);
+
+        cb2.line("return sp;");
+        cb2.end();
+
+        p.add(cb2);
+        p.add("");
+    }
+
+    private void makeMapper(ECoreModel model, CodeTemplate.Paragraph methodP) {
         EntityModels entityModels = model.getEntityModels();
 
         ModelComponentItems<Entity> items = entityModels.getItems();

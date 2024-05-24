@@ -9,3 +9,8 @@ dto:
       callInfos: string @disable
       processHistory: string @disable
 
+
+  LoanCarSearchDTO:
+    meta: dto @searchable(LoanCar)
+    fields:
+      test: string

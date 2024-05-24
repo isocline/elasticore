@@ -1,4 +1,4 @@
-//ecd:-1319144545H20240523142719V0.7
+//ecd:1709524761H20240524175232V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
 
@@ -34,11 +38,13 @@ public  class ContactInfo  implements java.io.Serializable  {
 	@EmbeddedId
 	private ContactInfoIdentity id;
 	
+	// 이용자명
 	@Comment("이용자명")
 	@Column(name = "CONTACT_NAME", length = 100)
 	private String contractName;
 	
 	
+	// 전화번호
 	@Comment("전화번호")
 	@Column(name = "contractTel", length = 20)
 	private String contractTel;

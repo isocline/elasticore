@@ -39,13 +39,13 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SUPER));
             rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.CHILD));
         }
-        Annotation rollupAnt = this.getMetaInfo().getMetaAnnotation("rollup");
+        Annotation rollupAnt = this.getMetaInfo().getMetaAnnotation(RelationType.ROLLUP.getName());
         if(rollupAnt!=null) {
             String toName = extendAnt.getValue();
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLUP));
             rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ROLLDOWN));
         }else {
-            Annotation rolldownAnt = this.getMetaInfo().getMetaAnnotation("rolldown");
+            Annotation rolldownAnt = this.getMetaInfo().getMetaAnnotation(RelationType.ROLLDOWN.getName());
             if(rolldownAnt!=null) {
                 String toName = extendAnt.getValue();
                 rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLDOWN));
@@ -53,15 +53,24 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             }
         }
 
-        Annotation templateAnt = this.getMetaInfo().getMetaAnnotation("template");
+        Annotation templateAnt = this.getMetaInfo().getMetaAnnotation(RelationType.TEMPLATE.getName());
         if(templateAnt!=null) {
             String toName = templateAnt.getValue();
             if(toName !=null) {
                 rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.TEMPLATE));
                 rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.TEMPLATE_TO));
             }
-
         }
+
+        Annotation searchAnt = this.getMetaInfo().getMetaAnnotation(RelationType.SEARCHABLE.getName());
+        if(searchAnt!=null) {
+            String toName = searchAnt.getValue();
+            if(toName !=null) {
+                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SEARCHABLE));
+                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.SEARCHED));
+            }
+        }
+
     }
 
 
@@ -105,29 +114,74 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         }
     }
 
-    private void loadFieldInfo(AbstractDataModel model,ListMap<String, Field> List) {
-        ModelComponentItems<Field> fields = model.getItems();
 
-        while (fields.hasNext()) {
-            Field f = fields.next();
 
-            List.put(f.getName(), f);
+    private void loadFieldInfo(AbstractDataModel model,ListMap<String, Field> list) {
+
+        if(model == this) {
+            ModelComponentItems<Field> fields = model.getItems();
+            while (fields.hasNext()) {
+                Field f = fields.next();
+                if(!list.containsKey(f.getName()))
+                    list.put(f.getName(), f);
+            }
+        }else {
+            ListMap<String, Field> fieldListMap = model.getAllFieldListMap();
+
+            for(Field f : fieldListMap.getList()) {
+                if(!list.containsKey(f.getName()))
+                    list.put(f.getName(), f);
+            }
         }
+
     }
 
+    private String getReferenceModelNames(MetaInfo metaInfo) {
+        Annotation templateAnt = this.getMetaInfo().getMetaAnnotation("template");
+        Annotation extendAnt = this.getMetaInfo().getMetaAnnotation("extend");
+        Annotation searchAnt = this.getMetaInfo().getMetaAnnotation("searchable");
+
+        StringBuilder sb = new StringBuilder();
+        if(templateAnt!=null) {
+            String names = templateAnt.getValue();
+            if(names!=null) {
+                sb.append(names.trim());
+            }
+        }
+        if(extendAnt!=null) {
+            String names = extendAnt.getValue();
+            if(names!=null) {
+                if(sb.length()>0) sb.append(",");
+                sb.append(names.trim());
+            }
+        }
+        if(searchAnt!=null) {
+            String names = searchAnt.getValue();
+            if(names!=null) {
+                if(sb.length()>0) sb.append(",");
+                sb.append(names.trim());
+            }
+        }
+
+
+        return sb.toString();
+    }
 
     public ListMap<String, Field> getAllFieldListMap() {
 
-        ListMap<String, Field> fieldListMap = new ListMap<>();
+        ECoreModel eCoreModel = BaseModelDomain.getModelDomain(getIdentity().getDomainId())
+                .getModel();
 
-        Annotation templateAnt = this.getMetaInfo().getMetaAnnotation("template");
-        if (templateAnt != null) {
-            String templates = templateAnt.getValue();
+
+        ListMap<String, Field> fieldListMap = new ListMap<>();
+        loadFieldInfo(this, fieldListMap);
+
+        {
+            String templates = getReferenceModelNames(this.getMetaInfo());
 
             if (templates != null && templates.length() > 0) {
                 String[] templateNmArray = templates.split(",");
-                ECoreModel eCoreModel = BaseModelDomain.getModelDomain(getIdentity().getDomainId())
-                        .getModel();
+
 
                 DataTransferModels models = eCoreModel.getDataTransferModels();
                 for (String templateNm : templateNmArray) {
@@ -147,7 +201,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
         }
 
-        loadFieldInfo(this, fieldListMap);
+
 
         return fieldListMap;
     }

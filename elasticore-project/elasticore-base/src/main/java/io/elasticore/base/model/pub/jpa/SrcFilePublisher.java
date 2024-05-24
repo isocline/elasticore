@@ -4,6 +4,8 @@ package io.elasticore.base.model.pub.jpa;
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ModelComponent;
+import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.HashUtils;
 import lombok.SneakyThrows;
 
@@ -45,4 +47,15 @@ public class SrcFilePublisher {
         return "javax";
     }
 
+
+    protected void setFieldDesc(Field field, CodeTemplate.Paragraph paragraph) {
+        if (field.getDescription() != null) {
+            paragraph.add("// " + field.getDescription());
+        }else {
+            String description = field.getAnnotationValue("label","desc","description");
+            if(description !=null)
+                paragraph.add("// " + description);
+        }
+
+    }
 }

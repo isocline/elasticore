@@ -1,10 +1,11 @@
-//ecd:-11343962H20240523142719V0.7
+//ecd:-224606906H20240524175232V0.7
 package io.elasticore.demo.linkone.dto;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +51,10 @@ public class LinkoneMapper {
         to.setCapitalName(from.getCapitalName());
         to.setSmsParseType(from.getSmsParseType());
         to.setLcFixCode(from.getLcFixCode());
+        to.setCreateDate(from.getCreateDate());
+        to.setCreatedBy(from.getCreatedBy());
+        to.setLastModifiedBy(from.getLastModifiedBy());
+        to.setLastModifiedDate(from.getLastModifiedDate());
     }
     
     
@@ -104,6 +109,10 @@ public class LinkoneMapper {
         to.setCapitalName(from.getCapitalName());
         to.setSmsParseType(from.getSmsParseType());
         to.setLcFixCode(from.getLcFixCode());
+        to.setCreateDate(from.getCreateDate());
+        to.setCreatedBy(from.getCreatedBy());
+        to.setLastModifiedBy(from.getLastModifiedBy());
+        to.setLastModifiedDate(from.getLastModifiedDate());
     }
     
     
@@ -130,7 +139,33 @@ public class LinkoneMapper {
             )
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
-        
+    }
+
+    public static Specification<LoanCar> toSpec(LoanCarSearchDTO searchDTO){
+        return toSpec(searchDTO, Specification.where(null));
+    }
+
+    public static Specification<LoanCar> toSpec(LoanCarSearchDTO searchDTO, Specification<LoanCar> sp){
+        String customName = searchDTO.getCustomName();
+        if(customName != null){
+            sp = sp.and((r,q,c) -> c.equal(r.get("customName"),customName));
+        }
+        String customPh = searchDTO.getCustomPh();
+        if(customPh != null){
+            sp = sp.and((r,q,c) -> c.like(r.get("customPh"),"%" +customPh+ "%"));
+        }
+        java.time.LocalDateTime createDateFrom = searchDTO.getCreateDateFrom();
+        java.time.LocalDateTime createDateTo = searchDTO.getCreateDateTo();
+        if(createDateFrom !=null && createDateTo !=null){
+            sp = sp.and((r,q,c) -> c.between(r.get("createDate"),createDateFrom,createDateTo));
+        }
+        else if(createDateFrom !=null){
+            sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get("createDate"),createDateFrom));
+        }
+        else if(createDateTo !=null){
+            sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get("createDate"),createDateTo));
+        }
+        return sp;
     }
     
 

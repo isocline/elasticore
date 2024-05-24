@@ -24,7 +24,9 @@ import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.entity.*;
+import io.elasticore.base.model.entity.BaseFieldType;
+import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.util.CodeTemplate;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ import java.util.Map;
  * This class is responsible for generating Java source code
  * based on entity definitions and their annotations.
  */
-public class DtoSrcFilePublisher extends SrcFilePublisher {
+public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate javaClassTmpl;
 
@@ -58,7 +60,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
      *
      * @param publisher The JPACodePublisher instance used for publishing.
      */
-    public DtoSrcFilePublisher(CodePublisher publisher) {
+    public SearchDtoSrcFilePublisher(CodePublisher publisher) {
         this.publisher = publisher;
 
         this.publishMode = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("mode");
@@ -67,17 +69,17 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         if (templatePath == null)
             templatePath = "elasticore-template/dto.tmpl";
         else
-            templatePath = "resource://"+templatePath;
+            templatePath = "resource://" + templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
 
-        if(model.getEnumModels().getItems().size()>0)
+        if (model.getEnumModels().getItems().size() > 0)
             this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
         else
-            this.enumPackageName ="";
+            this.enumPackageName = "";
 
     }
 
@@ -110,41 +112,41 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
 
     /**
-     * Generates and publishes Java source code for the specified entity.
-     * This method orchestrates the creation of entity classes based on
-     * entity definition and annotations.
+     * Generates and publishes Java source code for the specified dtoModel.
+     * This method orchestrates the creation of dtoModel classes based on
+     * dtoModel definition and annotations.
      *
-     * @param domain The model domain to which the entity belongs.
-     * @param entity The entity for which source code is to be published.
+     * @param domain The model domain to which the dtoModel belongs.
+     * @param dtoModel The dtoModel for which source code is to be published.
      */
-    public void publish(ModelDomain domain, DataTransfer entity) {
-        MetaInfo metaInfo = entity.getMetaInfo();
+    public void publish(ModelDomain domain, DataTransfer dtoModel) {
+
+        MetaInfo metaInfo = dtoModel.getMetaInfo();
+
         Annotation typeAnnotation = metaInfo.getMetaAnnotation("type");
         if (typeAnnotation != null) {
             if ("template".equals(typeAnnotation.getValue()))
                 return;
         }
 
-        if(metaInfo.hasMetaAnnotation("searchable")) return;
-
+        if(!metaInfo.hasMetaAnnotation("searchable")) return;
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
-        String classNm = entity.getIdentity().getName();
-
+        String classNm = dtoModel.getIdentity().getName();
 
         this.paragraphForEntity = CodeTemplate.newParagraph();
 
-        setNativeAnnotation(entity, this.paragraphForEntity);
+        setNativeAnnotation(dtoModel, this.paragraphForEntity);
 
         // must call 'getFieldInfo' first
-        CodeTemplate.Paragraph pr = getFieldInfo(entity);
+        CodeTemplate.Paragraph pr = getFieldInfo(dtoModel);
 
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName)
-                .set("abstract", getAbstractInfo(entity))
+                .set("abstract", getAbstractInfo(dtoModel))
                 .set("classAnnotationList", this.paragraphForEntity)
-                .set("extendInfo", getExtendInfo(entity))
+                .set("extendInfo", getExtendInfo(dtoModel))
                 .set("implementInfo", "implements java.io.Serializable")
                 .set("className", classNm);
 
@@ -154,38 +156,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         String qualifiedClassName = packageName + "." + classNm;
         String code = javaClassTmpl.toString(p);
 
-        this.writeSrcCode(this.publisher, entity, qualifiedClassName, code);
+        this.writeSrcCode(this.publisher, dtoModel, qualifiedClassName, code);
     }
 
-
-    private CodeTemplate.Paragraph getMultiplePkField(Entity entity) {
-        ModelComponentItems<Field> fields = entity.getItems();
-        CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
-        while (fields.hasNext()) {
-            Field f = fields.next();
-
-            if (!f.isPrimaryKey())
-                continue;
-            ;
-
-            setFieldDesc(f, p);
-            //setFieldPkInfo(f, p);
-
-
-            BaseFieldType ft = f.getTypeInfo().getBaseFieldType();
-            if (ft == BaseFieldType.DATETIME)
-                p.add("@Temporal(TemporalType.TIMESTAMP)");
-            else if (ft == BaseFieldType.DATE)
-                p.add("@Temporal(TemporalType.DATE)");
-            else if (ft == BaseFieldType.TIME)
-                p.add("@Temporal(TemporalType.TIME)");
-
-            String code = String.format("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
-            p.add(code);
-            p.add("");
-        }
-        return p;
-    }
 
     private CodeTemplate.Paragraph getFieldInfo(DataModelComponent entity) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
@@ -198,46 +171,43 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
     private void loadFieldInfo(DataModelComponent entity, CodeTemplate.Paragraph p) {
 
         boolean isEntity = false;
-        if(entity instanceof Entity) {
+        if (entity instanceof Entity) {
             isEntity = true;
         }
 
         ListMap<String, Field> fields = entity.getAllFieldListMap();
-
         List<Field> fieldList = fields.getList();
 
-        for(Field f: fieldList) {
-
-            if(f.hasAnnotation("disable"))
+        for (Field f : fieldList) {
+            if (!f.hasAnnotation("id") && !f.hasAnnotation("search")
+                    && entity.getItems().findByName(f.getName())==null)
                 continue;
 
-            if(isEntity) {
-                if(!f.getTypeInfo().isBaseType())
+
+            if (isEntity) {
+                if (!f.getTypeInfo().isBaseType())
                     continue;
             }
 
 
             setFieldDesc(f, p);
-            //setFieldPkInfo(f, p);
-            //setFieldColumnAnnotation(f, p);
 
-
-            setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
 
             String defaultValDefined = getDefaultValueSetup(f);
 
-            BaseFieldType ft = f.getTypeInfo().getBaseFieldType();
-            if (ft == BaseFieldType.DATETIME)
-                p.add("@Temporal(TemporalType.TIMESTAMP)");
-            else if (ft == BaseFieldType.DATE)
-                p.add("@Temporal(TemporalType.DATE)");
-            else if (ft == BaseFieldType.TIME)
-                p.add("@Temporal(TemporalType.TIME)");
+            String searchCondition = f.getAnnotationValue("search");
+            String fieldNm = f.getName();
+            if("between".equals(searchCondition)) {
+                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm+"From", defaultValDefined);
+                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm+"To", defaultValDefined);
+            }
+            else {
+                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm, defaultValDefined);
+            }
 
-            String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
-            p.add(code);
-            p.add("\n");
+
+            p.add("");
 
         }
     }
@@ -254,38 +224,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
 
 
-    private void setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
 
-        if (field.hasAnnotation("id") || field.hasAnnotation("pk") || field.isPrimaryKey()) {
-            paragraph.add("@Id");
-
-            if (field.hasAnnotation("sequence")) {
-                paragraph.add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
-            }
-        }
-
-
-        if (field.getGenerationType() != null) {
-            paragraph.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
-        }
-    }
-
-
-
-
-    private void setJoinColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
-        List<String> list = new ArrayList<>();
-
-        if (field.hasAnnotation("join")) {
-            String fieldNm = field.getAnnotation("join").getValue();
-            list.add("columnDefinition=\"" + fieldNm + "\"");
-        }
-
-        if (list.size() > 0) {
-            String txt = "@JoinColumn(" + String.join(", ", list) + ")";
-            paragraph.add(txt);
-        }
-    }
 
     private void setNativeAnnotation(MetaInfoModel entity, CodeTemplate.Paragraph paragraph) {
         setNativeAnnotation(entity.getMetaInfo().getMetaAnnotationMap(), paragraph);
@@ -307,8 +246,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 .filter(entry -> entry.getKey().contains(prefix))
                 .map(Map.Entry::getValue)
                 .forEach(paragraph::add);
-
-
     }
 
 

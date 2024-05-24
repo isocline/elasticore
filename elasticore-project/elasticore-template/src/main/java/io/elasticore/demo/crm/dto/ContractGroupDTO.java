@@ -1,4 +1,4 @@
-//ecd:-956982674H20240523142719V0.7
+//ecd:848212611H20240524175232V0.7
 package io.elasticore.demo.crm.dto;
 
 
@@ -26,9 +26,11 @@ import java.time.*;
 @AllArgsConstructor
 public  class ContractGroupDTO  implements java.io.Serializable  {
 
-	private Integer grpSeq;
-	private String groupName;
 	private Integer carSeq;
 	private String contrNm;
+	// 그릅 일련번호
+	private Integer grpSeq;
+	// 그룹명
+	private String groupName;
 
 };

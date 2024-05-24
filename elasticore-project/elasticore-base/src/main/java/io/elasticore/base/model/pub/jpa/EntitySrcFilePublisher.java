@@ -357,12 +357,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
     }
 
-    private void setFieldDesc(Field field, CodeTemplate.Paragraph paragraph) {
-        if (field.getDescription() != null) {
-            paragraph.add("// " + field.getDescription());
-        }
 
-    }
 
     private void setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
 
@@ -479,14 +474,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         else if (field.hasAnnotation("longtext")) {
             list.add("columnDefinition = \"LONGTEXT\"");
         }
-
         if (field.hasAnnotation("notnull")) {
             list.add("nullable = false");
         }
 
-        if (field.hasAnnotation("updatable")) {
-            if ("false".equals(field.getAnnotation("updatable")))
-                list.add("updatable = false");
+        if("false".equals(field.getAnnotationValue("updatable"))) {
+            list.add("updatable = false");
         }
 
         EnumModel enumModel = this.getEnumModelFromType(entity.getIdentity().getDomainId(),field);
@@ -598,7 +591,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         if(this.publishMode==null) return;
         if(annotationMap ==null) return;
 
-        String prefix = this.publishMode+":";
+        //String prefix = this.publishMode+":";
+        String prefix = "jpa:";
         annotationMap.entrySet().stream()
                 .filter(entry -> entry.getKey().contains(prefix))
                 .map(Map.Entry::getValue)

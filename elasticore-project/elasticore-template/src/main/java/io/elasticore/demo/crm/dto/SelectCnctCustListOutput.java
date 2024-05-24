@@ -1,4 +1,4 @@
-//ecd:-1806482080H20240523142719V0.7
+//ecd:-1806482080H20240524175232V0.7
 package io.elasticore.demo.crm.dto;
 
 

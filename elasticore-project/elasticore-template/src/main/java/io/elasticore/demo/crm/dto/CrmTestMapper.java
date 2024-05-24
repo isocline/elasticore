@@ -1,10 +1,11 @@
-//ecd:-1836282140H20240523142719V0.7
+//ecd:239465863H20240524175232V0.7
 package io.elasticore.demo.crm.dto;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
 import java.util.stream.Collectors;

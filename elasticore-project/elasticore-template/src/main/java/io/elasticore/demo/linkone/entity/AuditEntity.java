@@ -1,4 +1,4 @@
-//ecd:-1026963986H20240523142719V0.7
+//ecd:382101328H20240524175232V0.7
 package io.elasticore.demo.linkone.entity;
 
 
@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
 
@@ -31,7 +35,7 @@ public abstract class AuditEntity  implements java.io.Serializable  {
 
 	@Column(name = "create_date")
 	@Temporal(TemporalType.TIMESTAMP)
-	private java.util.Date createDate;
+	private java.time.LocalDateTime createDate;
 	
 	
 	@Column(name = "created_by")
@@ -44,7 +48,7 @@ public abstract class AuditEntity  implements java.io.Serializable  {
 	
 	@Column(name = "last_modified_date")
 	@Temporal(TemporalType.TIMESTAMP)
-	private java.util.Date lastModifiedDate;
+	private java.time.LocalDateTime lastModifiedDate;
 	
 	
 

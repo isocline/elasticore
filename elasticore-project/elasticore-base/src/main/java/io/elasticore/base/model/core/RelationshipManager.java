@@ -1,6 +1,7 @@
 package io.elasticore.base.model.core;
 
 import io.elasticore.base.model.relation.ModelRelationship;
+import io.elasticore.base.model.relation.RelationType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,4 +51,12 @@ public class RelationshipManager {
                 .filter(r -> r.getFromName().equalsIgnoreCase(name))
                 .collect(Collectors.toList());
     }
+
+
+    public List<ModelRelationship> getRelationshipList(RelationType relationType) {
+        return relationshipList.stream()
+                .filter(r -> r.getRelationType()==relationType)
+                .collect(Collectors.toList());
+    }
+
 }

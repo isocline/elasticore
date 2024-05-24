@@ -1,4 +1,4 @@
-//ecd:-1603932203H20240523142719V0.7
+//ecd:603775312H20240524175232V0.7
 package io.elasticore.demo.crm.entity;
 
 
@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
 
@@ -33,6 +37,7 @@ import java.time.*;
 
 public  class ContractGroup  implements java.io.Serializable  {
 
+	// 그릅 일련번호
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Comment("그릅 일련번호")
@@ -40,6 +45,7 @@ public  class ContractGroup  implements java.io.Serializable  {
 	private Integer grpSeq;
 	
 	
+	// 그룹명
 	@Comment("그룹명")
 	@Column(name = "GROUP_NAME", length = 200)
 	private String groupName;

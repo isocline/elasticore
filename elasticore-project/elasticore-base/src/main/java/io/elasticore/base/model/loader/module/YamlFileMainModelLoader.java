@@ -116,7 +116,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
             Map map = mapper.readValue(f, LinkedHashMap.class);
             return FileSource.builder().filepath(f.getAbsolutePath()).infoMap(map).build();
         } catch (Throwable e) {
-            System.err.println(f.getAbsolutePath());
+            System.err.println(" * LOAD ERROR: "+f.getAbsolutePath());
             e.printStackTrace();
             return FileSource.builder().filepath(f.getAbsolutePath()).error(e).build();
         }
