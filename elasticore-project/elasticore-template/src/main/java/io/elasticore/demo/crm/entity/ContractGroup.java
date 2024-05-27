@@ -1,9 +1,7 @@
-//ecd:603775312H20240524175232V0.7
+//ecd:-1925999692H20240528005422V0.7
 package io.elasticore.demo.crm.entity;
 
-
 import io.elasticore.demo.crm.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -29,14 +26,12 @@ import java.time.*;
 @Table(name="T_CNCT_GRP")
 @org.hibernate.annotations.DynamicUpdate
 @org.hibernate.annotations.DynamicInsert
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public  class ContractGroup  implements java.io.Serializable  {
-
 	// 그릅 일련번호
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,5 +50,4 @@ public  class ContractGroup  implements java.io.Serializable  {
 	private List<ContactInfo> contactInfoList;
 	
 	
-
 };

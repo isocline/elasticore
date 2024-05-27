@@ -1,0 +1,37 @@
+enumeration:
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+
+  CompanyGroupCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      CALLCENTER: 콜센터,CC
+      GARAGE: 공업사,GR
+      RENTCAR: 렌트카,RC
+      HEAD: 본사,HD
+
+  AreaCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      SEOUL: 서울,SU
+      GYEONGGI: 경기,GG
+      GANGWON: 강원,KW
+      CHUNGCHEON: 충천,CC
+      JEOLLA: 전라,JL
+      GYEONGSANG: 경상,GS
+      JEJU: 제주,JJ
+
+
+

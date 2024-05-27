@@ -1,8 +1,8 @@
-//ecd:-1945927030H20240524175232V0.7
+//ecd:754035324H20240527134253V0.7
 package io.elasticore.demo.linkone.repository;
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
@@ -12,9 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 import io.elasticore.demo.linkone.entity.*;
-
 import io.elasticore.demo.linkone.dto.*;
-
 
 
 
@@ -25,11 +23,9 @@ import io.elasticore.demo.linkone.dto.*;
 
 
 
-public interface LoanCarRepository extends JpaRepository<LoanCar,Long> {
-
+public interface LoanCarRepository extends JpaRepository<LoanCar,Long> , JpaSpecificationExecutor<LoanCar> {
 
     Page<LoanCar> findAllByOrderByCustomNameDesc( Pageable pageable);
     
-
 
 }

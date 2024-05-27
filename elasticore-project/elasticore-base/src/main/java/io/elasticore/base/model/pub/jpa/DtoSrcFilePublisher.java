@@ -26,6 +26,7 @@ import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,8 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate.Paragraph paragraphForEntity;
 
+    private ECoreModel eCoreModel;
+
 
     /**
      * Initializes a new instance of the EntitySrcFilePublisher class.
@@ -60,8 +63,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
      */
     public DtoSrcFilePublisher(CodePublisher publisher) {
         this.publisher = publisher;
+        this.eCoreModel = this.publisher.getECoreModelContext().getDomain().getModel();
 
-        this.publishMode = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("mode");
+        this.publishMode = this.eCoreModel.getConfig("mode");
 
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.dto");
         if (templatePath == null)
@@ -172,6 +176,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             //setFieldPkInfo(f, p);
 
 
+            /*
             BaseFieldType ft = f.getTypeInfo().getBaseFieldType();
             if (ft == BaseFieldType.DATETIME)
                 p.add("@Temporal(TemporalType.TIMESTAMP)");
@@ -179,6 +184,8 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 p.add("@Temporal(TemporalType.DATE)");
             else if (ft == BaseFieldType.TIME)
                 p.add("@Temporal(TemporalType.TIME)");
+
+             */
 
             String code = String.format("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
             p.add(code);
@@ -195,14 +202,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
     }
 
 
-    private void loadFieldInfo(DataModelComponent entity, CodeTemplate.Paragraph p) {
+    private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p) {
 
-        boolean isEntity = false;
-        if(entity instanceof Entity) {
-            isEntity = true;
-        }
-
-        ListMap<String, Field> fields = entity.getAllFieldListMap();
+        ListMap<String, Field> fields = dto.getAllFieldListMap();
 
         List<Field> fieldList = fields.getList();
 
@@ -211,10 +213,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             if(f.hasAnnotation("disable"))
                 continue;
 
-            if(isEntity) {
-                if(!f.getTypeInfo().isBaseType())
-                    continue;
-            }
+            if(isEntityReturnType(f, eCoreModel)) continue;
 
 
             setFieldDesc(f, p);
@@ -227,6 +226,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
             String defaultValDefined = getDefaultValueSetup(f);
 
+            /*
             BaseFieldType ft = f.getTypeInfo().getBaseFieldType();
             if (ft == BaseFieldType.DATETIME)
                 p.add("@Temporal(TemporalType.TIMESTAMP)");
@@ -234,6 +234,8 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 p.add("@Temporal(TemporalType.DATE)");
             else if (ft == BaseFieldType.TIME)
                 p.add("@Temporal(TemporalType.TIME)");
+
+             */
 
             String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
             p.add(code);

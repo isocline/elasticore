@@ -1,6 +1,7 @@
 package io.elasticore.base.util;
 
 
+
 import lombok.SneakyThrows;
 
 import java.io.*;
@@ -15,7 +16,11 @@ import java.util.stream.Stream;
 /**
  *
  */
+
 public class CodeTemplate {
+
+
+
     private static final String NEWLINE = "\n";
 
     private List<LineInfo> lineInfos = new ArrayList<>();
@@ -38,8 +43,14 @@ public class CodeTemplate {
         if (resourcePath.indexOf("resource://") == 0) {
 
             String path = getRootDir() + "/src/main/resources/" + resourcePath.substring(11);
+
+
+
+
+            System.out.println("template: "+path);
             inputStream = new FileInputStream(path);
         } else {
+            System.out.println("template[resource]: "+resourcePath);
             inputStream = CodeTemplate.class.getClassLoader().getResourceAsStream(resourcePath);
         }
 
@@ -49,6 +60,7 @@ public class CodeTemplate {
     public static CodeTemplate newInstance() {
         return new CodeTemplate();
     }
+
 
     @SneakyThrows
     public static CodeTemplate newInstance(String resourcePath) {
@@ -61,7 +73,6 @@ public class CodeTemplate {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             Stream<String> lines = reader.lines();
             lines.forEach(line -> {
-
                 if (line.contains("List}")) {
                     codeTemplate.line(line, true);
                 } else {
@@ -82,6 +93,7 @@ public class CodeTemplate {
      * @return CodeTemplate
      */
     public CodeTemplate line() {
+
         this.lineInfos.add(new NewLineInfo());
         return this;
     }
@@ -216,9 +228,13 @@ public class CodeTemplate {
                 lineList.add(regTmpTxt);
             }
 
+            boolean isFirst= true;
             StringBuilder sb = new StringBuilder();
             for (String line : lineList) {
-                sb.append(line).append("\n");
+                if(!isFirst)
+                    sb.append("\n");
+                isFirst = false;
+                sb.append(line);
                 if (lineSuffix != null)
                     sb.append(lineSuffix);
             }

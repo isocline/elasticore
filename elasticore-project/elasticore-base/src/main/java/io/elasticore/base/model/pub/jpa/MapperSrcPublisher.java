@@ -26,6 +26,7 @@ import java.util.List;
 public class MapperSrcPublisher extends SrcFilePublisher {
 
     private CodeTemplate baseCodeTmpl;
+    private ECoreModel model;
 
     private CodePublisher publisher;
 
@@ -35,12 +36,18 @@ public class MapperSrcPublisher extends SrcFilePublisher {
     private String entityPackageName;
     private String dtoPackageName;
 
+    private RelationshipManager relationshipManager;
+
 
     public MapperSrcPublisher(CodePublisher publisher) {
-        ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
+
+        ModelDomain modelDomain =publisher.getECoreModelContext().getDomain();
+        this.model = modelDomain.getModel();
 
         if (model.getEntityModels().getItems().size() == 0 || model.getDataTransferModels().getItems().size() == 0)
             return;
+
+        this.relationshipManager = RelationshipManager.getInstance(modelDomain.getName());
 
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_MAPPER);
         if (this.packageName == null) {
@@ -73,6 +80,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         this.className = StringUtils.capitalize(name) + "Mapper";
 
+
+
         params
                 .set("packageName", packageName)
                 .set("entityPackageName", entityPackageName)
@@ -95,9 +104,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
     private void makeMapper(ModelDomain domain, CodeTemplate.Paragraph methodP) {
         List<ModelRelationship> list = RelationshipManager.getInstance(domain.getName())
-                .getRelationshipList(RelationType.SEARCHABLE);
-
-
+                .findByType(RelationType.SEARCHABLE);
 
         for(ModelRelationship mrs: list) {
             String searchDtoNm = mrs.getFromName();
@@ -115,27 +122,35 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         ListMap<String, Field> listMap = searchDto.getAllFieldListMap();
 
         for(Field f:listMap.getList()) {
-            if(!f.hasAnnotation("search")) continue;
+            if(!f.hasAnnotation("search") && !f.hasAnnotation("s")) continue;
 
-            String condition = f.getAnnotationValue("search"); // =, eq, like, between, !=, neq
+            String condition = f.getAnnotationValue("search" ,"s"); // =, eq, like, between, !=, neq
 
             String type = f.getTypeInfo().getDefaultTypeName();
             String fieldNm = f.getName();
             String capFidNm = StringUtils.capitalize(fieldNm);
 
-            if(!"between".equals(condition)) {
+            if(!"between".equals(condition) || "~".equals(condition)) {
                 cb.line("%s %s = searchDTO.get%s();",type,fieldNm,capFidNm);
                 cb.line("if(%s != null)",fieldNm);
                 cb.block();
             }
 
-
-            if("like".equals(condition)) {
+            if("like".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s),%s +%s+ %s));", quoteString(fieldNm),percent,fieldNm,percent);
             }
 
-            else if("between".equals(condition)) {
+            else if("%-".equals(condition)) {
+                String percent = quoteString("%");
+                cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s),%s +%s));", quoteString(fieldNm),percent,fieldNm);
+            }
+            else if("-%".equals(condition)) {
+                String percent = quoteString("%");
+                cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s),%s+ %s));", quoteString(fieldNm),fieldNm,percent);
+            }
+
+            else if("between".equals(condition)|| "~".equals(condition)) {
                 String fromNm = fieldNm+"From";
                 String toNm = fieldNm+"To";
                 cb.line("%s %s = searchDTO.get%s();",type,fromNm,capitalize(fromNm));
@@ -144,16 +159,12 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 cb.line("if(%s !=null && %s !=null)", fromNm, toNm);
                 cb.block();
                 cb.line("sp = sp.and((r,q,c) -> c.between(r.get(%s),%s,%s));", quoteString(fieldNm),fromNm,toNm);
-
                 cb.end();
-
 
                 cb.line("else if(%s !=null)", fromNm);
                 cb.block();
                 cb.line("sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get(%s),%s));", quoteString(fieldNm),fromNm);
-
                 cb.end();
-
 
                 cb.line("else if(%s !=null)", toNm);
                 cb.block();
@@ -213,7 +224,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             String entityNm = entity.getIdentity().getName();
 
-            List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).getRelationshipsForFromObj(entityNm);
+            List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(entityNm);
 
             for (ModelRelationship r : list) {
                 if (r.getRelationType() == RelationType.TEMPLATE) {
@@ -235,7 +246,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             String entityNm = entity.getIdentity().getName();
 
-            List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).getRelationshipsForFromObj(entityNm);
+            List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(entityNm);
 
             for (ModelRelationship r : list) {
                 if (r.getRelationType() == RelationType.TEMPLATE) {
@@ -264,9 +275,13 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         if(isEntityTarget)
             toMethodName = "toEntity";
 
+        this.relationshipManager.addRelationship(ModelRelationship.create(fromModel.getIdentity().getName()
+                        , this.className ,RelationType.MAPPER)
+                );
+
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         cb.line("public static void mapping(%s from, %s to)", fromModel.getIdentity().getName(), toModel.getIdentity().getName()).block();
-
+        cb.line("if(from ==null || to ==null) return;");
 
         ListMap<String, Field> fromListMap = fromModel.getAllFieldListMap();
         ListMap<String, Field> toListMap = toModel.getAllFieldListMap();
@@ -276,15 +291,48 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         for (Field f : list) {
             if (f.hasAnnotation("disable")) continue;
 
+            if(isEntityReturnType(f, model)) continue;
+
             String fieldName = f.getName();
 
             Field fromField = fromListMap.get(fieldName);
-            if (fromField == null) continue;
-            if (fromField.hasAnnotation("disable")) continue;
+
 
             String fldNm = StringUtils.capitalize(fieldName);
 
-            cb.line("to.set%s(from.get%s());", fldNm, fldNm);
+            String targetEntityNm = f.getAnnotationValue("reference", "ref");
+            if(targetEntityNm!=null && toModel.getIdentity().getComponentType()==ComponentType.DTO) {
+                String targetFieldNm = null;
+                String[] targetItems = targetEntityNm.split("\\.");
+                if(targetItems.length==2){
+                    targetEntityNm = targetItems[0];
+                    targetFieldNm = targetItems[1];
+                }
+
+                Field entityGetField = findFieldByTypeName(fromModel, targetEntityNm);
+                if(entityGetField!=null) {
+                    String nm = StringUtils.capitalize(entityGetField.getName());
+
+                    if(targetFieldNm==null) {
+                        cb.line("to.set%s(toDTO(from.get%s()));", fldNm, nm);
+                    }else {
+
+                        cb.line("if(from.get%s()!=null)", nm);
+                        cb.line("    to.set%s(from.get%s().get%s());"
+                                ,fldNm,nm, StringUtils.capitalize(targetFieldNm));
+                    }
+                }
+            }
+            else {
+                if (fromField == null) continue;
+                if (fromField.hasAnnotation("disable")) continue;
+
+                cb.line("to.set%s(from.get%s());", fldNm, fldNm);
+            }
+
+
+
+
         }
 
 

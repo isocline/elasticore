@@ -15,6 +15,10 @@ public interface ConstanParam {
 
     String KEYNAME_MAPPER = "mapper";
 
+    String KEYNAME_SERVICE = "service";
+
+    String KEYNAME_CONTROL = "control";
+
 
 
 
@@ -28,4 +32,8 @@ public interface ConstanParam {
 
     String PROPERTY_METHODS = "methods";
 
+    String POSTFIX_SERVICE = "CoreService";
+
+    String POSTFIX_CONTROL = "Controller";
+    
 }

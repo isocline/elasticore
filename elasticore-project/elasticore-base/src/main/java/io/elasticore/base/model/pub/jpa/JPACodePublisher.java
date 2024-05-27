@@ -50,14 +50,13 @@ public class JPACodePublisher implements CodePublisher {
     }
 
 
-
     @Override
     public ECoreModelContext getECoreModelContext() {
         return this.ctx;
     }
 
     public void publish(ECoreModelContext ctx, ModelDomain domain) {
-    //private void publish(ModelDomain domain) {
+        //private void publish(ModelDomain domain) {
         this.ctx = ctx;
 
         ECoreModel model = domain.getModel();
@@ -87,7 +86,7 @@ public class JPACodePublisher implements CodePublisher {
 
         DtoSrcFilePublisher dtoSrcFilePublisher = new DtoSrcFilePublisher(this);
         DataTransferModels dataTransferModels = model.getDataTransferModels();
-        ModelComponentItems<DataTransfer> dtoItems= dataTransferModels.getItems();
+        ModelComponentItems<DataTransfer> dtoItems = dataTransferModels.getItems();
         for (int i = 0; i < dtoItems.size(); i++) {
             DataTransfer dto = dtoItems.get(i);
             dtoSrcFilePublisher.publish(domain, dto);
@@ -114,9 +113,21 @@ public class JPACodePublisher implements CodePublisher {
         repositoryHelperFilePublisher.publish(domain, repositoryModels);
 
 
-
+        // mapper
         MapperSrcPublisher mapperSrcPublisher = new MapperSrcPublisher(this);
         mapperSrcPublisher.publish(domain);
 
+
+        // etc
+        EtcSrcFilePublisher etcSrcFilePublisher = new EtcSrcFilePublisher(this);
+        etcSrcFilePublisher.publish(domain);
+
+
+        // for Service
+        ServiceSrcPublisher svcPublisher = new ServiceSrcPublisher(this);
+        svcPublisher.publish(domain);
+
+        ControlSrcPublisher controlSrcPublisher = new ControlSrcPublisher(this);
+        controlSrcPublisher.publish(domain);
     }
 }

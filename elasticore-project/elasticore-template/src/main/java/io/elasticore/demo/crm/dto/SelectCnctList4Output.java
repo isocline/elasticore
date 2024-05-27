@@ -1,9 +1,7 @@
-//ecd:901713146H20240524175232V0.7
+//ecd:-220915496H20240528005422V0.7
 package io.elasticore.demo.crm.dto;
 
-
 import io.elasticore.demo.crm.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -25,9 +23,7 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public  class SelectCnctList4Output  implements java.io.Serializable  {
-
 	private String contractNo;
 	private String driverSeqNo;
 	private String custNo;
-
 };

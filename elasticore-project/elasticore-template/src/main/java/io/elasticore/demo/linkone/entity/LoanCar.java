@@ -1,9 +1,7 @@
-//ecd:-1717117402H20240524175232V0.7
+//ecd:-1152224740H20240527134244V0.7
 package io.elasticore.demo.linkone.entity;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -26,14 +23,12 @@ import java.time.*;
 */
 
 @Entity
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public  class LoanCar  implements java.io.Serializable  {
-
 	// 아이디
 	@Id
 	@Comment("아이디")
@@ -191,7 +186,6 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Column(name = "create_date")
-	@Temporal(TemporalType.TIMESTAMP)
 	private java.time.LocalDateTime createDate;
 	
 	
@@ -204,9 +198,7 @@ public  class LoanCar  implements java.io.Serializable  {
 	
 	
 	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.TIMESTAMP)
 	private java.time.LocalDateTime lastModifiedDate;
 	
 	
-
 };

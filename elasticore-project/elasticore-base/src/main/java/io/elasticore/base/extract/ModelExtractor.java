@@ -1,6 +1,8 @@
 package io.elasticore.base.extract;
 
-import io.elasticore.base.*;
+import io.elasticore.base.ECoreModelContext;
+import io.elasticore.base.ModelDomain;
+import io.elasticore.base.SrcCodeWriterFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModelExtractor {
+
+
 
     private final static String SRC_PATH = "src/main/java";
 
@@ -124,7 +128,8 @@ public class ModelExtractor {
             }
 
 
-            log("ModelExtractor extract");
+            log("ModelExtractor extract 0525-3");
+
 
         }catch (Throwable e) {
             e.printStackTrace();

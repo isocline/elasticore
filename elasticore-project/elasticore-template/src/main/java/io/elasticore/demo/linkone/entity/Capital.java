@@ -1,9 +1,7 @@
-//ecd:451587368H20240524175232V0.7
+//ecd:-1901508374H20240527134244V0.7
 package io.elasticore.demo.linkone.entity;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -26,14 +23,12 @@ import java.time.*;
 */
 
 @Entity
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public  class Capital  implements java.io.Serializable  {
-
 	@Id
 	@Column(name = "cpt_code", length = 32)
 	private String cptCode;
@@ -50,5 +45,4 @@ public  class Capital  implements java.io.Serializable  {
 	private Indicator enableStatus = Indicator.Y;
 	
 	
-
 };

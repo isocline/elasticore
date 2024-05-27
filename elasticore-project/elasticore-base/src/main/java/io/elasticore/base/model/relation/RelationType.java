@@ -3,7 +3,7 @@ package io.elasticore.base.model.relation;
 
 public enum RelationType {
 
-    SUPER("super"),
+
     CHILD("child"),
     ROLLUP("rollup"),
     ROLLUP_("rollup"),
@@ -17,7 +17,10 @@ public enum RelationType {
     SEARCHED("searched"),
     SEARCHABLE("searchable"),
     EMBEDDED("embedded"),
-    EMBEDDABLE("embeddable");
+    EMBEDDABLE("embeddable"),
+
+    MAPPER("mapper"),
+    SUPER("super");
 
 
     private String name;

@@ -17,6 +17,7 @@ public class StringUtils {
      * @return
      */
     public static String capitalize(String inputString) {
+        if(inputString==null) return null;
         char firstLetter = inputString.charAt(0);
 
         char capitalFirstLetter = Character.toUpperCase(firstLetter);

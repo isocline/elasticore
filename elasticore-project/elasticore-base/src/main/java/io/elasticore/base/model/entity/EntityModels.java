@@ -9,19 +9,25 @@ import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
 import lombok.Getter;
 
+import java.util.List;
+
 
 @Getter
 public class EntityModels {
 
     private final ComponentIdentity identity;
     private final MetaInfo meta;
-    private final ModelComponentItems<Entity> items;
+    private final Items<Entity> items;
 
     private EntityModels(ComponentIdentity identity, MetaInfo meta, Items<Entity> items) {
         this.identity = identity;
 
         this.meta = meta;
-        this.items = new BaseModelComponentItem(items);
+        this.items = items;
+    }
+
+    public ModelComponentItems<Entity> getItems() {
+        return new BaseModelComponentItem(items);
     }
 
 
@@ -38,13 +44,13 @@ public class EntityModels {
 
 
     public Entity findByTableName(String tblName) {
-        int sz = this.items.size();
-        for(int i=0;i<sz;i++) {
-            Entity entity = this.items.get(i);
+        List<Entity> list = this.items.getItemList();
+        for(Entity entity: list) {
             if(entity.getTableName().equalsIgnoreCase(tblName)) {
                 return entity;
             }
         }
+
         return null;
     }
 

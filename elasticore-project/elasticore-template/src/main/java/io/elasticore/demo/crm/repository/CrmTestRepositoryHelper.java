@@ -1,6 +1,5 @@
-//ecd:-424058073H20240524175232V0.7
+//ecd:1980836645H20240528005422V0.7
 package io.elasticore.demo.crm.repository;
-
 
 import io.elasticore.base.util.ModelTransList;
 
@@ -14,16 +13,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
-
 import javax.persistence.Query;
 
 
 
-
 import io.elasticore.demo.crm.entity.*;
-
 import io.elasticore.demo.crm.dto.*;
-
 
 
 
@@ -33,14 +28,12 @@ import io.elasticore.demo.crm.dto.*;
 @AllArgsConstructor
 public class CrmTestRepositoryHelper {
 
-
     private final EntityManager entityManager;
 
     private final ContractGroupRepository contractGroup;
     
     private final ContactInfoRepository contactInfo;
     
-
 
     public List<Object[]> selectCnctList2(String contractTel ,String contractName) {
       StringBuilder sb = new StringBuilder();
@@ -101,7 +94,6 @@ public class CrmTestRepositoryHelper {
         return new ModelTransList<SelectCnctCustListOutput>(result, SelectCnctCustListOutput.class, fieldNames);
     }
     
-
 }
 
 

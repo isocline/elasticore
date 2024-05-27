@@ -1,0 +1,31 @@
+dto:
+  PagingInfo:
+    meta: dto
+    fields:
+      page: int @default(0) --현재 페이지 번호
+      perPage: int @default(10) --페이지당 로우수
+      rowCount: int -- 전체 로우 수
+      pageCount: int -- 전체 페이지 수
+
+
+  CustUserDTO:
+    meta: dto @template('CustUser')
+    fields:
+      companyComSeq: long @ref(Company.comSeq)
+      company: CompanyDTO @ref(Company)
+
+
+  CustUserSearchDTO:
+    meta: dto @searchable(entity=CustUser, pageSize=30)
+
+
+
+  CompanyDTO:
+    meta: dto @template('Company')
+    fields:
+      areaCodeList: List<CompanyAreaInfo> @disable
+      userList: List<CustUser> @disable
+
+  CompanySearchDTO:
+    meta: dto @searchable(entity=Company, pageSize=30)
+

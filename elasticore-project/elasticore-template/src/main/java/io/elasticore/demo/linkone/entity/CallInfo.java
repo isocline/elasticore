@@ -1,9 +1,7 @@
-//ecd:1603514404H20240524175232V0.7
+//ecd:111512463H20240527134244V0.7
 package io.elasticore.demo.linkone.entity;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -26,28 +23,23 @@ import java.time.*;
 */
 
 @Entity
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public  class CallInfo  implements java.io.Serializable  {
-
 	@Id
 	@Column(name = "seq")
 	private Long seq;
 	
 	
 	@Column(name = "call_date")
-	@Temporal(TemporalType.DATE)
 	private java.time.LocalDate callDate;
 	
 	
 	@Column(name = "call_time")
-	@Temporal(TemporalType.TIME)
 	private java.time.LocalTime callTime;
 	
 	
-
 };

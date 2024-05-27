@@ -1,8 +1,8 @@
-//ecd:562159616H20240524175232V0.7
+//ecd:-2130818304H20240528005422V0.7
 package io.elasticore.demo.crm.repository;
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
@@ -12,9 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 import io.elasticore.demo.crm.entity.*;
-
 import io.elasticore.demo.crm.dto.*;
-
 
 
 
@@ -25,8 +23,7 @@ import io.elasticore.demo.crm.dto.*;
 
 
 
-public interface ContactInfoRepository extends JpaRepository<ContactInfo,ContactInfoIdentity> {
-
+public interface ContactInfoRepository extends JpaRepository<ContactInfo,ContactInfoIdentity> , JpaSpecificationExecutor<LoanCar> {
 
     List<ContactInfo> findAllByIdGrpSeqOrderByIdContactSeqDesc(Integer grpSeq);
     
@@ -49,6 +46,5 @@ public interface ContactInfoRepository extends JpaRepository<ContactInfo,Contact
      		 +  "         ORDER BY A.CTR_SEQ;")
     List<Object[]> selectCnctCustList(@Param("grpSeq") Integer grpSeq);
     
-
 
 }

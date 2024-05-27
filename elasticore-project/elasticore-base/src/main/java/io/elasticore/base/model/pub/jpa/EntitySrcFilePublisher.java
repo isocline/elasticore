@@ -136,7 +136,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }else {
             ComponentIdentity identity = entity.getIdentity();
 
-            List<ModelRelationship> relationshipList = RelationshipManager.getInstance(identity.getDomainId()).getRelationshipsForToObj(identity.getName());
+            List<ModelRelationship> relationshipList = RelationshipManager.getInstance(identity.getDomainId()).findByToName(identity.getName());
             for(ModelRelationship r : relationshipList){
                 if(r.getRelationType() == RelationType.EMBEDDED) {
                     p.add("@Embeddable");
@@ -262,6 +262,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             //setFieldPkInfo(f, p);
             setFieldColumnAnnotation( entity, f, p);
 
+            /*
             BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
             if(ft == BaseFieldType.DATETIME)
                 p.add("@Temporal(TemporalType.TIMESTAMP)");
@@ -269,6 +270,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 p.add("@Temporal(TemporalType.DATE)");
             else if(ft == BaseFieldType.TIME)
                 p.add("@Temporal(TemporalType.TIME)");
+
+             */
 
             p.add("%s %s %s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName());
             p.add("");
@@ -293,7 +296,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             isExtendIdentity = true;
 
             p.add("@EmbeddedId");
-            p.add("private %s id;", entity.getPkField().getType());
+            p.add("private %s %s;", entity.getPkField().getType() , entity.getPkField().getName());
             p.add("");
         }
         while (fields.hasNext()) {
@@ -315,6 +318,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             String defaultValDefined = getDefaultValueSetup(f);
 
+            /*
             BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
             if(ft == BaseFieldType.DATETIME)
                 p.add("@Temporal(TemporalType.TIMESTAMP)");
@@ -322,6 +326,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 p.add("@Temporal(TemporalType.DATE)");
             else if(ft == BaseFieldType.TIME)
                 p.add("@Temporal(TemporalType.TIME)");
+
+             */
 
 
             p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);

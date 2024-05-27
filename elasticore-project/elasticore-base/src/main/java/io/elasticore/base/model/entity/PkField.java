@@ -40,6 +40,15 @@ public class PkField {
         return false;
     }
 
+    public String getName() {
+        if(isMultiple()){
+            return "id";
+        }
+        else {
+            return items.get(0).getName();
+        }
+    }
+
     public static PkField create(Items<Field> items, MetaInfo metaInfo, Entity parentEntity) {
         return new PkField(items, metaInfo, parentEntity);
     }

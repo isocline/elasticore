@@ -40,20 +40,32 @@ public class RelationshipManager {
         }
     }
 
-    public List<ModelRelationship> getRelationshipsForToObj(String name) {
+    public List<ModelRelationship> findByToName(String name) {
         return relationshipList.stream()
                 .filter(r -> r.getToName().equalsIgnoreCase(name))
                 .collect(Collectors.toList());
     }
 
-    public List<ModelRelationship> getRelationshipsForFromObj(String name) {
+    public List<ModelRelationship> findByToNameAndType(String name, RelationType relationType) {
+        return relationshipList.stream()
+                .filter(r -> r.getToName().equalsIgnoreCase(name) && r.getRelationType() == relationType)
+                .collect(Collectors.toList());
+    }
+
+    public List<ModelRelationship> findByFromName(String name) {
         return relationshipList.stream()
                 .filter(r -> r.getFromName().equalsIgnoreCase(name))
                 .collect(Collectors.toList());
     }
 
+    public List<ModelRelationship> findByFromNameAndType(String name, RelationType relationType) {
+        return relationshipList.stream()
+                .filter(r -> r.getFromName().equalsIgnoreCase(name) && r.getRelationType() == relationType)
+                .collect(Collectors.toList());
+    }
 
-    public List<ModelRelationship> getRelationshipList(RelationType relationType) {
+
+    public List<ModelRelationship> findByType(RelationType relationType) {
         return relationshipList.stream()
                 .filter(r -> r.getRelationType()==relationType)
                 .collect(Collectors.toList());

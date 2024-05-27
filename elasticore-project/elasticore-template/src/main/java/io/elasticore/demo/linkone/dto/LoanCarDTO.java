@@ -1,9 +1,7 @@
-//ecd:388295944H20240524175232V0.7
+//ecd:-1645101192H20240527134252V0.7
 package io.elasticore.demo.linkone.dto;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -25,7 +23,6 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public  class LoanCarDTO  implements java.io.Serializable  {
-
 	private Integer carSeq;
 	private String contrNm;
 	// 아이디
@@ -73,11 +70,8 @@ public  class LoanCarDTO  implements java.io.Serializable  {
 	// 문자파싱 성공여부
 	private Indicator smsParseType;
 	private StatusType lcFixCode;
-	@Temporal(TemporalType.TIMESTAMP)
 	private java.time.LocalDateTime createDate;
 	private String createdBy;
 	private String lastModifiedBy;
-	@Temporal(TemporalType.TIMESTAMP)
 	private java.time.LocalDateTime lastModifiedDate;
-
 };

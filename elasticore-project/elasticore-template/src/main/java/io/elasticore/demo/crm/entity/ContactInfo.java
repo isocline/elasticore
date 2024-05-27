@@ -1,9 +1,7 @@
-//ecd:1709524761H20240524175232V0.7
+//ecd:-1397636119H20240528005422V0.7
 package io.elasticore.demo.crm.entity;
 
-
 import io.elasticore.demo.crm.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -27,14 +24,12 @@ import java.time.*;
 
 @Entity
 @Table(name="T_CNCT_LST")
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public  class ContactInfo  implements java.io.Serializable  {
-
 	@EmbeddedId
 	private ContactInfoIdentity id;
 	
@@ -55,5 +50,4 @@ public  class ContactInfo  implements java.io.Serializable  {
 	private ContractGroup contractGrp;
 	
 	
-
 };

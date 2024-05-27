@@ -1,9 +1,7 @@
-//ecd:-1737653997H20240524175232V0.7
+//ecd:1577503075H20240527134244V0.7
 package io.elasticore.demo.linkone.entity;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -26,14 +23,12 @@ import java.time.*;
 */
 
 @Embeddable
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public abstract class PictureInfo  implements java.io.Serializable  {
-
 	@Column(name = "uri")
 	private String uri;
 	
@@ -46,5 +41,4 @@ public abstract class PictureInfo  implements java.io.Serializable  {
 	private String type;
 	
 	
-
 };

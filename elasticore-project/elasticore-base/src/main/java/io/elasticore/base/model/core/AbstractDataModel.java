@@ -65,6 +65,11 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         Annotation searchAnt = this.getMetaInfo().getMetaAnnotation(RelationType.SEARCHABLE.getName());
         if(searchAnt!=null) {
             String toName = searchAnt.getValue();
+            if(toName==null){
+                Properties props = searchAnt.getProperties();
+                if(props!=null)
+                    toName = props.getProperty("entity");
+            }
             if(toName !=null) {
                 rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SEARCHABLE));
                 rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.SEARCHED));
@@ -157,6 +162,12 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         }
         if(searchAnt!=null) {
             String names = searchAnt.getValue();
+            if(names==null) {
+                Properties pros = searchAnt.getProperties();
+                if(pros!=null)
+                    names = pros.getProperty("entity");
+            }
+
             if(names!=null) {
                 if(sb.length()>0) sb.append(",");
                 sb.append(names.trim());

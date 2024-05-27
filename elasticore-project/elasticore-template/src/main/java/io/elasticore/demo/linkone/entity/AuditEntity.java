@@ -1,9 +1,7 @@
-//ecd:382101328H20240524175232V0.7
+//ecd:-1002332812H20240528005422V0.7
 package io.elasticore.demo.linkone.entity;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.hibernate.annotations.Comment;
 import javax.persistence.*;
-
 import java.util.*;
 import java.time.*;
 
@@ -32,24 +29,24 @@ import java.time.*;
 @AllArgsConstructor
 
 public abstract class AuditEntity  implements java.io.Serializable  {
-
-	@Column(name = "create_date")
-	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "create_date", updatable = false)
+	@CreatedDate
 	private java.time.LocalDateTime createDate;
 	
 	
-	@Column(name = "created_by")
+	@Column(name = "created_by", updatable = false)
+	@CreatedBy
 	private String createdBy;
 	
 	
 	@Column(name = "last_modified_by")
+	@LastModifiedBy
 	private String lastModifiedBy;
 	
 	
 	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.TIMESTAMP)
+	@LastModifiedDate
 	private java.time.LocalDateTime lastModifiedDate;
 	
 	
-
 };

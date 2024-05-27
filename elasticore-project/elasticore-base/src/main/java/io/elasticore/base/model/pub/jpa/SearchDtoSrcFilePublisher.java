@@ -32,6 +32,7 @@ import io.elasticore.base.util.CodeTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Handles the publishing of source files for entities.
@@ -116,12 +117,16 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
      * This method orchestrates the creation of dtoModel classes based on
      * dtoModel definition and annotations.
      *
-     * @param domain The model domain to which the dtoModel belongs.
+     * @param domain   The model domain to which the dtoModel belongs.
      * @param dtoModel The dtoModel for which source code is to be published.
      */
     public void publish(ModelDomain domain, DataTransfer dtoModel) {
 
         MetaInfo metaInfo = dtoModel.getMetaInfo();
+
+        StringBuilder implInfos = new StringBuilder();
+        implInfos.append("implements java.io.Serializable");
+        implInfos.append(", SortableObject");
 
         Annotation typeAnnotation = metaInfo.getMetaAnnotation("type");
         if (typeAnnotation != null) {
@@ -129,7 +134,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
-        if(!metaInfo.hasMetaAnnotation("searchable")) return;
+        if (!metaInfo.hasMetaAnnotation("searchable")) return;
+
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
         String classNm = dtoModel.getIdentity().getName();
@@ -141,13 +147,34 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
         // must call 'getFieldInfo' first
         CodeTemplate.Paragraph pr = getFieldInfo(dtoModel);
 
+
+        Annotation srchAnt = metaInfo.getMetaAnnotation("searchable");
+
+        pr.add("");
+        pr.add("private String sortCode;");
+
+        if (srchAnt != null) {
+            int defaultPageSize = 100;
+            try {
+                defaultPageSize = Integer.parseInt(srchAnt.getProperties().getProperty("pageSize"));
+            } catch (RuntimeException re) {
+            }
+
+            implInfos.append(", PageableObject");
+            pr.add("");
+            pr.add("private int pageNumber=0;");
+            pr.add("");
+            pr.add("private int pageSize=%s;", defaultPageSize);
+        }
+
+
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(dtoModel))
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(dtoModel))
-                .set("implementInfo", "implements java.io.Serializable")
+                .set("implementInfo", implInfos.toString())
                 .set("className", classNm);
 
 
@@ -179,8 +206,10 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
         List<Field> fieldList = fields.getList();
 
         for (Field f : fieldList) {
-            if (!f.hasAnnotation("id") && !f.hasAnnotation("search")
-                    && entity.getItems().findByName(f.getName())==null)
+            if (!f.hasAnnotation("id")
+                    && !f.hasAnnotation("search")
+                    && !f.hasAnnotation("s")
+                    && entity.getItems().findByName(f.getName()) == null)
                 continue;
 
 
@@ -196,13 +225,12 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             String defaultValDefined = getDefaultValueSetup(f);
 
-            String searchCondition = f.getAnnotationValue("search");
+            String searchCondition = f.getAnnotationValue("search", "s");
             String fieldNm = f.getName();
-            if("between".equals(searchCondition)) {
-                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm+"From", defaultValDefined);
-                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm+"To", defaultValDefined);
-            }
-            else {
+            if ("between".equals(searchCondition) || "~".equals(searchCondition)) {
+                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm + "From", defaultValDefined);
+                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm + "To", defaultValDefined);
+            } else {
                 p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm, defaultValDefined);
             }
 
@@ -221,9 +249,6 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             return " = " + val;
         }
     }
-
-
-
 
 
     private void setNativeAnnotation(MetaInfoModel entity, CodeTemplate.Paragraph paragraph) {

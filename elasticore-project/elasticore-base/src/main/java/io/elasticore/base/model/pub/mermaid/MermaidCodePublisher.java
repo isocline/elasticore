@@ -8,18 +8,11 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.RelationshipManager;
-import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.enums.EnumModel;
-import io.elasticore.base.model.enums.EnumModels;
-import io.elasticore.base.model.pub.jpa.*;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
-import io.elasticore.base.model.repo.Repository;
-import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.CodeStringBuilder;
 
 import java.util.List;
@@ -99,7 +92,7 @@ public class MermaidCodePublisher implements CodePublisher {
         cb.end();
 
 
-        List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).getRelationshipsForFromObj(classNm);
+        List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(classNm);
 
         for(ModelRelationship r : list) {
             if(r.getRelationType()== RelationType.MANY_TO_ONE)

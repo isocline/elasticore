@@ -1,9 +1,7 @@
-//ecd:-1872008115H20240524175232V0.7
+//ecd:961590007H20240527134253V0.7
 package io.elasticore.demo.linkone.dto;
 
-
 import io.elasticore.demo.linkone.enums.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -24,8 +22,7 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public  class LoanCarSearchDTO  implements java.io.Serializable  {
-
+public  class LoanCarSearchDTO  implements java.io.Serializable, SortableObject, PageableObject  {
 	private String test;
 	
 	// 아이디
@@ -40,5 +37,10 @@ public  class LoanCarSearchDTO  implements java.io.Serializable  {
 	private java.time.LocalDateTime createDateFrom;
 	private java.time.LocalDateTime createDateTo;
 	
-
+	
+	private String sortCode;
+	
+	private int pageNumber=0;
+	
+	private int pageSize=30;
 };
