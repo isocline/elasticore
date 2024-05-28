@@ -1,4 +1,4 @@
-//ecd:-881486553H20240528142316V0.7
+//ecd:-881486553H20240528142512V0.7
 package io.elasticore.demo.crm.entity;
 
 import io.elasticore.demo.crm.enums.*;

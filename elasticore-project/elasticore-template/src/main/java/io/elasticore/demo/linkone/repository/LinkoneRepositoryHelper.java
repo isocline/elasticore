@@ -1,4 +1,4 @@
-//ecd:-776164090H20240528142316V0.7
+//ecd:-776164090H20240528142512V0.7
 package io.elasticore.demo.linkone.repository;
 
 import io.elasticore.base.util.ModelTransList;

@@ -141,7 +141,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     childFieldName = ".get(\""+fieldItems[1] +"\")";
                 }
 
-
+                entityFieldNm = refFieldNm;
 
             }
 
@@ -151,10 +151,6 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 cb.block();
             }
 
-            if(!childFieldName.isEmpty()) {
-                entityFieldNm = refFieldNm;
-
-            }
 
             if ("like".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");

@@ -1,4 +1,4 @@
-//ecd:1980836645H20240528142316V0.7
+//ecd:1980836645H20240528142512V0.7
 package io.elasticore.demo.crm.repository;
 
 import io.elasticore.base.util.ModelTransList;
