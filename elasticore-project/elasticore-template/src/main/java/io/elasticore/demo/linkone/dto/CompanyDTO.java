@@ -1,4 +1,4 @@
-//ecd:1850035887H20240528005422V0.7
+//ecd:-687590422H20240528142316V0.7
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -23,6 +23,7 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public  class CompanyDTO  implements java.io.Serializable  {
+	private List<CustUserDTO> userList;
 	private Long comSeq;
 	private CompanyGroupCode comGrpCode;
 	// 업체명

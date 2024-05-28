@@ -1,4 +1,4 @@
-//ecd:-1397636119H20240528005422V0.7
+//ecd:-881486553H20240528142316V0.7
 package io.elasticore.demo.crm.entity;
 
 import io.elasticore.demo.crm.enums.*;
@@ -24,6 +24,7 @@ import java.time.*;
 
 @Entity
 @Table(name="T_CNCT_LST")
+@org.hibernate.annotations.DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor

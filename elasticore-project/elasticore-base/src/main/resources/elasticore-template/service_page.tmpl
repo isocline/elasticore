@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ${className} {
 
-    private final ${domainName}RepositoryHelper helper;
+    protected final ${domainName}RepositoryHelper helper;
 
     public List<${dtoClassName}> findAll() {
         return helper.get${entityClassName}().findAll().stream()
@@ -42,7 +42,16 @@ public class ${className} {
     public ${entityClassName}DTO save(${dtoClassName} dto) {
         ${entityClassName} entity = ${mapperName}.toEntity(dto);
         ${childRefInfo}
-        
+
+        ${entityClassName} result = helper.get${entityClassName}().save(entity);
+        return ${mapperName}.toDTO(result);
+    }
+
+    public ${entityClassName}DTO update(${dtoClassName} dto) {
+        ${entityClassName} entity = helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
+        ${mapperName}.mapping(dto, entity, true);
+        ${childRefInfo}
+
         ${entityClassName} result = helper.get${entityClassName}().save(entity);
         return ${mapperName}.toDTO(result);
     }

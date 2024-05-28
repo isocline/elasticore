@@ -123,8 +123,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("@Table(name=\"" + dbTblNm + "\")");
         }
 
+        /*
         if(metaInfo.hasMetaAnnotation("DynamicUpdate"))
             p.add("@org.hibernate.annotations.DynamicUpdate");
+
+         */
+
+        if(!"false".equals(metaInfo.getMetaAnnotationValue("DynamicUpdate"))) {
+            p.add("@org.hibernate.annotations.DynamicUpdate");
+        }
         if(metaInfo.hasMetaAnnotation("DynamicInsert"))
             p.add("@org.hibernate.annotations.DynamicInsert");
 

@@ -1,4 +1,4 @@
-//ecd:206302809H20240528005517V0.7
+//ecd:-1485741453H20240528142316V0.7
 package io.elasticore.demo.linkone.control;
 
 
@@ -30,7 +30,7 @@ public class CompanyController{
 
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<CompanyDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<CompanyDTO> findById(@PathVariable("id") Long id) {
         Optional<CompanyDTO> Company = companyService.findById(id);
         return Company.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -50,19 +50,15 @@ public class CompanyController{
 
     @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<CompanyDTO> update(@PathVariable Long id, @RequestBody CompanyDTO companyDetails) {
-        Optional<CompanyDTO> company = companyService.findById(id);
+    public ResponseEntity<CompanyDTO> update(@PathVariable("id") Long id, @RequestBody CompanyDTO companyDetails) {
+        CompanyDTO company = companyService.update(companyDetails);
 
-        if (!company.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        CompanyDTO updatedcompany = companyService.save(companyDetails);
-        return ResponseEntity.ok(updatedcompany);
+        return ResponseEntity.ok(company);
     }
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         if (!companyService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }

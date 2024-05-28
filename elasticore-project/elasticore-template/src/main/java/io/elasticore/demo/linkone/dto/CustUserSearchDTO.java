@@ -1,4 +1,4 @@
-//ecd:-1621687032H20240528005422V0.7
+//ecd:135664540H20240528142316V0.7
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -23,6 +23,8 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public  class CustUserSearchDTO  implements java.io.Serializable, SortableObject, PageableObject  {
+	private Long comSeq;
+	
 	private Long usrSeq;
 	
 	// 이름

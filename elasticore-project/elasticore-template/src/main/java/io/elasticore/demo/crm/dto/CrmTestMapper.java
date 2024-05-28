@@ -1,4 +1,4 @@
-//ecd:-1049653673H20240528005422V0.7
+//ecd:-479365841H20240528142316V0.7
 package io.elasticore.demo.crm.dto;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,14 +24,22 @@ import io.elasticore.demo.crm.dto.*;
 public class CrmTestMapper {
 
     
-    public static void mapping(ContractGroup from, ContractGroupDTO to){
+    public static void mapping(ContractGroup from, ContractGroupDTO to, boolean isSkipNull){
         if(from ==null || to ==null) return;
-        to.setGrpSeq(from.getGrpSeq());
-        to.setGroupName(from.getGroupName());
+        if(!isSkipNull || from.getGrpSeq()!=null)
+            to.setGrpSeq(from.getGrpSeq());
+        if(!isSkipNull || from.getGroupName()!=null)
+            to.setGroupName(from.getGroupName());
+    }
+    
+    
+    public static void mapping(ContractGroup from, ContractGroupDTO to){
+        mapping(from,to,false);
     }
     
     
     public static ContractGroupDTO toDTO(ContractGroup from){
+        if(from==null) return null;
         ContractGroupDTO to = new ContractGroupDTO();
         mapping(from, to);
         return to;
@@ -58,14 +66,22 @@ public class CrmTestMapper {
     }
     
     
-    public static void mapping(ContractGroupDTO from, ContractGroup to){
+    public static void mapping(ContractGroupDTO from, ContractGroup to, boolean isSkipNull){
         if(from ==null || to ==null) return;
-        to.setGrpSeq(from.getGrpSeq());
-        to.setGroupName(from.getGroupName());
+        if(!isSkipNull || from.getGrpSeq()!=null)
+            to.setGrpSeq(from.getGrpSeq());
+        if(!isSkipNull || from.getGroupName()!=null)
+            to.setGroupName(from.getGroupName());
+    }
+    
+    
+    public static void mapping(ContractGroupDTO from, ContractGroup to){
+        mapping(from,to,false);
     }
     
     
     public static ContractGroup toEntity(ContractGroupDTO from){
+        if(from==null) return null;
         ContractGroup to = new ContractGroup();
         mapping(from, to);
         return to;

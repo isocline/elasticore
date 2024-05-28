@@ -1,4 +1,4 @@
-//ecd:2116102760H20240528005455V0.7
+//ecd:-2029515127H20240528142316V0.7
 package io.elasticore.demo.linkone.service;
 
 import io.elasticore.demo.linkone.entity.*;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CompanyCoreService {
 
-    private final LinkoneRepositoryHelper helper;
+    protected final LinkoneRepositoryHelper helper;
 
     public List<CompanyDTO> findAll() {
         return helper.getCompany().findAll().stream()
@@ -45,7 +45,18 @@ public class CompanyCoreService {
         
     
 
+
+        Company result = helper.getCompany().save(entity);
+        return LinkoneMapper.toDTO(result);
+    }
+
+    public CompanyDTO update(CompanyDTO dto) {
+        Company entity = helper.getCompany().findById(dto.getComSeq()).orElse(null);
+        LinkoneMapper.mapping(dto, entity, true);
         
+    
+
+
         Company result = helper.getCompany().save(entity);
         return LinkoneMapper.toDTO(result);
     }

@@ -1,4 +1,4 @@
-//ecd:-960313473H20240528005422V0.7
+//ecd:-1541465211H20240528142316V0.7
 package io.elasticore.demo.linkone.entity;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -23,6 +23,7 @@ import java.time.*;
 */
 
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor

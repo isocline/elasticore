@@ -1,4 +1,4 @@
-//ecd:279696594H20240528005455V0.7
+//ecd:493740062H20240528142316V0.7
 package io.elasticore.demo.linkone.dto;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,22 +24,39 @@ import io.elasticore.demo.linkone.dto.*;
 public class LinkoneMapper {
 
     
-    public static void mapping(Company from, CompanyDTO to){
+    public static void mapping(Company from, CompanyDTO to, boolean isSkipNull){
         if(from ==null || to ==null) return;
-        to.setComSeq(from.getComSeq());
-        to.setComGrpCode(from.getComGrpCode());
-        to.setComName(from.getComName());
-        to.setRespName(from.getRespName());
-        to.setRespTel(from.getRespTel());
-        to.setRespZone(from.getRespZone());
-        to.setCreateDate(from.getCreateDate());
-        to.setCreatedBy(from.getCreatedBy());
-        to.setLastModifiedBy(from.getLastModifiedBy());
-        to.setLastModifiedDate(from.getLastModifiedDate());
+        to.setUserList(toCustUserDTOList(from.getUserList()));
+        if(!isSkipNull || from.getComSeq()!=null)
+            to.setComSeq(from.getComSeq());
+        if(!isSkipNull || from.getComGrpCode()!=null)
+            to.setComGrpCode(from.getComGrpCode());
+        if(!isSkipNull || from.getComName()!=null)
+            to.setComName(from.getComName());
+        if(!isSkipNull || from.getRespName()!=null)
+            to.setRespName(from.getRespName());
+        if(!isSkipNull || from.getRespTel()!=null)
+            to.setRespTel(from.getRespTel());
+        if(!isSkipNull || from.getRespZone()!=null)
+            to.setRespZone(from.getRespZone());
+        if(!isSkipNull || from.getCreateDate()!=null)
+            to.setCreateDate(from.getCreateDate());
+        if(!isSkipNull || from.getCreatedBy()!=null)
+            to.setCreatedBy(from.getCreatedBy());
+        if(!isSkipNull || from.getLastModifiedBy()!=null)
+            to.setLastModifiedBy(from.getLastModifiedBy());
+        if(!isSkipNull || from.getLastModifiedDate()!=null)
+            to.setLastModifiedDate(from.getLastModifiedDate());
+    }
+    
+    
+    public static void mapping(Company from, CompanyDTO to){
+        mapping(from,to,false);
     }
     
     
     public static CompanyDTO toDTO(Company from){
+        if(from==null) return null;
         CompanyDTO to = new CompanyDTO();
         mapping(from, to);
         return to;
@@ -66,27 +83,45 @@ public class LinkoneMapper {
     }
     
     
-    public static void mapping(CustUser from, CustUserDTO to){
+    public static void mapping(CustUser from, CustUserDTO to, boolean isSkipNull){
         if(from ==null || to ==null) return;
         if(from.getCompany()!=null)
             to.setCompanyComSeq(from.getCompany().getComSeq());
         to.setCompany(toDTO(from.getCompany()));
-        to.setUsrSeq(from.getUsrSeq());
-        to.setUsrId(from.getUsrId());
-        to.setPassword(from.getPassword());
-        to.setName(from.getName());
-        to.setTelNo(from.getTelNo());
-        to.setEmail(from.getEmail());
-        to.setDeptNm(from.getDeptNm());
-        to.setGrade(from.getGrade());
-        to.setCreateDate(from.getCreateDate());
-        to.setCreatedBy(from.getCreatedBy());
-        to.setLastModifiedBy(from.getLastModifiedBy());
-        to.setLastModifiedDate(from.getLastModifiedDate());
+        if(!isSkipNull || from.getUsrSeq()!=null)
+            to.setUsrSeq(from.getUsrSeq());
+        if(!isSkipNull || from.getUsrId()!=null)
+            to.setUsrId(from.getUsrId());
+        if(!isSkipNull || from.getPassword()!=null)
+            to.setPassword(from.getPassword());
+        if(!isSkipNull || from.getName()!=null)
+            to.setName(from.getName());
+        if(!isSkipNull || from.getTelNo()!=null)
+            to.setTelNo(from.getTelNo());
+        if(!isSkipNull || from.getEmail()!=null)
+            to.setEmail(from.getEmail());
+        if(!isSkipNull || from.getDeptNm()!=null)
+            to.setDeptNm(from.getDeptNm());
+        if(!isSkipNull || from.getGrade()!=null)
+            to.setGrade(from.getGrade());
+        if(!isSkipNull || from.getCreateDate()!=null)
+            to.setCreateDate(from.getCreateDate());
+        if(!isSkipNull || from.getCreatedBy()!=null)
+            to.setCreatedBy(from.getCreatedBy());
+        if(!isSkipNull || from.getLastModifiedBy()!=null)
+            to.setLastModifiedBy(from.getLastModifiedBy());
+        if(!isSkipNull || from.getLastModifiedDate()!=null)
+            to.setLastModifiedDate(from.getLastModifiedDate());
+    }
+    
+    
+    public static void mapping(CustUser from, CustUserDTO to){
+        mapping(from,to,false);
     }
     
     
     public static CustUserDTO toDTO(CustUser from){
+        if(from==null) return null;
         CustUserDTO to = new CustUserDTO();
         mapping(from, to);
         return to;
@@ -113,24 +148,43 @@ public class LinkoneMapper {
     }
     
     
-    public static void mapping(CustUserDTO from, CustUser to){
+    public static void mapping(CustUserDTO from, CustUser to, boolean isSkipNull){
         if(from ==null || to ==null) return;
-        to.setUsrSeq(from.getUsrSeq());
-        to.setUsrId(from.getUsrId());
-        to.setPassword(from.getPassword());
-        to.setName(from.getName());
-        to.setTelNo(from.getTelNo());
-        to.setEmail(from.getEmail());
-        to.setDeptNm(from.getDeptNm());
-        to.setGrade(from.getGrade());
-        to.setCreateDate(from.getCreateDate());
-        to.setCreatedBy(from.getCreatedBy());
-        to.setLastModifiedBy(from.getLastModifiedBy());
-        to.setLastModifiedDate(from.getLastModifiedDate());
+        if(!isSkipNull || from.getUsrSeq()!=null)
+            to.setUsrSeq(from.getUsrSeq());
+        if(!isSkipNull || from.getUsrId()!=null)
+            to.setUsrId(from.getUsrId());
+        if(!isSkipNull || from.getPassword()!=null)
+            to.setPassword(from.getPassword());
+        if(!isSkipNull || from.getName()!=null)
+            to.setName(from.getName());
+        if(!isSkipNull || from.getTelNo()!=null)
+            to.setTelNo(from.getTelNo());
+        if(!isSkipNull || from.getEmail()!=null)
+            to.setEmail(from.getEmail());
+        if(!isSkipNull || from.getDeptNm()!=null)
+            to.setDeptNm(from.getDeptNm());
+        if(!isSkipNull || from.getGrade()!=null)
+            to.setGrade(from.getGrade());
+        if(!isSkipNull || from.getCreateDate()!=null)
+            to.setCreateDate(from.getCreateDate());
+        if(!isSkipNull || from.getCreatedBy()!=null)
+            to.setCreatedBy(from.getCreatedBy());
+        if(!isSkipNull || from.getLastModifiedBy()!=null)
+            to.setLastModifiedBy(from.getLastModifiedBy());
+        if(!isSkipNull || from.getLastModifiedDate()!=null)
+            to.setLastModifiedDate(from.getLastModifiedDate());
+        to.setCompany(toEntity(from.getCompany()));
+    }
+    
+    
+    public static void mapping(CustUserDTO from, CustUser to){
+        mapping(from,to,false);
     }
     
     
     public static CustUser toEntity(CustUserDTO from){
+        if(from==null) return null;
         CustUser to = new CustUser();
         mapping(from, to);
         return to;
@@ -157,22 +211,39 @@ public class LinkoneMapper {
     }
     
     
-    public static void mapping(CompanyDTO from, Company to){
+    public static void mapping(CompanyDTO from, Company to, boolean isSkipNull){
         if(from ==null || to ==null) return;
-        to.setComSeq(from.getComSeq());
-        to.setComGrpCode(from.getComGrpCode());
-        to.setComName(from.getComName());
-        to.setRespName(from.getRespName());
-        to.setRespTel(from.getRespTel());
-        to.setRespZone(from.getRespZone());
-        to.setCreateDate(from.getCreateDate());
-        to.setCreatedBy(from.getCreatedBy());
-        to.setLastModifiedBy(from.getLastModifiedBy());
-        to.setLastModifiedDate(from.getLastModifiedDate());
+        if(!isSkipNull || from.getComSeq()!=null)
+            to.setComSeq(from.getComSeq());
+        if(!isSkipNull || from.getComGrpCode()!=null)
+            to.setComGrpCode(from.getComGrpCode());
+        if(!isSkipNull || from.getComName()!=null)
+            to.setComName(from.getComName());
+        if(!isSkipNull || from.getRespName()!=null)
+            to.setRespName(from.getRespName());
+        if(!isSkipNull || from.getRespTel()!=null)
+            to.setRespTel(from.getRespTel());
+        if(!isSkipNull || from.getRespZone()!=null)
+            to.setRespZone(from.getRespZone());
+        if(!isSkipNull || from.getCreateDate()!=null)
+            to.setCreateDate(from.getCreateDate());
+        if(!isSkipNull || from.getCreatedBy()!=null)
+            to.setCreatedBy(from.getCreatedBy());
+        if(!isSkipNull || from.getLastModifiedBy()!=null)
+            to.setLastModifiedBy(from.getLastModifiedBy());
+        if(!isSkipNull || from.getLastModifiedDate()!=null)
+            to.setLastModifiedDate(from.getLastModifiedDate());
+        to.setUserList(toCustUserList(from.getUserList()));
+    }
+    
+    
+    public static void mapping(CompanyDTO from, Company to){
+        mapping(from,to,false);
     }
     
     
     public static Company toEntity(CompanyDTO from){
+        if(from==null) return null;
         Company to = new Company();
         mapping(from, to);
         return to;
@@ -205,6 +276,10 @@ public class LinkoneMapper {
     
     
     public static Specification<CustUser> toSpec(CustUserSearchDTO searchDTO, Specification<CustUser> sp){
+        Long comSeq = searchDTO.getComSeq();
+        if(comSeq != null){
+            sp = sp.and((r,q,c) -> c.equal(r.get("company").get("comSeq"),comSeq));
+        }
         String name = searchDTO.getName();
         if(name != null){
             sp = sp.and((r,q,c) -> c.like(r.get("name"),"%" +name+ "%"));

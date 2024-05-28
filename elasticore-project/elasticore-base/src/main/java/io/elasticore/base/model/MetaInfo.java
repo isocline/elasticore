@@ -65,4 +65,16 @@ public class MetaInfo {
         String key = name.toLowerCase(Locale.ROOT);
         return metaAnnotationMap.containsKey(key);
     }
+
+    public String getMetaAnnotationValue(String... names) {
+        for(String name: names) {
+            Annotation an = getMetaAnnotation(name);
+            if(an!=null) {
+                String val = an.getValue();
+                if(val !=null) return val;
+            }
+        }
+
+        return null;
+    }
 }

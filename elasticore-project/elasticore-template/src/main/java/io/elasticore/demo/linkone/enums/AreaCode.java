@@ -1,4 +1,4 @@
-//ecd:-184356380H20240528005422V0.7
+//ecd:-184356380H20240528142316V0.7
 package io.elasticore.demo.linkone.enums;
 
 import lombok.Getter;

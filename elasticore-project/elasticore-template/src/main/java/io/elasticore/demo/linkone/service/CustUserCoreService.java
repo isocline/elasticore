@@ -1,4 +1,4 @@
-//ecd:1513465353H20240528005517V0.7
+//ecd:-898188634H20240528142316V0.7
 package io.elasticore.demo.linkone.service;
 
 import io.elasticore.demo.linkone.entity.*;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CustUserCoreService {
 
-    private final LinkoneRepositoryHelper helper;
+    protected final LinkoneRepositoryHelper helper;
 
     public List<CustUserDTO> findAll() {
         return helper.getCustUser().findAll().stream()
@@ -47,13 +47,24 @@ public class CustUserCoreService {
             Company item = helper.getCompany().findById(dto.getCompanyComSeq()).orElse(null);
             if(item!=null) entity.setCompany(item);
         }
-        if(dto.getCompany()!=null){
-            Company item = helper.getCompany().findById(dto.getCompany().getComSeq()).orElse(null);
+    
+
+
+        CustUser result = helper.getCustUser().save(entity);
+        return LinkoneMapper.toDTO(result);
+    }
+
+    public CustUserDTO update(CustUserDTO dto) {
+        CustUser entity = helper.getCustUser().findById(dto.getUsrSeq()).orElse(null);
+        LinkoneMapper.mapping(dto, entity, true);
+        
+        if(dto.getCompanyComSeq()!=null){
+            Company item = helper.getCompany().findById(dto.getCompanyComSeq()).orElse(null);
             if(item!=null) entity.setCompany(item);
         }
     
 
-        
+
         CustUser result = helper.getCustUser().save(entity);
         return LinkoneMapper.toDTO(result);
     }

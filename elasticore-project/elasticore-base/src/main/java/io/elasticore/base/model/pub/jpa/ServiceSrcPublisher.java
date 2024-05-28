@@ -29,13 +29,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
     private RelationshipManager relationshipManager;
 
 
-
     private String packageName;
     private String entityPackageName;
     private String dtoPackageName;
     private String repoPackageName;
 
-;
+    ;
 
 
     public ServiceSrcPublisher(CodePublisher publisher) {
@@ -48,7 +47,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_SERVICE);
 
-        if(this.packageName==null) return;
+        if (this.packageName == null) return;
 
         this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
         this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
@@ -80,16 +79,15 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
     private boolean isPageable(DataTransfer searchDTO) {
         Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation("searchable");
-        if(annotation==null) return false;
+        if (annotation == null) return false;
 
         Properties props = annotation.getProperties();
-        if(props==null) return false;
-        if( props.getProperty("pageSize") ==null) return false;
+        if (props == null) return false;
+        if (props.getProperty("pageSize") == null) return false;
 
         return true;
 
     }
-
 
 
     private DataTransfer findSearchDTO(Entity entity) {
@@ -120,7 +118,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
      */
     public void publish(ModelDomain domain) {
 
-        if(this.baseCodeTmpl==null) return;
+        if (this.baseCodeTmpl == null) return;
 
         ModelComponentItems<Entity> entities = this.model.getEntityModels().getItems();
 
@@ -138,29 +136,31 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
     }
 
 
-    public void publish(ModelDomain domain, Entity entity, DataTransfer dto , DataTransfer searchDto) {
+    public void publish(ModelDomain domain, Entity entity, DataTransfer dto, DataTransfer searchDto) {
 
         String domainName = domain.getName();
         String entityClassName = entity.getIdentity().getName();
-        String className = entityClassName+ ConstanParam.POSTFIX_SERVICE;
+        String className = entityClassName + ConstanParam.POSTFIX_SERVICE;
 
         String dtoClassName = dto.getIdentity().getName();
         String mapperName = findMapperClassName(dto);
         String searchDTOClassName = searchDto.getIdentity().getName();
         String pkType = entity.getPkField().getType();
+        String pkName = entity.getPkField().getName();
 
-        CodeStringBuilder cb = new CodeStringBuilder("{","}");
+        CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         makeChildRefCode(dto, entity, cb);
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
-                .set("className",className)
+                .set("className", className)
                 .set("domainName", StringUtils.capitalize(domainName))
-                .set("entityClassName",entityClassName)
-                .set("dtoClassName",dtoClassName)
-                .set("mapperName",mapperName)
+                .set("entityClassName", entityClassName)
+                .set("dtoClassName", dtoClassName)
+                .set("mapperName", mapperName)
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)
+                .set("pkName", StringUtils.capitalize(pkName))
                 .set("childRefInfo", cb.toString())
 
                 .set("entityPackageName", entityPackageName)
@@ -169,13 +169,11 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("packageName", packageName);
 
         String code = null;
-        if(isPageable(searchDto)) {
+        if (isPageable(searchDto)) {
             code = getBaseCode4PagingTmpl.toString(params);
-        }else {
+        } else {
             code = baseCodeTmpl.toString(params);
         }
-
-
 
 
         String qualifiedClassName = packageName + "." + className;
@@ -184,56 +182,65 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
     }
 
     private void makeChildRefCode(DataTransfer dto, Entity entity, CodeStringBuilder cb) {
+
+
         cb.block("");
         cb.block("");
+
 
         ModelComponentItems<Field> items = dto.getItems();
 
-        while(items.hasNext()) {
+
+        while (items.hasNext()) {
             Field f = items.next();
             // ex) Company.comSeq  || Company
-            String refClassNm = f.getAnnotationValue("reference", "ref");
-            if(refClassNm==null) continue;
+            String refFieldNm = f.getAnnotationValue("reference", "ref");
+            if (refFieldNm == null) continue;
 
-            String[] refItems = refClassNm.split("\\.");
+            String[] refItems = refFieldNm.split("\\.");
             String refClassPkNm = null;
-            if(refItems.length==2) {
+            if (refItems.length == 2) {
                 refClassPkNm = refItems[1];
-                refClassNm = refItems[0];
+                refFieldNm = refItems[0];
             }
 
+            Field targetField = entity.getItems().findByName(refFieldNm);
+            if (targetField == null) continue;
+            ;
 
-            Entity targetEntity = findEntity(refClassNm);
-            if(targetEntity==null) continue;;
+            String getTypeNm = targetField.getTypeInfo().getDefaultTypeName();
+
+            Entity targetEntity = findEntity(getTypeNm);
+            if (targetEntity == null) continue;
+            ;
 
             String refClassPkNm2 = targetEntity.getPkField().getName();
-            if(refClassPkNm!=null && !refClassPkNm.equals(refClassPkNm2)){
+
+
+            if (refClassPkNm == null || !refClassPkNm.equals(refClassPkNm2)) {
                 continue;
             }
 
-            String extraDtoFieldName="";
-            if(!f.getTypeInfo().isBaseType()) {
-                extraDtoFieldName = ".get"+StringUtils.capitalize(refClassPkNm2)+"()";
+            String extraDtoFieldName = "";
+            if (!f.getTypeInfo().isBaseType()) {
+                extraDtoFieldName = ".get" + StringUtils.capitalize(refClassPkNm2) + "()";
             }
 
             String dtoGetName = StringUtils.capitalize(f.getName());
 
+            String getDtoFieldName = StringUtils.capitalize(f.getName());
+
+            String fieldInfo = "";
+            String entitySetName = findFieldNameByTypeName(entity, refFieldNm);
 
 
-             String getDtoFieldName = StringUtils.capitalize(f.getName());
+            cb.line("if(dto.get%s()!=null)", getDtoFieldName);
+            cb.block();
+            cb.line("%s item = helper.get%s().findById(dto.get%s()%s).orElse(null);"
+                    , getTypeNm, getTypeNm, dtoGetName, extraDtoFieldName);
+            cb.line("if(item!=null) entity.set%s(item);", StringUtils.capitalize(refFieldNm));
 
-             String fieldInfo = "";
-             String entitySetName = findFieldNameByTypeName(entity, refClassNm);
-
-
-
-             cb.line("if(dto.get%s()!=null)", getDtoFieldName);
-             cb.block();
-             cb.line("%s item = helper.get%s().findById(dto.get%s()%s).orElse(null);"
-                     ,refClassNm ,refClassNm ,dtoGetName ,extraDtoFieldName);
-             cb.line("if(item!=null) entity.set%s(item);" ,StringUtils.capitalize(entitySetName));
-
-             cb.end();
+            cb.end();
 
             //System.err.println(cb.toString());
 
