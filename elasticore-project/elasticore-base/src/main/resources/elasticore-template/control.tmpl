@@ -43,7 +43,7 @@ public class ${className}{
 
     @PostMapping("/search")
     @ResponseBody
-    public ${searchReturnType}<${dtoClassName}> search(@RequestBody ${searchDTOClassName} searchDTO) {
+    public ${searchReturnType}<${customListDTOClassName}> search(@RequestBody ${searchDTOClassName} searchDTO) {
         return ${entityName}Service.findBySearch(searchDTO);
     }
 

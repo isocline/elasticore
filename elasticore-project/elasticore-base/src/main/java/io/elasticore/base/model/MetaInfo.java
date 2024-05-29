@@ -4,6 +4,7 @@ import io.elasticore.base.model.core.Annotation;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 public class MetaInfo {
 
@@ -68,10 +69,26 @@ public class MetaInfo {
 
     public String getMetaAnnotationValue(String... names) {
         for(String name: names) {
+            // searchable.entity ->  @Searchable(entity=Customer)
+            String[] nmItems = name.split("\\.");
+            String propertyName = null;
+            if(nmItems.length==2){
+                name = nmItems[0];
+                propertyName = nmItems[1];
+            }
+
             Annotation an = getMetaAnnotation(name);
             if(an!=null) {
-                String val = an.getValue();
-                if(val !=null) return val;
+                if(propertyName!=null) {
+                    Properties props = an.getProperties();
+                    if(props!=null) {
+                        String val = props.getProperty(propertyName);
+                        if(val!=null) return val;
+                    }
+                }else {
+                    String val = an.getValue();
+                    if(val !=null) return val;
+                }
             }
         }
 

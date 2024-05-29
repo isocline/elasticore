@@ -10,16 +10,16 @@ dto:
 
   CustUserDTO:
     meta: dto @template('CustUser')
-
     fields:
       companyComSeq: long @ref(company.comSeq)
       company: CompanyDTO @ref(company)
-
 
   CustUserSearchDTO:
     meta: dto @searchable(entity=CustUser, pageSize=30)
     fields:
       comSeq: long @ref(company.comSeq) @s(eq)
+
+
 
 
 
@@ -31,4 +31,10 @@ dto:
 
   CompanySearchDTO:
     meta: dto @searchable(entity=Company, pageSize=30)
+
+  CompanySeachResultDTO:
+    meta: dto @searchResult(Company)
+    fields:
+      comName: string @disable
+
 

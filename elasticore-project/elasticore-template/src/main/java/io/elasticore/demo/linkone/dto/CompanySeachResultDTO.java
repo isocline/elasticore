@@ -1,4 +1,4 @@
-//ecd:2135142321H20240529100717V0.7
+//ecd:61612899H20240529100717V0.7
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -22,23 +22,15 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public  class CompanySearchDTO  implements java.io.Serializable, SortableObject, PageableObject  {
+public  class CompanySeachResultDTO  implements java.io.Serializable  {
 	private Long comSeq;
-	
-	// 업체명
-	private String comName;
-	
+	private CompanyGroupCode comGrpCode;
 	private String respName;
-	
 	// 담당자전화번호
 	private String respTel;
-	
 	private String respZone;
-	
-	
-	private String sortCode;
-	
-	private int pageNumber=0;
-	
-	private int pageSize=30;
+	private java.time.LocalDateTime createDate;
+	private String createdBy;
+	private String lastModifiedBy;
+	private java.time.LocalDateTime lastModifiedDate;
 };

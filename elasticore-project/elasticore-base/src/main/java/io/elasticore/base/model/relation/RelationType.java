@@ -19,6 +19,8 @@ public enum RelationType {
     EMBEDDED("embedded"),
     EMBEDDABLE("embeddable"),
 
+    SEARCH_RESULT("searchResult"),
+
     MAPPER("mapper"),
     SUPER("super");
 

@@ -4,6 +4,7 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
+import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
@@ -22,7 +23,6 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
     private CodeTemplate baseCodeTmpl;
 
-    private CodeTemplate getBaseCode4PagingTmpl;
 
     private CodePublisher publisher;
     private ECoreModel model;
@@ -56,7 +56,6 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         this.publisher = publisher;
 
         this.baseCodeTmpl = createCodeTemplate(publisher, "template.service", "service.tmpl");
-        this.getBaseCode4PagingTmpl = createCodeTemplate(publisher, "template.service_page", "service_page.tmpl");
 
         System.err.println(this.baseCodeTmpl);
 
@@ -135,6 +134,27 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         }
     }
 
+    private String makeGetFieldInfo(String searchResultDtoNm ) {
+        StringBuilder sb = new StringBuilder();
+
+        DataTransfer dto = this.model.getDataTransferModels().findByName(searchResultDtoNm);
+        if(dto ==null) return sb.toString();
+
+        ListMap<String, Field>  listMap = dto.getAllFieldListMap();
+
+        //root.get("comSeq")
+        for(Field f:listMap.getList()) {
+            if(sb.length()>0) sb.append(" ,");
+            sb.append("root.get(");
+            sb.append(StringUtils.quoteString(f.getName()));
+            sb.append(")");
+
+        }
+
+        return sb.toString();
+    }
+
+
 
     public void publish(ModelDomain domain, Entity entity, DataTransfer dto, DataTransfer searchDto) {
 
@@ -151,6 +171,34 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         makeChildRefCode(dto, entity, cb);
 
+        boolean isListOutput = false;
+        boolean isPageOutput = false;
+
+        if (isPageable(searchDto)) {
+            isPageOutput = true;
+        }else {
+            isListOutput = true;
+        }
+
+        boolean isCustomPageOutput = false;
+        boolean isCustomListOutput = false;
+        String selectColumnNmList = "";
+
+        String searchResultDtoNm = findSearchResultDTOName(this.relationshipManager, entity);
+        if(searchResultDtoNm!=null) {
+            if(isPageOutput) {
+                isCustomPageOutput = true;
+                isPageOutput = false;
+            }else {
+                isCustomListOutput = true;
+                isListOutput = false;
+            }
+
+            selectColumnNmList = makeGetFieldInfo(searchResultDtoNm);
+        }else {
+            searchResultDtoNm="";
+        }
+
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
                 .set("className", className)
@@ -162,19 +210,22 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("pkType", pkType)
                 .set("pkName", StringUtils.capitalize(pkName))
                 .set("childRefInfo", cb.toString())
+                .set("isListOutput",isListOutput)
+                .set("isPageOutput",isPageOutput)
+                .set("isCustomPageOutput",isCustomPageOutput)
+                .set("isCustomListOutput",isCustomListOutput)
+                .set("customListDTOClassName",searchResultDtoNm)
+                .set("selectColumnNmList" ,selectColumnNmList)
 
+
+
+                .set("j2eePkgName",getPersistentPackageName(domain))
                 .set("entityPackageName", entityPackageName)
                 .set("dtoPackageName", dtoPackageName)
                 .set("repositoryPackageName", repoPackageName)
                 .set("packageName", packageName);
 
-        String code = null;
-        if (isPageable(searchDto)) {
-            code = getBaseCode4PagingTmpl.toString(params);
-        } else {
-            code = baseCodeTmpl.toString(params);
-        }
-
+        String code = baseCodeTmpl.toString(params);
 
         String qualifiedClassName = packageName + "." + className;
 

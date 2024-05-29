@@ -106,9 +106,28 @@ public class CodeTemplate {
     public String toString(Parameters parameters) {
         StringBuilder sb = new StringBuilder();
 
+        boolean isSkip = false;
+
         for (LineInfo lineInfo : lineInfos) {
             String lineTxt = lineInfo.toString(parameters);
-            sb.append(lineTxt).append(NEWLINE);
+
+            boolean isCommandLine = false;
+            if(lineTxt.indexOf("/*-- print-if:")>=0) {
+                boolean isEndLine = lineTxt.indexOf("end")>0;
+                boolean isPrintStartLine = lineTxt.indexOf("true")>0;
+                isCommandLine = isEndLine || isPrintStartLine;
+
+                if(isPrintStartLine)
+                    isSkip = false;
+                else if(isEndLine)
+                    isSkip = false;
+                else
+                    isSkip = true;
+
+            }
+
+            if(!isSkip && !isCommandLine)
+                sb.append(lineTxt).append(NEWLINE);
         }
 
         return sb.toString();
@@ -251,6 +270,10 @@ public class CodeTemplate {
 
         private Map<String, Paragraph> getParamMap() {
             return this.paramMap;
+        }
+
+        public Parameters set(String keyName, boolean value) {
+            return set(keyName, Boolean.toString(value));
         }
 
         public Parameters set(String keyName, String value) {

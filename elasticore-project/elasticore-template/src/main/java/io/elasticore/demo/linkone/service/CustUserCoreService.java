@@ -1,12 +1,15 @@
-//ecd:-898188634H20240528142512V0.7
+//ecd:1742309011H20240529100717V0.7
 package io.elasticore.demo.linkone.service;
 
 import io.elasticore.demo.linkone.entity.*;
 import io.elasticore.demo.linkone.dto.*;
 import io.elasticore.demo.linkone.repository.*;
 
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,6 +30,7 @@ public class CustUserCoreService {
                 .map(LinkoneMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
 
 
     public Page<CustUserDTO> findBySearch(CustUserSearchDTO searchDTO) {
@@ -54,6 +58,7 @@ public class CustUserCoreService {
         return LinkoneMapper.toDTO(result);
     }
 
+
     public CustUserDTO update(CustUserDTO dto) {
         CustUser entity = helper.getCustUser().findById(dto.getUsrSeq()).orElse(null);
         LinkoneMapper.mapping(dto, entity, true);
@@ -69,7 +74,12 @@ public class CustUserCoreService {
         return LinkoneMapper.toDTO(result);
     }
 
+
     public void deleteById(Long id) {
         helper.getCustUser().deleteById(id);
     }
+
+
+
+
 }

@@ -7,13 +7,17 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractDataModel;
+import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.relation.ModelRelationship;
+import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.HashUtils;
 import lombok.SneakyThrows;
 
 import java.io.*;
+import java.util.List;
 
 public class SrcFilePublisher {
 
@@ -111,6 +115,18 @@ public class SrcFilePublisher {
         Field f = findFieldByTypeName(entity, typeName);
         if(f!=null)
             return f.getName();
+
+        return null;
+    }
+
+
+    protected String findSearchResultDTOName(RelationshipManager rm, Entity entity) {
+        List<ModelRelationship> relationshipList = rm.findByToNameAndType(
+                entity.getIdentity().getName(), RelationType.SEARCH_RESULT);
+
+        for(ModelRelationship r : relationshipList) {
+            return r.getFromName();
+        }
 
         return null;
     }

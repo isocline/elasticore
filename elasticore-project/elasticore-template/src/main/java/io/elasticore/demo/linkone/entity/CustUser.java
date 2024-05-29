@@ -1,4 +1,4 @@
-//ecd:-1833904132H20240528142512V0.7
+//ecd:-1833904132H20240529100717V0.7
 package io.elasticore.demo.linkone.entity;
 
 import io.elasticore.demo.linkone.enums.*;

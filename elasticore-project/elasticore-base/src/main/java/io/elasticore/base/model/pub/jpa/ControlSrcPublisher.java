@@ -157,6 +157,11 @@ public class ControlSrcPublisher extends SrcFilePublisher {
             searchReturnType = "Page";
         }
 
+        String customListDTOClassName = dtoClassName;
+        String searchResultDtoNm = findSearchResultDTOName(this.relationshipManager, entity);
+        if(searchResultDtoNm!=null)
+            customListDTOClassName = searchResultDtoNm;
+
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
@@ -170,6 +175,7 @@ public class ControlSrcPublisher extends SrcFilePublisher {
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)
                 .set("searchReturnType", searchReturnType)
+                .set("customListDTOClassName" ,customListDTOClassName)
 
 
                 .set("dtoPackageName", dtoPackageName)

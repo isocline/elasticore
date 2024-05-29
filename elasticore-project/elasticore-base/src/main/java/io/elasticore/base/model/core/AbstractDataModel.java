@@ -62,18 +62,19 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             }
         }
 
-        Annotation searchAnt = this.getMetaInfo().getMetaAnnotation(RelationType.SEARCHABLE.getName());
-        if(searchAnt!=null) {
-            String toName = searchAnt.getValue();
-            if(toName==null){
-                Properties props = searchAnt.getProperties();
-                if(props!=null)
-                    toName = props.getProperty("entity");
-            }
-            if(toName !=null) {
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SEARCHABLE));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.SEARCHED));
-            }
+        String annotationNm = RelationType.SEARCHABLE.getName();
+        String searchableEntityNm = this.getMetaInfo().getMetaAnnotationValue(annotationNm+".entity", annotationNm);
+
+        if(searchableEntityNm !=null) {
+            rm.addRelationship(ModelRelationship.create(fromName, searchableEntityNm, RelationType.SEARCHABLE));
+            rm.addRelationship(ModelRelationship.create(searchableEntityNm, fromName, RelationType.SEARCHED));
+        }
+
+        annotationNm = RelationType.SEARCH_RESULT.getName();
+        String searchResultEntityNm = this.getMetaInfo().getMetaAnnotationValue(annotationNm+".entity", annotationNm);
+
+        if(searchResultEntityNm !=null) {
+            rm.addRelationship(ModelRelationship.create(fromName, searchResultEntityNm, RelationType.SEARCH_RESULT));
         }
 
     }
@@ -142,38 +143,30 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
     }
 
     private String getReferenceModelNames(MetaInfo metaInfo) {
-        Annotation templateAnt = this.getMetaInfo().getMetaAnnotation("template");
-        Annotation extendAnt = this.getMetaInfo().getMetaAnnotation("extend");
-        Annotation searchAnt = this.getMetaInfo().getMetaAnnotation("searchable");
+        MetaInfo meta = this.getMetaInfo();
+
+        String templateNames = meta.getMetaAnnotationValue("template");
+        String extendNames = meta.getMetaAnnotationValue("extend");
+        String searchNames = meta.getMetaAnnotationValue("searchable.entity", "searchable");
+        String srchResultNames = meta.getMetaAnnotationValue("searchResult.entity", "searchResult");
 
         StringBuilder sb = new StringBuilder();
-        if(templateAnt!=null) {
-            String names = templateAnt.getValue();
-            if(names!=null) {
-                sb.append(names.trim());
-            }
-        }
-        if(extendAnt!=null) {
-            String names = extendAnt.getValue();
-            if(names!=null) {
-                if(sb.length()>0) sb.append(",");
-                sb.append(names.trim());
-            }
-        }
-        if(searchAnt!=null) {
-            String names = searchAnt.getValue();
-            if(names==null) {
-                Properties pros = searchAnt.getProperties();
-                if(pros!=null)
-                    names = pros.getProperty("entity");
-            }
 
-            if(names!=null) {
-                if(sb.length()>0) sb.append(",");
-                sb.append(names.trim());
-            }
+        if(templateNames!=null) {
+            sb.append(templateNames.trim());
         }
-
+        if(extendNames!=null) {
+            if(sb.length()>0) sb.append(",");
+            sb.append(extendNames.trim());
+        }
+        if(searchNames!=null) {
+            if(sb.length()>0) sb.append(",");
+            sb.append(searchNames.trim());
+        }
+        if(srchResultNames!=null) {
+            if(sb.length()>0) sb.append(",");
+            sb.append(srchResultNames.trim());
+        }
 
         return sb.toString();
     }

@@ -1,4 +1,4 @@
-//ecd:-923054891H20240528142512V0.7
+//ecd:-923054891H20240529100717V0.7
 package io.elasticore.demo.crm.entity;
 
 
