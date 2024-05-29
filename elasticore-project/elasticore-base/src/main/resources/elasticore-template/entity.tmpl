@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import ${j2eePkgName}.persistence.*;
 import java.util.*;
 import java.time.*;
@@ -26,7 +27,8 @@ ${classAnnotationList}
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@EntityListeners(AuditingEntityListener.class)
 public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
+
 	${fieldList}
 };

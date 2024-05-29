@@ -1,4 +1,4 @@
-//ecd:-967416096H20240529100717V0.7
+//ecd:-967416096H20240529174205V0.7
 package io.elasticore.demo.linkone.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -7,9 +7,12 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractDataModel;
+import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.enums.EnumConstant;
+import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
@@ -20,6 +23,12 @@ import java.io.*;
 import java.util.List;
 
 public class SrcFilePublisher {
+
+    private CodePublisher publisher;
+
+    protected SrcFilePublisher(CodePublisher publisher) {
+        this.publisher = publisher;
+    }
 
     private static String getMarkText(String content) {
         String ecd = "ecd:" + HashUtils.getHashCode(content) + "V0.7";
@@ -57,18 +66,6 @@ public class SrcFilePublisher {
     }
 
 
-    protected void setFieldDesc(Field field, CodeTemplate.Paragraph paragraph) {
-        if (field.getDescription() != null) {
-            paragraph.add("// " + field.getDescription());
-        } else {
-            String description = field.getAnnotationValue("label", "desc", "description");
-            if (description != null)
-                paragraph.add("// " + description);
-        }
-
-    }
-
-
     protected CodeTemplate createCodeTemplate(CodePublisher publisher, String configPath, String defaultFileName) {
         String templatePath = publisher.getECoreModelContext().getDomain().getModel().getConfig(configPath);
         if (templatePath == null)
@@ -97,13 +94,13 @@ public class SrcFilePublisher {
     }
 
     protected Field findFieldByTypeName(AbstractDataModel entity, String typeName) {
-        if(typeName==null) return null;
+        if (typeName == null) return null;
 
         ModelComponentItems<Field> items = entity.getItems();
-        while(items.hasNext()) {
+        while (items.hasNext()) {
             Field field = items.next();
 
-            if(typeName.equals(field.getTypeInfo().getDefaultTypeName())) {
+            if (typeName.equals(field.getTypeInfo().getDefaultTypeName())) {
                 return field;
             }
         }
@@ -113,7 +110,7 @@ public class SrcFilePublisher {
 
     protected String findFieldNameByTypeName(AbstractDataModel entity, String typeName) {
         Field f = findFieldByTypeName(entity, typeName);
-        if(f!=null)
+        if (f != null)
             return f.getName();
 
         return null;
@@ -124,10 +121,160 @@ public class SrcFilePublisher {
         List<ModelRelationship> relationshipList = rm.findByToNameAndType(
                 entity.getIdentity().getName(), RelationType.SEARCH_RESULT);
 
-        for(ModelRelationship r : relationshipList) {
+        for (ModelRelationship r : relationshipList) {
             return r.getFromName();
         }
 
         return null;
     }
+
+
+    protected void setFieldDesc(Field field, CodeTemplate.Paragraph paragraph) {
+        if (field.getDescription() != null) {
+            paragraph.add("/*");
+            paragraph.add("  " + field.getDescription());
+            paragraph.add("*/");
+        } else {
+            String description = field.getAnnotationValue("label", "desc", "description");
+            if (description != null) {
+                paragraph.add("/*");
+                paragraph.add("  " + description);
+                paragraph.add("*/");
+            }
+
+        }
+    }
+
+
+    protected void setFieldDocumentation(Field f, CodeTemplate.Paragraph p) {
+
+        String desc = f.getAnnotationValue("description", "desc", "label");
+        if (desc == null) {
+            desc = f.getName();
+        }
+        boolean isNotNull = f.hasAnnotation("notnull");
+        String requireTxt = "";
+        if (isNotNull) {
+            requireTxt = ", requiredMode=Schema.RequiredMode.REQUIRED";
+        }
+
+        String example = getExample(f);
+
+        p.add("@Schema(description = \"%s\" %s %s)", desc, requireTxt, example);
+    }
+
+    protected String getExample(Field f) {
+        String example = f.getAnnotationValue("example");
+
+        if (example == null) {
+
+            EnumModel enumModel = this.publisher.getECoreModelContext().getDomain()
+                    .getModel()
+                    .getEnumModels()
+                    .findByName(f.getTypeInfo().getCoreItemType());
+
+            if (enumModel != null) {
+                String fieldNameForJson = enumModel.getMetaInfo().getMetaAnnotationValue("json");
+
+                int jsonIdx = -1;
+                int chkIdx = 0;
+                for (Field ef : enumModel.getFieldItems().getItemList()) {
+                    if (ef.getName().equals(fieldNameForJson)) {
+                        jsonIdx = chkIdx;
+                        break;
+                    }
+                    chkIdx++;
+                }
+
+                StringBuilder sb = new StringBuilder();
+
+                List<EnumConstant> itemList = enumModel.getEnumConstantItems().getItemList();
+                for (EnumConstant e : itemList) {
+                    List<EnumConstant.ConstructParam> constructParamList = e.getConstructParamList();
+                    if (sb.length() > 0)
+                        sb.append(" | ");
+
+                    if (jsonIdx < 0) {
+                        sb.append(e.getIdentity().getName());
+                    } else {
+                        sb.append(constructParamList.get(jsonIdx).getName());
+                    }
+                    sb.append(":");
+
+                    for (int i = 0; i < constructParamList.size(); i++) {
+
+                        if (i != jsonIdx) {
+                            sb.append(" ");
+                            sb.append(constructParamList.get(i));
+                        }
+                    }
+                }
+
+                example = sb.toString();
+            }
+
+        }
+
+
+        if (example != null) {
+            example = ", example=\"" + example + "\"";
+        } else {
+            example = "";
+        }
+        return example;
+    }
+
+
+    protected void setFieldValidation(Field f, CodeTemplate.Paragraph p) {
+
+        if (f.hasAnnotation("notnull"))
+            p.add("@NotNull");
+
+        String minSize = f.getAnnotationValue("minsize");
+        String maxSize = f.getAnnotationValue("length", "len", "size");
+        if (minSize != null || maxSize != null) {
+            StringBuilder sb = new StringBuilder();
+            if (minSize != null)
+                sb.append("min=").append(minSize);
+            if (maxSize != null) {
+                if (sb.length() > 0)
+                    sb.append(" , ");
+                sb.append("max=").append(maxSize);
+            }
+
+            p.add("@Size(%s)", sb.toString());
+        }
+
+    }
+
+
+    protected void setJsonInfo(Field f, CodeTemplate.Paragraph p) {
+        String jsonName = f.getAnnotationValue("jsonproperty", "json");
+        if (jsonName != null) {
+            p.add("@JsonProperty(\"%s\")", jsonName);
+        }
+
+        if (f.hasAnnotation("jsonignore") || f.hasAnnotation("ignore")) {
+            p.add("@JsonIgnore");
+        }
+    }
+
+    protected boolean isEnumerationType(Field f) {
+        String typeName = f.getTypeInfo().getCoreItemType();
+        if (this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(typeName) != null)
+            return true;
+
+        return false;
+    }
+
+
+    protected boolean isEntityType(Field f) {
+        String typeName = f.getTypeInfo().getCoreItemType();
+        if (this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(typeName) != null)
+            return true;
+
+        return false;
+    }
+
+
 }

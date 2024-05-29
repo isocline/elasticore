@@ -189,6 +189,9 @@ public class AbstractModelLoader implements ConstanParam {
      * @return A Field object populated with the parsed information.
      */
     protected Field parseFieldLine(String fieldNm, String fieldLine) {
+        if("--".equals(fieldLine)) {
+            fieldLine = "undefined @disable";
+        }
 
         // for comment
         int p0 = fieldLine.indexOf(" --");

@@ -28,6 +28,8 @@ public class EnumFilePublisher extends SrcFilePublisher {
     private String packageName;
 
     public EnumFilePublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.publisher = publisher;
 
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.enum");

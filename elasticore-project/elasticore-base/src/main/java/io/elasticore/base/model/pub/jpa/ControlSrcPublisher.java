@@ -39,6 +39,8 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
 
     public ControlSrcPublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.model = publisher.getECoreModelContext().getDomain().getModel();
 
         if (model.getEntityModels().getItems().size() == 0 || model.getDataTransferModels().getItems().size() == 0)

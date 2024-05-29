@@ -41,6 +41,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
 
     public MapperSrcPublisher(CodePublisher publisher) {
+        super(publisher);
 
         ModelDomain modelDomain = publisher.getECoreModelContext().getDomain();
         this.model = modelDomain.getModel();

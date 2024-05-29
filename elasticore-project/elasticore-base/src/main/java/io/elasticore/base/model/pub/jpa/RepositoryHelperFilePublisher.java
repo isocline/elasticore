@@ -36,6 +36,8 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
 
     public RepositoryHelperFilePublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.publisher = publisher;
 
         String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.templateHelper");

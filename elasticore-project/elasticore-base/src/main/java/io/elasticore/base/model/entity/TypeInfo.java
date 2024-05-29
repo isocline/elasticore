@@ -65,6 +65,14 @@ public class TypeInfo {
         return false;
     }
 
+    public String getCoreItemType() {
+        if(isGenericType()) {
+            return getTypeParameterName();
+        }
+
+        return getDefaultTypeName();
+    }
+
 
     public String getDefaultTypeName() {
         if(isBaseType() && !isList()) {

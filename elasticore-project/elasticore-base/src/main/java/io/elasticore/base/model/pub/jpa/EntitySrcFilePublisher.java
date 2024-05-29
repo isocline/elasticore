@@ -29,6 +29,7 @@ import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private CodeTemplate javaClassTmpl;
 
     private CodePublisher publisher;
+
+    private ECoreModel model;
 
     private String packageName;
 
@@ -63,11 +66,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      * @param publisher The JPACodePublisher instance used for publishing.
      */
     public EntitySrcFilePublisher(CodePublisher publisher) {
+        super(publisher);
+
+
         this.publisher = publisher;
+        this.model =  this.publisher.getECoreModelContext().getDomain().getModel();
 
-        this.publishMode = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("mode");
+        this.publishMode = model.getConfig("mode");
 
-        String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.entity");
+        String templatePath = model.getConfig("template.entity");
         if(templatePath==null)
             templatePath = "elasticore-template/entity.tmpl";
         else
@@ -113,6 +120,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             if (!entity.getMetaInfo().hasMetaAnnotation("abstract")) {
                 p.add("@Entity");
+            }
+            else {
+                p.add("@MappedSuperclass");
             }
         }
 
@@ -318,10 +328,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             setFieldPkInfo(f, p);
             setFieldColumnAnnotation(entity, f, p);
 
+            setEnumListAnnotation(entity, f, p);
+
             setRelationInfo(f, p);
             setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
             setConvertAnnotation(entity.getIdentity().getDomainId(), f,p);
+
+
 
             String defaultValDefined = getDefaultValueSetup(f);
 
@@ -397,13 +411,18 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private void setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
         TypeInfo typeInfo = field.getTypeInfo();
 
+        boolean isEntityType = false;
+        if(this.model.getEntityModels().findByName(typeInfo.getCoreItemType())!=null)
+            isEntityType = true;
+
         if (field.hasAnnotation("Embedded")) {
             paragraph.add("@Embedded");
         }
 
         else if (typeInfo.isList()) {
-            paragraph.add(("@OneToMany(fetch = FetchType.LAZY)"));
-        } else if (!typeInfo.isBaseType()) {
+            if(isEntityType)
+                paragraph.add(("@OneToMany(fetch = FetchType.LAZY)"));
+        } else if (isEntityType) {
 
 
             String targetEntityName = typeInfo.getDefaultTypeName();
@@ -544,10 +563,27 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
 
-        if (list.size() > 0) {
+        if (list.size() > 0 && !isEnumerationType(field)) {
             String txt = "@Column(" + String.join(", ", list) + ")";
             paragraph.add(txt);
         }
+    }
+
+    private void setEnumListAnnotation(Entity entity, Field field , CodeTemplate.Paragraph p) {
+        TypeInfo typeInfo = field.getTypeInfo();
+        if(!typeInfo.isList()) return;
+
+        String enumName = typeInfo.getCoreItemType();
+        EnumModel enumModel = this.model.getEnumModels().findByName(enumName);
+        if(enumModel==null) return;
+
+        String tblName = StringUtils.camelToSnake(entity.getIdentity().getName())
+                +"_"+StringUtils.camelToSnake(field.getName());
+
+
+        p.add("@ElementCollection( fetch = FetchType.EAGER)");
+        p.add("@CollectionTable(name = \"%s\", joinColumns = @JoinColumn(name = \"map_seq\"))",tblName );
+        p.add("@Column(name = \"code\")");
     }
 
 
@@ -577,7 +613,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private EnumModel getEnumModelFromType(String domainId, Field field) {
         if(field.getTypeInfo().isBaseType()) return null;
 
-        String typeName = field.getTypeInfo().getDefaultTypeName();
+        String typeName = field.getTypeInfo().getCoreItemType();
         try {
             ModelDomain domain = BaseModelDomain.getModelDomain(domainId);
             EnumModel enumModel = domain.getModel()
@@ -589,7 +625,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
     private void setConvertAnnotation(String domainId, Field field, CodeTemplate.Paragraph paragraph) {
-        String type=  field.getTypeInfo().getDefaultTypeName();
+        String type=  field.getTypeInfo().getCoreItemType();
 
         EnumModel enumModel = getEnumModelFromType(domainId, field);
         if (enumModel != null) {

@@ -62,6 +62,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
      * @param publisher The JPACodePublisher instance used for publishing.
      */
     public SearchDtoSrcFilePublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.publisher = publisher;
 
         this.publishMode = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("mode");
@@ -170,6 +172,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
         p
                 .set("packageName", packageName)
+                .set("j2eePkgName",getPersistentPackageName(domain))
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(dtoModel))
                 .set("classAnnotationList", this.paragraphForEntity)
@@ -219,7 +222,11 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             }
 
 
+
             setFieldDesc(f, p);
+            setFieldDocumentation(f,p);
+            setFieldValidation(f,p);
+            setJsonInfo(f, p);
 
             setNativeAnnotation(f, p);
 

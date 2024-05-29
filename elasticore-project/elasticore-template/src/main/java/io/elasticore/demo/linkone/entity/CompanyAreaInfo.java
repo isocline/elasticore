@@ -1,4 +1,4 @@
-//ecd:-2004769313H20240529100717V0.7
+//ecd:86308482H20240529174205V0.7
 package io.elasticore.demo.linkone.entity;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.util.*;
 import java.time.*;
@@ -28,15 +29,15 @@ import java.time.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@EntityListeners(AuditingEntityListener.class)
 public  class CompanyAreaInfo  implements java.io.Serializable  {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "seq")
 	private Long seq;
 	
 	
-	@Column(length = 2)
 	@Convert(converter = AreaCode.EntityConverter.class)
 	private AreaCode areaCode;
 	

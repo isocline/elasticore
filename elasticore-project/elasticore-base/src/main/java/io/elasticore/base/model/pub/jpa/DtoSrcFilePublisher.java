@@ -62,6 +62,8 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
      * @param publisher The JPACodePublisher instance used for publishing.
      */
     public DtoSrcFilePublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.publisher = publisher;
         this.eCoreModel = this.publisher.getECoreModelContext().getDomain().getModel();
 
@@ -145,6 +147,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         p
                 .set("packageName", packageName)
+                .set("j2eePkgName",getPersistentPackageName(domain))
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(entity))
                 .set("classAnnotationList", this.paragraphForEntity)
@@ -202,6 +205,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
     }
 
 
+
     private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p) {
 
         ListMap<String, Field> fields = dto.getAllFieldListMap();
@@ -215,13 +219,12 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
             if(isEntityReturnType(f, eCoreModel)) continue;
 
-
             setFieldDesc(f, p);
-            //setFieldPkInfo(f, p);
-            //setFieldColumnAnnotation(f, p);
+            setFieldDocumentation(f,p);
+            setFieldValidation(f,p);
+            setJsonInfo(f, p);
 
 
-            setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
 
             String defaultValDefined = getDefaultValueSetup(f);
@@ -237,12 +240,40 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
              */
 
-            String code = String.format("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
-            p.add(code);
-            p.add("\n");
+
+            p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
+            p.add("");
+
+            setFunctionInfo(f, p);
 
         }
     }
+
+    private void setFunctionInfo(Field f, CodeTemplate.Paragraph p) {
+        String getFunc = f.getAnnotationValue("function.get");
+        String setFunc = f.getAnnotationValue("function.set");
+
+        String fldNm = f.getName();
+        String cFldNm = StringUtils.capitalize(fldNm);
+        String type = f.getTypeInfo().getDefaultTypeName();
+
+
+        if(getFunc!=null) {
+            p.add("public %s get%s() {",type,cFldNm);
+            p.add("    return %s(this);",getFunc);
+            p.add("}");
+            p.add("");
+        }
+
+        if(setFunc!=null) {
+            p.add("public void set%(%s val) {",cFldNm,type);
+            p.add("    this.%s = val;",fldNm);
+            p.add("    %s(this);",setFunc);
+            p.add("}");
+            p.add("");
+        }
+    }
+
 
     private String getDefaultValueSetup(Field f) {
         if (!f.hasAnnotation("default")) return "";
@@ -275,19 +306,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
 
 
-    private void setJoinColumnAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
-        List<String> list = new ArrayList<>();
-
-        if (field.hasAnnotation("join")) {
-            String fieldNm = field.getAnnotation("join").getValue();
-            list.add("columnDefinition=\"" + fieldNm + "\"");
-        }
-
-        if (list.size() > 0) {
-            String txt = "@JoinColumn(" + String.join(", ", list) + ")";
-            paragraph.add(txt);
-        }
-    }
 
     private void setNativeAnnotation(MetaInfoModel entity, CodeTemplate.Paragraph paragraph) {
         setNativeAnnotation(entity.getMetaInfo().getMetaAnnotationMap(), paragraph);
@@ -304,7 +322,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         if (this.publishMode == null) return;
 
-        String prefix = this.publishMode + ":";
+        String prefix = "dto:";
         annotationMap.entrySet().stream()
                 .filter(entry -> entry.getKey().contains(prefix))
                 .map(Map.Entry::getValue)

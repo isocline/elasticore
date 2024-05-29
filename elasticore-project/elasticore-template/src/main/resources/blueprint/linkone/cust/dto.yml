@@ -22,12 +22,12 @@ dto:
 
 
 
-
   CompanyDTO:
     meta: dto @template('Company')
     fields:
       areaCodeList: List<CompanyAreaInfo> @disable
       userList: List<CustUserDTO> @ref(userList)
+      areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo )
 
   CompanySearchDTO:
     meta: dto @searchable(entity=Company, pageSize=30)
@@ -35,6 +35,8 @@ dto:
   CompanySeachResultDTO:
     meta: dto @searchResult(Company)
     fields:
-      comName: string @disable
+      respZone: --
+      lastModifiedBy: --
+
 
 

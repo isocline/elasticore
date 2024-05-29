@@ -49,6 +49,8 @@ public class EtcSrcFilePublisher extends SrcFilePublisher {
      * @param publisher The JPACodePublisher instance used for publishing.
      */
     public EtcSrcFilePublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.publisher = publisher;
     }
 

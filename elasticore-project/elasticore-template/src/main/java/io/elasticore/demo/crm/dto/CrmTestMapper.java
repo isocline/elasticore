@@ -1,4 +1,4 @@
-//ecd:-479365841H20240529100717V0.7
+//ecd:-479365841H20240529174205V0.7
 package io.elasticore.demo.crm.dto;
 
 import org.springframework.data.jpa.repository.JpaRepository;

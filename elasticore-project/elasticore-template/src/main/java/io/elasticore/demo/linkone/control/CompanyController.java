@@ -1,4 +1,4 @@
-//ecd:-1485741453H20240529100717V0.7
+//ecd:1950760290H20240529174205V0.7
 package io.elasticore.demo.linkone.control;
 
 
@@ -44,7 +44,7 @@ public class CompanyController{
 
     @PostMapping("/search")
     @ResponseBody
-    public Page<CompanyDTO> search(@RequestBody CompanySearchDTO searchDTO) {
+    public Page<CompanySeachResultDTO> search(@RequestBody CompanySearchDTO searchDTO) {
         return companyService.findBySearch(searchDTO);
     }
 

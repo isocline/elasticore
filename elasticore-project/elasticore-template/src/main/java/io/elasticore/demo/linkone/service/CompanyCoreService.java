@@ -1,4 +1,4 @@
-//ecd:-1051885001H20240529100717V0.7
+//ecd:-1352768314H20240529174205V0.7
 package io.elasticore.demo.linkone.service;
 
 import io.elasticore.demo.linkone.entity.*;
@@ -82,8 +82,8 @@ public class CompanyCoreService {
 
         query.select(cb.construct(
                 CompanySeachResultDTO.class,
-                //root.get("comSeq"),root.get("comName")
-                root.get("comName") ,root.get("comSeq") ,root.get("comGrpCode") ,root.get("areaCodeList") ,root.get("respName") ,root.get("respTel") ,root.get("respZone") ,root.get("userList") ,root.get("createDate") ,root.get("createdBy") ,root.get("lastModifiedBy") ,root.get("lastModifiedDate")
+
+                root.get("comSeq") ,root.get("comGrpCode") ,root.get("comName") ,root.get("respName") ,root.get("respTel") ,root.get("createDate") ,root.get("createdBy") ,root.get("lastModifiedDate")
         ));
 
         if (specification != null) {

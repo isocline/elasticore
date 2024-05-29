@@ -38,6 +38,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
 
     public ServiceSrcPublisher(CodePublisher publisher) {
+        super(publisher);
+
         this.model = publisher.getECoreModelContext().getDomain().getModel();
 
         if (model.getEntityModels().getItems().size() == 0 || model.getDataTransferModels().getItems().size() == 0)
@@ -144,6 +146,11 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         //root.get("comSeq")
         for(Field f:listMap.getList()) {
+            if(f.hasAnnotation("disable"))
+                continue;
+            String coreItemType = f.getTypeInfo().getCoreItemType();
+            if(this.findEntity(coreItemType)!=null) continue;
+
             if(sb.length()>0) sb.append(" ,");
             sb.append("root.get(");
             sb.append(StringUtils.quoteString(f.getName()));

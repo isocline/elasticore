@@ -1,4 +1,4 @@
-//ecd:1912005303H20240529100717V0.7
+//ecd:1912005303H20240529174205V0.7
 package io.elasticore.demo.linkone.dto;
 
 import org.springframework.data.domain.Sort;
