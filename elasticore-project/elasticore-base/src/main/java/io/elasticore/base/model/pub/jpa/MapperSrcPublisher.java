@@ -70,8 +70,6 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
 
-        System.err.println(this.baseCodeTmpl);
-
     }
 
     public void publish(ModelDomain domain) {
@@ -83,10 +81,15 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         this.className = StringUtils.capitalize(name) + "Mapper";
 
 
+        String enumPackageName =null;
+        if(model.getEnumModels().getItems().size()>0)
+            enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+
         params
                 .set("packageName", packageName)
                 .set("entityPackageName", entityPackageName)
                 .set("dtoPackageName", dtoPackageName)
+                .set("enumPackageName", enumPackageName)
                 .set("className", this.className);
 
 
@@ -238,11 +241,14 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(entityNm);
 
             for (ModelRelationship r : list) {
-                if (r.getRelationType() == RelationType.TEMPLATE) {
-                    makeMappingCode(model, r.getFromName(), r.getToName(), methodP);
+                RelationType rtype = r.getRelationType();
 
-                } else if (r.getRelationType() == RelationType.TEMPLATE_TO) {
-                    makeMappingCode(model, r.getFromName(), r.getToName(), methodP);
+
+                if (rtype == RelationType.TEMPLATE
+                        || rtype == RelationType.TEMPLATE_TO
+                        || rtype == RelationType.SEARCH_RESULT
+                ) {
+                    makeMappingCode(model, r.getFromName(), r.getToName(), methodP, rtype);
                 }
 
             }
@@ -260,10 +266,11 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(entityNm);
 
             for (ModelRelationship r : list) {
-                if (r.getRelationType() == RelationType.TEMPLATE) {
-                    makeMappingCode(model, r.getFromName(), r.getToName(), methodP);
-                } else if (r.getRelationType() == RelationType.TEMPLATE_TO) {
-                    makeMappingCode(model, r.getFromName(), r.getToName(), methodP);
+                RelationType relationType = r.getRelationType();
+                if (relationType == RelationType.TEMPLATE
+                        || relationType == RelationType.TEMPLATE_TO
+                ) {
+                    makeMappingCode(model, r.getFromName(), r.getToName(), methodP ,relationType);
                 }
 
             }
@@ -288,7 +295,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             }
 
             //boolean isDtoSet = fromModel.getIdentity().getComponentType()==ComponentType.ENTITY;
-            System.err.println(isDtoSet);
+
             //Field entityGetField = findFieldByTypeName(fromModel, targetRefFieldNm);
             Field entityGetField = (Field) fromModel.getAllFieldListMap().get(targetRefFieldNm);
             if (entityGetField != null) {
@@ -333,7 +340,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
     }
 
 
-    private void makeMappingCode(ECoreModel model, String fromName, String toName, CodeTemplate.Paragraph methodP) {
+    private void makeMappingCode(ECoreModel model, String fromName, String toName, CodeTemplate.Paragraph methodP ,RelationType relationType) {
 
         AbstractDataModel fromModel = getDataModel(model, fromName);
         AbstractDataModel toModel = getDataModel(model, toName);
@@ -345,6 +352,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         String toMethodName = "toDTO";
         if (isEntityTarget)
             toMethodName = "toEntity";
+
+        if(relationType == RelationType.CHILD.SEARCH_RESULT)
+            toMethodName = "to"+toModel.getIdentity().getName();
 
         this.relationshipManager.addRelationship(ModelRelationship.create(fromModel.getIdentity().getName()
                 , this.className, RelationType.MAPPER)

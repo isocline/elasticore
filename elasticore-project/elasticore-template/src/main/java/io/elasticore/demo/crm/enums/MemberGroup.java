@@ -1,4 +1,4 @@
-//ecd:2126382749H20240529174205V0.7
+//ecd:2126382749H20240530103703_V0.8
 package io.elasticore.demo.crm.enums;
 
 import lombok.Getter;

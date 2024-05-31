@@ -1,4 +1,4 @@
-//ecd:1774313741H20240529174205V0.7
+//ecd:-420024591H20240530103703_V0.8
 package io.elasticore.demo.linkone.control;
 
 
@@ -23,8 +23,14 @@ public class CustUserController{
 
     @GetMapping
     @ResponseBody
-    public List<CustUserDTO> getAllcustUsers() {
+    public List<CustUserDTO> listAll() {
         return custUserService.findAll();
+    }
+
+    @GetMapping("/sample")
+    @ResponseBody
+    public CustUserDTO sample() {
+        return new CustUserDTO();
     }
 
 

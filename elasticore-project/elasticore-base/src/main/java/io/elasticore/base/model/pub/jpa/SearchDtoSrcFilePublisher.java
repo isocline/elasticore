@@ -241,8 +241,9 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                 p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm, defaultValDefined);
             }
 
-
             p.add("");
+
+            setFunctionInfo(f, p);
 
         }
     }

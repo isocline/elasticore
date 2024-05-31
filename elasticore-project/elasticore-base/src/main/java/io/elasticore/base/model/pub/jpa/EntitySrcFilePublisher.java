@@ -325,7 +325,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             }
 
             setFieldDesc(f, p);
-            setFieldPkInfo(f, p);
+
+            boolean isIdField =
+                    setFieldPkInfo(f, p);
+
             setFieldColumnAnnotation(entity, f, p);
 
             setEnumListAnnotation(entity, f, p);
@@ -354,6 +357,20 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
             p.add("");
             p.add("");
+
+            if(isIdField) {
+                String idGenerator = f.getAnnotationValue("genid");
+                if(idGenerator!=null) {
+                    p.add("@PrePersist");
+                    p.add("public void prePersist() {");
+                    p.add("  if (%s == null)", f.getName());
+                    p.add("        %s = %s();",f.getName(), idGenerator);
+                    p.add("}");
+                    p.add("");
+                    p.add("");
+
+                }
+            }
 
         }
 
@@ -386,20 +403,26 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
 
-    private void setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
+    private boolean setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
+
+        boolean isIdField = false;
 
         if (field.hasAnnotation("id") || field.hasAnnotation("pk") || field.isPrimaryKey()) {
             paragraph.add("@Id");
+            isIdField = true;
 
             if (field.hasAnnotation("sequence")) {
                 paragraph.add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
             }
+
         }
 
 
         if (field.getGenerationType() != null) {
             paragraph.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
         }
+
+        return isIdField;
     }
 
     /**

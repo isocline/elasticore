@@ -3,7 +3,7 @@ package io.elasticore.base.model.pub;
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.SrcCodeWriterFactory;
+import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.pub.jpa.JPACodePublisher;
 import io.elasticore.base.model.pub.mermaid.MermaidCodePublisher;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class CodePublishManager {
 
-    private SrcCodeWriterFactory srcCodeWriterFactory;
+    private SourceFileAccessFactory sourceFileAccessFactory;
 
     private CodePublishManager() {
     }
@@ -27,8 +27,8 @@ public class CodePublishManager {
         return Holder.INSTANCE;
     }
 
-    public void setSrcCodeWriterFactory(SrcCodeWriterFactory srcCodeWriterFactory) {
-        this.srcCodeWriterFactory = srcCodeWriterFactory;
+    public void setSrcCodeWriterFactory(SourceFileAccessFactory sourceFileAccessFactory) {
+        this.sourceFileAccessFactory = sourceFileAccessFactory;
     }
 
 
@@ -73,7 +73,7 @@ public class CodePublishManager {
             }
 
             if(codePublisher!=null) {
-                codePublisher.setSrcCodeWriterFactory(this.srcCodeWriterFactory);
+                codePublisher.setSrcCodeWriterFactory(this.sourceFileAccessFactory);
 
                 codePublishers.add(codePublisher);
             }

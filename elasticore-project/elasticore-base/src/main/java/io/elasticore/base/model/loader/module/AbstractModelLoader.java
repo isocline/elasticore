@@ -5,6 +5,7 @@ import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -61,6 +62,7 @@ public class AbstractModelLoader implements ConstanParam {
                 if (kvMatcher.group(1) != null) {
                     String key = kvMatcher.group(1);
                     String value = kvMatcher.group(2);
+                    value = StringUtils.removeQuotes(value);
                     properties.setProperty(key, value);
                 } else if (kvMatcher.group(3) != null) {
                     singleValue = kvMatcher.group(3);
@@ -146,7 +148,8 @@ public class AbstractModelLoader implements ConstanParam {
         //Pattern pattern = Pattern.compile("@(\\w+)(?:\\((.*?)\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\((.*?)\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\('([^']*?)'\\))?");
-        Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(('([^']*?)'|[^()]*?)\\))?");
+        //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(('([^']*?)'|[^()]*?)\\))?");
+        Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
 
 
         Matcher matcher = pattern.matcher(fieldLine);

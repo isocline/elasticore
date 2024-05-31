@@ -1,4 +1,4 @@
-//ecd:-1352768314H20240529174205V0.7
+//ecd:1528687521H20240531105916_V0.8
 package io.elasticore.demo.linkone.service;
 
 import io.elasticore.demo.linkone.entity.*;
@@ -33,6 +33,13 @@ public class CompanyCoreService {
 
 
 
+    public Page<CompanySeachResultDTO> findBySearch(CompanySearchDTO searchDTO) {
+        Specification<Company> specification = LinkoneMapper.toSpec(searchDTO);
+        Pageable pageable = searchDTO.getPageable();
+        Page<Company> result = helper.getCompany().findAll(specification, pageable);
+        return result.map(LinkoneMapper::toCompanySeachResultDTO);
+    }
+
 
     public Optional<CompanyDTO> findById(Long id) {
         return helper.getCompany().findById(id).map(LinkoneMapper::toDTO);
@@ -66,54 +73,6 @@ public class CompanyCoreService {
     }
 
 
-
-    public Page<CompanySeachResultDTO> findBySearch(CompanySearchDTO searchDTO) {
-        Specification<Company> specification = LinkoneMapper.toSpec(searchDTO);
-        Pageable pageable = searchDTO.getPageable();
-
-        return searchList(specification, pageable);
-    }
-
-    public Page<CompanySeachResultDTO> searchList(Specification<Company> specification, Pageable pageable) {
-        CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
-
-        CriteriaQuery<CompanySeachResultDTO> query = cb.createQuery(CompanySeachResultDTO.class);
-        Root<Company> root = query.from(Company.class);
-
-        query.select(cb.construct(
-                CompanySeachResultDTO.class,
-
-                root.get("comSeq") ,root.get("comGrpCode") ,root.get("comName") ,root.get("respName") ,root.get("respTel") ,root.get("createDate") ,root.get("createdBy") ,root.get("lastModifiedDate")
-        ));
-
-        if (specification != null) {
-            Predicate predicate = specification.toPredicate(root, query, cb);
-            if(predicate!=null)
-                query.where(predicate);
-        }
-
-        TypedQuery<CompanySeachResultDTO> typedQuery = helper.getEntityManager().createQuery(query);
-        typedQuery.setFirstResult((int) pageable.getOffset());
-        typedQuery.setMaxResults(pageable.getPageSize());
-
-        List<CompanySeachResultDTO> resultList = typedQuery.getResultList();
-
-
-
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<Company> countRoot = countQuery.from(Company.class);
-        countQuery.select(cb.count(countRoot));
-
-        if (specification != null) {
-            Predicate countPredicate = specification.toPredicate(countRoot, countQuery, cb);
-            if(countPredicate!=null)
-                countQuery.where(countPredicate);
-        }
-
-        Long count = helper.getEntityManager().createQuery(countQuery).getSingleResult();
-
-        return new PageImpl<CompanySeachResultDTO>(resultList, pageable, count);
-    }
 
 
 }

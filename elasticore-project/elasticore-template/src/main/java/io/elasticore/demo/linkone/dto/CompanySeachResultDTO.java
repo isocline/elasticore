@@ -1,4 +1,4 @@
-//ecd:1881128857H20240529174205V0.7
+//ecd:460774620H20240531125740_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -29,6 +29,22 @@ import java.time.*;
 @AllArgsConstructor
 public  class CompanySeachResultDTO  implements java.io.Serializable  {
 
+	/*
+	  전체 지역정보 텍스트 형태
+	*/
+	@Schema(description = "전체 지역정보 텍스트 형태"  )
+	private String reaTextInfo;
+	
+	public String getReaTextInfo() {
+	    return 'com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList)' ;
+	}
+	
+	@Schema(description = "partCustId"  )
+	private String partCustId;
+	
+	@Schema(description = "partCustNm"  )
+	private String partCustNm;
+	
 	@Schema(description = "comSeq"  )
 	private Long comSeq;
 	

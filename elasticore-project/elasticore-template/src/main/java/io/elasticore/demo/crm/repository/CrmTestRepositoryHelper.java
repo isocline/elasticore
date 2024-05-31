@@ -1,4 +1,4 @@
-//ecd:1980836645H20240529174205V0.7
+//ecd:1980836645H20240530103703_V0.8
 package io.elasticore.demo.crm.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -60,6 +60,7 @@ public class CrmTestRepositoryHelper {
         if(contractTel!=null)
           sb.append("and contractTel = :contractTel");
         Query query = entityManager.createQuery(sb.toString(), ContactInfo.class);
+
         if(contractName!=null)
           query.setParameter("contractName" , contractName);
         if(contractTel!=null)

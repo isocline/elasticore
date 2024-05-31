@@ -249,30 +249,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         }
     }
 
-    private void setFunctionInfo(Field f, CodeTemplate.Paragraph p) {
-        String getFunc = f.getAnnotationValue("function.get");
-        String setFunc = f.getAnnotationValue("function.set");
-
-        String fldNm = f.getName();
-        String cFldNm = StringUtils.capitalize(fldNm);
-        String type = f.getTypeInfo().getDefaultTypeName();
-
-
-        if(getFunc!=null) {
-            p.add("public %s get%s() {",type,cFldNm);
-            p.add("    return %s(this);",getFunc);
-            p.add("}");
-            p.add("");
-        }
-
-        if(setFunc!=null) {
-            p.add("public void set%(%s val) {",cFldNm,type);
-            p.add("    this.%s = val;",fldNm);
-            p.add("    %s(this);",setFunc);
-            p.add("}");
-            p.add("");
-        }
-    }
 
 
     private String getDefaultValueSetup(Field f) {

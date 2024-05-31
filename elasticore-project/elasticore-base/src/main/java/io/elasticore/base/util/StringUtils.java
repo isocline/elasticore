@@ -141,12 +141,24 @@ public class StringUtils {
         return columnNames;
     }
 
-    public static String escapeQuotes(String input) {
+    public static String escapeDoubleQuotes(String input) {
         if (input == null) {
             return null;
         }
         return input.replace("\"", "\\\"");
     }
+
+    public static String removeQuotes(String str) {
+        if (str == null || str.length() < 2) {
+            return str;
+        }
+        String str2 = str.trim();
+        if (str2.charAt(0) == '\'' && str2.charAt(str2.length() - 1) == '\'') {
+            return str2.substring(1, str2.length() - 1);
+        }
+        return str;
+    }
+
 
     public static void main(String[] args) {
         String sql = "SELECT test, test2 AS ZZZ FROM (SELECT test1, test2, test3 FROM XXX)";

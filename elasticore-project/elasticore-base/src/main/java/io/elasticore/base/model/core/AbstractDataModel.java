@@ -74,7 +74,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         String searchResultEntityNm = this.getMetaInfo().getMetaAnnotationValue(annotationNm+".entity", annotationNm);
 
         if(searchResultEntityNm !=null) {
-            rm.addRelationship(ModelRelationship.create(fromName, searchResultEntityNm, RelationType.SEARCH_RESULT));
+            rm.addRelationship(ModelRelationship.create(searchResultEntityNm, fromName, RelationType.SEARCH_RESULT));
         }
 
     }

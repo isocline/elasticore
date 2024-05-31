@@ -3,7 +3,7 @@ package io.elasticore.base.model.pub.jpa;
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.SrcCodeWriterFactory;
+import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
@@ -21,20 +21,20 @@ public class JPACodePublisher implements CodePublisher {
 
     private ECoreModelContext ctx;
 
-    private SrcCodeWriterFactory srcCodeWriterFactory;
+    private SourceFileAccessFactory sourceFileAccessFactory;
 
     private JPACodePublisher() {
 
     }
 
     @Override
-    public void setSrcCodeWriterFactory(SrcCodeWriterFactory srcCodeWriterFactory) {
-        this.srcCodeWriterFactory = srcCodeWriterFactory;
+    public void setSrcCodeWriterFactory(SourceFileAccessFactory sourceFileAccessFactory) {
+        this.sourceFileAccessFactory = sourceFileAccessFactory;
     }
 
     @Override
-    public SrcCodeWriterFactory getSrcCodeWriterFactory() {
-        return this.srcCodeWriterFactory;
+    public SourceFileAccessFactory getSrcFileAccessFactory() {
+        return this.sourceFileAccessFactory;
     }
 
 

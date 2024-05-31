@@ -1,4 +1,4 @@
-//ecd:-479365841H20240529174205V0.7
+//ecd:-1610137433H20240531102700_V0.8
 package io.elasticore.demo.crm.dto;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.function.BiFunction;
 import io.elasticore.demo.crm.entity.*;
 import io.elasticore.demo.crm.dto.*;
+import io.elasticore.demo.crm.enums.*;
 
 
 

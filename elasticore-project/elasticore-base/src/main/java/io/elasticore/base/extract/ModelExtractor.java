@@ -2,7 +2,7 @@ package io.elasticore.base.extract;
 
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.SrcCodeWriterFactory;
+import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
@@ -75,7 +75,7 @@ public class ModelExtractor {
         return basePath;
     }
 
-    public void extract(SrcCodeWriterFactory srcCodeWriterFactory) throws FileNotFoundException{
+    public void extract(SourceFileAccessFactory sourceFileAccessFactory) throws FileNotFoundException{
 
         String rootDir = getRootDir();
 
@@ -102,10 +102,10 @@ public class ModelExtractor {
 
             //publisher.setDestBaseDirPath(rootDir+"/"+SRC_PATH);
 
-            if(srcCodeWriterFactory==null) {
-                srcCodeWriterFactory = new FileBasedSrcCodeWriterFactory(rootDir+"/"+SRC_PATH);
+            if(sourceFileAccessFactory ==null) {
+                sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir+"/"+SRC_PATH);
             }
-            codePublishManager.setSrcCodeWriterFactory(srcCodeWriterFactory);
+            codePublishManager.setSrcCodeWriterFactory(sourceFileAccessFactory);
             codePublishManager.publish(ctx);
 
         }
@@ -122,7 +122,7 @@ public class ModelExtractor {
             if(args!=null && args.length>0) {
                 String srcTargetPath = args[0];
                 log("srcTargetPath: "+srcTargetPath);
-                extractor.extract(new FileBasedSrcCodeWriterFactory(srcTargetPath));
+                extractor.extract(new FileBasedSourceFileAccessFactory(srcTargetPath));
             }else {
                 extractor.extract(null);
             }

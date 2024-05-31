@@ -1,4 +1,4 @@
-//ecd:493740062H20240529174205V0.7
+//ecd:-1697121294H20240531103730_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.function.BiFunction;
 import io.elasticore.demo.linkone.entity.*;
 import io.elasticore.demo.linkone.dto.*;
+import io.elasticore.demo.linkone.enums.*;
 
 
 
@@ -74,6 +75,60 @@ public class LinkoneMapper {
         return fromList.stream()
             .map(from -> {
                 CompanyDTO to = toDTO(from);
+                return modifier.apply(from, to);
+            }
+            )
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+    }
+    
+    
+    public static void mapping(Company from, CompanySeachResultDTO to, boolean isSkipNull){
+        if(from ==null || to ==null) return;
+        if(!isSkipNull || from.getComSeq()!=null)
+            to.setComSeq(from.getComSeq());
+        if(!isSkipNull || from.getComGrpCode()!=null)
+            to.setComGrpCode(from.getComGrpCode());
+        if(!isSkipNull || from.getComName()!=null)
+            to.setComName(from.getComName());
+        if(!isSkipNull || from.getRespName()!=null)
+            to.setRespName(from.getRespName());
+        if(!isSkipNull || from.getRespTel()!=null)
+            to.setRespTel(from.getRespTel());
+        if(!isSkipNull || from.getCreateDate()!=null)
+            to.setCreateDate(from.getCreateDate());
+        if(!isSkipNull || from.getCreatedBy()!=null)
+            to.setCreatedBy(from.getCreatedBy());
+        if(!isSkipNull || from.getLastModifiedDate()!=null)
+            to.setLastModifiedDate(from.getLastModifiedDate());
+    }
+    
+    
+    public static void mapping(Company from, CompanySeachResultDTO to){
+        mapping(from,to,false);
+    }
+    
+    
+    public static CompanySeachResultDTO toCompanySeachResultDTO(Company from){
+        if(from==null) return null;
+        CompanySeachResultDTO to = new CompanySeachResultDTO();
+        mapping(from, to);
+        return to;
+    }
+    
+    
+    public static List<CompanySeachResultDTO> toCompanySeachResultDTOList(List<Company> fromList){
+        if(fromList==null) return null;
+        return fromList.stream().map(LinkoneMapper::toCompanySeachResultDTO).collect(Collectors.toList());
+    }
+    
+    
+    public static List<CompanySeachResultDTO> toCompanySeachResultDTOList(List<Company> fromList, BiFunction<Company, CompanySeachResultDTO, CompanySeachResultDTO> modifier){
+        if(fromList==null) return null;
+        return fromList.stream()
+            .map(from -> {
+                CompanySeachResultDTO to = toCompanySeachResultDTO(from);
                 return modifier.apply(from, to);
             }
             )

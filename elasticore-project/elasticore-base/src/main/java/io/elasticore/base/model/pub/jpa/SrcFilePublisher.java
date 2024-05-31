@@ -3,11 +3,11 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
+import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractDataModel;
-import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
@@ -17,7 +17,7 @@ import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.HashUtils;
-import lombok.SneakyThrows;
+import io.elasticore.base.util.StringUtils;
 
 import java.io.*;
 import java.util.List;
@@ -30,14 +30,39 @@ public class SrcFilePublisher {
         this.publisher = publisher;
     }
 
-    private static String getMarkText(String content) {
-        String ecd = "ecd:" + HashUtils.getHashCode(content) + "V0.7";
-        return "//" + ecd + "\n";
+    private void log(String msg) {
+        System.err.println(msg);
     }
 
+
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content) {
-        try (Writer writer = publisher.getSrcCodeWriterFactory().getWriter(qualifiedClassName)) {
-            writer.write(getMarkText(content));
+        SourceFileAccessFactory fileAccessFactory = publisher.getSrcFileAccessFactory();
+
+        HashUtils.Response response = null;
+        try (Reader reader = fileAccessFactory.getReader(qualifiedClassName)) {
+            response = HashUtils.checkContentModified(reader);
+
+
+            if(response!= null && response.getStatus() == HashUtils.MODIFIED) {
+                log("[WARN] PUB_SKIP: "+qualifiedClassName+" ** USER_MODIFIED **");
+
+                return;
+            }
+
+        }catch (FileNotFoundException fnfe) {
+        }catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        if(response!= null && content.equals(response.getContent())) {
+            log("[INFO] PUB_SKIP: "+qualifiedClassName+" NO_MODIFIED");
+
+            return;
+        }
+
+
+        try (Writer writer = fileAccessFactory.getWriter(qualifiedClassName)) {
+            writer.write(HashUtils.makeEcdCode(content));
             writer.write(content);
             writer.flush();
         } catch (Throwable e) {
@@ -118,11 +143,11 @@ public class SrcFilePublisher {
 
 
     protected String findSearchResultDTOName(RelationshipManager rm, Entity entity) {
-        List<ModelRelationship> relationshipList = rm.findByToNameAndType(
+        List<ModelRelationship> relationshipList = rm.findByFromNameAndType(
                 entity.getIdentity().getName(), RelationType.SEARCH_RESULT);
 
         for (ModelRelationship r : relationshipList) {
-            return r.getFromName();
+            return r.getToName();
         }
 
         return null;
@@ -276,5 +301,37 @@ public class SrcFilePublisher {
         return false;
     }
 
+
+
+    protected void setFunctionInfo(Field f, CodeTemplate.Paragraph p) {
+        String getFunc = f.getAnnotationValue("function.get");
+        String setFunc = f.getAnnotationValue("function.set");
+
+        String fldNm = f.getName();
+        String cFldNm = StringUtils.capitalize(fldNm);
+        String type = f.getTypeInfo().getDefaultTypeName();
+
+
+        if(getFunc!=null) {
+            if(getFunc.indexOf("(")<0){
+                getFunc = getFunc.trim()+"(this)";
+            }
+            p.add("public %s get%s() {",type,cFldNm);
+            p.add("    return %s;",getFunc);
+            p.add("}");
+            p.add("");
+        }
+
+        if(setFunc!=null) {
+            if(setFunc.indexOf("(")<0){
+                setFunc = setFunc.trim()+"(this)";
+            }
+            p.add("public void set%(%s val) {",cFldNm,type);
+            p.add("    this.%s = val;",fldNm);
+            p.add("    %s;",setFunc);
+            p.add("}");
+            p.add("");
+        }
+    }
 
 }

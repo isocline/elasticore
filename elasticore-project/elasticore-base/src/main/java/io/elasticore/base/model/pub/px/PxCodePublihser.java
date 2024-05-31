@@ -3,7 +3,7 @@ package io.elasticore.base.model.pub.px;
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.SrcCodeWriterFactory;
+import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
@@ -24,17 +24,17 @@ public class PxCodePublihser implements CodePublisher {
 
     private ECoreModelContext ctx;
 
-    private SrcCodeWriterFactory srcCodeWriterFactory;
+    private SourceFileAccessFactory sourceFileAccessFactory;
 
     @Override
-    public void setSrcCodeWriterFactory(SrcCodeWriterFactory srcCodeWriterFactory) {
+    public void setSrcCodeWriterFactory(SourceFileAccessFactory sourceFileAccessFactory) {
 
-        this.srcCodeWriterFactory = srcCodeWriterFactory;
+        this.sourceFileAccessFactory = sourceFileAccessFactory;
     }
 
     @Override
-    public SrcCodeWriterFactory getSrcCodeWriterFactory() {
-        return this.srcCodeWriterFactory;
+    public SourceFileAccessFactory getSrcFileAccessFactory() {
+        return this.sourceFileAccessFactory;
     }
 
     @Override

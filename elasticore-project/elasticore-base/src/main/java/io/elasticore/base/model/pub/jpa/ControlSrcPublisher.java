@@ -60,9 +60,6 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
         this.baseCodeTmpl = createCodeTemplate(publisher, "template.control", "control.tmpl");
 
-
-        System.err.println(this.baseCodeTmpl);
-
     }
 
     private DataTransfer findDTO(Entity entity) {
@@ -159,11 +156,12 @@ public class ControlSrcPublisher extends SrcFilePublisher {
             searchReturnType = "Page";
         }
 
-        String customListDTOClassName = dtoClassName;
-        String searchResultDtoNm = findSearchResultDTOName(this.relationshipManager, entity);
-        if(searchResultDtoNm!=null)
-            customListDTOClassName = searchResultDtoNm;
 
+
+        String searchResultDTOClassName = findSearchResultDTOName(this.relationshipManager, entity);
+        if(searchResultDTOClassName==null) {
+            searchResultDTOClassName=dtoClassName;
+        }
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
@@ -177,7 +175,9 @@ public class ControlSrcPublisher extends SrcFilePublisher {
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)
                 .set("searchReturnType", searchReturnType)
-                .set("customListDTOClassName" ,customListDTOClassName)
+
+                .set("searchResultDTOClassName" ,searchResultDTOClassName)
+
 
 
                 .set("dtoPackageName", dtoPackageName)

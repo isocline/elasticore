@@ -1,4 +1,4 @@
-//ecd:1742309011H20240529174205V0.7
+//ecd:-1969371121H20240531102700_V0.8
 package io.elasticore.demo.linkone.service;
 
 import io.elasticore.demo.linkone.entity.*;
@@ -39,6 +39,7 @@ public class CustUserCoreService {
         Page<CustUser> result = helper.getCustUser().findAll(specification, pageable);
         return result.map(LinkoneMapper::toDTO);
     }
+
 
     public Optional<CustUserDTO> findById(Long id) {
         return helper.getCustUser().findById(id).map(LinkoneMapper::toDTO);

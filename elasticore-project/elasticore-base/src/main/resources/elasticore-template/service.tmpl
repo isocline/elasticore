@@ -31,31 +31,32 @@ public class ${className} {
     }
 
 /*-- print-if:${isListOutput} --*/
-    public List<${dtoClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+    public List<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
         Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
-            return repository.findAll(specification).stream()
-                        .map(${mapperName}::toDTO)
+            return helper.get${entityClassName}().findAll(specification).stream()
+                        .map(${mapperName}::${toSearchListMappingName})
                         .collect(Collectors.toList());
         }
         return helper.get${entityClassName}().findAll(specification, sort).stream()
-                .map(${mapperName}::toDTO)
+                .map(${mapperName}::${toSearchListMappingName})
                 .collect(Collectors.toList());
     }
 /*-- print-if:end --*/
 
 
 /*-- print-if:${isPageOutput} --*/
-    public Page<${dtoClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+    public Page<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
         Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
         Page<${entityClassName}> result = helper.get${entityClassName}().findAll(specification, pageable);
-        return result.map(${mapperName}::toDTO);
+        return result.map(${mapperName}::${toSearchListMappingName});
     }
 /*-- print-if:end --*/
 
-    public Optional<${dtoClassName}> findById(Long id) {
+
+    public Optional<${dtoClassName}> findById(${pkType} id) {
         return helper.get${entityClassName}().findById(id).map(${mapperName}::toDTO);
     }
 

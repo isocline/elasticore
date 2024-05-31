@@ -1,6 +1,5 @@
 package io.elasticore.base;
 
-import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.ModelComponent;
 
 /**
@@ -16,16 +15,16 @@ public interface CodePublisher {
     /**
      * Sets the factory for creating source code writers.
      *
-     * @param srcCodeWriterFactory The factory to set.
+     * @param sourceFileAccessFactory The factory to set.
      */
-    void setSrcCodeWriterFactory(SrcCodeWriterFactory srcCodeWriterFactory);
+    void setSrcCodeWriterFactory(SourceFileAccessFactory sourceFileAccessFactory);
 
     /**
      * Gets the factory for creating source code writers.
      *
      * @return The current source code writer factory.
      */
-    SrcCodeWriterFactory getSrcCodeWriterFactory();
+    SourceFileAccessFactory getSrcFileAccessFactory();
 
     /**
      * Retrieves the model context associated with this publisher.

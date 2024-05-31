@@ -1,4 +1,4 @@
-//ecd:972144549H20240529174205V0.7
+//ecd:972144549H20240530103703_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;

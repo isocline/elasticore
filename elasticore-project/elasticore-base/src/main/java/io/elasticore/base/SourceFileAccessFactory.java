@@ -1,6 +1,7 @@
 package io.elasticore.base;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 
 /**
@@ -8,7 +9,7 @@ import java.io.Writer;
  * This interface allows for flexible implementations of source code writers based on different
  * storage mechanisms or formats, such as files, databases, or in-memory storage.
  */
-public interface SrcCodeWriterFactory {
+public interface SourceFileAccessFactory {
 
     /**
      * Creates and returns a {@link Writer} instance for writing source code associated with a
@@ -23,4 +24,10 @@ public interface SrcCodeWriterFactory {
      *                     is not accessible or writable.
      */
     Writer getWriter(String qualifiedClassName) throws IOException;
+
+
+    Reader getReader(String qualifiedClassName) throws IOException;
+
+
+    boolean delete(String qualifiedClassName);
 }

@@ -59,7 +59,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         this.baseCodeTmpl = createCodeTemplate(publisher, "template.service", "service.tmpl");
 
-        System.err.println(this.baseCodeTmpl);
+        //System.err.println(this.baseCodeTmpl);
 
     }
 
@@ -151,7 +151,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             String coreItemType = f.getTypeInfo().getCoreItemType();
             if(this.findEntity(coreItemType)!=null) continue;
 
-            if(sb.length()>0) sb.append(" ,");
+            if(sb.length()>0) sb.append("\n ,");
             sb.append("root.get(");
             sb.append(StringUtils.quoteString(f.getName()));
             sb.append(")");
@@ -191,8 +191,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         boolean isCustomListOutput = false;
         String selectColumnNmList = "";
 
-        String searchResultDtoNm = findSearchResultDTOName(this.relationshipManager, entity);
-        if(searchResultDtoNm!=null) {
+        String toSearchListMappingName = "toDTO";
+
+        String searchResultDTOClassName = findSearchResultDTOName(this.relationshipManager, entity);
+        if(searchResultDTOClassName!=null) {
+            toSearchListMappingName = "to"+searchResultDTOClassName;
+            /*
             if(isPageOutput) {
                 isCustomPageOutput = true;
                 isPageOutput = false;
@@ -201,9 +205,10 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 isListOutput = false;
             }
 
-            selectColumnNmList = makeGetFieldInfo(searchResultDtoNm);
+            selectColumnNmList = makeGetFieldInfo(searchResultDTOClassName);
+             */
         }else {
-            searchResultDtoNm="";
+            searchResultDTOClassName=dtoClassName;
         }
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
@@ -221,8 +226,10 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("isPageOutput",isPageOutput)
                 .set("isCustomPageOutput",isCustomPageOutput)
                 .set("isCustomListOutput",isCustomListOutput)
-                .set("customListDTOClassName",searchResultDtoNm)
+
+                .set("searchResultDTOClassName",searchResultDTOClassName)
                 .set("selectColumnNmList" ,selectColumnNmList)
+                .set("toSearchListMappingName", toSearchListMappingName)
 
 
 

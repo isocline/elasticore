@@ -1,4 +1,4 @@
-//ecd:362083510H20240529174205V0.7
+//ecd:-2017596100H20240531124312_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -36,7 +36,7 @@ public  class CompanyDTO  implements java.io.Serializable  {
 	private String areaTextInfo;
 	
 	public String getAreaTextInfo() {
-	    return com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo (this);
+	    return com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(this);
 	}
 	
 	@Schema(description = "comSeq"  )

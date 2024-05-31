@@ -1,4 +1,4 @@
-//ecd:1950760290H20240529174205V0.7
+//ecd:466890929H20240531105838_V0.8
 package io.elasticore.demo.linkone.control;
 
 
@@ -23,8 +23,14 @@ public class CompanyController{
 
     @GetMapping
     @ResponseBody
-    public List<CompanyDTO> getAllcompanys() {
+    public List<CompanyDTO> listAll() {
         return companyService.findAll();
+    }
+
+    @GetMapping("/sample")
+    @ResponseBody
+    public CompanyDTO sample() {
+        return new CompanyDTO();
     }
 
 

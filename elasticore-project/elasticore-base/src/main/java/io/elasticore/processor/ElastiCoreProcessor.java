@@ -1,27 +1,20 @@
 package io.elasticore.processor;
 
 
-import io.elasticore.base.extract.FileBasedSrcCodeWriterFactory;
-import io.elasticore.base.extract.FilerBasedSrcCodeWriterFactory;
+import io.elasticore.base.extract.FileBasedSourceFileAccessFactory;
 import io.elasticore.base.extract.ModelExtractor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
 
 
 @SupportedAnnotationTypes("io.elasticore.annotation.ElastiCore")
@@ -68,7 +61,7 @@ public class ElastiCoreProcessor extends AbstractProcessor {
 
                 try {
                     ModelExtractor extractor = new ModelExtractor(this.modelPath);
-                    extractor.extract(new FileBasedSrcCodeWriterFactory(this.projectPath + "/"+this.generatedPath));
+                    extractor.extract(new FileBasedSourceFileAccessFactory(this.projectPath + "/"+this.generatedPath));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
