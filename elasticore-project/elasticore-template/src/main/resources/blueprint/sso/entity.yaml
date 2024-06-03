@@ -1,0 +1,49 @@
+## model
+entity:
+
+  User:
+    meta: entity @extend(BaseEntity) -- 사용자 정보 | SSO 서비스의 기본 사용자 정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 사용자 아이디
+
+      company: Company -- 업체 정보
+      userId: string(20)! @unique -- 사용자 아이디
+      password: string(128)! -- 패스워드
+      name: string(64)! @s(%%) -- 사용자 이름
+      phone: string(16)! @s(%%) -- 전화번호
+      email: string(128) @s(%%) -- 이메일 주소
+      status: UserStatus -- 아이디 상태 (정상, 패스워드 5회 실패, 정지)
+      serviceMappings: List<UserServiceMapping> -- 사용자별 접속 가능한 서비스 목록
+
+  Company:
+    meta: entity @extend(BaseEntity) -- 업체 정보 | 대차 시스템에 등록된 업체 정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 업체 아이디
+      comName: string(64) @s(%%) -- 업체명
+
+  Service:
+    meta: entity @extend(BaseEntity) -- 서비스 정보 | 접속 가능한 서비스 목록을 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 서비스 아이디
+      serviceName: string(64)! -- 서비스 이름
+      mainUrl: string(256)! -- 대표 URL
+      loginUrl: string(256)! -- 로그인 URL
+
+  UserServiceMapping:
+    meta: entity @extend(BaseEntity) -- 사용자 서비스 매핑 정보 | 사용자별 서비스 및 권한 정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 매핑 아이디
+      user: User -- 사용자 정보
+      service: Service -- 서비스 정보
+      role: UserRole -- 권한 정보 (관리자, 렌트카회원, 일반 사용자 등)
+
+enum:
+  UserStatus:
+    - ACTIVE -- 정상
+    - PASSWORD_FAILED -- 패스워드 5회 실패
+    - SUSPENDED -- 정지
+
+  UserRole:
+    - ADMIN -- 관리자
+    - RENTAL_MEMBER -- 렌트카회원
+    - GENERAL_USER -- 일반 사용자

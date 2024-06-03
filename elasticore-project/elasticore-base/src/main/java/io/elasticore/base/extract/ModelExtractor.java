@@ -114,7 +114,10 @@ public class ModelExtractor {
 
     public static void main(String[] args) {
 
-        log("ModelExtractor start");
+        String mode = System.getProperty("mode");
+        if(mode==null) mode = "default";
+
+        log("ModelExtractor start mode:"+mode);
 
 
         try {

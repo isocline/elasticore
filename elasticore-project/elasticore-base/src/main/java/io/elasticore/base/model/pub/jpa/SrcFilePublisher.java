@@ -43,19 +43,19 @@ public class SrcFilePublisher {
             response = HashUtils.checkContentModified(reader);
 
 
-            if(response!= null && response.getStatus() == HashUtils.MODIFIED) {
-                log("[WARN] PUB_SKIP: "+qualifiedClassName+" ** USER_MODIFIED **");
+            if (response != null && response.getStatus() == HashUtils.MODIFIED) {
+                log("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
 
                 return;
             }
 
-        }catch (FileNotFoundException fnfe) {
-        }catch (Throwable e) {
+        } catch (FileNotFoundException fnfe) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
-        if(response!= null && content.equals(response.getContent())) {
-            log("[INFO] PUB_SKIP: "+qualifiedClassName+" NO_MODIFIED");
+        if (response != null && content.equals(response.getContent())) {
+            log("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
 
             return;
         }
@@ -282,6 +282,17 @@ public class SrcFilePublisher {
         if (f.hasAnnotation("jsonignore") || f.hasAnnotation("ignore")) {
             p.add("@JsonIgnore");
         }
+
+        String jsonSerialize = f.getAnnotationValue("JsonSerialize.using");
+        String jsonDeserialize = f.getAnnotationValue("JsonDeserialize.using");
+
+        if (jsonSerialize != null) {
+            p.add("@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = %s)", jsonSerialize);
+        }
+
+        if (jsonDeserialize != null) {
+            p.add("@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = %s)", jsonDeserialize);
+        }
     }
 
     protected boolean isEnumerationType(Field f) {
@@ -302,7 +313,6 @@ public class SrcFilePublisher {
     }
 
 
-
     protected void setFunctionInfo(Field f, CodeTemplate.Paragraph p) {
         String getFunc = f.getAnnotationValue("function.get");
         String setFunc = f.getAnnotationValue("function.set");
@@ -312,23 +322,23 @@ public class SrcFilePublisher {
         String type = f.getTypeInfo().getDefaultTypeName();
 
 
-        if(getFunc!=null) {
-            if(getFunc.indexOf("(")<0){
-                getFunc = getFunc.trim()+"(this)";
+        if (getFunc != null) {
+            if (getFunc.indexOf("(") < 0) {
+                getFunc = getFunc.trim() + "(this)";
             }
-            p.add("public %s get%s() {",type,cFldNm);
-            p.add("    return %s;",getFunc);
+            p.add("public %s get%s() {", type, cFldNm);
+            p.add("    return %s;", getFunc);
             p.add("}");
             p.add("");
         }
 
-        if(setFunc!=null) {
-            if(setFunc.indexOf("(")<0){
-                setFunc = setFunc.trim()+"(this)";
+        if (setFunc != null) {
+            if (setFunc.indexOf("(") < 0) {
+                setFunc = setFunc.trim() + "(this)";
             }
-            p.add("public void set%(%s val) {",cFldNm,type);
-            p.add("    this.%s = val;",fldNm);
-            p.add("    %s;",setFunc);
+            p.add("public void set%s(%s val) {", cFldNm, type);
+            p.add("    this.%s = val;", fldNm);
+            p.add("    %s;", setFunc);
             p.add("}");
             p.add("");
         }

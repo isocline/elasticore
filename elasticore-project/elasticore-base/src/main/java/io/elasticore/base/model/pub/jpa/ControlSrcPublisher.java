@@ -156,6 +156,13 @@ public class ControlSrcPublisher extends SrcFilePublisher {
             searchReturnType = "Page";
         }
 
+        String entityLabel = entity.getMetaInfo().getMetaAnnotationValue("label");
+        if(entityLabel ==null)
+            entityLabel = entityName;
+
+        String entityDesc = entity.getMetaInfo().getMetaAnnotationValue("description", "desc");
+        if(entityDesc ==null)
+            entityDesc = entityLabel;
 
 
         String searchResultDTOClassName = findSearchResultDTOName(this.relationshipManager, entity);
@@ -167,6 +174,10 @@ public class ControlSrcPublisher extends SrcFilePublisher {
         params
                 .set("className",className)
                 .set("domainName", domainName)
+
+                .set("entityLabel", entityLabel)
+                .set("entityDesc", entityDesc)
+
                 .set("entityName", entityName)
                 .set("serviceClassName",serviceClassName)
                 .set("entityClassName",entityClassName)

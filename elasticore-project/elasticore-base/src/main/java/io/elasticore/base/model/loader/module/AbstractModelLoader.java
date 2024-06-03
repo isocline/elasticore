@@ -145,6 +145,27 @@ public class AbstractModelLoader implements ConstanParam {
      */
     protected Map<String, Annotation> loadAnnotationMap(String fieldLine) {
 
+        int p0 = fieldLine.indexOf(" --");
+        if(p0>0) {
+            String comment = fieldLine.substring(p0+3).trim();
+            if(!comment.isEmpty() && comment.indexOf("@")<0) {
+                fieldLine = fieldLine.substring(0,p0);
+
+                String label = comment;
+                String desc = null;
+                if(comment.indexOf(" | ")>0) {
+                    String[] items = comment.split(" \\| ");
+                    if(items.length==2) {
+                        label = items[0];
+                        desc = items[1];
+                    }
+                }
+                fieldLine = fieldLine +" @label("+label+")";
+                if(desc!=null)
+                    fieldLine = fieldLine +" @desc("+desc+")";
+            }
+        }
+
         //Pattern pattern = Pattern.compile("@(\\w+)(?:\\((.*?)\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\((.*?)\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\('([^']*?)'\\))?");
@@ -197,6 +218,7 @@ public class AbstractModelLoader implements ConstanParam {
         }
 
         // for comment
+        /*
         int p0 = fieldLine.indexOf(" --");
         if(p0>0) {
             String comment = fieldLine.substring(p0+3).trim();
@@ -205,6 +227,8 @@ public class AbstractModelLoader implements ConstanParam {
                 fieldLine = fieldLine +" @label("+comment+")";
             }
         }
+
+         */
 
 
         String[] parts = fieldLine.split(" ", 2);

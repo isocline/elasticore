@@ -13,8 +13,6 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
-import io.elasticore.base.model.pub.jpa.DtoSrcFilePublisher;
-import io.elasticore.base.model.pub.jpa.EntitySrcFilePublisher;
 import io.elasticore.base.model.pub.jpa.EnumFilePublisher;
 import io.elasticore.base.model.pub.jpa.RepositoryFilePublisher;
 import io.elasticore.base.model.repo.Repository;
@@ -52,22 +50,9 @@ public class PxCodePublihser implements CodePublisher {
 
         ModelComponentItems<Entity> items = entityModels.getItems();
 
-        EntitySrcFilePublisher entityCodePublisher = new EntitySrcFilePublisher(this);
-        for (int i = 0; i < items.size(); i++) {
-            Entity entity = items.get(i);
-
-            String name = entity.getIdentity().getName();
-
-            entityCodePublisher.publish(domain, entity);
-        }
 
         DtoSrcFilePublisher dtoSrcFilePublisher = new DtoSrcFilePublisher(this);
-        DataTransferModels dataTransferModels = model.getDataTransferModels();
-        ModelComponentItems<DataTransfer> dtoItems= dataTransferModels.getItems();
-        for (int i = 0; i < dtoItems.size(); i++) {
-            DataTransfer dto = dtoItems.get(i);
-            dtoSrcFilePublisher.publish(domain, dto);
-        }
+        dtoSrcFilePublisher.publish(domain);
 
 
         EnumFilePublisher enumCodePublisher = new EnumFilePublisher(this);

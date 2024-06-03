@@ -1,4 +1,4 @@
-//ecd:460774620H20240531125740_V0.8
+//ecd:188185743H20240531164502_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -36,7 +36,12 @@ public  class CompanySeachResultDTO  implements java.io.Serializable  {
 	private String reaTextInfo;
 	
 	public String getReaTextInfo() {
-	    return 'com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList)' ;
+	    return com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList);
+	}
+	
+	public void setReaTextInfo(String val) {
+	    this.reaTextInfo = val;
+	    testDTOUtils(this);
 	}
 	
 	@Schema(description = "partCustId"  )
@@ -51,10 +56,7 @@ public  class CompanySeachResultDTO  implements java.io.Serializable  {
 	@Schema(description = "comGrpCode"  , example="CC: 콜센터 | GR: 공업사 | RC: 렌트카 | HD: 본사")
 	private CompanyGroupCode comGrpCode;
 	
-	/*
-	  업체명
-	*/
-	@Schema(description = "업체명"  )
+	@Schema(description = "comName"  )
 	@Size(max=64)
 	private String comName;
 	

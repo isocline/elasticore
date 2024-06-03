@@ -40,6 +40,35 @@ public class MetaInfo {
         return infoAnnotationMap.get(name);
     }
 
+
+    public String getInfoAnnotationValue(String... names) {
+        for(String name: names) {
+            // searchable.entity ->  @Searchable(entity=Customer)
+            String[] nmItems = name.split("\\.");
+            String propertyName = null;
+            if(nmItems.length==2){
+                name = nmItems[0];
+                propertyName = nmItems[1];
+            }
+
+            Annotation an = getInfoAnnotation(name);
+            if(an!=null) {
+                if(propertyName!=null) {
+                    Properties props = an.getProperties();
+                    if(props!=null) {
+                        String val = props.getProperty(propertyName);
+                        if(val!=null) return val;
+                    }
+                }else {
+                    String val = an.getValue();
+                    if(val !=null) return val;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public boolean hasInfoAnnotation(String name) {
         if (infoAnnotationMap == null) {
             return false;

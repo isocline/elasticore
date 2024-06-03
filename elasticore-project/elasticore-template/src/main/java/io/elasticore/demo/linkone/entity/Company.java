@@ -1,4 +1,4 @@
-//ecd:505151398H20240530103703_V0.8
+//ecd:-1943752054H20240531164502_V0.8
 package io.elasticore.demo.linkone.entity;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -46,10 +46,6 @@ public  class Company extends AuditEntity implements java.io.Serializable  {
 	private List<CompanyAreaInfo> areaCodeList;
 	
 	
-	/*
-	  업체명
-	*/
-	@Comment("업체명")
 	@Column(name = "com_name", length = 64)
 	private String comName;
 	

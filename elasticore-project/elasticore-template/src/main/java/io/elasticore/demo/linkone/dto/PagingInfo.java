@@ -1,4 +1,4 @@
-//ecd:-1678564100H20240530111741_V0.8
+//ecd:-582629331H20240531164502_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -41,16 +41,10 @@ public  class PagingInfo  implements java.io.Serializable  {
 	@Schema(description = "페이지당 로우수"  )
 	private Integer perPage = 10;
 	
-	/*
-	  전체 로우 수
-	*/
-	@Schema(description = "전체 로우 수"  )
+	@Schema(description = "rowCount"  )
 	private Integer rowCount;
 	
-	/*
-	  전체 페이지 수
-	*/
-	@Schema(description = "전체 페이지 수"  )
+	@Schema(description = "pageCount"  )
 	private Integer pageCount;
 	
 };

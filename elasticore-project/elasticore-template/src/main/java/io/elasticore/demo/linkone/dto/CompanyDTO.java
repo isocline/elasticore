@@ -1,4 +1,4 @@
-//ecd:-2017596100H20240531124312_V0.8
+//ecd:544524999H20240531164502_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -45,10 +45,7 @@ public  class CompanyDTO  implements java.io.Serializable  {
 	@Schema(description = "comGrpCode"  , example="CC: 콜센터 | GR: 공업사 | RC: 렌트카 | HD: 본사")
 	private CompanyGroupCode comGrpCode;
 	
-	/*
-	  업체명
-	*/
-	@Schema(description = "업체명"  )
+	@Schema(description = "comName"  )
 	@Size(max=64)
 	private String comName;
 	

@@ -1,4 +1,4 @@
-//ecd:972144549H20240530103703_V0.8
+//ecd:422534902H20240531164142_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -38,56 +38,35 @@ public  class CustUserDTO  implements java.io.Serializable  {
 	@Schema(description = "usrSeq"  )
 	private Long usrSeq;
 	
-	/*
-	  아이디
-	*/
-	@Schema(description = "아이디" , requiredMode=Schema.RequiredMode.REQUIRED )
+	@Schema(description = "usrId" , requiredMode=Schema.RequiredMode.REQUIRED )
 	@NotNull
 	@Size(max=20)
 	private String usrId;
 	
-	/*
-	  패스워드
-	*/
-	@Schema(description = "패스워드" , requiredMode=Schema.RequiredMode.REQUIRED )
+	@Schema(description = "password" , requiredMode=Schema.RequiredMode.REQUIRED )
 	@NotNull
 	@Size(max=128)
 	private String password;
 	
-	/*
-	  이름
-	*/
-	@Schema(description = "이름" , requiredMode=Schema.RequiredMode.REQUIRED )
+	@Schema(description = "name" , requiredMode=Schema.RequiredMode.REQUIRED )
 	@NotNull
 	@Size(max=64)
 	private String name;
 	
-	/*
-	  전화번호
-	*/
-	@Schema(description = "전화번호" , requiredMode=Schema.RequiredMode.REQUIRED )
+	@Schema(description = "telNo" , requiredMode=Schema.RequiredMode.REQUIRED )
 	@NotNull
 	@Size(max=16)
 	private String telNo;
 	
-	/*
-	  이메일
-	*/
-	@Schema(description = "이메일"  )
+	@Schema(description = "email"  )
 	@Size(max=128)
 	private String email;
 	
-	/*
-	  부서
-	*/
-	@Schema(description = "부서"  )
+	@Schema(description = "deptNm"  )
 	@Size(max=60)
 	private String deptNm;
 	
-	/*
-	  직급
-	*/
-	@Schema(description = "직급"  )
+	@Schema(description = "grade"  )
 	@Size(max=60)
 	private String grade;
 	

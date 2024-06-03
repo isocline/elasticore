@@ -13,7 +13,7 @@ entity:
       areaCode: AreaCode
 
   Company:
-    meta: entity @extend(AuditEntity)
+    meta: entity @extend(AuditEntity) --  테스트
     fields:
       comSeq: long @id @sequence
       comGrpCode: CompanyGroupCode

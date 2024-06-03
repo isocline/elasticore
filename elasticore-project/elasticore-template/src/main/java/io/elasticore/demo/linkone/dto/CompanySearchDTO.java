@@ -1,4 +1,4 @@
-//ecd:-163837699H20240530103703_V0.8
+//ecd:-1108055826H20240531164502_V0.8
 package io.elasticore.demo.linkone.dto;
 
 import io.elasticore.demo.linkone.enums.*;
@@ -32,10 +32,7 @@ public  class CompanySearchDTO  implements java.io.Serializable, SortableObject,
 	@Schema(description = "comSeq"  )
 	private Long comSeq;
 	
-	/*
-	  업체명
-	*/
-	@Schema(description = "업체명"  )
+	@Schema(description = "comName"  )
 	@Size(max=64)
 	private String comName;
 	
