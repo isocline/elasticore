@@ -443,8 +443,32 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
         else if (typeInfo.isList()) {
-            if(isEntityType)
-                paragraph.add(("@OneToMany(fetch = FetchType.LAZY)"));
+            if(isEntityType) {
+
+                String fetchType = null;
+                if(field.hasAnnotation("fetch")) {
+                    fetchType = field.getAnnotationValue("fetch");
+                }
+                if(fetchType==null)
+                    fetchType = "LAZY";
+                else
+                    fetchType = fetchType.toUpperCase();
+
+                String cascade = "";
+                if(field.hasAnnotation("cascade")) {
+                    String cascadeType = field.getAnnotationValue("cascade");
+                    if(cascadeType==null)
+                        cascadeType = "ALL, orphanRemoval = true";
+                    else
+                        cascadeType = cascadeType.toUpperCase(Locale.ROOT);
+
+                    cascade = ",cascade = CascadeType."+cascadeType;
+                }
+
+
+                paragraph.add("@OneToMany(fetch = FetchType.%s %s)",fetchType,cascade);
+            }
+
         } else if (isEntityType) {
 
 

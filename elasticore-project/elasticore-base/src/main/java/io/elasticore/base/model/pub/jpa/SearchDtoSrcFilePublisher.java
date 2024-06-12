@@ -169,8 +169,10 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             pr.add("private int pageSize=%s;", defaultPageSize);
         }
 
+        boolean isSearchDTO = true;
 
         p
+                .set("isSearchDTO",isSearchDTO)
                 .set("packageName", packageName)
                 .set("j2eePkgName",getPersistentPackageName(domain))
                 .set("enumPackageName", enumPackageName)

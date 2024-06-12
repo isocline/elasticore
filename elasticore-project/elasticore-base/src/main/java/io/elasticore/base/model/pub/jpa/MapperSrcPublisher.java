@@ -149,9 +149,11 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             }
 
-            if (!"between".equals(condition) || "~".equals(condition)) {
+            boolean isBetweenCondition =("between".equals(condition) ||  "~".equals(condition));
+
+            if (!isBetweenCondition) {
                 cb.line("%s %s = searchDTO.get%s();", type, fieldNm, capFidNm);
-                cb.line("if(%s != null)", fieldNm);
+                cb.line("if(hasValue(%s))", fieldNm);
                 cb.block();
             }
 
@@ -171,17 +173,17 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 cb.line("%s %s = searchDTO.get%s();", type, fromNm, capitalize(fromNm));
                 cb.line("%s %s = searchDTO.get%s();", type, toNm, capitalize(toNm));
 
-                cb.line("if(%s !=null && %s !=null)", fromNm, toNm);
+                cb.line("if(hasValue(%s) && hasValue(%s))", fromNm, toNm);
                 cb.block();
                 cb.line("sp = sp.and((r,q,c) -> c.between(r.get(%s)%s,%s,%s));", quoteString(entityFieldNm),childFieldName, fromNm, toNm);
                 cb.end();
 
-                cb.line("else if(%s !=null)", fromNm);
+                cb.line("else if(hasValue(%s))", fromNm);
                 cb.block();
                 cb.line("sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fromNm);
                 cb.end();
 
-                cb.line("else if(%s !=null)", toNm);
+                cb.line("else if(hasValue(%s))", toNm);
                 cb.block();
                 cb.line("sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, toNm);
 
@@ -191,7 +193,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 cb.line("sp = sp.and((r,q,c) -> c.equal(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
             }
 
-            if (!"between".equals(condition))
+            if (!isBetweenCondition)
                 cb.end();
         }
 
@@ -331,6 +333,28 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     cb.line("    to.set%s(from.get%s().get%s());"
                             , setFieldNm, getFieldNm, StringUtils.capitalize(targetChildFieldNm));
                 }
+                else {
+                    // check if targetChildFieldNm is pk?
+                    Entity e = this.findEntityByField(entityGetField);
+                    if(e!=null) {
+                        if(e.getPkField().getName().equals(targetChildFieldNm)) {
+                            String entityNm = e.getIdentity().getName();
+
+                            cb.line("");
+                            cb.line("");
+                            cb.block("{");
+                            cb.line("%s t = new %s();", entityNm,entityNm);
+                            cb.line("t.set%s(from.get%s());"
+                                    , StringUtils.capitalize(targetChildFieldNm)
+                                    , getFieldNm
+                            );
+                            cb.line("to.set%s(t);", StringUtils.capitalize(targetRefFieldNm));
+                            cb.end("}");
+
+                        }
+                    }
+
+                }
             }
 
             return true;
@@ -378,11 +402,17 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             Field fromField = fromListMap.get(fieldName);
 
+
+
+
             String fldNm = StringUtils.capitalize(fieldName);
 
             if (!makeModelRefMappingCode(f, fromModel, cb ,true)) {
                 if (fromField == null) continue;
                 if (fromField.hasAnnotation("disable")) continue;
+
+                if("toDTO".equals(toMethodName))
+                    if (fromField.hasAnnotation("password")) continue;
 
                 cb.line("if(!isSkipNull || from.get%s()!=null)", fldNm);
                 cb.line("    to.set%s(from.get%s());", fldNm, fldNm);

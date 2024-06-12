@@ -1,0 +1,51 @@
+dto:
+
+
+  LoanCarDTO:
+    meta: dto @template('LoanCar')
+    fields:
+      rentComId: string @ref(rentCompany.id)  -- 파트너사 코드
+      rentComName: string @ref(rentCompany.comName)  -- 파트너사 코드
+      processHistory: List<LoanCarProcessDTO> @ref(processHistory)
+
+
+
+  LoanCarSearchDTO:
+    meta: dto @searchable(entity=LoanCar, pageSize=30)
+    fields:
+      rentComId: string @ref(rentCompany.id) @s(eq) -- 파트너사 코드
+      partCustCd: string @ref(partnerCust.codeId) @s(eq) -- 파트너사 코드
+      createDate: datetime @s(~) -- 접수일자 비교
+      rentCompanyName: string @ref(rentCompany.comName) @s(%%) -- 렌트카 업체명
+
+  LoanCarSearchResultDTO:
+    meta: dto @searchResult(LoanCar)
+    fields:
+      rentComId: string @ref(rentCompany.id)  -- 파트너사 코드
+      rentCompanyName: string @ref(rentCompany.comName)  -- 렌트카 업체명
+      partCustCd: string @ref(partnerCust.codeId)  -- 파트너사 코드
+      processHistory: List<LoanCarProcessDTO> @ref(processHistory) -- 처리 이력
+      rentalDate: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getRentalDate(this) )
+      returnDate: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getReturnDate(this) )
+      lcReason: --
+      content: --
+
+
+
+  LoanCarProcessDTO:
+    meta: dto @template(LoanCarProcess)
+    fields:
+      rentComId: string @ref(rentCompany.id)  -- 렌트카업체코드
+      callHistory: CallHistoryDTO @ref(callHistory)  -- 통화내역
+
+
+  LoanCarPrsSrchDTO:
+    meta: dto @searchable(entity=LoanCarProcess, pageSize=30)
+    fields:
+      rentComId: string @ref(rentCompany.id) @s(eq) -- 렌트카업체코드
+
+  CallHistoryDTO:
+    meta: dto @template(CallHistory)
+
+
+

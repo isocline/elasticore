@@ -1,0 +1,96 @@
+entity:
+
+
+  LoanCarProcess:
+    meta: entity @extend(AuditEntity) -- 대차업무 프로세스 | 대차접수 부터 완료 까지 프로세스 정보 관리
+    fields:
+      lcpCode: long @id @sequence -- 순번 아이디
+
+      rentCompany: Company -- 렌트카 업체
+      processType: RentCarProcessType @s(eq) -- 상태 프로세스
+      applyDate: string(8) -- 적용일자 yyyyMMdd
+      applyTime: string(6) -- 적용일시 HHmmss
+      callHistory: CallHistory -- 통화내역
+      memo: text @s(%%) -- 기타메모(담당자처리내용)
+
+      loanCarMasterId: string(30) @s(eq)  -- 대차 마스터 번호
+
+      custReqMemo: text @s(%%) -- 고객요청사항
+      reqCarName: string(30) -- 고객 요청 차량명
+      reqCarNo: string(12) -- 고객 요청 차량번호
+      insureYN: Indicator @default(Indicator.NO)  -- 자차보험 서비스제공여부
+
+
+  CallHistory:
+    meta: entity @extend(AuditEntity) -- 고객통화이력정보 | 대차업무 관련 고객 통화정보 관리
+    fields:
+      callCode: long @id @sequence
+      loanCarProcess: LoanCarProcess --관련 작업
+      callContent: text --통화내용
+      callDate: string(8) --통화일자 yyyyMMdd
+      callTime: string(6) -- 통화시간 HHmmss
+
+
+
+  LoanCar:
+    meta: entity @extend(AuditEntity) -- 대차정보 | 대차관련 메인 정보 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 내부 접수번호
+      lcCode: string(50) @s(-%) -- 외부(마스터) 접수번호
+
+      statusType: StatusType @s(=) -- 대차작업상태
+      empNo: string --요청상담사
+      rentKind: RentKindType @s(=) -- 사고유형
+
+      rentCarCode: string(12) @s(%%) --대차차량코드
+      rentCarNm: string(200) @s(%%) --대차차량명
+
+      rentCost: string(50) --대차비용
+      insurNm: string(100) --보험사
+      indeMoney: string(50) --면책금
+      regDate: string --신청일 yyyyMMdd
+      regTime: string --신청시간 hhmi
+      joinCode: string --제휴사
+
+      custNm: string! @s(%%) --고객명
+      custTel: string! @s(%%) --연락처
+
+      vipYn: Indicator @default(Indicator.NO) --VIP여부
+      etcDesc: string(1000) --특이사항
+      reqDate: string --요청일자 yyyymmdd
+      reqTime: string --요청시간 hhmi
+      reqZip: string --요청장소우편번호
+      reqAddr: string --요청장소주소
+      reqDaddr: string --요청장소상세주소
+      consignYn: Indicator @default(Indicator.NO) --차량탁송여부 Y:신청 / N:미신청
+      consignOfiiceNm: string --탁송장소(공장명)
+      consignZip: string --탁송장소(우편번호)
+      consignAddr: string --탁송장소(주소)
+      consignDaddr: string --탁송장소(상세주소)
+      consignTel: string --탁송장소(전화번호)
+
+      lcReason: text --대차미진행 사유
+
+
+      smsParseType: Indicator @default(Indicator.NO) --문자파싱 성공여부
+      content: text --문자내용(문자처리시)
+
+      partnerCust: CommonCode -- 제휴고객사
+      partnerEtcNm: string(50) -- 기타 제휴 고객사명
+
+      rentCompany: Company -- 담당 렌트카 업체
+
+      processHistory: List<LoanCarProcess>
+
+
+
+
+
+
+
+
+
+
+
+
+

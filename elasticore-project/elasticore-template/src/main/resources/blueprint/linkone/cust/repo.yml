@@ -1,0 +1,16 @@
+
+repository:
+
+  Company:
+    methods:
+    - id: selectCnctList4
+      nativeQuery: true
+      return: List<Object>
+      query: |
+        select
+         B.CONTRACT_NO
+        , B.DRIVER_SEQ_NO
+        , C.CUST_NO
+        from company
+        where 1=1
+         and contractName = :comName /* if:comName */

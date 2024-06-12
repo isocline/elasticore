@@ -1,0 +1,26 @@
+entity:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:CreatedBy
+      lastModifiedBy: string(20)  @jpa:LastModifiedBy
+      lastModifiedDate: datetime   @jpa:LastModifiedDate
+
+
+  CommonCode:
+    meta: entity @extend(AuditEntity) -- 공통 코드 | 업무관련 주요 공통 코드 정보를 관리
+    fields:
+      codeSn: long @id @sequence -- 코드 sequence
+      codeId: string(50)! @unique @s(-%) -- 코드 아이디
+      codeNm: string(50)! @s(%%) -- 코드명
+      codeValue: string(30)! -- 코드값
+
+      codeOptn1: String(50) -- 코드옵션1
+      codeOptn2: String(50) -- 코드옵션2
+      codeOptn3: String(50) -- 코드옵션3
+      codeDepth: int @default(1) -- 코드 depth
+      codeOrder: int @default(10) -- 순서 정보
+
+
+

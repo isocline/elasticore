@@ -303,12 +303,18 @@ public class SrcFilePublisher {
         return false;
     }
 
+    protected Entity findEntityByField(Field f) {
+        String typeName = f.getTypeInfo().getCoreItemType();
+        return findEntityByField(typeName);
+    }
+
+    protected Entity findEntityByField(String typeName) {
+        return this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels().findByName(typeName);
+    }
 
     protected boolean isEntityType(Field f) {
-        String typeName = f.getTypeInfo().getCoreItemType();
-        if (this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(typeName) != null)
+        if(findEntityByField(f) !=null)
             return true;
-
         return false;
     }
 
@@ -323,11 +329,14 @@ public class SrcFilePublisher {
 
 
         if (getFunc != null) {
-            if (getFunc.indexOf("(") < 0) {
-                getFunc = getFunc.trim() + "(this)";
+            getFunc = getFunc.trim();
+            if (!"null".equals(getFunc) && getFunc.indexOf("(") < 0) {
+                getFunc = getFunc + "(this)";
             }
+            if(getFunc.indexOf(";")<0)
+                getFunc = getFunc+";";
             p.add("public %s get%s() {", type, cFldNm);
-            p.add("    return %s;", getFunc);
+            p.add("    return %s", getFunc);
             p.add("}");
             p.add("");
         }

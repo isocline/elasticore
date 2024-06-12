@@ -191,6 +191,18 @@ public class EnumFilePublisher extends SrcFilePublisher {
             cb.line("return %s.from%s(p.getText());", enumName, capitalNm);
             cb.end();
             cb.end();
+
+
+            cb.line("");
+            cb.line("public static class PropertyEditor extends java.beans.PropertyEditorSupport");
+            cb.block();
+            cb.line("@Override");
+            cb.line("public void setAsText(String txt) throws IllegalArgumentException");
+            cb.block();
+            cb.line("if(txt!=null && txt.length()>0)");
+            cb.line("  setValue(%s.from%s(txt));", enumName, capitalNm);
+            cb.end();
+            cb.end();
         }
 
         if (isDbConv) {

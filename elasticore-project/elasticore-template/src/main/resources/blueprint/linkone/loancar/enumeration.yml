@@ -1,0 +1,53 @@
+enumeration:
+
+
+  RentKindType:
+    meta: enum @json(code) @db(code) -- 사고 유형
+    fields:
+      msg: string
+      code: string  @length(2)
+    enum:
+      DESTORY: 피해,01
+      REPAIR: 정비,02
+      FAULT: 가해,03
+      SOLO: 단독,04
+      UNKNOWN: 미정,08
+      ETC: 기타,09
+
+  NoWayType:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string @length(1)
+    enum:
+      REPAIR: 수리만진행,R
+      CHG: 지역변경,C
+      ETC: 기타,E
+
+  StatusType:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string @length(2)
+    enum:
+      REQUEST: 요청,RQ
+      CONFIRM: 확정,CF
+      DILIVERY: 배송,DL
+      RETURN: 반납,RT
+      CHANGE: 변경요청,CG
+      FAIL: 불가,FL
+
+  RentCarProcessType:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      REQUEST: 요청,RQ
+      DILIVERY: 배송,DL
+      CALL: 통화,CL
+      FAIL: 불가,FL
+      ETC: 기타,ET
+      RETURN: 반납확인,RT
+
+

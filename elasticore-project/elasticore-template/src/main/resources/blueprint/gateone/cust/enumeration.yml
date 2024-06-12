@@ -1,0 +1,23 @@
+enumeration:
+
+  UserStatus:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      ACTIVE: 정상,A
+      PASSWORD_FAILED: 패스워드 5회 실패,F
+      SUSPENDED: 정지,S
+
+
+
+  UserRole:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      ADMIN: 관리자,A
+      RENTAL_MEMBER: 렌트카회원,M
+      GENERAL_USER: 일반 사용자,C

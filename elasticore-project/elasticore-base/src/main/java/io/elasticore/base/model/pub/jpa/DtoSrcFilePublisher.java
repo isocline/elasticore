@@ -142,6 +142,8 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         setNativeAnnotation(entity, this.paragraphForEntity);
 
+        boolean isSearchDTO = false;
+
         // must call 'getFieldInfo' first
         CodeTemplate.Paragraph pr = getFieldInfo(entity);
 
@@ -152,6 +154,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 .set("abstract", getAbstractInfo(entity))
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(entity))
+                .set("isSearchDTO", isSearchDTO)
                 .set("implementInfo", "implements java.io.Serializable")
                 .set("className", classNm);
 

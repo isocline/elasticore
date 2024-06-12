@@ -1,51 +1,31 @@
 entity:
-  AuditEntity:
-    meta: entity @abstract
-    fields:
-      createDate: datetime @updatable(false) @jpa:CreatedDate
-      createdBy: string @updatable(false) @jpa:CreatedBy
-      lastModifiedBy: string  @jpa:LastModifiedBy
-      lastModifiedDate: datetime   @jpa:LastModifiedDate
-
-  CompanyAreaInfo:
-    fields:
-      seq: long @id @sequence
-      areaCode: AreaCode
 
   Company:
-    meta: entity @extend(AuditEntity) --  테스트
+    meta: entity @extend(AuditEntity) -- 업체정보 | 대차 시스템에 등록된 업체 정보를 관리
     fields:
-      comSeq: long @id @sequence
-      comGrpCode: CompanyGroupCode
-      areaCodeList: List<CompanyAreaInfo>
-      comName: string(64) @s(=) -- 업체명
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 업체아이디
+
+      comGrpCode: CompanyGroupCode @s(=) -- 업체그룹코드
+      areaCodeList: List<AreaCode> -- 담당지역
+      partnerCust: CommonCode -- 제휴고객사
+      comName: string(64) @s(%%) -- 업체명
       respName: string(64) @s(%%)-- 담당자이름
       respTel: string @s(%%) -- 담당자전화번호
-      respZone: string(100) @s(%-)-- 소재지
-      userList: List<CustUser>
+      respZone: string(100) @s(%%)-- 소재지
+      useYn: Indicator @s(=) --업체활성화여부 Y:활성화 / N:비활성화
+      userList: List<CustUser> -- 해당업체 사용자목록
 
 
   CustUser:
-    meta: entity @extend(AuditEntity)
+    meta: entity @extend(AuditEntity) -- 고객정보 | 업체에 연관된 고객정보를 관리
     fields:
-      usrSeq: long @id @sequence
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 사용자 내부아이디
       company: Company -- 업체
-      usrId: string(20)! -- 아이디
+      usrId: string(20)! @unique -- 아이디
       password: string(128)! -- 패스워드
       name: string(64)! @s(%%) -- 이름
       telNo: string(16)! @s(%%) -- 전화번호
       email: string(128) @s(%%) -- 이메일
       deptNm: string(60) @s(%%) -- 부서
       grade: string(60) @s(%%) -- 직급
-
-
-
-
-
-
-
-
-
-
-
 

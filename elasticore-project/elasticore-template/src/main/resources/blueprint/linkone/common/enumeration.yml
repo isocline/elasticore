@@ -1,0 +1,10 @@
+enumeration:
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+

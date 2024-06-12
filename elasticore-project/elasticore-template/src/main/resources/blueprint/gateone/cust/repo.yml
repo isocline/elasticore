@@ -1,0 +1,5 @@
+repository:
+  LoginUser:
+    methods:
+      - id: selectByUsername
+        query: select a from LoginUser where a.userId = :userId

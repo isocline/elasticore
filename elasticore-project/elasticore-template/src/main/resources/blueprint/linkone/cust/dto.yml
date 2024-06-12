@@ -1,45 +1,40 @@
 dto:
-  PagingInfo:
-    meta: dto
-    fields:
-      page: int @default(0) --현재 페이지 번호
-      perPage: int @default(10) --페이지당 로우수
-      rowCount: int -- 전체 로우 수
-      pageCount: int -- 전체 페이지 수
-
 
   CustUserDTO:
     meta: dto @template('CustUser')
     fields:
-      companyComSeq: long @ref(company.comSeq)
-      company: CompanyDTO @ref(company)
+      companyId: string @ref(company.id)
+      comRespName: string @ref(company.respName)
 
   CustUserSearchDTO:
     meta: dto @searchable(entity=CustUser, pageSize=30)
     fields:
-      comSeq: long @ref(company.comSeq) @s(eq)
-
+      companyId: long @ref(company.id) @s(eq) @label(회사코드)
 
 
 
   CompanyDTO:
     meta: dto @template('Company')
     fields:
-      areaCodeList: List<CompanyAreaInfo> @disable
       userList: List<CustUserDTO> @ref(userList)
-      areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo )
+      areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo ) -- 전체 지역정보 텍스트 형태
+      partCustId: string @ref(partnerCust.codeId)
+      partCustNm: string @ref(partnerCust.codeNm)
 
   CompanySearchDTO:
     meta: dto @searchable(entity=Company, pageSize=30)
 
-  CompanySeachResultDTO:
+  CompanySearchResultDTO:
     meta: dto @searchResult(Company)
     fields:
-      reaTextInfo: string @function( get='com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList)' , set=testDTOUtils) -- 전체 지역정보 텍스트 형태
+      reaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList) ) -- 전체 지역정보 텍스트 형태
       partCustId: string @ref(partnerCust.codeId)
       partCustNm: string @ref(partnerCust.codeNm)
       respZone: --
       lastModifiedBy: --
 
-
-
+  AreaCodeDetails:
+    meta: dto
+    fields:
+      code: string
+      msg: string

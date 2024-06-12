@@ -1,0 +1,43 @@
+dto:
+
+  LoginUserDTO:
+    meta: dto @template('LoginUser')
+    fields:
+      allowServieList: List<MappingServiceDTO> @ref(allowServieList)
+      password: string @function( get=null )
+
+  LoginUserSrchDTO:
+    meta: dto @searchable(entity=LoginUser, pageSize=30)
+
+  LoginUserSrchResultDTO:
+    meta: dto @searchResult(LoginUser)
+
+
+  LoginHistoryDTO:
+    meta: dto @template(LoginHistory)
+
+  LoginHistorySrchDTO:
+    meta: dto @searchable(entity=LoginHistory, pageSize=50)
+
+  LoginHistorySrchResultDTO:
+    meta: dto @searchResult(LoginHistory)
+
+  ServiceInfoDTO:
+    meta: dto @template('ServiceInfo')
+    fields:
+
+  ServiceInfoSrchDTO:
+    meta: dto @searchable(entity=ServiceInfo, pageSize=30)
+
+  ServiceInfoSrchResultDTO:
+    meta: dto @searchResult(ServiceInfo)
+
+
+  MappingServiceDTO:
+    meta: dto @template('MappingService')
+    fields:
+      serviceId: string @ref(service.id)
+      serviceName: string @ref(service.name)
+      serviceKeyName: string @ref(service.keyName)
+
+

@@ -1,12 +1,5 @@
 enumeration:
 
-  Indicator:
-    meta: enum @json(code) @db(code)
-    fields:
-      code: String(1)
-    enum:
-      YES: "Y"
-      NO: "N"
 
   CompanyGroupCode:
     meta: enum @json(code) @db(code)
@@ -28,7 +21,7 @@ enumeration:
       SEOUL: 서울,SU
       GYEONGGI: 경기,GG
       GANGWON: 강원,KW
-      CHUNGCHEON: 충천,CC
+      CHUNGCHEONG: 충청,CC
       JEOLLA: 전라,JL
       GYEONGSANG: 경상,GS
       JEJU: 제주,JJ

@@ -1,0 +1,45 @@
+## model
+entity:
+
+  LoginUser:
+    meta: entity @extend(AuditEntity) -- 사용자 정보 | SSO 서비스의 기본 사용자 정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 사용자 아이디
+
+      userId: string(20)! @s(%%) @unique -- 사용자 아이디
+      password: string(128)! -- 패스워드
+      name: string(64)! @s(%%) -- 사용자 이름
+      phone: string(16)! @s(%%) -- 전화번호
+      email: string(128) @s(%%) -- 이메일 주소
+      status: UserStatus -- 아이디 상태 (정상, 패스워드 5회 실패, 정지)
+      allowServieList: List<MappingService> -- 사용자별 접속 가능한 서비스 목록
+
+
+  LoginHistory:
+    meta: entity @extend(AuditEntity) -- 로그인 성공이력 | 사용자별 서비스 및 권한 정보를 관리
+    fields:
+      seq: long @id @sequence
+      userId: string(20)! @s(eq) -- 사용자 아이디
+      successYN: Indicator @default(Indicator.NO) @s(eq) -- 로그인 성공여부
+      token: string(1000) -- 토큰
+      agentInfo: string(1000) @s(%%) -- agent 정보
+      clientIp: string(36)  @s(%%) -- client IP.a
+      expireDateTime: datetime @updatable(false) @s(between) -- token 만료일시
+      createDateTime: datetime @updatable(false) @jpa:CreatedDate -- 생성일시
+
+
+  ServiceInfo:
+    meta: entity @extend(AuditEntity) -- 서비스 정보 | 접속 가능한 서비스 목록을 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 서비스 아이디
+      name: string(64)! @s(%%) -- 서비스 이름
+      keyName: string(8) @s(%%) -- 서비스 키이름
+      mainUrl: string(256)! @s(%%) -- 대표 URL
+      loginUrl: string(256)! @s(%%) -- 로그인 URL
+
+  MappingService:
+    meta: entity @extend(AuditEntity) -- 사용자 서비스 매핑 정보 | 사용자별 서비스 및 권한 정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 매핑 아이디
+      service: ServiceInfo -- 서비스 정보
+      role: UserRole -- 권한 정보 (관리자, 렌트카회원, 일반 사용자 등)

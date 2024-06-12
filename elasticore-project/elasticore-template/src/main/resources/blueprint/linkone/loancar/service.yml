@@ -1,0 +1,13 @@
+service:
+  TestServer:
+    methods:
+
+      calAPI:
+        request:
+          input: TestDTO
+        response: TESTrespDTO
+
+      callAPI2:
+        request:
+
+

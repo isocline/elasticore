@@ -59,7 +59,10 @@ public class ModelExtractor {
                 log("check >>> "+envFilePath);
                 File envFile = new File(envFilePath);
                 if(envFile.exists()) {
-                    dirList.add(chiild.getAbsolutePath());
+
+                    String envPath =chiild.getAbsolutePath();
+                    //if(envPath.indexOf("gateone")>=0)
+                    dirList.add(envPath);
                 }
             }
         }
