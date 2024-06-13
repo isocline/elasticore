@@ -114,18 +114,23 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         boolean isNativeQuery = mapWrapper.getBoolean("nativeQuery", false);
         boolean pageable = mapWrapper.getBoolean("pageable", false);
         String query = mapWrapper.getString("query");
+        String returnType = mapWrapper.getString("return");
+
         SqlQueryInfo queryInfo = null;
         if(query !=null && query.length()>0) {
-            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , pageable, mapWrapper);
+            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , pageable, mapWrapper ,returnType);
             this.sqlQueryInfoList.add(queryInfo);
         }
 
 
-        String returnType = (String) map.get("return");
 
+
+        /*
         if (returnType != null) {
             Field returnField = this.parseFieldLine("return", returnType);
         }
+
+         */
 
         Items<Field> fieldItems = null;
         Map params = (Map) map.get("params");

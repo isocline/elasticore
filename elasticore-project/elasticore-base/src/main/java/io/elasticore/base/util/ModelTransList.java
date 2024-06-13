@@ -35,7 +35,7 @@ public class ModelTransList<E> extends AbstractList<E>
                 Field f = fieldList.get(i);
                 PropertyEditor e = propertyEditors.get(i);
 
-                if(objects[i]!=null) {
+                if(objects[i]!=null && e!=null) {
                     e.setAsText(objects[i].toString());
                     f.set(obj, e.getValue());
                 }

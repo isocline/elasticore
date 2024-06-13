@@ -1,13 +1,33 @@
 repository:
-  LoanCar:
-    methods_x:
-      - id: selectList
-        query: select a from LoanCar order by reqZip desc
-
-      - id: selectList2
+  LoanCarProcess:
+    methods:
+      - id: selectLoanCarProcessByCompanyId
+        params:
+          companyId: string
+        return: List<CompanyLoanCarProcessDTO>
+        pageable: true
+        nativeQuery: true
         query: |
-          select a from LoanCar a
+          SELECT lc.id, lcp.create_date, lc.cust_nm , lc.cust_tel, lc.rent_car_nm , lcp.process_type
+          FROM Loan_Car_Process lcp
+          JOIN Loan_Car lc ON lcp.loan_car_master_id = lc.id
           where 1=1
-            and reqAddr = :reqAddr /* if:reqAddr */
-            and consignDaddr = :consignDaddr /* if:consignDaddr */
+           and lcp.rent_company_id  =  :companyId /* if:companyId */
+          order by lcp.create_date  desc
+
+
+
+dto:
+  CompanyLoanCarProcessDTO:
+    meta: dto
+    fields:
+      id: string -- 대차 마스터 코드
+      createDate: string -- 기록일시
+      custNm: string --고객명
+      custTel: string --연락처
+      rentCarNm: string  --대차차량명
+      processType: string  -- 상태 프로세스
+      processType2: string  -- 상태 프로세스
+
+
 

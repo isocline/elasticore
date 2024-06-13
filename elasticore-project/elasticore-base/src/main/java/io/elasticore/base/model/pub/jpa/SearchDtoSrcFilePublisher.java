@@ -223,7 +223,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                     continue;
             }
 
-
+            // eq,=,%5,in ....etc
+            String conditionCode = f.getAnnotationValue("search", "s");
 
             setFieldDesc(f, p);
             setFieldDocumentation(f,p);
@@ -236,11 +237,20 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             String searchCondition = f.getAnnotationValue("search", "s");
             String fieldNm = f.getName();
+            String typeName = f.getTypeInfo().getDefaultTypeName();
             if ("between".equals(searchCondition) || "~".equals(searchCondition)) {
-                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm + "From", defaultValDefined);
-                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm + "To", defaultValDefined);
+                p.add("%s %s %s%s;", "private", typeName, fieldNm + "From", defaultValDefined);
+                p.add("%s %s %s%s;", "private", typeName, fieldNm + "To", defaultValDefined);
             } else {
-                p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), fieldNm, defaultValDefined);
+
+                if(f.getTypeInfo().isList()) {
+                    if("eq".equals(conditionCode) || "=".equals(conditionCode)) {
+                        typeName = f.getTypeInfo().getCoreItemType();
+                        fieldNm = fieldNm +"Item";
+                    }
+                }
+
+                p.add("%s %s %s%s;", "private", typeName, fieldNm, defaultValDefined);
             }
 
             p.add("");

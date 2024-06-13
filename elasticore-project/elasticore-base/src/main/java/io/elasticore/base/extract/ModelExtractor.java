@@ -61,7 +61,7 @@ public class ModelExtractor {
                 if(envFile.exists()) {
 
                     String envPath =chiild.getAbsolutePath();
-                    //if(envPath.indexOf("gateone")>=0)
+                    //if(envPath.indexOf("linkone")>=0)
                     dirList.add(envPath);
                 }
             }

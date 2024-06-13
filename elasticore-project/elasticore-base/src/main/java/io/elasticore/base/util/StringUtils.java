@@ -160,6 +160,23 @@ public class StringUtils {
     }
 
 
+    /**
+     * List<Object[]>  -->  Object[]
+     *
+     * @param typeName
+     * @return
+     */
+    public static String findParameterType(String typeName) {
+        if(typeName==null)
+            return null;
+
+        if(typeName.indexOf("List<") <0)
+            return null;
+
+        return typeName.substring(5, typeName.length()-1);
+    }
+
+
     public static void main(String[] args) {
         String sql = "SELECT test, test2 AS ZZZ FROM (SELECT test1, test2, test3 FROM XXX)";
         List<String> columnNames = extractFirstSelectColumnNames(sql);

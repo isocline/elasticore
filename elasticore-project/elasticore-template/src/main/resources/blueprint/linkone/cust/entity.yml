@@ -6,7 +6,7 @@ entity:
       id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 업체아이디
 
       comGrpCode: CompanyGroupCode @s(=) -- 업체그룹코드
-      areaCodeList: List<AreaCode> -- 담당지역
+      areaCodeList: List<AreaCode> @s(=) -- 담당지역
       partnerCust: CommonCode -- 제휴고객사
       comName: string(64) @s(%%) -- 업체명
       respName: string(64) @s(%%)-- 담당자이름

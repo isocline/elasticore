@@ -138,16 +138,24 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                     if (method.getQueryInfo().isDynamicQuery()) {
                         makeDynamicQueryMethod(method, methodP);
                     } else if (method.getQueryInfo().isOwnOutputDTO()) {
-                        if (!"List<Object[]>".equals(method.getReturnType()))
+
+                        String paramType = StringUtils.findParameterType(method.getReturnType());
+                        if(paramType == null)
                             continue;
 
-                        makeTransformMethod(method, methodP, fieldNm);
+                        //if("Object[]".equals(paramType))
+                        {
+                            makeTransformMethod(method, methodP, fieldNm);
+                        }
+
                     }
                 }
             }
 
         }
     }
+
+
 
 
     /**
@@ -194,14 +202,15 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                 DataTransfer outputDTO2 = queryInfo.getDataTransfer();
                 outputClassNm = outputDTO2.getIdentity().getName();
 
-                fieldNames = getMappingFieldNames(outputDTO2.getItems());
+                fieldNames = getMappingFieldNames(outputDTO2.getItems(), queryInfo.getSelectColumnCount());
             } else
                 outputClassNm = "Object[]";
 
         }
         String methodName = method.getName();
 
-        boolean isPageable = method.isPageable() && !queryInfo.isNativeQuery();
+        //boolean isPageable = method.isPageable() && !queryInfo.isNativeQuery();
+        boolean isPageable = method.isPageable();
         if(isPageable)
             p.add("public Page<%s> %s(%s ,Pageable pageable) {", outputClassNm, methodName, params);
         else
@@ -210,7 +219,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         if (fieldNames != null)
             p.add("    String[] fieldNames = {%s};", fieldNames);
 
-        p.add("  StringBuilder sb = new StringBuilder();");
+        p.add("    StringBuilder sb = new StringBuilder();");
 
 
         String[] lines = sqlQuery.split("\n");
@@ -230,9 +239,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                 varList.add(variableName);
 
                 p.add("    if(" + variableName + "!=null)");
-                p.add("      sb.append(\"" + modifiedLine + "\");");
+                p.add("      sb.append(\"" + modifiedLine + " \");");
             } else {
-                p.add("    sb.append(\"" + line + "\");");
+                p.add("    sb.append(\"" + line + " \");");
             }
         }
 
@@ -249,11 +258,24 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         }
 
         if(isPageable) {
-            p.add("    int totalRows = query.getResultList().size();");
             p.add("    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());");
             p.add("    query.setMaxResults(pageable.getPageSize());");
-            p.add("    return new PageImpl<%s>(query.getResultList(), pageable, totalRows);",outputClassNm);
-        }else {
+            p.add("");
+            p.add("    Query countQuery = entityManager.createNativeQuery(\"select count(*) from ( \"+sb+\" ) as X\");");
+            p.add("    long totalRows = ((Number) countQuery.getSingleResult()).longValue();");
+
+            if (fieldNames != null) {
+                p.add("    ModelTransList<%s> list = ", outputClassNm);
+                p.add("       new ModelTransList<%s>(query.getResultList(), %s.class, fieldNames);", outputClassNm, outputClassNm);
+                p.add("    return new PageImpl<%s>(list, pageable, totalRows);",outputClassNm);
+            }else{
+                p.add("    return new PageImpl<%s>(query.getResultList(), pageable, totalRows);",outputClassNm);
+            }
+
+
+        }
+        else
+        {
             if (fieldNames != null) {
                 p.add("    return new ModelTransList<%s>(query.getResultList(), %s.class, fieldNames);", outputClassNm, outputClassNm);
             } else {
@@ -291,7 +313,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         methodP.add("public List<%s> %s(%s) {", outputClassNm, methodName, params);
 
-        String fieldNames = getMappingFieldNames(outputDTO.getItems());
+        String fieldNames = getMappingFieldNames(outputDTO.getItems() ,queryInfo.getSelectColumnCount());
         methodP.add("    String[] fieldNames = {%s};", fieldNames);
 
         params = getParametersForMethod(method.getParams(), false);
@@ -301,14 +323,18 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         methodP.add("");
     }
 
-    private String getMappingFieldNames(ModelComponentItems<Field> params) {
+    private String getMappingFieldNames(ModelComponentItems<Field> params, int maxCount) {
         StringBuilder sb = new StringBuilder();
+        int count=0;
         if (params != null) {
             while (params.hasNext()) {
                 Field f = params.next();
                 if (sb.length() > 0)
                     sb.append(" ,");
                 sb.append("\"").append(f.getName()).append("\"");
+                count++;
+                if(count >= maxCount)
+                    break;
             }
         }
         return sb.toString();

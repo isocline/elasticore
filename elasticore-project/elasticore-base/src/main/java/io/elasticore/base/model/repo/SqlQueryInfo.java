@@ -1,6 +1,7 @@
 package io.elasticore.base.model.repo;
 
 import io.elasticore.base.model.core.BaseECoreModelContext;
+import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
@@ -66,18 +67,26 @@ public class SqlQueryInfo {
 
     private boolean pageable;
 
-    private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper repositoryContext) {
+    private String returnType;
+    private String returnParamtype;
+
+    private int selectColumnCount = 0;
+
+    private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable
+            , MapWrapper repositoryContext, String returnType) {
         this.domainId = domainId;
         this.sqlTxt = sqlTxt;
         this.isNativeQuery = isNativeQuery;
         this.pageable = pageable;
         this.repositoryContext = repositoryContext;
+        this.returnType = returnType;
+        this.returnParamtype = StringUtils.findParameterType(returnType);
 
 
     }
 
-    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper mapWrapper) {
-        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, pageable, mapWrapper);
+    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper mapWrapper, String returnType) {
+        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, pageable, mapWrapper, returnType);
     }
 
     public static boolean containsIfComment(String input) {
@@ -143,12 +152,24 @@ public class SqlQueryInfo {
     }
 
 
+    public int getSelectColumnCount() {
+        return this.selectColumnCount;
+    }
+
     public boolean isOwnOutputDTO() {
         return isOwnOutputDTO;
     }
 
 
     public DataTransfer getDataTransfer() {
+        if(this.isOwnOutputDTO && this.outputDataTransfer ==null) {
+            try {
+                return BaseModelDomain.getModelDomain(this.domainId).getModel().getDataTransferModels().findByName(this.returnParamtype);
+            }catch (RuntimeException re) {
+
+            }
+        }
+
         return outputDataTransfer;
     }
 
@@ -204,17 +225,28 @@ public class SqlQueryInfo {
         String outputDtoName = StringUtils.capitalize(repositoryContext.getString("id")) + "Output";
 
         try {
+            if("Object[]".equals(this.returnParamtype)) {
+                outputDataTransfer = DataTransfer.create(this.domainId, outputDtoName, items, null);
 
-            outputDataTransfer = DataTransfer.create(this.domainId, outputDtoName, items, null);
+                ModelObjectListener.getInstance().onCreateDataTransfer(outputDataTransfer);
 
-            ModelObjectListener.getInstance().onCreateDataTransfer(outputDataTransfer);
+                this.isOwnOutputDTO = true;
+            }
 
-            this.isOwnOutputDTO = true;
+            if(this.returnParamtype!=null && !"Object".equals(this.returnParamtype))
+                this.isOwnOutputDTO = true;
+
+
+
 
 
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    public String getReturnParamtype() {
+        return this.returnParamtype;
     }
 
     @SneakyThrows
@@ -250,6 +282,8 @@ public class SqlQueryInfo {
 
                     List<SelectItem> selectItems = plainSelect.getSelectItems();
 
+                    this.selectColumnCount = selectItems.size();
+
                     makeDtoModel(selectItems);
 
                     Expression expression = plainSelect.getWhere();
@@ -264,7 +298,7 @@ public class SqlQueryInfo {
                         });
                     }
 
-                    System.out.println(whereAndCount.get() + " <<<<<<<<<<<<<<<<<");
+                    //System.out.println(whereAndCount.get() + " <<<<<<<<<<<<<<<<<");
 
                     if (expression instanceof EqualsTo) {
                         // where

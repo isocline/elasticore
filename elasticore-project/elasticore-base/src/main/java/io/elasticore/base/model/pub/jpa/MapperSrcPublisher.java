@@ -87,6 +87,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         params
                 .set("packageName", packageName)
+                .set("j2eePkgName",getPersistentPackageName(domain))
                 .set("entityPackageName", entityPackageName)
                 .set("dtoPackageName", dtoPackageName)
                 .set("enumPackageName", enumPackageName)
@@ -121,7 +122,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         }
     }
 
-    private void makeSpecificationFieldCode(DataTransfer searchDto, CodeStringBuilder cb) {
+    private void makeSpecificationFieldCode(DataTransfer searchDto, CodeStringBuilder cb, String entityNm) {
 
         ListMap<String, Field> listMap = searchDto.getAllFieldListMap();
 
@@ -151,7 +152,32 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             boolean isBetweenCondition =("between".equals(condition) ||  "~".equals(condition));
 
-            if (!isBetweenCondition) {
+
+            boolean isListfield = f.getTypeInfo().isList();
+            boolean isJoinWithSingleData = false;
+            String joinWithSingleDatafieldName = null;
+            String joinWithSingleDataTypeName = null;
+
+            if( isListfield) {
+                if ("eq".equals(condition) || "=".equals(condition)) {
+
+                    isJoinWithSingleData = true;
+
+                    // check : SearchDtoSrcFilePublisher
+                    joinWithSingleDatafieldName = fieldNm+"Item";
+                    joinWithSingleDataTypeName = f.getTypeInfo().getCoreItemType();
+
+                    cb.line("%s %s = searchDTO.get%s();", joinWithSingleDataTypeName
+                            , joinWithSingleDatafieldName
+                            , capFidNm+ "Item");
+                    cb.line("if(hasValue(%s))", joinWithSingleDatafieldName);
+                    cb.block();
+
+                }
+
+            }
+
+            if (!isJoinWithSingleData && !isBetweenCondition) {
                 cb.line("%s %s = searchDTO.get%s();", type, fieldNm, capFidNm);
                 cb.line("if(hasValue(%s))", fieldNm);
                 cb.block();
@@ -167,6 +193,21 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             } else if ("-%".equals(condition)) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s+ %s));", quoteString(entityFieldNm),childFieldName, fieldNm, percent);
+            } else if ("in".equals(condition)) {
+                if(isListfield) {
+                    cb.line("sp = sp.and((root, query, criteriaBuilder) -> {");
+                    cb.line("    Join<%s, %s> join = root.join(%s);",entityNm
+                            , f.getTypeInfo().getCoreItemType()
+                            , quoteString(entityFieldNm)
+                    );
+                    cb.line("    return join.in(%s);",fieldNm);
+                    cb.line("});");
+
+                }else{
+                    cb.line("sp = sp.and((r,q,c) -> c.in(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+                }
+
+
             } else if ("between".equals(condition) || "~".equals(condition)) {
                 String fromNm = fieldNm + "From";
                 String toNm = fieldNm + "To";
@@ -190,7 +231,24 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 cb.end();
             } else {
                 // equals
-                cb.line("sp = sp.and((r,q,c) -> c.equal(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+
+                if( isJoinWithSingleData) {
+
+
+                    cb.line("sp = sp.and((root, query, criteriaBuilder) -> {");
+                    cb.line("  Join<%s, %s> join = root.join(%s);",entityNm
+                            ,joinWithSingleDataTypeName
+                            ,quoteString(entityFieldNm));
+                    cb.line("  return criteriaBuilder.equal(join, %s);",joinWithSingleDatafieldName);
+                    cb.line("});");
+
+                }
+                else {
+                    cb.line("sp = sp.and((r,q,c) -> c.equal(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+                }
+
+
+
             }
 
             if (!isBetweenCondition)
@@ -221,7 +279,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         cb2.line("public static Specification<%s> %s(%s searchDTO, Specification<%s> sp)", entityNm, mainMethodNm, dtoNm, entityNm);
         cb2.block();
 
-        makeSpecificationFieldCode(searchDto, cb2);
+        makeSpecificationFieldCode(searchDto, cb2 ,entityNm);
 
         cb2.line("return sp;");
         cb2.end();
