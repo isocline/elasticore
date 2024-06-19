@@ -257,11 +257,49 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
             p.add("      query.setParameter(\"" + var + "\" , " + var + ");");
         }
 
+        for(Field f: method.getParams().getItemList()) {
+            String inputParamName = f.getIdentity().getName();
+
+            boolean isDynamicField = false;
+            for (String var : varList) {
+                if(var.equals(inputParamName)) {
+                    isDynamicField = true;
+                    break;
+                }
+            }
+            if(!isDynamicField) {
+                p.add("    query.setParameter(\"" + inputParamName + "\" , " + inputParamName + ");");
+            }
+
+        }
+
+
         if(isPageable) {
             p.add("    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());");
             p.add("    query.setMaxResults(pageable.getPageSize());");
             p.add("");
             p.add("    Query countQuery = entityManager.createNativeQuery(\"select count(*) from ( \"+sb+\" ) as X\");");
+
+            for (String var : varList) {
+                p.add("    if(" + var + "!=null)");
+                p.add("      countQuery.setParameter(\"" + var + "\" , " + var + ");");
+            }
+
+            for(Field f: method.getParams().getItemList()) {
+                String inputParamName = f.getIdentity().getName();
+
+                boolean isDynamicField = false;
+                for (String var : varList) {
+                    if (var.equals(inputParamName)) {
+                        isDynamicField = true;
+                        break;
+                    }
+                }
+                if (!isDynamicField) {
+                    p.add("    countQuery.setParameter(\"" + inputParamName + "\" , " + inputParamName + ");");
+                }
+            }
+
             p.add("    long totalRows = ((Number) countQuery.getSingleResult()).longValue();");
 
             if (fieldNames != null) {

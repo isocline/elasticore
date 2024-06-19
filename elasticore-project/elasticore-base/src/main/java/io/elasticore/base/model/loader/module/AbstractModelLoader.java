@@ -145,9 +145,23 @@ public class AbstractModelLoader implements ConstanParam {
      */
     protected Map<String, Annotation> loadAnnotationMap(String fieldLine) {
 
+        boolean chk = false;
         int p0 = fieldLine.indexOf(" --");
-        if(p0>0) {
-            String comment = fieldLine.substring(p0+3).trim();
+        if(p0<0) {
+            p0 = fieldLine.indexOf("--");
+            if(p0!=0) {
+                p0 = -1;
+            }else{
+                chk = true;
+            }
+
+        }
+        if(p0>=0) {
+            String comment =null;
+            if(chk)
+                comment = fieldLine.substring(p0+2).trim();
+            else
+                comment = fieldLine.substring(p0+3).trim();
             if(!comment.isEmpty() && comment.indexOf("@")<0) {
                 fieldLine = fieldLine.substring(0,p0);
 

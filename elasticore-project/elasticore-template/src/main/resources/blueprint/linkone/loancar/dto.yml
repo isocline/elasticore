@@ -15,7 +15,7 @@ dto:
     fields:
       rentComId: string @ref(rentCompany.id) @s(eq) -- 파트너사 코드
       partCustCd: string @ref(partnerCust.codeId) @s(eq) -- 파트너사 코드
-      createDate: datetime @s(~) -- 접수일자 비교
+      createDate: date @s(~) -- 접수일자 비교
       rentCompanyName: string @ref(rentCompany.comName) @s(%%) -- 렌트카 업체명
 
   LoanCarSearchResultDTO:

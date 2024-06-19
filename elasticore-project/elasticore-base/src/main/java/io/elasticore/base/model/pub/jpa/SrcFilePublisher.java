@@ -34,31 +34,42 @@ public class SrcFilePublisher {
         System.err.println(msg);
     }
 
-
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content) {
+        writeSrcCode(publisher,modelComponent,qualifiedClassName,content,true);
+    }
+
+    protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content, boolean checkModified) {
         SourceFileAccessFactory fileAccessFactory = publisher.getSrcFileAccessFactory();
 
-        HashUtils.Response response = null;
-        try (Reader reader = fileAccessFactory.getReader(qualifiedClassName)) {
-            response = HashUtils.checkContentModified(reader);
+        //if(checkModified)
+        {
+            HashUtils.Response response = null;
+            try (Reader reader = fileAccessFactory.getReader(qualifiedClassName)) {
+                response = HashUtils.checkContentModified(reader);
 
 
-            if (response != null && response.getStatus() == HashUtils.MODIFIED) {
-                log("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
+                if (response != null && response.getStatus() == HashUtils.MODIFIED) {
+
+                    if(checkModified) {
+                        log("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
+                        return;
+                    }
+                    log("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
+
+                }
+
+            } catch (FileNotFoundException fnfe) {
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+
+            if (response != null && content.equals(response.getContent())) {
+                log("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
 
                 return;
             }
-
-        } catch (FileNotFoundException fnfe) {
-        } catch (Throwable e) {
-            e.printStackTrace();
         }
 
-        if (response != null && content.equals(response.getContent())) {
-            log("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
-
-            return;
-        }
 
 
         try (Writer writer = fileAccessFactory.getWriter(qualifiedClassName)) {

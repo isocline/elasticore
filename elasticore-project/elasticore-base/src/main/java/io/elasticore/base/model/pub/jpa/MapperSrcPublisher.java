@@ -104,7 +104,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         String code = baseCodeTmpl.toString(params);
         String qualifiedClassName = packageName + "." + this.className;
 
-        this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
+        this.writeSrcCode(this.publisher, null, qualifiedClassName, code ,false);
     }
 
     private void makeMapper(ModelDomain domain, CodeTemplate.Paragraph methodP) {
@@ -211,12 +211,27 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             } else if ("between".equals(condition) || "~".equals(condition)) {
                 String fromNm = fieldNm + "From";
                 String toNm = fieldNm + "To";
+
+                String fromFd = "searchDTO.get"+capitalize(fromNm);
+                String toFd = "searchDTO.get"+capitalize(fromNm);
                 cb.line("%s %s = searchDTO.get%s();", type, fromNm, capitalize(fromNm));
                 cb.line("%s %s = searchDTO.get%s();", type, toNm, capitalize(toNm));
 
+                boolean isLocalDate = false;
+                if("java.time.LocalDate".equals(type)) {
+                    isLocalDate = true;
+
+                }
+
                 cb.line("if(hasValue(%s) && hasValue(%s))", fromNm, toNm);
                 cb.block();
-                cb.line("sp = sp.and((r,q,c) -> c.between(r.get(%s)%s,%s,%s));", quoteString(entityFieldNm),childFieldName, fromNm, toNm);
+                if(isLocalDate) {
+                    cb.line("%s %s_2 = %s.plusDays(1);",  type, toNm, toNm);
+                    cb.line("sp = sp.and((r,q,c) -> c.between(r.get(%s)%s,%s,%s));", quoteString(entityFieldNm),childFieldName, fromNm, toNm+"_2");
+                }else {
+                    cb.line("sp = sp.and((r,q,c) -> c.between(r.get(%s)%s,%s,%s));", quoteString(entityFieldNm),childFieldName, fromNm, toNm);
+                }
+
                 cb.end();
 
                 cb.line("else if(hasValue(%s))", fromNm);
@@ -226,7 +241,13 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                 cb.line("else if(hasValue(%s))", toNm);
                 cb.block();
-                cb.line("sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, toNm);
+                if(isLocalDate) {
+                    cb.line("%s %s_2 = %s.plusDays(1);",  type, toNm, toNm);
+                    cb.line("sp = sp.and((r,q,c) -> c.lessThan(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, toNm+"_2");
+                }else {
+                    cb.line("sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, toNm);
+                }
+
 
                 cb.end();
             } else {

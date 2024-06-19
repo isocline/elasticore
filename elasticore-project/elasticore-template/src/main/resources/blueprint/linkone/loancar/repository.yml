@@ -4,15 +4,21 @@ repository:
       - id: selectLoanCarProcessByCompanyId
         params:
           companyId: string
+          custNm: string
+          custTel: string
         return: List<CompanyLoanCarProcessDTO>
         pageable: true
         nativeQuery: true
         query: |
-          SELECT lc.id, lcp.create_date, lc.cust_nm , lc.cust_tel, lc.rent_car_nm , lcp.process_type
+          SELECT
+            lc.id, lcp.create_date, lc.cust_nm , lc.cust_tel, lc.rent_car_nm , lcp.process_type
+            ,lcp.memo,lcp.apply_date ,lcp.apply_time ,lcp.cust_req_memo ,lcp.insureyn
           FROM Loan_Car_Process lcp
           JOIN Loan_Car lc ON lcp.loan_car_master_id = lc.id
-          where 1=1
-           and lcp.rent_company_id  =  :companyId /* if:companyId */
+          where
+            lcp.rent_company_id  =  :companyId
+            and lc.cust_nm like concat('%' , :custNm ,'%')  /* if:custNm */
+          and lc.cust_tel like concat('%' , :custTel ,'%')  /* if:custTel */
           order by lcp.create_date  desc
 
 
@@ -27,7 +33,14 @@ dto:
       custTel: string --연락처
       rentCarNm: string  --대차차량명
       processType: string  -- 상태 프로세스
-      processType2: string  -- 상태 프로세스
+      memo: string -- 메모
+      applyDate: string -- 적용일
+      applyTime: string -- 적용시간
+      custReqMemo: string -- 고객요청사항
+      insureyn: string -- 보험적용여부 (Y/N)
+
+
+      processTypeName: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getProcessTypeName(processType) )  -- 상태 프로세스 이름
 
 
 
