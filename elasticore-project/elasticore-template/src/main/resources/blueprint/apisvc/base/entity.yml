@@ -1,0 +1,55 @@
+entity:
+  ReCommon:
+    meta: entity @abstract
+    fields:
+      packetId: string --  전문번호
+      masterKey: string -- 전문 key 값
+      sendYmd: string -- 접수일자
+      sendHms: string -- 접수시간
+      receptNo: string @unique -- 대차접수번호 (master)
+      errorCd: string -- 전송코드
+      errorText: string -- 전송내용
+
+
+  ReData100:
+    meta: entity @extend(ReCommon) -- 대차요청 | 대차 요청 정보를 관리
+    fields:
+      id: long @id @sequence -- 아이디
+      createDate: datetime @updatable(false) @jpa:CreatedDate
+
+      empNo: string -- 요청상담사
+      rentKind: RentKindType -- 대차용도 (01:사고/02:정비/09:기타)
+      rentCarCode: string -- 대차차량코드
+      rentCarNm: string -- 대차차량명
+      rentCost: string -- 대차비용
+
+      insurNm: string -- 보험사 대차용도 - 사고
+      indeMoney: string -- 면책금 대차용도 - 사고
+
+      regDate: string -- 신청일
+      regTime: string -- 신청시간
+      joincode: string -- 제휴사
+
+      custNm: string  -- 고객명 AES-256 암호화
+      custTel: string  -- 연락처 AES-256 암호화
+      vipYn: Indicator -- VIP여부
+
+      bigo: string -- 특이사항
+
+      reqDate: string @s(yyyymmdd) -- 요청일자
+      reqTime: string @s(hhmi) -- 요청시간
+      reqZip: string  -- 요청장소우편번호 AES-256 암호화
+      reqAddr: string  -- 요청장소주소 AES-256 암호화
+      reqDaddr: string  -- 요청장소상세주소 AES-256 암호화
+
+      consignYn: Indicator -- 차량탁송여부 Y:신청 / N:미신청
+      consignOfiiceNm: string -- 탁송장소(공장명)
+      consignZip: string  -- 탁송장소(우편번호) AES-256 암호화
+      consignAddr: string  -- 탁송장소(주소) AES-256 암호화
+      consignDaddr: string  -- 탁송장소(상세주소) AES-256 암호화
+      consignTel: string  -- 탁송장소(전화번호) AES-256 암호화
+
+      chkCd: string @default('S')  -- 상태 체크 (테스트)
+      nextIfCd: string -- 다음 IF 코드
+
+

@@ -53,7 +53,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_MAPPER);
         if (this.packageName == null) {
-            this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+            if(model.getNamespace(ConstanParam.KEYNAME_ENTITY) !=null) {
+                this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+            }
+
         } else {
 
         }
@@ -73,6 +76,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
     }
 
     public void publish(ModelDomain domain) {
+        if(this.packageName ==null) return;
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
 
@@ -408,7 +412,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                 } else if(isDtoSet){
 
-                    cb.line("if(from.get%s()!=null)", getFieldNm);
+                    cb.line("if(hasValue(from.get%s()))", getFieldNm);
                     cb.line("    to.set%s(from.get%s().get%s());"
                             , setFieldNm, getFieldNm, StringUtils.capitalize(targetChildFieldNm));
                 }
@@ -421,6 +425,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                             cb.line("");
                             cb.line("");
+
+                            cb.line("if(hasValue(from.get%s()))",getFieldNm);
+
                             cb.block("{");
                             cb.line("%s t = new %s();", entityNm,entityNm);
                             cb.line("t.set%s(from.get%s());"
@@ -465,6 +472,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         cb.line("public static void mapping(%s from, %s to, boolean isSkipNull)", fromModel.getIdentity().getName(), toModel.getIdentity().getName()).block();
+        cb.line("checkPermission(from, to);");
         cb.line("if(from ==null || to ==null) return;");
 
         ListMap<String, Field> fromListMap = fromModel.getAllFieldListMap();
@@ -493,7 +501,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 if("toDTO".equals(toMethodName))
                     if (fromField.hasAnnotation("password")) continue;
 
-                cb.line("if(!isSkipNull || from.get%s()!=null)", fldNm);
+                cb.line("if(!isSkipNull || hasValue(from.get%s()))", fldNm);
                 cb.line("    to.set%s(from.get%s());", fldNm, fldNm);
             }
         }

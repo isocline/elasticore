@@ -226,6 +226,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             setFieldDocumentation(f,p);
             setFieldValidation(f,p);
             setJsonInfo(f, p);
+            setFormatAnnotation(f,p);
 
 
             setNativeAnnotation(f, p);

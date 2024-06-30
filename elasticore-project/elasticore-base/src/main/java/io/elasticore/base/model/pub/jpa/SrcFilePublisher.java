@@ -9,6 +9,7 @@ import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractDataModel;
 import io.elasticore.base.model.core.RelationshipManager;
+import io.elasticore.base.model.entity.BaseFieldType;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
@@ -195,7 +196,6 @@ public class SrcFilePublisher {
         }
 
         String example = getExample(f);
-
         p.add("@Schema(description = \"%s\" %s %s)", desc, requireTxt, example);
     }
 
@@ -249,6 +249,26 @@ public class SrcFilePublisher {
                 example = sb.toString();
             }
 
+        }
+
+        if(example==null) {
+            String format = f.getAnnotationValue("format","pattern");
+            if(format==null) {
+                if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
+                        || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
+                    if(format==null)
+                        format = "yyyy-MM-dd";
+
+                }
+                else if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
+                        || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime ) {
+                    if(format==null)
+                        format = "yyyy-MM-dd HH:mm:ss";
+
+                }
+            }
+
+            example = format;
         }
 
 
@@ -362,6 +382,26 @@ public class SrcFilePublisher {
             p.add("}");
             p.add("");
         }
+    }
+
+    protected void setFormatAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
+
+        String format = field.getAnnotationValue("format", "pattern");
+        if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
+                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
+            if(format==null)
+                format = "yyyy-MM-dd";
+            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"%s\")",format);
+            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"%s\")",format);
+        }
+        else if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
+                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime ) {
+            if(format==null)
+                format = "yyyy-MM-dd HH:mm:ss";
+            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"%s\")",format);
+            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"%s\")",format);
+        }
+
     }
 
 }

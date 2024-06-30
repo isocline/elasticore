@@ -1,0 +1,112 @@
+package ${packageName};
+
+
+import ${dtoPackageName}.*;
+import ${servicePackageName}.*;
+
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+import com.mobillug.linkone.common.utils.TuiGridUtils;
+import com.mobillug.linkone.common.vo.TuiGridResponseVO;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/${domainName}/${entityName}")
+@RequiredArgsConstructor
+@Tag(name = "${entityClassName} (${entityLabel})", description = "${entityDesc}")
+public class ${className}{
+
+    private final ${serviceClassName} ${entityName}Service;
+
+
+    @Operation(summary = "${entityName} 전체조회", description = "${entityName} 데이터에 대한 전체조회. 테스트 목적으로 추후 해당메소드 삭제 예정.")
+    @GetMapping
+    @ResponseBody
+    public List<${dtoClassName}> listAll() {
+        return ${entityName}Service.findAll();
+    }
+
+    @Operation(summary = "${entityClassName} 샘플 구조체 보기", description = "${entityClassName} 의 샘플 구조체 보기, 삭제 예정")
+    @GetMapping("/sample")
+    @ResponseBody
+    public ${dtoClassName} sample() {
+        return new ${dtoClassName}();
+    }
+
+    @Operation(summary = "${entityClassName} 의 아이디로 단건조회", description = "${entityClassName} 아이디로 단건 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the ${entityClassName}", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}),
+            @ApiResponse(responseCode = "404", description = "Loan car not found", content = @Content)
+    })
+    @GetMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<${dtoClassName}> findById(@PathVariable("id") ${pkType} id) {
+        Optional<${entityClassName}DTO> ${entityClassName} = ${entityName}Service.findById(id);
+        return ${entityClassName}.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+    @Operation(summary = "${entityClassName} 데이터 단건 등록", description = "${entityClassName} 데이터 단건 등록")
+    @PostMapping
+    @ResponseBody
+    public ${dtoClassName} create(@RequestBody ${dtoClassName} ${entityClassName}) {
+        return ${entityName}Service.save(${entityClassName});
+    }
+
+
+    @Operation(summary = "${entityClassName} 데이터 검색", description = " ${entityClassName} 필드항목 조건에 따라 데이터 검색, 각 조건은 AND 조건이 된다.")
+    @PostMapping("/search")
+    @ResponseBody
+    public ${searchReturnType}<${searchResultDTOClassName}> search(@RequestBody ${searchDTOClassName} searchDTO) {
+        return ${entityName}Service.findBySearch(searchDTO);
+    }
+
+
+    @Operation(summary = "${entityClassName} 그리드용 데이터 검색", description = " ${entityClassName} 필드항목 조건에 따라 데이터 검색, 각 조건은 AND 조건이 된다.")
+    @PostMapping(value = "/grid/search", consumes = "application/x-www-form-urlencoded")
+    @ResponseBody
+    public TuiGridResponseVO searchGrid(@ModelAttribute ${searchDTOClassName} searchDTO) {
+        return TuiGridUtils.getTuiPageGridResponse( ${entityName}Service.findBySearch(searchDTO) );
+    }
+
+
+
+    @Operation(summary = "${entityClassName} 데이터 수정", description = "${entityClassName} 데이터 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Updated the ${entityClassName}", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}),
+            @ApiResponse(responseCode = "404", description = "Loan car not found", content = @Content)
+    })
+    @PutMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<${dtoClassName}> update(@PathVariable("id") ${pkType} id, @RequestBody ${dtoClassName} ${entityName}Details) {
+        ${dtoClassName} ${entityName} = ${entityName}Service.update(${entityName}Details);
+
+        return ResponseEntity.ok(${entityName});
+    }
+
+    @Operation(summary = " ${entityClassName} 삭제", description = " ${entityClassName} 데이터 삭제")
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> delete(@PathVariable("id") ${pkType} id) {
+        if (!${entityName}Service.findById(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ${entityName}Service.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+}

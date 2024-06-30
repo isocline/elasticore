@@ -279,19 +279,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
         setNativeAnnotation(entity.getMetaInfo().getMetaAnnotationMap(), paragraph);
     }
 
-    private void setFormatAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
-        if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
-                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
-            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"yyyy-MM-dd\")");
-            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"yyyy-MM-dd\")");
-        }
-        else if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
-                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime ) {
-            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")");
-            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")");
-        }
 
-    }
 
     private void setNativeAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
         setNativeAnnotation(field.getAnnotationMap(), paragraph);

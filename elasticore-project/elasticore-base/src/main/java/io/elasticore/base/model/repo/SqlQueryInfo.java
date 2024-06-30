@@ -129,7 +129,8 @@ public class SqlQueryInfo {
 
         setVarNameList.stream()
                 .forEach(varName -> {
-                    Field f = this.targetEntity.getItems().findByName(varName);
+                    //Field f = this.targetEntity.getItems().findByName(varName);
+                    Field f = (Field) this.targetEntity.getAllFieldListMap().get(varName);
                     if (f != null)
                         this.setVarFieldItems.addItem(f);
                 });
@@ -373,7 +374,7 @@ public class SqlQueryInfo {
 
     public void setRepositoryMethodName() {
 
-        if (this.isNativeQuery) {
+        if (this.isNativeQuery || this.returnType !=null) {
             this.jpaMethodName = this.repositoryContext.getString("id");
             return;
         }
@@ -388,6 +389,8 @@ public class SqlQueryInfo {
             if (whereAndCount.get() == 0 || whereAndCount.get() == (fieldList.size() - 1)) {
                 isJpaQueryAnnotationNeed = false;
             }
+
+
 
 
             if (isUniqueSearch()) {

@@ -5,6 +5,7 @@ import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.util.StringUtils;
 
 import java.util.HashMap;
@@ -20,6 +21,14 @@ import java.util.regex.Pattern;
  * Provides common functionalities to parse field information, annotations, and meta-information from entity maps.
  */
 public class AbstractModelLoader implements ConstanParam {
+
+
+    protected ModelLoaderContext modelLoaderContext;
+
+
+    protected void setModelLoaderContext(ModelLoaderContext modelLoaderContext) {
+        this.modelLoaderContext = modelLoaderContext;
+    }
 
 
     /**
@@ -136,6 +145,31 @@ public class AbstractModelLoader implements ConstanParam {
         return null;
     }
 
+    private String replaceEnvVariables(String input) {
+
+        if(modelLoaderContext==null)
+            return input;
+
+
+        StringBuilder result = new StringBuilder();
+        String[] tokens = input.split(" ");
+
+        for (String token : tokens) {
+            if (token.startsWith("@env:")) {
+                String key = token.substring(5);
+                String val = modelLoaderContext.getConfig("anootions."+key);
+                if (val!=null) {
+                    result.append(" @").append(val);
+                } else {
+                    result.append(" ").append(token);
+                }
+            } else {
+                result.append(" ").append(token); // "@env:"로 시작하지 않는 토큰 추가
+            }
+        }
+
+        return result.toString().trim(); // 결과 문자열 반환, 앞뒤 공백 제거
+    }
 
     /**
      * Loads a map of annotations from a string that represents multiple annotations.
@@ -144,6 +178,8 @@ public class AbstractModelLoader implements ConstanParam {
      * @return A map of annotation names to Annotation objects.
      */
     protected Map<String, Annotation> loadAnnotationMap(String fieldLine) {
+
+        fieldLine = replaceEnvVariables(fieldLine);
 
         boolean chk = false;
         int p0 = fieldLine.indexOf(" --");
@@ -184,7 +220,9 @@ public class AbstractModelLoader implements ConstanParam {
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\((.*?)\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\('([^']*?)'\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(('([^']*?)'|[^()]*?)\\))?");
-        Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
+        //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
+        Pattern pattern = Pattern.compile("@([\\w:.]+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
+
 
 
         Matcher matcher = pattern.matcher(fieldLine);
@@ -262,16 +300,16 @@ public class AbstractModelLoader implements ConstanParam {
         if(p2>0) {
             String lenInfo = type.substring(p2);
             type = type.substring(0,p2);
-            fieldLine = fieldLine +" @length"+lenInfo;
+            fieldLine = "@length"+lenInfo +" "+fieldLine;
         }
 
         if("longtext".equals(type)) {
             type="string";
-            fieldLine = fieldLine +" @longtext";
+            fieldLine = "@longtext "+fieldLine;
         }
         else if("text".equals(type)) {
             type="string";
-            fieldLine = fieldLine +" @text";
+            fieldLine = "@text "+fieldLine;
         }
 
 

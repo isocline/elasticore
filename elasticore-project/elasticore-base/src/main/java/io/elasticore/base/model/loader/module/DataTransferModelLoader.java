@@ -30,6 +30,9 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
     }
 
     public void loadModel(ModelLoaderContext ctx, Items<DataTransfer> items, Map<String, LinkedHashMap> entityMap) {
+
+        this.setModelLoaderContext(ctx);
+
         entityMap.forEach((entityNm, value) -> {
             DataTransfer entity = loadDataTransfer(ctx, entityNm, value);
             items.addItem(entity);

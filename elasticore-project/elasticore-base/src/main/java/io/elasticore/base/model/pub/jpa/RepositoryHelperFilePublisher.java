@@ -57,6 +57,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
     public void publish(ModelDomain domain, RepositoryModels repositoryModels) {
 
+        if(this.packageName==null) return;
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
 

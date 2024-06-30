@@ -3,6 +3,7 @@ package io.elasticore.base.model.loader.module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
@@ -69,6 +70,14 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         EntityModels entityModels = EntityModels.create(context.getDomainId(), "entityGrp", null, context.getEntityItems());
         EnumModels enumModels = EnumModels.create(context.getDomainId(), "enumGroup", null, context.getEnumModelItems());
         DataTransferModels dataTransferModels = DataTransferModels.create(context.getDomainId(), "dto", null, context.getDataTransferItems());
+
+
+        ECoreModel tmpModel = ECoreModel.builder()
+                .entityModels(entityModels)
+                .enumModels(enumModels)
+                .dataTransferModels(dataTransferModels).build();
+        BaseModelDomain.setCurrentModel(tmpModel);
+
 
 
         repositoryModelLoader.completeLoad();

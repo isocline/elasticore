@@ -63,6 +63,10 @@ public class EtcSrcFilePublisher extends SrcFilePublisher {
      */
     public void publish(ModelDomain domain) {
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
+
+        if(model.getNamespace(ConstanParam.KEYNAME_ENTITY) == null)
+            return;
+
         String packageNm = model.getNamespace(ConstanParam.KEYNAME_DTO);
 
         publishSrcFile(packageNm, "PageableObject", "template.etc.PageableObject", "java_PageableObject.tmpl");

@@ -1,0 +1,57 @@
+package ${packageName};
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import org.springframework.data.jpa.domain.Specification;
+import ${j2eePkgName}.persistence.criteria.Join;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.function.BiFunction;
+import ${entityPackageName}.*;
+import ${dtoPackageName}.*;
+import ${enumPackageName}.*;
+
+import ${importList};
+
+/**
+ * <pre>${description}</pre>
+ * hash:${hashCode}
+ */
+
+${classAnnotationList}
+public class ${className} {
+
+    ${methodList}
+
+
+    private static boolean hasValue(String val) {
+        if(val != null && !val.isEmpty())
+            return true;
+
+        return false;
+    }
+
+    private static boolean hasValue(java.time.LocalDateTime dateTime) {
+        if(dateTime !=null)
+            return true;
+
+        return false;
+    }
+
+    private static boolean hasValue(List val) {
+            if(val != null && val.size()>0)
+                return true;
+
+            return false;
+    }
+
+    private static boolean hasValue(Object val) {
+        if(val != null )
+            return true;
+
+        return false;
+    }
+}

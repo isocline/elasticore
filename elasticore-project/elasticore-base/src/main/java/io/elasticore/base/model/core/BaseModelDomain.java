@@ -2,6 +2,9 @@ package io.elasticore.base.model.core;
 
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.dto.DataTransferModels;
+import io.elasticore.base.model.entity.EntityModels;
+import io.elasticore.base.model.enums.EnumModels;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +15,8 @@ public final class BaseModelDomain implements ModelDomain {
     private final ECoreModel model;
 
     private static Map<String, ModelDomain> modelDomainMap = new HashMap<>();
+
+    private static ECoreModel currentModel;
 
 
     private BaseModelDomain(String domainId, ECoreModel model) {
@@ -43,5 +48,14 @@ public final class BaseModelDomain implements ModelDomain {
     @Override
     public ECoreModel getModel() {
         return model;
+    }
+
+
+    public static ECoreModel getCurrentModel() {
+        return currentModel;
+    }
+
+    public static void setCurrentModel(ECoreModel currentModel) {
+        BaseModelDomain.currentModel = currentModel;
     }
 }

@@ -19,7 +19,7 @@ dto:
       userList: List<CustUserDTO> @ref(userList)
       areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo ) -- 전체 지역정보 텍스트 형태
       partCustId: string @ref(partnerCust.codeId)
-      partCustNm: string @ref(partnerCust.codeNm)
+      partCustNm: string @ref(partnerCust.codeNm) @env:encrypt
 
   CompanySearchDTO:
     meta: dto @searchable(entity=Company, pageSize=30)

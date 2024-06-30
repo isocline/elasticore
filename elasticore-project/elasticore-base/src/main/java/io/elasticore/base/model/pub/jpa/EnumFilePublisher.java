@@ -85,6 +85,8 @@ public class EnumFilePublisher extends SrcFilePublisher {
                 dbField = fieldItem.findByName(dbFieldNm);
         }
 
+        makeEnumInfo(cb, enumModel);
+
         boolean isJsonImport = false;
         boolean isDbImport = false;
 
@@ -114,6 +116,12 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
         }
 
+        importInfo.line("import java.util.Map;");
+        importInfo.line("import java.util.HashMap;");
+
+        importInfo.line("import java.util.List;");
+        importInfo.line("import java.util.ArrayList;");
+
         if(isJsonImport) {
             importInfo.line("import com.fasterxml.jackson.core.JsonGenerator;")
                     .line("import com.fasterxml.jackson.core.JsonParser;")
@@ -140,6 +148,33 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
     }
 
+
+    private void makeEnumInfo(CodeStringBuilder cb, EnumModel enumModel ) {
+        String enumName = enumModel.getIdentity().getName();
+
+        cb.block("");
+
+
+        cb.line("public static List<Map> getAllEnumInfo()").block();
+        cb.line("List list = new ArrayList();");
+        cb.line("for(%s i:%s.class.getEnumConstants())",enumName,enumName).block();
+        cb.line("HashMap map = new HashMap();");
+        cb.line("map.put(\"_name\", i.name());");
+
+        for(Field field:enumModel.getFieldItems().getItemList()) {
+            String name = field.getIdentity().getName();
+            cb.line("map.put(\"%s\", i.get%s());" ,name ,StringUtils.capitalize(name));
+        }
+
+        cb.line("list.add(map);");
+
+        cb.end();
+        cb.line("return list;");
+        cb.end();
+
+        cb.end("");
+    }
+
     /**
      * public static AaccidentType fromCode(String code) {
      * for (AaccidentType type : AaccidentType.values()) {
@@ -162,6 +197,9 @@ public class EnumFilePublisher extends SrcFilePublisher {
         String type = f.getTypeInfo().getDefaultTypeName();
 
         String capitalNm = StringUtils.capitalize(fieldName);
+
+
+
 
         cb.line("public static %s from%s(%s %s)", enumName, capitalNm, type, fieldName).block();
         cb.line("for (%s type : %s.values())", enumName, enumName).block();

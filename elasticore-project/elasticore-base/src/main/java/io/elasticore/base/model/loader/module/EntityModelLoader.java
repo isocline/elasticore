@@ -34,6 +34,9 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
 
 
     public void loadModel(ModelLoaderContext ctx, Items<Entity> items, Map<String, LinkedHashMap> entityMap) {
+
+        this.setModelLoaderContext(ctx);
+
         entityMap.forEach((entityNm, value) -> {
 
             //System.err.println(entityNm + " parsed");

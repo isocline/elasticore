@@ -171,11 +171,28 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         return sb.toString();
     }
 
+    protected String findDomainId() {
+        return getIdentity().getDomainId();
+    }
+
+    private ECoreModel getEcoreModel() {
+        ECoreModel eCoreModel = null;
+        try {
+            eCoreModel = BaseModelDomain.getModelDomain(findDomainId())
+                    .getModel();
+        }catch (RuntimeException re) {
+
+        }
+        if(eCoreModel ==null)
+            eCoreModel = BaseModelDomain.getCurrentModel();
+
+        return eCoreModel;
+    }
+
+
     public ListMap<String, Field> getAllFieldListMap() {
 
-        ECoreModel eCoreModel = BaseModelDomain.getModelDomain(getIdentity().getDomainId())
-                .getModel();
-
+        ECoreModel eCoreModel = getEcoreModel();
 
         ListMap<String, Field> fieldListMap = new ListMap<>();
         loadFieldInfo(this, fieldListMap);
