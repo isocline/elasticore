@@ -189,7 +189,7 @@ public class SrcFilePublisher {
         if (desc == null) {
             desc = f.getName();
         }
-        boolean isNotNull = f.hasAnnotation("notnull");
+        boolean isNotNull = f.hasAnnotation("notnull") || f.hasAnnotation("notblank");
         String requireTxt = "";
         if (isNotNull) {
             requireTxt = ", requiredMode=Schema.RequiredMode.REQUIRED";
@@ -285,6 +285,9 @@ public class SrcFilePublisher {
 
         if (f.hasAnnotation("notnull"))
             p.add("@NotNull");
+
+        if(f.hasAnnotation("notblank"))
+            p.add("@NotBlank");
 
         String minSize = f.getAnnotationValue("minsize");
         String maxSize = f.getAnnotationValue("length", "len", "size");
