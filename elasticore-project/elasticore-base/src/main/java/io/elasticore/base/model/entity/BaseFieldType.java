@@ -15,6 +15,7 @@ public enum BaseFieldType {
 
 
     STRING("String", null, "String"),
+    STRINGARRAY("String[]", null, "String[]"),
     P_INT("int", "int", "Integer"),
     P_LONG("long", "long", "Long"),
     P_FLOAT("float", "float", "Float"),

@@ -129,12 +129,13 @@ public class MermaidCodePublisher implements CodePublisher {
 
             String label = f.getAnnotationValue("label","desc");
             if(label !=null && !label.isEmpty() ) {
-
-                fieldName = fieldName+" //"+label;
+                label = "//"+label;
+            }else {
+                label ="";
             }
 
 
-            cb.line("%s %s", type, fieldName);
+            cb.line("%s: %s %s", fieldName, type,label);
         }
 
         cb.end();
@@ -144,14 +145,14 @@ public class MermaidCodePublisher implements CodePublisher {
 
         for (ModelRelationship r : list) {
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
-                cb.line("%s --> \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
+                cb.line("%s --o \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
 
             else if (r.getRelationType() == RelationType.SUPER)
-                cb.line("%s --> %s : %s", r.getFromName(), r.getToName(), "extend");
+                cb.line("%s <|-- %s : %s",  r.getToName(),r.getFromName(), "extend");
             else if (r.getRelationType() == RelationType.ROLLUP)
-                cb.line("%s --> %s : %s", r.getFromName(), r.getToName(), r.getRelationType().getName());
+                cb.line("%s <|-- %s : %s", r.getToName(), r.getFromName(),  r.getRelationType().getName());
             else if (r.getRelationType() == RelationType.EMBEDDED)
-                cb.line("%s --> %s : %s", r.getFromName(), r.getToName(), "embedded");
+                cb.line("%s *-- %s : %s", r.getToName(), r.getFromName(),  "embedded");
         }
     }
 }

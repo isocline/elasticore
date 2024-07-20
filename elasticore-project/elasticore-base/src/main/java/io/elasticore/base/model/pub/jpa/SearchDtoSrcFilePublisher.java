@@ -166,6 +166,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             pr.add("");
             pr.add("private int pageNumber=0;");
             pr.add("");
+            pr.add("@Builder.Default");
             pr.add("private int pageSize=%s;", defaultPageSize);
         }
 

@@ -16,8 +16,16 @@ public class ModelRelationship {
 
 
     private ModelRelationship(String fromName, String toName, RelationType relationType ,String relationName) {
-        this.fromName = fromName;
-        this.toName = toName;
+
+        if(fromName==null || fromName.trim().isEmpty()) {
+            throw new IllegalArgumentException("fromName is null");
+        }
+        if(toName==null || toName.trim().isEmpty()) {
+            throw new IllegalArgumentException("toName is null");
+        }
+
+        this.fromName = fromName.trim();
+        this.toName = toName.trim();
         this.relationType = relationType;
         this.relationName = relationName;
     }

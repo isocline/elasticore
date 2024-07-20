@@ -199,13 +199,16 @@ public class EnumFilePublisher extends SrcFilePublisher {
         String capitalNm = StringUtils.capitalize(fieldName);
 
 
-
-
         cb.line("public static %s from%s(%s %s)", enumName, capitalNm, type, fieldName).block();
+        cb.line("if(%s ==null) return null;", fieldName);
+        if("String".equals(type)) {
+            cb.line("if(%s.isEmpty()) return null;", fieldName);
+        }
+
         cb.line("for (%s type : %s.values())", enumName, enumName).block();
         cb.line("if (type.%s.equals(%s)) return type;", fieldName, fieldName);
         cb.end();
-        cb.line("throw new IllegalArgumentException(\"Unknown %s: \" + %s);", fieldName, fieldName);
+        cb.line("throw new IllegalArgumentException(\"Unknown %s %s: \" + %s);", enumName, fieldName, fieldName);
         cb.end();
 
         if (isJsonConv) {

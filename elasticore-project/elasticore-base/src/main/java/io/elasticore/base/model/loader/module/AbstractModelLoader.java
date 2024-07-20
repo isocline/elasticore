@@ -90,6 +90,9 @@ public class AbstractModelLoader implements ConstanParam {
      * @return A MetaInfo object populated with parsed annotations and other meta-information.
      */
     protected MetaInfo parseMetaInfoObject(Map<String, Object> entityMap) {
+        if(entityMap ==null)
+            entityMap = new HashMap<>();
+
         Object infoObj = entityMap.get(PROPERTY_INFO);
         Map<String, Annotation> infoAnnotation = getAnnotationObj(infoObj);
 
@@ -157,18 +160,18 @@ public class AbstractModelLoader implements ConstanParam {
         for (String token : tokens) {
             if (token.startsWith("@env:")) {
                 String key = token.substring(5);
-                String val = modelLoaderContext.getConfig("anootions."+key);
+                String val = modelLoaderContext.getConfig("annotations."+key);
                 if (val!=null) {
                     result.append(" @").append(val);
                 } else {
                     result.append(" ").append(token);
                 }
             } else {
-                result.append(" ").append(token); // "@env:"로 시작하지 않는 토큰 추가
+                result.append(" ").append(token);
             }
         }
 
-        return result.toString().trim(); // 결과 문자열 반환, 앞뒤 공백 제거
+        return result.toString().trim();
     }
 
     /**

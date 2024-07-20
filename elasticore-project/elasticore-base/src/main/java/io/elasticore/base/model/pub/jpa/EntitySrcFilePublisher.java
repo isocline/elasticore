@@ -327,7 +327,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             setFieldDesc(f, p);
 
             boolean isIdField =
-                    setFieldPkInfo(f, p);
+                    setFieldPkInfo(entity, f, p);
 
             setFieldColumnAnnotation(entity, f, p);
 
@@ -403,18 +403,35 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
 
-    private boolean setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
+    private boolean setFieldPkInfo(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
 
         boolean isIdField = false;
+
+        boolean isSequence =field.hasAnnotation("sequence");
 
         if (field.hasAnnotation("id") || field.hasAnnotation("pk") || field.isPrimaryKey()) {
             paragraph.add("@Id");
             isIdField = true;
 
-            if (field.hasAnnotation("sequence")) {
+            if (isSequence) {
                 paragraph.add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
             }
 
+        }else{
+            if(isSequence) {
+                String seqName = entity.getIdentity().getName()+"_"+field.getName()+"_seq";
+
+                paragraph.add("@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = \"seq_gen\")");
+                paragraph.add("@GenericGenerator(");
+                paragraph.add("  name = \"seq_gen\",");
+                paragraph.add("  strategy = \"org.hibernate.id.enhanced.SequenceStyleGenerator\",");
+                paragraph.add("  parameters = {");
+                paragraph.add("    @Parameter(name = \"sequence_name\", value = \"%s\"),",seqName);
+                paragraph.add("    @Parameter(name = \"initial_value\", value = \"1\"),");
+                paragraph.add("    @Parameter(name = \"increment_size\", value = \"1\")");
+                paragraph.add("}");
+                paragraph.add(")");
+            }
         }
 
 
@@ -512,9 +529,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }else if(fieldNm.contains("Status")) {
             return "10";
         }else if(fieldNm.contains("Date")) {
-            return "8";
+            // yyyy-MM-dd
+            return "10";
         }else if(fieldNm.contains("Time")) {
-            return "6";
+            // HH:mm:ss
+            return "8";
         }else if(fieldNm.contains("Zip")) {
             return "7";
         }else if(fieldNm.contains("Tel")) {
@@ -695,6 +714,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 .forEach(paragraph::add);
 
 
+        String prefix2 = "entity:";
+        annotationMap.entrySet().stream()
+                .filter(entry -> entry.getKey().contains(prefix2))
+                .map(Map.Entry::getValue)
+                .forEach(paragraph::add);
     }
 
 

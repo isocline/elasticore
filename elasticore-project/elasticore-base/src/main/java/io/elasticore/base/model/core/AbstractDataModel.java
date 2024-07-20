@@ -27,7 +27,6 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
     abstract public ModelComponentItems<Field> getItems();
 
-
     protected void setRelationModel() {
         RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
         String fromName = getIdentity().getName();
@@ -35,21 +34,34 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         Annotation extendAnt = this.getMetaInfo().getMetaAnnotation("extend");
         if(extendAnt!=null) {
             String toName = extendAnt.getValue();
+            if(toName==null) {
+                throw new IllegalStateException("Meta annotation 'extend' must have a value");
+            }
 
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SUPER));
             rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.CHILD));
         }
         Annotation rollupAnt = this.getMetaInfo().getMetaAnnotation(RelationType.ROLLUP.getName());
         if(rollupAnt!=null) {
-            String toName = extendAnt.getValue();
-            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLUP));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ROLLDOWN));
+            String toName = rollupAnt.getValue();
+            if(toName !=null) {
+                String[] toNames =toName.split(",");
+                for(String toNm : toNames) {
+                    rm.addRelationship(ModelRelationship.create(fromName, toNm, RelationType.ROLLUP));
+                    rm.addRelationship(ModelRelationship.create(toNm, fromName, RelationType.ROLLDOWN));
+                }
+
+            }
+
         }else {
             Annotation rolldownAnt = this.getMetaInfo().getMetaAnnotation(RelationType.ROLLDOWN.getName());
             if(rolldownAnt!=null) {
-                String toName = extendAnt.getValue();
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLDOWN));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ROLLUP));
+                String toName = rolldownAnt.getValue();
+                if(toName!=null) {
+                    rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ROLLDOWN));
+                    rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ROLLUP));
+                }
+
             }
         }
 

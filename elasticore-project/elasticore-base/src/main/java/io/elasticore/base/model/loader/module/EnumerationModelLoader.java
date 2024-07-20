@@ -10,10 +10,7 @@ import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EnumerationModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<EnumModel> {
 
@@ -38,9 +35,10 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
 
             //System.err.println(enumNm + " parsed");
 
-            EnumModel enumModel = loadEnumModel(ctx, enumNm, value);
-            items.addItem(enumModel);
-
+            if(value!=null) {
+                EnumModel enumModel = loadEnumModel(ctx, enumNm, value);
+                items.addItem(enumModel);
+            }
         });
     }
 
