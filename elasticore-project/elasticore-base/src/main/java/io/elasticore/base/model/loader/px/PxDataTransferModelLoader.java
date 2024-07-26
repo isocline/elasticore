@@ -1,6 +1,7 @@
 package io.elasticore.base.model.loader.px;
 
 import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
@@ -120,7 +121,24 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         //System.err.println(">> " + name);
 
         Items<Field> fieldItems = loadFieldData(StructureElement);
-        return DataTransfer.create(ctx.getDomainId(), name, fieldItems, null);
+        return DataTransfer.create(ctx.getDomainId(), name, fieldItems, createMetaInfo(StructureElement));
+    }
+
+    private MetaInfo createMetaInfo(Element StructureElement) {
+
+        Map<String, Annotation> infoAnnotation = new HashMap<>();
+        Map<String, Annotation> metaAnnotation = new HashMap<>();
+
+        Node node = XmlUtil.getNodeByName(StructureElement, "Documentation");
+        if(node!=null) {
+            String desc = node.getTextContent();
+            if(desc!=null && desc.length()>0) {
+                Annotation ant = Annotation.create("description", desc);
+                infoAnnotation.put(ant.getName(), ant);
+            }
+        }
+
+        return MetaInfo.creat(infoAnnotation, metaAnnotation);
     }
 
 
@@ -133,6 +151,12 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
             Element attrElmnt = attr.getElement();
             Node node = XmlUtil.getNodeByName(attrElmnt, "Name");
             String fieldName = node.getTextContent();
+
+            Node node2 = XmlUtil.getNodeByName(attrElmnt, "Documentation");
+            String desc = null;
+            if(node2!=null)
+                desc = node2.getTextContent();
+
 
             //System.err.println(" --  " + fieldName + " " + isRequestAttr(attrElmnt));
 
@@ -150,7 +174,9 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
 
 
             Field f = Field.builder().annotationMap(annotationMap)
-                    .name(fieldName).type(type).build();
+                    .name(fieldName).type(type)
+                    .description(desc)
+                    .build();
             fieldItems.addItem(f);
 
         });
@@ -181,8 +207,13 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
                 }
 
                 Map<String, Annotation> annotationMap = getAnnotationMap(multiple);
-                Field f = Field.builder().annotationMap(annotationMap)
-                        .name(fieldName).type(fieldType).build();
+                Field f = Field.builder()
+                        .annotationMap(annotationMap)
+                        .name(fieldName)
+                        .type(fieldType)
+                        .description(vd.getDocumentation())
+                        .build();
+
                 fieldItems.addItem(f);
             }
 

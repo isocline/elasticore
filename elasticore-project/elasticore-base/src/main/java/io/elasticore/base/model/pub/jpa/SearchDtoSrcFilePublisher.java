@@ -237,10 +237,10 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             String defaultValDefined = getDefaultValueSetup(f);
 
-            String searchCondition = f.getAnnotationValue("search", "s");
+
             String fieldNm = f.getName();
             String typeName = f.getTypeInfo().getDefaultTypeName();
-            if ("between".equals(searchCondition) || "~".equals(searchCondition)) {
+            if ("between".equals(conditionCode) || "~".equals(conditionCode)) {
                 p.add("%s %s %s%s;", "private", typeName, fieldNm + "From", defaultValDefined);
                 p.add("");
 

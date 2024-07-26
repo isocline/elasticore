@@ -32,11 +32,12 @@ public class Field implements ModelComponent {
 
 
     @Builder(builderMethodName = "builder")
-    private Field(String name, String type, boolean isPrimaryKey, boolean unique, Map<String, Annotation> annotationMap) {
+    private Field(String name, String type, boolean isPrimaryKey, boolean unique, String description, Map<String, Annotation> annotationMap) {
         this.name = name;
         this.type = type;
         this.isPrimaryKey = isPrimaryKey;
         this.unique = unique;
+        this.description = description;
         this.annotationMap = annotationMap;
     }
 

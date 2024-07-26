@@ -141,6 +141,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             String entityFieldNm = fieldNm;
 
+            boolean isListfield = f.getTypeInfo().isList();
+            boolean isListEntityField = isListfield;
+
             String childFieldName="";
             String refFieldNm = f.getAnnotationValue("ref");
             if(refFieldNm!=null) {
@@ -152,12 +155,17 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                 entityFieldNm = refFieldNm;
 
+
+                isListEntityField = false;
+                try {
+                    isListEntityField = listMap.get(refFieldNm).getTypeInfo().isList();
+                }catch (NullPointerException e) {}
             }
 
             boolean isBetweenCondition =("between".equals(condition) ||  "~".equals(condition));
 
 
-            boolean isListfield = f.getTypeInfo().isList();
+
             boolean isJoinWithSingleData = false;
             String joinWithSingleDatafieldName = null;
             String joinWithSingleDataTypeName = null;
@@ -198,7 +206,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s+ %s));", quoteString(entityFieldNm),childFieldName, fieldNm, percent);
             } else if ("in".equals(condition)) {
-                if(isListfield) {
+                if(isListEntityField) {
                     cb.line("sp = sp.and((root, query, criteriaBuilder) -> {");
                     cb.line("    Join<%s, %s> join = root.join(%s);",entityNm
                             , f.getTypeInfo().getCoreItemType()
@@ -208,7 +216,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     cb.line("});");
 
                 }else{
-                    cb.line("sp = sp.and((r,q,c) -> c.in(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+                    cb.line("sp = sp.and((r, q, c) -> r.get(%s).in(%s));",quoteString(entityFieldNm),fieldNm);
+                    //cb.line("sp = sp.and((r,q,c) -> c.in(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
                 }
 
 

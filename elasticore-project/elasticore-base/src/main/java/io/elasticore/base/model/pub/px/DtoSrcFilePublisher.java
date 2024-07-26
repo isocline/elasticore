@@ -167,6 +167,10 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         else
             classPkgName = classPkgName +".response";
 
+        String desc = metaInfo.getInfoAnnotationValue("description");
+        if(desc==null)
+            desc="";
+
         p
                 .set("packageName", classPkgName)
                 .set("j2eePkgName",getPersistentPackageName(domain))
@@ -175,6 +179,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(dto))
                 .set("implementInfo", "implements java.io.Serializable")
+                .set("description", desc)
                 .set("className", classNm);
 
 
