@@ -24,6 +24,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
     private String packageName;
     private String entityPackageName;
     private String dtoPackageName;
+    private String enumPackageName;
 
 
     public RepositoryFilePublisher(CodePublisher publisher) {
@@ -43,6 +44,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
         this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
         this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+        this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
 
 
     }
@@ -67,6 +69,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
                 .set("packageName", packageName)
                 .set("entityPackageName", entityPackageName)
                 .set("dtoPackageName", dtoPackageName)
+                .set("enumPackageName", enumPackageName)
 
                 .set("className", classNm)
                 .set("targetModel", targetModelName)
@@ -102,6 +105,10 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
             //if(method.getName()==null) continue;
             if (!method.isEnable()) continue;
+
+            if(!method.getQueryInfo().isSelectQuery()) {
+                p.add("@org.springframework.data.jpa.repository.Modifying");
+            }
 
 
             boolean isNeedParamAnnotation = false;

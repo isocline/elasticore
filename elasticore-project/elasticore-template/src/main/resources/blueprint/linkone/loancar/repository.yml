@@ -1,4 +1,14 @@
 repository:
+  LoanCar:
+    methods:
+      - id: updateFaxStatus
+        params:
+          loanCarId: String
+          faxCompleteYN: Indicator
+          faxStatusType: FaxStatusType
+        return: int
+        query: UPDATE LoanCar e SET e.faxCompleteYN = :faxCompleteYN, e.faxStatusType= :faxStatusType  WHERE e.id = :loanCarId
+
   LoanCarProcess:
     methods:
       - id: selectLoanCarProcessByCompanyId

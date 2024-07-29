@@ -25,115 +25,133 @@
 <body>
     <h1>Entity Class Diagram</h1>
     <div class="mermaid">
+%%{
+init: {
+"theme": "base",
+
+"logLevel": "info",
+"flowchart": {
+  "htmlLabels": true,
+  "curve": "linear"
+},
+"sequence": {
+  "mirrorActors": true
+},
+ 'themeVariables': {
+      'primaryBorderColor': 'gray', 'background': 'white'
+},
+'class' : { 'layoutDirection':'LR' }
+}
+}%%
 
 classDiagram
     class AuditEntity{
-        java.time.LocalDateTime createDate
-        String createdBy
-        String lastModifiedBy
-        java.time.LocalDateTime lastModifiedDate
+        createDate: java.time.LocalDateTime 
+        createdBy: String 
+        lastModifiedBy: String 
+        lastModifiedDate: java.time.LocalDateTime 
     }
     class CommonCode{
-        Long codeSn //코드 sequence
-        String codeId
-        String codeNm
-        String codeValue
-        String codeOptn1 //코드옵션1
-        String codeOptn2 //코드옵션2
-        String codeOptn3 //코드옵션3
-        Integer codeDepth //코드 depth
-        Integer codeOrder //순서 정보
+        codeSn: Long //코드 sequence
+        codeId: String 
+        codeNm: String 
+        codeValue: String 
+        codeOptn1: String //코드옵션1
+        codeOptn2: String //코드옵션2
+        codeOptn3: String //코드옵션3
+        codeDepth: Integer //코드 depth
+        codeOrder: Integer //순서 정보
     }
-    CommonCode --> AuditEntity : extend
+    AuditEntity <|-- CommonCode : extend
     class Company{
-        String id //업체아이디
-        CompanyGroupCode comGrpCode //업체그룹코드
-        AreaCode[] areaCodeList //담당지역
-        CommonCode partnerCust //제휴고객사
-        String comName //업체명
-        String respName
-        String respTel //담당자전화번호
-        String respZone
-        Indicator useYn //업체활성화여부 Y:활성화 / N:비활성화
-        CustUser[] userList //해당업체 사용자목록
+        id: String //업체아이디
+        comGrpCode: CompanyGroupCode //업체그룹코드
+        areaCodeList: AreaCode[] //담당지역
+        partnerCust: CommonCode //제휴고객사
+        comName: String //업체명
+        respName: String 
+        respTel: String //담당자전화번호
+        respZone: String 
+        useYn: Indicator //업체활성화여부 Y:활성화 / N:비활성화
+        userList: CustUser[] //해당업체 사용자목록
     }
-    Company --> AuditEntity : extend
-    Company --> "0..*" AreaCode : areaCodeList
-    Company --> "0..*" CustUser : userList
+    AuditEntity <|-- Company : extend
+    Company --o "0..*" AreaCode : areaCodeList
+    Company --o "0..*" CustUser : userList
     class CustUser{
-        String id //사용자 내부아이디
-        Company company //업체
-        String usrId
-        String password
-        String name
-        String telNo
-        String email //이메일
-        String deptNm //부서
-        String grade //직급
+        id: String //사용자 내부아이디
+        company: Company //업체
+        usrId: String 
+        password: String 
+        name: String 
+        telNo: String 
+        email: String //이메일
+        deptNm: String //부서
+        grade: String //직급
     }
-    CustUser --> AuditEntity : extend
+    AuditEntity <|-- CustUser : extend
     class LoanCarProcess{
-        Long lcpCode //순번 아이디
-        Company rentCompany //렌트카 업체
-        RentCarProcessType processType //상태 프로세스
-        String applyDate //적용일자 yyyyMMdd
-        String applyTime //적용일시 HHmmss
-        CallHistory callHistory //통화내역
-        String memo //기타메모(담당자처리내용)
-        String loanCarMasterId //대차 마스터 번호
-        String custReqMemo //고객요청사항
-        String reqCarName //고객 요청 차량명
-        String reqCarNo //고객 요청 차량번호
-        Indicator insureYN //자차보험 서비스제공여부
+        lcpCode: Long //순번 아이디
+        rentCompany: Company //렌트카 업체
+        processType: RentCarProcessType //상태 프로세스
+        applyDate: String //적용일자 yyyyMMdd
+        applyTime: String //적용일시 HHmmss
+        callHistory: CallHistory //통화내역
+        memo: String //기타메모(담당자처리내용)
+        loanCarMasterId: String //대차 마스터 번호
+        custReqMemo: String //고객요청사항
+        reqCarName: String //고객 요청 차량명
+        reqCarNo: String //고객 요청 차량번호
+        insureYN: Indicator //자차보험 서비스제공여부
     }
-    LoanCarProcess --> AuditEntity : extend
+    AuditEntity <|-- LoanCarProcess : extend
     class CallHistory{
-        Long callCode
-        LoanCarProcess loanCarProcess //관련 작업
-        String callContent //통화내용
-        String callDate //통화일자 yyyyMMdd
-        String callTime //통화시간 HHmmss
+        callCode: Long 
+        loanCarProcess: LoanCarProcess //관련 작업
+        callContent: String //통화내용
+        callDate: String //통화일자 yyyyMMdd
+        callTime: String //통화시간 HHmmss
     }
-    CallHistory --> AuditEntity : extend
+    AuditEntity <|-- CallHistory : extend
     class LoanCar{
-        String id //내부 접수번호
-        String lcCode //외부(마스터) 접수번호
-        StatusType statusType //대차작업상태
-        String empNo //요청상담사
-        RentKindType rentKind //사고유형
-        String rentCarCode //대차차량코드
-        String rentCarNm //대차차량명
-        String rentCost //대차비용
-        String insurNm //보험사
-        String indeMoney //면책금
-        String regDate //신청일 yyyyMMdd
-        String regTime //신청시간 hhmi
-        String joinCode //제휴사
-        String custNm
-        String custTel
-        Indicator vipYn //VIP여부
-        String etcDesc //특이사항
-        String reqDate //요청일자 yyyymmdd
-        String reqTime //요청시간 hhmi
-        String reqZip //요청장소우편번호
-        String reqAddr //요청장소주소
-        String reqDaddr //요청장소상세주소
-        Indicator consignYn //차량탁송여부 Y:신청 / N:미신청
-        String consignOfiiceNm //탁송장소(공장명)
-        String consignZip //탁송장소(우편번호)
-        String consignAddr //탁송장소(주소)
-        String consignDaddr //탁송장소(상세주소)
-        String consignTel //탁송장소(전화번호)
-        String lcReason //대차미진행 사유
-        Indicator smsParseType //문자파싱 성공여부
-        String content //문자내용(문자처리시)
-        CommonCode partnerCust //제휴고객사
-        String partnerEtcNm //기타 제휴 고객사명
-        Company rentCompany //담당 렌트카 업체
-        LoanCarProcess[] processHistory
+        id: String //내부 접수번호
+        lcCode: String //외부(마스터) 접수번호
+        statusType: StatusType //대차작업상태
+        empNo: String //요청상담사
+        rentKind: RentKindType //사고유형
+        rentCarCode: String //대차차량코드
+        rentCarNm: String //대차차량명
+        rentCost: String //대차비용
+        insurNm: String //보험사
+        indeMoney: String //면책금
+        regDate: String //신청일 yyyyMMdd
+        regTime: String //신청시간 hhmi
+        joinCode: String //제휴사
+        custNm: String 
+        custTel: String 
+        vipYn: Indicator //VIP여부
+        etcDesc: String //특이사항
+        reqDate: String //요청일자 yyyymmdd
+        reqTime: String //요청시간 hhmi
+        reqZip: String //요청장소우편번호
+        reqAddr: String //요청장소주소
+        reqDaddr: String //요청장소상세주소
+        consignYn: Indicator //차량탁송여부 Y:신청 / N:미신청
+        consignOfiiceNm: String //탁송장소(공장명)
+        consignZip: String //탁송장소(우편번호)
+        consignAddr: String //탁송장소(주소)
+        consignDaddr: String //탁송장소(상세주소)
+        consignTel: String //탁송장소(전화번호)
+        lcReason: String //대차미진행 사유
+        smsParseType: Indicator //문자파싱 성공여부
+        content: String //문자내용(문자처리시)
+        partnerCust: CommonCode //제휴고객사
+        partnerEtcNm: String //기타 제휴 고객사명
+        rentCompany: Company //담당 렌트카 업체
+        processHistory: LoanCarProcess[] 
     }
-    LoanCar --> AuditEntity : extend
-    LoanCar --> "0..*" LoanCarProcess : processHistory
+    AuditEntity <|-- LoanCar : extend
+    LoanCar --o "0..*" LoanCarProcess : processHistory
 
     </div>
 </body>

@@ -152,6 +152,10 @@ public class SqlQueryInfo {
         return type;
     }
 
+    public boolean isSelectQuery() {
+        return this.isSelectQuery;
+    }
+
 
     public int getSelectColumnCount() {
         return this.selectColumnCount;
@@ -374,7 +378,7 @@ public class SqlQueryInfo {
 
     public void setRepositoryMethodName() {
 
-        if (this.isNativeQuery || this.returnType !=null) {
+        if (this.isNativeQuery || this.returnType !=null ) {
             this.jpaMethodName = this.repositoryContext.getString("id");
             return;
         }

@@ -5,6 +5,8 @@ import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.repo.Repository;
+
+import java.util.List;
 import java.util.Map;
 
 public class ModelLoaderContext {
@@ -59,6 +61,29 @@ public class ModelLoaderContext {
                 }
             } else {
                 return value instanceof String ? (String) value : null;
+            }
+        }
+        return null;
+    }
+
+    public List<String> getConfigList(String key) {
+        if (configMap == null) {
+            return null;
+        }
+        String[] keys = key.split("\\.");
+        Map<String, Object> currentMap = configMap;
+
+        for (int i = 0; i < keys.length; i++) {
+            Object value = currentMap.get(keys[i]);
+
+            if (i < keys.length - 1) {
+                if (value instanceof Map) {
+                    currentMap = (Map<String, Object>) value;
+                } else {
+                    return null;
+                }
+            } else {
+                return value instanceof List ? (List<String>) value : null;
             }
         }
         return null;

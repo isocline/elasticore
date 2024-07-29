@@ -10,7 +10,9 @@ import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.MainModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
+import io.elasticore.base.model.loader.px.util.ZipFileExtractor;
 import io.elasticore.base.model.repo.RepositoryModels;
+import lombok.SneakyThrows;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,13 +47,42 @@ public class PxFileMainModelLoader implements MainModelLoader {
     }
 
 
+    @SneakyThrows
     @Override
     public ECoreModel load(ModelLoaderContext context) {
-        File f = new File(templateFileDirPath);
-        loadData(f, fileSources);
+
+        List<String> pxdpzFilePathList = context.getConfigList("pxdpz");
+
+        if(pxdpzFilePathList==null || pxdpzFilePathList.size()==0) {
+            throw new IllegalArgumentException("pxdpz config does not exist");
+        }
+
+        for(String pxdpzFilePath: pxdpzFilePathList) {
+
+            String newXmlPath = ZipFileExtractor.extractMainDxdp(pxdpzFilePath);
+            System.out.println("[PXDPZ] LOAD path: "+pxdpzFilePath);
+            System.out.println("[PXDPZ] temp file path: "+newXmlPath);
+
+            File f = new File(newXmlPath);
+            FileSource fileSource = null;
+
+
+            try {
+                documentBuilder = dbFactory.newDocumentBuilder();
+                doc = documentBuilder.parse(f);
+
+                Map map = mapper.readValue(f, LinkedHashMap.class);
+                fileSource =  FileSource.builder().filepath(f.getAbsolutePath()).element(doc.getDocumentElement()).build();
+
+                fileSources.add(fileSource);
+            } catch (Throwable e) {
+                System.err.println(f.getAbsolutePath());
+                e.printStackTrace();
+
+            }
+        }
 
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new PxDataTransferModelLoader();
-
 
         for (FileSource fileSource : fileSources) {
 

@@ -99,12 +99,14 @@ public class Method implements ModelComponent {
 
 
         if(this.queryInfo!=null) {
-            return this.queryInfo.getJpaMethodName();
+            String jpaMethodName =  this.queryInfo.getJpaMethodName();
+            if(jpaMethodName!=null)
+                return jpaMethodName;
+
         }
 
-
-
-        return "unknownMethod";
+        return this.getIdentity().getName();
+        //return "unknownMethod";
     }
 
 
