@@ -21,6 +21,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 
@@ -45,6 +46,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         this.ctx = ctx;
         Element e = source.getElement();
 
+        loadMappingPathMap(e);
         loadStructureInfo(e);
         loadDataTypeInfo(e);
 
@@ -67,6 +69,28 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
     }
 
     private Map<String, ValueDefinition> ValueDefinitionMap = new HashMap<>();
+
+
+    private StringBuilder attributeTextContent = new StringBuilder();
+
+    protected void loadMappingPathMap(Element e) {
+        NodeList list = null;
+        list = XmlUtil.getNodeList(e, "/DeploymentPackage/DeploymentItem/DeployedPXML/FPMExport/StructureElement/Operation/ValueSource/Expression/expr/csymbol");
+
+        XmlUtil.iterable(list).forEach(info -> {
+            String content = info.getElement().getAttribute("definitionURL");
+            attributeTextContent.append(content);
+        });
+
+
+        list = XmlUtil.getNodeList(e, "/DeploymentPackage/DeploymentItem/DeployedPXML/FPMExport/Function/Expression/expr/piecewise/piece/apply/piecewise/piece/apply/apply/cn");
+
+        XmlUtil.iterable(list).forEach(info -> {
+            String content = info.getElement().getTextContent();
+            attributeTextContent.append(content);
+        });
+
+    }
 
 
     protected void loadStructureInfo(Element e) {
@@ -130,9 +154,9 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         Map<String, Annotation> metaAnnotation = new HashMap<>();
 
         Node node = XmlUtil.getNodeByName(StructureElement, "Documentation");
-        if(node!=null) {
+        if (node != null) {
             String desc = node.getTextContent();
-            if(desc!=null && desc.length()>0) {
+            if (desc != null && desc.length() > 0) {
                 Annotation ant = Annotation.create("description", desc);
                 infoAnnotation.put(ant.getName(), ant);
             }
@@ -141,6 +165,20 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         return MetaInfo.creat(infoAnnotation, metaAnnotation);
     }
 
+
+    protected void setAnnotationMap(Map<String, Annotation> annotationMap, ValueDefinition vd) {
+
+        String id = vd.getId();
+        String vid = vd.getVid();
+        String lid = vd.getLid();
+        Annotation annotation1 = Annotation.create("id", id);
+        Annotation annotation2 = Annotation.create("vid", vid);
+        Annotation annotation3 = Annotation.create("lid", lid);
+
+        annotationMap.put(annotation1.getName(), annotation1);
+        annotationMap.put(annotation2.getName(), annotation2);
+        annotationMap.put(annotation3.getName(), annotation3);
+    }
 
     protected Items<Field> loadFieldData(Element StructureElement) {
 
@@ -154,7 +192,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
 
             Node node2 = XmlUtil.getNodeByName(attrElmnt, "Documentation");
             String desc = null;
-            if(node2!=null)
+            if (node2 != null)
                 desc = node2.getTextContent();
 
 
@@ -170,7 +208,11 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
 
                 ValueDefinition vd = this.ValueDefinitionMap.get(typeLid);
                 type = getTypeName(vd);
-            }catch (NullPointerException npe){}
+
+                //setAnnotationMap(annotationMap, vd);
+
+            } catch (NullPointerException npe) {
+            }
 
 
             Field f = Field.builder().annotationMap(annotationMap)
@@ -186,22 +228,23 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         XmlUtil.iterable(structureLinkList).forEach(attr -> {
             Element structureLink = attr.getElement();
 
-            Element target = (Element) XmlUtil.getNodeByName(structureLink,"Target");
+            Element target = (Element) XmlUtil.getNodeByName(structureLink, "Target");
             String lidRef = target.getAttribute("lid-ref");
 
 
             ValueDefinition vd = ValueDefinitionMap.get(lidRef);
-            if(vd!=null) {
-                Element multiple = (Element) XmlUtil.getNodeByName(structureLink,"Multiplicity");
+            if (vd != null) {
+                Element multiple = (Element) XmlUtil.getNodeByName(structureLink, "Multiplicity");
                 String name = vd.getName();
                 String type = multiple.getAttribute("type");
                 //<Multiplicity type='multiple' mandatory='false'/>
                 String fieldType = null;
                 String fieldName = null;
-                if("multiple".equals(type))  {
-                    fieldType = "List<"+name+">";
-                    fieldName = StringUtils.uncapitalize(name)+"List";
-                }else {
+                if ("multiple".equals(type)) {
+                    fieldType = "List<" + name + ">";
+                    fieldName = StringUtils.uncapitalize(name) + "List";
+                    //fieldName = StringUtils.uncapitalize(name);
+                } else {
                     fieldType = name;
                     fieldName = StringUtils.uncapitalize(name);
                 }
@@ -225,12 +268,13 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
 
     private String getTypeName(ValueDefinition vd) {
         String dt = vd.getDataType();
-        if("real".equals(dt))
+        if ("real".equals(dt))
             return "Double";
 
 
         return "String";
     }
+
     protected Map<String, Annotation> getAnnotationMap(Element attrElmnt) {
         Map<String, Annotation> annotationMap = new HashMap<>();
 
@@ -260,6 +304,24 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         } catch (NullPointerException npe) {
         }
 
+        String lid = null;
+        try {
+            lid = attrElmnt.getAttributes().getNamedItem("lid").getNodeValue();
+
+            String lidOnly = lid.substring(3);
+            String findKey = "@attribute(id:" + lidOnly + ")";
+
+
+            if( attributeTextContent.indexOf(findKey)>=0) {
+                Annotation reqAnnt = Annotation.create("required", "true");
+                annotationMap.put(reqAnnt.getName(), reqAnnt);
+
+
+            }
+
+
+        } catch (RuntimeException re) {
+        }
 
         return annotationMap;
 

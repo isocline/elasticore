@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cbh_jps_bnd.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cbh_jps_bnd.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cbh_jps_bnd.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cbh_jps_bnd.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/elasticore.elasticore-project.elasticore-base.main.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/elasticore.elasticore-project.elasticore-base.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/elasticore.elasticore-project.elasticore-base.test.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/elasticore.elasticore-project.elasticore-base.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-template/elasticore.elasticore-project.elasticore-template.main.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-template/elasticore.elasticore-project.elasticore-template.main.iml" />

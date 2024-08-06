@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid UML Diagram</title>
+    <!-- Mermaid CDN -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .mermaid {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Entity Class Diagram</h1>
+    <div class="mermaid">
+%%{
+init: {
+"theme": "base",
+
+"logLevel": "info",
+"flowchart": {
+  "htmlLabels": true,
+  "curve": "linear"
+},
+"sequence": {
+  "mirrorActors": true
+},
+ 'themeVariables': {
+      'primaryBorderColor': 'gray', 'background': 'white'
+},
+'class' : { 'layoutDirection':'LR' }
+}
+}%%
+
+classDiagram
+    class ReCommon{
+        packetId: String //전문번호
+        masterKey: String //전문 key 값
+        sendYmd: String //접수일자
+        sendHms: String //접수시간
+        receptNo: String //대차접수번호 (master)
+        errorCd: String //전송코드
+        errorText: String //전송내용
+    }
+    class ReData100{
+        id: Long //아이디
+        createDate: java.time.LocalDateTime 
+        empNo: String //요청상담사
+        rentKind: RentKindType //대차용도 (01:사고/02:정비/09:기타)
+        rentCarCode: String //대차차량코드
+        rentCarNm: String //대차차량명
+        rentCost: String //대차비용
+        insurNm: String //보험사 대차용도 - 사고
+        indeMoney: String //면책금 대차용도 - 사고
+        regDate: String //신청일
+        regTime: String //신청시간
+        joincode: String //제휴사
+        custNm: String //고객명 AES-256 암호화
+        custTel: String //연락처 AES-256 암호화
+        vipYn: Indicator //VIP여부
+        bigo: String //특이사항
+        reqDate: String //요청일자
+        reqTime: String //요청시간
+        reqZip: String //요청장소우편번호 AES-256 암호화
+        reqAddr: String //요청장소주소 AES-256 암호화
+        reqDaddr: String //요청장소상세주소 AES-256 암호화
+        consignYn: Indicator //차량탁송여부 Y:신청 / N:미신청
+        consignOfiiceNm: String //탁송장소(공장명)
+        consignZip: String //탁송장소(우편번호) AES-256 암호화
+        consignAddr: String //탁송장소(주소) AES-256 암호화
+        consignDaddr: String //탁송장소(상세주소) AES-256 암호화
+        consignTel: String //탁송장소(전화번호) AES-256 암호화
+        chkCd: String //상태 체크 (테스트)
+        nextIfCd: String //다음 IF 코드
+    }
+    ReCommon <|-- ReData100 : extend
+
+    </div>
+</body>
+</html>

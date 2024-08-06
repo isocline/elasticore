@@ -276,7 +276,14 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
             String type = f.getTypeInfo().getDefaultTypeName();
 
-            p.add("%s %s %s%s;", "private", type, f.getName(), defaultValDefined);
+            if(mode == RESPONSE && f.getTypeInfo().isList()) {
+                String coreType = f.getTypeInfo().getCoreItemType();
+                p.add("%s %s %s = new ArrayList<%s>(Arrays.asList(new %s()));", "private", type, f.getName(), coreType, coreType);
+            }else{
+                p.add("%s %s %s%s;", "private", type, f.getName(), defaultValDefined);
+            }
+
+
             p.add("");
 
             setFunctionInfo(f, p);
