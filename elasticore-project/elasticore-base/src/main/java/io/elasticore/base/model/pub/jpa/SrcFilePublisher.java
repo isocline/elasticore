@@ -179,16 +179,12 @@ public class SrcFilePublisher {
                 paragraph.add("*/");
             }
         }
-        String id = field.getAnnotationValue("id");
-        paragraph.add("// id:" + id);
-        String vid = field.getAnnotationValue("vid");
-        paragraph.add("// vid:" + vid);
-        String lid = field.getAnnotationValue("lid");
-        paragraph.add("// lid:" + lid);
 
 
-        String required = field.getAnnotationValue("required");
-        paragraph.add("// required:" + required);
+        String calcRequired = field.getAnnotationValue("calcRequired");
+        if(calcRequired==null)
+            calcRequired = "false";
+        paragraph.add("// calcRequired:" + calcRequired);
 
     }
 

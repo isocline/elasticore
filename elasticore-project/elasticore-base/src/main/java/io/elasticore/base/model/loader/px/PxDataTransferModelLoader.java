@@ -313,10 +313,8 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
 
 
             if( attributeTextContent.indexOf(findKey)>=0) {
-                Annotation reqAnnt = Annotation.create("required", "true");
+                Annotation reqAnnt = Annotation.create("calcRequired", "true");
                 annotationMap.put(reqAnnt.getName(), reqAnnt);
-
-
             }
 
 
