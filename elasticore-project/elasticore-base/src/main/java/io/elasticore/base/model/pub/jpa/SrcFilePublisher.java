@@ -25,6 +25,9 @@ import java.util.List;
 
 public class SrcFilePublisher {
 
+
+    private final static String REPLACE_FOR_CUSTOMIZED_SCOPE = "/** DEVELOPER SECTION **/";
+
     private CodePublisher publisher;
 
     protected SrcFilePublisher(CodePublisher publisher) {
@@ -42,40 +45,48 @@ public class SrcFilePublisher {
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content, boolean checkModified) {
         SourceFileAccessFactory fileAccessFactory = publisher.getSrcFileAccessFactory();
 
-        //if(checkModified)
-        {
-            HashUtils.Response response = null;
-            try (Reader reader = fileAccessFactory.getReader(qualifiedClassName)) {
-                response = HashUtils.checkContentModified(reader);
+
+        HashUtils.Response response = null;
+        try (Reader reader = fileAccessFactory.getReader(qualifiedClassName)) {
+            response = HashUtils.checkContentModified(reader);
 
 
-                if (response != null && response.getStatus() == HashUtils.MODIFIED) {
+            if (response != null && response.getStatus() == HashUtils.MODIFIED) {
 
-                    if(checkModified) {
-                        log("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
-                        return;
-                    }
-                    log("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
-
+                if(checkModified && !response.hasCustomizedScopeContent()) {
+                    log("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
+                    return;
                 }
+                log("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
 
-            } catch (FileNotFoundException fnfe) {
-            } catch (Throwable e) {
-                e.printStackTrace();
             }
 
-            if (response != null && content.equals(response.getContent())) {
-                log("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
+        } catch (FileNotFoundException fnfe) {
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
 
-                return;
-            }
+        if (response != null && content.equals(response.getContent()) && !response.hasCustomizedScopeContent()) {
+            log("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
+
+            return;
         }
 
 
 
         try (Writer writer = fileAccessFactory.getWriter(qualifiedClassName)) {
             writer.write(HashUtils.makeEcdCode(content));
-            writer.write(content);
+
+            if(response!=null && response.hasCustomizedScopeContent()) {
+                writer.write(content.substring(0, content.length()-2));
+                writer.write(response.getCustomizedScopeContent());
+                writer.write(content.substring(content.length()-2));
+            }else{
+                writer.write(content);
+            }
+
+
+
             writer.flush();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -181,10 +192,9 @@ public class SrcFilePublisher {
         }
 
 
-        String calcRequired = field.getAnnotationValue("calcRequired");
-        if(calcRequired==null)
-            calcRequired = "false";
-        paragraph.add("// calcRequired:" + calcRequired);
+        String required = field.getAnnotationValue("calcRequired");
+        if("true".equals(required))
+            paragraph.add("// calcRequired:" + required);
 
     }
 

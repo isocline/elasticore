@@ -40,6 +40,14 @@ public class ModelExtractor {
 
     private List<String> findTemplateFilePath() throws FileNotFoundException {
 
+        String specDomainName = System.getProperty("elasticore.domain");
+        if(specDomainName == null || specDomainName.trim().length()==0) {
+            specDomainName = null;
+        }else{
+            log("elasticore.domain = "+specDomainName);
+        }
+
+
         String checkDir = this.modelResourcePath;
 
         log("CHECK PATH:"+checkDir);
@@ -62,7 +70,8 @@ public class ModelExtractor {
 
                     String envPath =chiild.getAbsolutePath();
                     //if(envPath.indexOf("px")>=0)
-                    dirList.add(envPath);
+                    if(specDomainName ==null || specDomainName.equals(envFile.getParentFile().getName()))
+                        dirList.add(envPath);
                 }
             }
         }

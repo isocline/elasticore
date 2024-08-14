@@ -1,4 +1,4 @@
-//ecd:-1275879645H20240806161524_V0.8
+//ecd:1286307571H20240806164538_V0.8
 package io.elasticore.px.dto.request;
 
 
@@ -31,10 +31,6 @@ import java.time.*;
 @AllArgsConstructor
 public  class Policy  implements java.io.Serializable  {
 
-	// id:null
-	// vid:null
-	// lid:null
-	// required:null
 	private List<Rider> riderList;
 	
 };

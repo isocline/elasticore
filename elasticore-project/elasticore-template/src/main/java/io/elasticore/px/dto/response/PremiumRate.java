@@ -1,4 +1,4 @@
-//ecd:-1682876815H20240806161524_V0.8
+//ecd:-608238888H20240806164538_V0.8
 package io.elasticore.px.dto.response;
 
 
@@ -31,10 +31,6 @@ import java.time.*;
 @AllArgsConstructor
 public  class PremiumRate  implements java.io.Serializable  {
 
-	// id:ID:11172bac-dfb5-471b-b019-7c745f875219
-	// vid:ID:25601678-dd73-4716-9673-76da3685291f
-	// lid:ID:b92cd548-f67a-4495-9844-7f9a99eddf11
-	// required:null
 	private Double premiumRate;
 	
 };
