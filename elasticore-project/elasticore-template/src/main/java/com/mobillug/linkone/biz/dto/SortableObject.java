@@ -1,4 +1,4 @@
-//ecd:383451432H20240814195148_V0.8
+//ecd:-1732846577H20240827114734_V1.0
 package com.mobillug.linkone.biz.dto;
 
 import org.springframework.data.domain.Sort;
@@ -10,8 +10,22 @@ public interface SortableObject {
 
     String getSortCode();
 
+    String getSortColumn();
+
+    Boolean getSortAscending();
+
     default Sort getSort() {
         String sortTxt = getSortCode();
+
+        String sortCol = getSortColumn();
+        if(sortCol !=null && !sortCol.isEmpty()) {
+           sortTxt = sortCol;
+           if(getSortAscending())
+               sortTxt=sortTxt+"+";
+           else
+               sortTxt=sortTxt+"-";
+        }
+
         if (sortTxt == null || sortTxt.isEmpty()) return null;
 
         List<Sort.Order> orders = new ArrayList<>();

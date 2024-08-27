@@ -6,6 +6,9 @@ import ${repositoryPackageName}.*;
 
 import ${j2eePkgName}.persistence.TypedQuery;
 import ${j2eePkgName}.persistence.criteria.*;
+import ${j2eePkgName}.persistence.EntityManager;
+import ${j2eePkgName}.transaction.Transactional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,13 +27,32 @@ public class ${className} {
 
     protected final ${domainName}RepositoryHelper helper;
 
+
+    /**
+     * Retrieves all t${entityClassName} entities, converts them to ${dtoClassName} objects, and returns them as a list.
+     *
+     * @return a list of ${dtoClassName} objects
+     */
     public List<${dtoClassName}> findAll() {
         return helper.get${entityClassName}().findAll().stream()
                 .map(${mapperName}::toDTO)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Deletes ${entityClassName} entities that match the given search criteria.
+     *
+     * @param searchDTO the search criteria
+     * @return the number of entities deleted
+     */
+    @${j2eePkgName}.transaction.Transactional
+    public long delete(${searchDTOClassName} searchDTO) {
+            Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+            return helper.get${entityClassName}().delete(specification);
+    }
+
 /*-- print-if:${isListOutput} --*/
+    @Transactional
     public List<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
         Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
@@ -47,29 +69,67 @@ public class ${className} {
 
 
 /*-- print-if:${isPageOutput} --*/
+
+    /**
+     * Finds ${entityClassName} entities that match the given search criteria and returns them as a paginated list of ${searchResultDTOClassName}.
+     *
+     * @param searchDTO the search criteria
+     * @return a paginated list of ${searchResultDTOClassName} objects
+     */
+    @Transactional
     public Page<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
         Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
         Page<${entityClassName}> result = helper.get${entityClassName}().findAll(specification, pageable);
         return result.map(${mapperName}::${toSearchListMappingName});
     }
+
+
+    /**
+     * Counts the number of ${entityClassName} entities that match the given search criteria.
+     *
+     * @param searchDTO the search criteria
+     * @return the number of entities that match the search criteria
+     */
+    public long countBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+        return helper.get${entityClassName}().count(specification);
+    }
 /*-- print-if:end --*/
 
 
+    /**
+     * Finds a ${entityClassName} entity by its ID and converts it to a ${dtoClassName}.
+     *
+     * @param id the ID of the FaxResult entity
+     * @return an Optional containing the ${dtoClassName} if found, or an empty Optional if not found
+     */
+    @Transactional
     public Optional<${dtoClassName}> findById(${pkType} id) {
         return helper.get${entityClassName}().findById(id).map(${mapperName}::toDTO);
     }
 
-    public ${entityClassName}DTO save(${dtoClassName} dto) {
+    /**
+     * Saves a new ${entityClassName} entity based on the given DTO and returns the saved entity as a DTO.
+     *
+     * @param dto the ${dtoClassName} to save
+     * @return the saved ${dtoClassName}
+     */
+    public ${dtoClassName} save(${dtoClassName} dto) {
         ${entityClassName} entity = ${mapperName}.toEntity(dto);
         ${childRefInfo}
-
         ${entityClassName} result = helper.get${entityClassName}().save(entity);
         return ${mapperName}.toDTO(result);
     }
 
 
-    public ${entityClassName}DTO update(${dtoClassName} dto) {
+    /**
+     * Updates an existing ${entityClassName} entity based on the given DTO and returns the updated entity as a DTO.
+     *
+     * @param dto the ${dtoClassName} with updated information
+     * @return the updated ${dtoClassName}
+     */
+    public ${dtoClassName} update(${dtoClassName} dto) {
         ${entityClassName} entity = helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
         ${mapperName}.mapping(dto, entity, true);
         ${childRefInfo}
@@ -78,7 +138,11 @@ public class ${className} {
         return ${mapperName}.toDTO(result);
     }
 
-
+    /**
+     * Deletes a ${entityClassName} entity by its ID.
+     *
+     * @param id the ID of the ${entityClassName} entity to delete
+     */
     public void deleteById(${pkType} id) {
         helper.get${entityClassName}().deleteById(id);
     }
@@ -87,7 +151,7 @@ public class ${className} {
 /*-- print-if:${isCustomPageOutput} isCustomPageOutput--*/
 
     public Page<${customListDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
-        Specification<${entityClassName}> specification = LinkoneMapper.toSpec(searchDTO);
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
 
         return searchList(specification, pageable);
@@ -138,7 +202,7 @@ public class ${className} {
 
 /*-- print-if:${isCustomListOutput} isCustomListOutput--*/
     public List<${customListDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
-        Specification<${entityClassName}> specification = LinkoneMapper.toSpec(searchDTO);
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
 
         return searchList(specification, sort);
@@ -176,4 +240,92 @@ public class ${className} {
         return resultList;
     }
 /*-- print-if:end --*/
+
+
+
+    /**
+     * Finds the greatest string value of the specified field in ${entityClassName} entities
+     * that match the given search criteria.
+     *
+     * @param dto        the search criteria
+     * @param fieldName  the name of the field for which to find the maximum value
+     * @return the greatest string value of the specified field, or null if no results are found
+     */
+    public String findGreatest(${searchDTOClassName} dto, String fieldName) {
+        EntityManager em = helper.getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<${entityClassName}> root = cq.from(${entityClassName}.class);
+
+        Specification<${entityClassName}> spec = ${mapperName}.toSpec(dto);
+        Predicate predicate = spec.toPredicate(root, cq, cb);
+        cq.where(predicate);
+
+        cq.select(cb.greatest(root.get(fieldName).as(String.class)));
+
+        TypedQuery<String> query = em.createQuery(cq);
+        List<String> result = query.getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+
+
+    /**
+     * This method finds a numeric value based on a given function name and field name,
+     * utilizing a DTO to create a Specification.
+     *
+     * @param <T>       the type of the numeric value to return
+     * @param funcName  the name of the function to apply (e.g., "max", "min", "sum")
+     * @param fieldName the name of the field to apply the function to
+     * @param typeClass the class type of the numeric value
+     * @param dto       the DTO used to create the Specification
+     * @return the result of the function applied to the specified field, or null if no result is found
+     * @throws IllegalArgumentException if the function name is not recognized
+     */
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,${searchDTOClassName} dto) {
+        Specification<${entityClassName}> spec = LinkoneMapper.toSpec(dto);
+        return findValue(funcName, fieldName, typeClass, spec);
+    }
+
+
+    /**
+     * This method finds a numeric value based on a given function name and field name,
+     * utilizing a Specification to filter the data.
+     *
+     * @param <T>       the type of the numeric value to return
+     * @param funcName  the name of the function to apply (e.g., "max", "min", "sum")
+     * @param fieldName the name of the field to apply the function to
+     * @param typeClass the class type of the numeric value
+     * @param spec      the Specification used to filter the data
+     * @return the result of the function applied to the specified field, or null if no result is found
+     * @throws IllegalArgumentException if the function name is not recognized
+     */
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<${entityClassName}> spec ) {
+        EntityManager em = helper.getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(typeClass);
+        Root<${entityClassName}> root = cq.from(${entityClassName}.class);
+
+        Predicate predicate = spec.toPredicate(root, cq, cb);
+        cq.where(predicate);
+
+        if("max".equals(funcName))
+            cq.select(cb.max(root.get(fieldName).as(typeClass)));
+        else if("min".equals(funcName))
+            cq.select(cb.min(root.get(fieldName).as(typeClass)));
+        else if("abs".equals(funcName))
+            cq.select(cb.abs(root.get(fieldName).as(typeClass)));
+        else if("ceiling".equals(funcName))
+            cq.select(cb.ceiling(root.get(fieldName).as(typeClass)));
+        else if("floor".equals(funcName))
+            cq.select(cb.floor(root.get(fieldName).as(typeClass)));
+        else if("sum".equals(funcName))
+            cq.select(cb.sum(root.get(fieldName).as(typeClass)));
+        else
+            throw new IllegalArgumentException("funcName not recognized");
+
+        TypedQuery<T> query = em.createQuery(cq);
+        List<T> result = query.getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
 }

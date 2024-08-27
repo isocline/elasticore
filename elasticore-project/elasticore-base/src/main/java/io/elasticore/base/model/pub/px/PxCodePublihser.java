@@ -17,6 +17,7 @@ import io.elasticore.base.model.pub.jpa.EnumFilePublisher;
 import io.elasticore.base.model.pub.jpa.RepositoryFilePublisher;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
+import io.elasticore.base.util.ConsoleLog;
 
 public class PxCodePublihser implements CodePublisher {
 
@@ -74,6 +75,12 @@ public class PxCodePublihser implements CodePublisher {
 
             repositoryCodePublisher.publish(domain, repoModel);
         }
+
+        ConsoleLog.printStoredInfoLog("PUBLISH", "    ");
+        ConsoleLog.printStoredInfoLog("NO_MODIFIED", "    ");
+        ConsoleLog.printStoredWarnLog("USER_MODIFIED", "    ");
+        ConsoleLog.clear();
+
     }
 
     @Override

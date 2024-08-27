@@ -271,6 +271,14 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         if ("real".equals(dt))
             return "Double";
 
+        /*
+        else if ("integer".equals(dt))
+            return "Integer";
+
+         */
+
+        else if ( (dt == null || dt.trim().length()==0) && "set".equals(vd.getStructure()))
+            return "List<HashMap>";
 
         return "String";
     }

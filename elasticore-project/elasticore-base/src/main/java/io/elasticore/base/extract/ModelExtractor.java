@@ -7,6 +7,7 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
 import io.elasticore.base.model.pub.CodePublishManager;
+import io.elasticore.base.util.ConsoleLog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,7 +25,7 @@ public class ModelExtractor {
     private String modelResourcePath;
 
     private static void log(String msg) {
-        System.err.println(msg);
+        ConsoleLog.print(msg);
     }
 
 
@@ -50,7 +51,7 @@ public class ModelExtractor {
 
         String checkDir = this.modelResourcePath;
 
-        log("CHECK PATH:"+checkDir);
+        log("Base dir: "+checkDir);
 
         File f = new File(checkDir);
 
@@ -64,7 +65,7 @@ public class ModelExtractor {
         for(File chiild:f.listFiles()) {
             if(chiild.isDirectory()) {
                 String envFilePath = chiild.getAbsolutePath()+"/env.yml";
-                log("check >>> "+envFilePath);
+                ConsoleLog.storeLog("CHECK_ENV",envFilePath);
                 File envFile = new File(envFilePath);
                 if(envFile.exists()) {
 
@@ -75,6 +76,9 @@ public class ModelExtractor {
                 }
             }
         }
+        ConsoleLog.print("[INFO] Environment files:");
+        ConsoleLog.print("--------------------------------------");
+        ConsoleLog.printStoredInfoLog("CHECK_ENV", "    ");
         return dirList;
     }
 
@@ -143,7 +147,7 @@ public class ModelExtractor {
             }
 
 
-            log("ModelExtractor extract 0525-3");
+            log("ModelExtractor extract 0816-3");
 
 
         }catch (Throwable e) {

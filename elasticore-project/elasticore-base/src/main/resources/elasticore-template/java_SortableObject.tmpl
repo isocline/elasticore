@@ -9,8 +9,22 @@ public interface SortableObject {
 
     String getSortCode();
 
+    String getSortColumn();
+
+    Boolean getSortAscending();
+
     default Sort getSort() {
         String sortTxt = getSortCode();
+
+        String sortCol = getSortColumn();
+        if(sortCol !=null && !sortCol.isEmpty()) {
+           sortTxt = sortCol;
+           if(getSortAscending())
+               sortTxt=sortTxt+"+";
+           else
+               sortTxt=sortTxt+"-";
+        }
+
         if (sortTxt == null || sortTxt.isEmpty()) return null;
 
         List<Sort.Order> orders = new ArrayList<>();

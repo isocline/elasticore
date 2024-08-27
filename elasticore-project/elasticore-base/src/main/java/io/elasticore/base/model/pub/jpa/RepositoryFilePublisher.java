@@ -44,8 +44,11 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
         this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
         this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
-        this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
 
+        if(model.getEnumModels().getItems().size()>0)
+            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+        else
+            this.enumPackageName = null;
 
     }
 

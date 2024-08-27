@@ -84,7 +84,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
-        this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+
+        if(model.getEnumModels().getItems().size()>0)
+            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+        else
+            this.enumPackageName = null;
 
     }
 

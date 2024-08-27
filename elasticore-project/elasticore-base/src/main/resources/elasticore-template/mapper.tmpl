@@ -1,11 +1,11 @@
 package ${packageName};
 
+import org.springframework.dao.PermissionDeniedDataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import org.springframework.data.jpa.domain.Specification;
-
 import ${j2eePkgName}.persistence.criteria.Join;
 
 import java.util.*;
@@ -16,6 +16,7 @@ import ${dtoPackageName}.*;
 import ${enumPackageName}.*;
 
 import ${importList};
+import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
  * <pre>${description}</pre>
@@ -25,11 +26,25 @@ import ${importList};
 ${classAnnotationList}
 public class ${className} {
 
+    private static TransformPermissionChecker permissionChecker;
+
+    public static void setTransformPermissionChecker(TransformPermissionChecker checker) {
+        permissionChecker = checker;
+    }
+
+
+    protected static void checkPermission(Object from, Object to) {
+        if(permissionChecker !=null) {
+            if( !permissionChecker.hasPermission(from, to)) {
+                throw new PermissionDeniedDataAccessException(from.getClass().getName()+ " access error" ,new RuntimeException());
+            }
+        }
+    }
+
     ${methodList}
 
 
-
-private static boolean hasValue(String val) {
+    private static boolean hasValue(String val) {
         if(val != null && !val.isEmpty())
             return true;
 
@@ -41,6 +56,13 @@ private static boolean hasValue(String val) {
             return true;
 
         return false;
+    }
+
+    private static boolean hasValue(List val) {
+            if(val != null && val.size()>0)
+                return true;
+
+            return false;
     }
 
     private static boolean hasValue(Object val) {

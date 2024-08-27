@@ -78,10 +78,15 @@ public class MermaidCodePublisher implements CodePublisher {
             makeClassInfoScript(entity, cb);
         }
         cb.end("");
-        //System.err.println( cb.toString());
 
 
-        String templatePath = "elasticore-template/mermaid/uml_html.tmpl";
+        String templatePath = domain.getModel().getConfig("template.uml");
+        if (templatePath == null)
+            templatePath = "elasticore-template/mermaid/uml_html.tmpl";
+        else
+            templatePath = "resource://"+templatePath;
+
+        //String templatePath = "elasticore-template/mermaid/uml_html.tmpl";
         CodeTemplate umlHtmlTmpl = CodeTemplate.newInstance(templatePath);
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();

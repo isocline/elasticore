@@ -83,7 +83,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         if(model.getEnumModels().getItems().size()>0)
             this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
         else
-            this.enumPackageName ="";
+            this.enumPackageName = null;
 
     }
 

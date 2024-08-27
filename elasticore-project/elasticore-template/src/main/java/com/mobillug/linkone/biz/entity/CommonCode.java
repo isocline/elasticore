@@ -1,12 +1,14 @@
-//ecd:-735824422H20240814213337_V0.8
+//ecd:267332225H20240827114734_V1.0
 package com.mobillug.linkone.biz.entity;
 
-import com.mobillug.linkone.biz.enums.*;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.Parameter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -94,4 +96,4 @@ public  class CommonCode extends AuditEntity implements java.io.Serializable  {
 	private Integer codeOrder = 10;
 	
 	
-}
+};

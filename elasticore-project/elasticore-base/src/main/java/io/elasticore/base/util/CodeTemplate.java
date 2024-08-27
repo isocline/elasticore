@@ -47,10 +47,11 @@ public class CodeTemplate {
 
 
 
-            System.out.println("template: "+path);
+            ConsoleLog.storeLog("TEMPLATE",path);
             inputStream = new FileInputStream(path);
         } else {
-            System.out.println("template[resource]: "+resourcePath);
+            //ConsoleLog.print("template[resource]: "+resourcePath);
+            ConsoleLog.storeLog("TEMPLATE", resourcePath);
             inputStream = CodeTemplate.class.getClassLoader().getResourceAsStream(resourcePath);
         }
 
@@ -277,7 +278,8 @@ public class CodeTemplate {
         }
 
         public Parameters set(String keyName, String value) {
-            paramMap.put(keyName, new Paragraph(true, value));
+            if(value!=null)
+                paramMap.put(keyName, new Paragraph(true, value));
             return this;
         }
 

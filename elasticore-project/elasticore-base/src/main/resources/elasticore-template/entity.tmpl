@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.Parameter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -31,4 +33,4 @@ ${classAnnotationList}
 public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
 
 	${fieldList}
-}
+};

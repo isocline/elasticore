@@ -36,4 +36,9 @@ public class FilerBasedSourceFileAccessFactory implements SourceFileAccessFactor
         }
         return false;
     }
+
+    @Override
+    public String getFilePath(String qualifiedClassName) {
+        return qualifiedClassName;
+    }
 }

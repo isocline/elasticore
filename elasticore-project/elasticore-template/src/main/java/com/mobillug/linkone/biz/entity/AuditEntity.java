@@ -1,12 +1,14 @@
-//ecd:1345968487H20240814213720_V1.0
+//ecd:-1494867700H20240827163518_V1.0
 package com.mobillug.linkone.biz.entity;
 
-import com.mobillug.linkone.biz.enums.*;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.Parameter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -56,9 +58,9 @@ public abstract class AuditEntity  implements java.io.Serializable  {
 	private java.time.LocalDateTime lastModifiedDate;
 	
 	
-	// == DEVELOPER SECTION START =============================
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}	// == DEVELOPER SECTION START =============================
 
 	//test
 
 	// =============================== DEVELOPER SECTION END ==
-}
+;

@@ -17,10 +17,13 @@ import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.HashUtils;
 import io.elasticore.base.util.StringUtils;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class SrcFilePublisher {
@@ -38,6 +41,20 @@ public class SrcFilePublisher {
         System.err.println(msg);
     }
 
+    private static String userHome = System.getProperty("user.dir");
+    public String getFilePathInfo(String qualifiedClassName) {
+        String path =  publisher.getSrcFileAccessFactory().getFilePath(qualifiedClassName);
+
+        Path input = Paths.get(path);
+        Path home = Paths.get(userHome);
+        if (input.startsWith(home)) {
+            Path relativePath = home.relativize(input);
+            return "." + File.separator + relativePath.toString();
+        } else {
+            return path;
+        }
+    }
+
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content) {
         writeSrcCode(publisher,modelComponent,qualifiedClassName,content,true);
     }
@@ -53,11 +70,15 @@ public class SrcFilePublisher {
 
             if (response != null && response.getStatus() == HashUtils.MODIFIED) {
 
+
+
                 if(checkModified && !response.hasCustomizedScopeContent()) {
-                    log("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
+                    //ConsoleLog.printInfo("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
+                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName));
                     return;
                 }
-                log("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
+                //ConsoleLog.printInfo("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
+                ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) +" [INGORE]");
 
             }
 
@@ -67,7 +88,8 @@ public class SrcFilePublisher {
         }
 
         if (response != null && content.equals(response.getContent()) && !response.hasCustomizedScopeContent()) {
-            log("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
+            //ConsoleLog.printInfo("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
+            ConsoleLog.storeLog("NO_MODIFIED", getFilePathInfo(qualifiedClassName) );
 
             return;
         }
@@ -422,5 +444,7 @@ public class SrcFilePublisher {
         }
 
     }
+
+
 
 }

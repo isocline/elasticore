@@ -30,4 +30,6 @@ public interface SourceFileAccessFactory {
 
 
     boolean delete(String qualifiedClassName);
+
+    String getFilePath(String qualifiedClassName);
 }

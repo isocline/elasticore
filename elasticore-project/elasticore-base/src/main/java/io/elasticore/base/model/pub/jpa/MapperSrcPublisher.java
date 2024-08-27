@@ -410,8 +410,13 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                         }
                         setTypeNm = StringUtils.capitalize(setTypeNm);
 
-
-                        cb.line("to.set%s(to%sList(from.get%s()));", setFieldNm, setTypeNm, getFieldNm);
+                        // 20240820
+                        cb.line("if(to.get%s() != null && from.get%s()!=null) {", setFieldNm ,getFieldNm);
+                        cb.line("    to.get%s().clear();",setFieldNm);
+                        cb.line("    to.get%s().addAll(to%sList(from.get%s()));", setFieldNm, setTypeNm, getFieldNm);
+                        cb.line("} else {");
+                        cb.line("    to.set%s(to%sList(from.get%s()));", setFieldNm, setTypeNm, getFieldNm);
+                        cb.line("}");
                     } else {
                         if(isDtoSet)
                             cb.line("to.set%s(toDTO(from.get%s()));", setFieldNm, getFieldNm);

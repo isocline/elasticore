@@ -2,6 +2,7 @@ package ${packageName};
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,6 @@ import ${entityPackageName}.*;
 import ${dtoPackageName}.*;
 import ${enumPackageName}.*;
 
-
 import ${importList};
 
 /**
@@ -24,7 +24,7 @@ import ${importList};
 
 ${classAnnotationList}
 
-public interface ${className} extends JpaRepository<${targetModel},${identity}> , JpaSpecificationExecutor<LoanCar> {
+public interface ${className} extends JpaRepository<${targetModel},${identity}>, JpaSpecificationExecutor<${targetModel}> {
 
     ${methodList}
 

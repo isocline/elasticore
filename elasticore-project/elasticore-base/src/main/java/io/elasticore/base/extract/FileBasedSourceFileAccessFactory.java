@@ -1,8 +1,11 @@
 package io.elasticore.base.extract;
 
 import io.elasticore.base.SourceFileAccessFactory;
+import io.elasticore.base.util.ConsoleLog;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class FileBasedSourceFileAccessFactory implements SourceFileAccessFactory {
@@ -35,12 +38,33 @@ public class FileBasedSourceFileAccessFactory implements SourceFileAccessFactory
     }
 
     @Override
+    public String getFilePath(String qualifiedClassName) {
+        File f = getFile(qualifiedClassName ,true);
+        return f.getAbsolutePath();
+    }
+
+    @Override
     public Writer getWriter(String qualifiedClassName) throws IOException {
 
         File f = getFile(qualifiedClassName ,true);
-        System.err.println("published: "+f.getAbsolutePath() +" "+f.exists());
+        //System.err.println("published: "+f.getAbsolutePath() +" "+f.exists());
+        ConsoleLog.storeLog("PUBLISH", getFilePathInfo(f.getAbsolutePath())+" "+(f.exists()?"!":""));
 
         return new FileWriter(f);
+    }
+
+    private static String userHome = System.getProperty("user.dir");
+    private  String getFilePathInfo(String path) {
+
+
+        Path input = Paths.get(path);
+        Path home = Paths.get(userHome);
+        if (input.startsWith(home)) {
+            Path relativePath = home.relativize(input);
+            return "." + File.separator + relativePath.toString();
+        } else {
+            return path;
+        }
     }
 
 
