@@ -5,6 +5,42 @@ package io.elasticore.base.model.entity;
  */
 public interface AnnotationName {
 
+
+    String META_TABLE = "table";
+
+
+    String META_EXTEND = "extend";
+
+
+    String META_IMMUTABLE = "immutable";
+
+
+    String META_DYNAMIC_UPDATE = "DynamicUpdate";
+
+
+    String META_DYNAMIC_INSERT = "DynamicInsert";
+
+
+    String META_EMBEDDABLE = "Embeddable";
+
+
+
+    String META_ABSTRACT = "abstract";
+
+    String META_TYPE = "type";
+
+
+
+    String META_ROLL_UP = "rollup";
+
+
+    String META_ROLL_DOWN = "rolldown";
+
+
+
+
+    String[] DISCRIMINATOR = new String[]{"discriminator", "discrim"};
+
     /**
      * Annotations for search functionality.
      */

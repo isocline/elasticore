@@ -103,7 +103,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      */
     private String getExtendInfo(Entity entity) {
 
-        Annotation annotation = entity.getMetaInfo().getMetaAnnotation("extend");
+        Annotation annotation = entity.getMetaInfo().getMetaAnnotation(AnnotationName.META_EXTEND);
         if (annotation != null)
             return "extends " + annotation.getValue();
 
@@ -112,17 +112,17 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
     private String getAbstractInfo(Entity entity) {
-        if (entity.getMetaInfo().hasMetaAnnotation("abstract")) {
+        if (entity.getMetaInfo().hasMetaAnnotation(AnnotationName.META_ABSTRACT)) {
             return "abstract";
         }
         return "";
     }
 
-    private CodeTemplate.Paragraph getEntityAnnotation(Entity entity) {
+    private CodeTemplate.Paragraph getEntityAnnotation(Entity entity, String j2eePkgNm) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
         if(entity.getItems()!=null && entity.getItems().size()>0) {
 
-            if (!entity.getMetaInfo().hasMetaAnnotation("abstract")) {
+            if (!entity.getMetaInfo().hasMetaAnnotation(AnnotationName.META_ABSTRACT)) {
                 p.add("@Entity");
             }
             else {
@@ -131,10 +131,21 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
         MetaInfo metaInfo = entity.getMetaInfo();
-        Annotation annotation = metaInfo.getMetaAnnotation("table");
-        if (annotation != null) {
-            String dbTblNm = annotation.getValue();
-            p.add("@Table(name=\"" + dbTblNm + "\")");
+        Annotation tblAnnotation = metaInfo.getMetaAnnotation(AnnotationName.META_TABLE);
+        if (tblAnnotation != null) {
+            String dbTblNm = tblAnnotation.getValue();
+            p.add("@"+j2eePkgNm+".persistence.Table(name=\"" + dbTblNm + "\")");
+        }
+
+        if(metaInfo.hasMetaAnnotation(AnnotationName.META_IMMUTABLE)) {
+            p.add("@org.hibernate.annotations.Immutable");
+
+            if(tblAnnotation==null) {
+                String viewName = metaInfo.getMetaAnnotationValue(AnnotationName.META_IMMUTABLE);
+                if(viewName !=null) {
+                    p.add("@"+j2eePkgNm+".persistence.Table(name=\"" + viewName + "\")");
+                }
+            }
         }
 
         /*
@@ -143,16 +154,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
          */
 
-        if(!"false".equals(metaInfo.getMetaAnnotationValue("DynamicUpdate"))) {
+        if(!"false".equals(metaInfo.getMetaAnnotationValue(AnnotationName.META_DYNAMIC_UPDATE))) {
             p.add("@org.hibernate.annotations.DynamicUpdate");
         }
-        if(metaInfo.hasMetaAnnotation("DynamicInsert"))
+        if(metaInfo.hasMetaAnnotation(AnnotationName.META_DYNAMIC_INSERT))
             p.add("@org.hibernate.annotations.DynamicInsert");
 
 
 
         //Entity = BaseModelDomain.getModelDomain(this.getIdentity().getDomainId()).getModel().getEntityModels().findByName(toName);
-        if (metaInfo.hasMetaAnnotation("Embeddable")) {
+        if (metaInfo.hasMetaAnnotation(AnnotationName.META_EMBEDDABLE)) {
             p.add("@Embeddable");
         }else {
             ComponentIdentity identity = entity.getIdentity();
@@ -167,7 +178,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
         entity.getItems().forEachRemaining(field -> {
-            if (field.hasAnnotation("discriminator")) {
+            if (field.hasAnnotation(AnnotationName.DISCRIMINATOR)) {
                 p.add("@Inheritance(strategy = InheritanceType.SINGLE_TABLE)");
                 String dbColumnNm = field.getDbColumnName();
                 String type = field.getTypeInfo().getDefaultTypeName().toUpperCase(Locale.ROOT);
@@ -175,8 +186,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             }
         });
 
-        if (metaInfo.hasMetaAnnotation("rollup")) {
-            String disVal = metaInfo.getMetaAnnotation("rollup").getValue();
+        if (metaInfo.hasMetaAnnotation(AnnotationName.META_ROLL_UP)) {
+            String disVal = metaInfo.getMetaAnnotation(AnnotationName.META_ROLL_UP).getValue();
             p.add("@DiscriminatorValue(\"" + disVal + "\")");
         }
 
@@ -195,20 +206,18 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      */
     public void publish(ModelDomain domain, Entity entity) {
 
-        Annotation typeAnnotation = entity.getMetaInfo().getMetaAnnotation("type");
+        Annotation typeAnnotation = entity.getMetaInfo().getMetaAnnotation(AnnotationName.META_TYPE);
         if(typeAnnotation!=null) {
             if("template".equals(typeAnnotation.getValue()))
                 return;
         }
-
-
-
+        String j2eePkgNm = getPersistentPackageName(domain);
         publishEntityIdentityClass(domain, entity);
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
         String classNm = entity.getIdentity().getName();
 
-        this.paragraphForEntity = getEntityAnnotation(entity);
+        this.paragraphForEntity = getEntityAnnotation(entity , j2eePkgNm);
 
         setNativeAnnotation(entity, this.paragraphForEntity);
 
@@ -226,7 +235,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 .set("abstract", getAbstractInfo(entity))
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(entity))
-                .set("j2eePkgName",getPersistentPackageName(domain))
+                .set("j2eePkgName",j2eePkgNm)
                 .set("importList", importList)
                 .set("implementInfo", "implements java.io.Serializable")
                 .set("className", classNm);
@@ -250,11 +259,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             String classNm = entity.getPkField().getType();
 
+            String j2eePkgNm = getPersistentPackageName(domain);
+
             CodeTemplate.Parameters param = CodeTemplate.newParameters();
             param
                     .set("packageName", packageName)
                     .set("abstract", "")
                     .set("extendInfo", "")
+                    .set("j2eePkgName",j2eePkgNm)
                     .set("implementInfo", "implements java.io.Serializable")
                     .set("classAnnotationList", "@Embeddable")
                     .set("className", classNm);
