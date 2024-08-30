@@ -9,6 +9,7 @@ import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractDataModel;
 import io.elasticore.base.model.core.RelationshipManager;
+import io.elasticore.base.model.entity.AnnotationName;
 import io.elasticore.base.model.entity.BaseFieldType;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
@@ -205,7 +206,7 @@ public class SrcFilePublisher {
             paragraph.add("  " + field.getDescription());
             paragraph.add("*/");
         } else {
-            String description = field.getAnnotationValue("label", "desc", "description");
+            String description = field.getAnnotationValue(AnnotationName.COMMENT);
             if (description != null) {
                 paragraph.add("/*");
                 paragraph.add("  " + description);
@@ -214,7 +215,7 @@ public class SrcFilePublisher {
         }
 
 
-        String required = field.getAnnotationValue("calcRequired");
+        String required = field.getAnnotationValue(AnnotationName.CALCULATION_REQUIRED);
         if("true".equals(required))
             paragraph.add("// calcRequired:" + required);
 
@@ -223,7 +224,7 @@ public class SrcFilePublisher {
 
     protected void setFieldDocumentation(Field f, CodeTemplate.Paragraph p) {
 
-        String desc = f.getAnnotationValue("description", "desc", "label");
+        String desc = f.getAnnotationValue(AnnotationName.DESCRIPTION);
         if (desc == null) {
             desc = f.getName();
         }
@@ -238,7 +239,7 @@ public class SrcFilePublisher {
     }
 
     protected String getExample(Field f) {
-        String example = f.getAnnotationValue("example");
+        String example = f.getAnnotationValue(AnnotationName.EXAMPLE);
 
         if (example == null) {
 
@@ -290,7 +291,7 @@ public class SrcFilePublisher {
         }
 
         if(example==null) {
-            String format = f.getAnnotationValue("format","pattern");
+            String format = f.getAnnotationValue(AnnotationName.FORMAT);
             if(format==null) {
                 if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
                         || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
@@ -327,8 +328,8 @@ public class SrcFilePublisher {
         if(f.hasAnnotation("notblank"))
             p.add("@NotBlank");
 
-        String minSize = f.getAnnotationValue("minsize");
-        String maxSize = f.getAnnotationValue("length", "len", "size");
+        String minSize = f.getAnnotationValue(AnnotationName.MIN_SIZE);
+        String maxSize = f.getAnnotationValue(AnnotationName.LENGTH);
         if (minSize != null || maxSize != null) {
             StringBuilder sb = new StringBuilder();
             if (minSize != null)
@@ -346,7 +347,7 @@ public class SrcFilePublisher {
 
 
     protected void setJsonInfo(Field f, CodeTemplate.Paragraph p) {
-        String jsonName = f.getAnnotationValue("jsonproperty", "json");
+        String jsonName = f.getAnnotationValue(AnnotationName.JSON_NAME);
         if (jsonName != null) {
             p.add("@JsonProperty(\"%s\")", jsonName);
         }
@@ -355,8 +356,8 @@ public class SrcFilePublisher {
             p.add("@JsonIgnore");
         }
 
-        String jsonSerialize = f.getAnnotationValue("JsonSerialize.using");
-        String jsonDeserialize = f.getAnnotationValue("JsonDeserialize.using");
+        String jsonSerialize = f.getAnnotationValue(AnnotationName.JSON_SERIALIZE_USE);
+        String jsonDeserialize = f.getAnnotationValue(AnnotationName.JSON_DESERIALIZE_USE);
 
         if (jsonSerialize != null) {
             p.add("@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = %s)", jsonSerialize);
@@ -392,8 +393,8 @@ public class SrcFilePublisher {
 
 
     protected void setFunctionInfo(Field f, CodeTemplate.Paragraph p) {
-        String getFunc = f.getAnnotationValue("function.get");
-        String setFunc = f.getAnnotationValue("function.set");
+        String getFunc = f.getAnnotationValue(AnnotationName.FUNCTION_GET);
+        String setFunc = f.getAnnotationValue(AnnotationName.FUNCTION_SET);
 
         String fldNm = f.getName();
         String cFldNm = StringUtils.capitalize(fldNm);
@@ -427,7 +428,7 @@ public class SrcFilePublisher {
 
     protected void setFormatAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
 
-        String format = field.getAnnotationValue("format", "pattern");
+        String format = field.getAnnotationValue(AnnotationName.FORMAT);
         if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
                 || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
             if(format==null)

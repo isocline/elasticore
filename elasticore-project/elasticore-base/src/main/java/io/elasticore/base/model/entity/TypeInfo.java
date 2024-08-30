@@ -114,6 +114,16 @@ public class TypeInfo {
         return typeParameterName;
     }
 
+    public boolean isTypeParameterBaseType() {
+        if(typeParameterName==null || typeParameterName.isEmpty())
+            return false;
+        String typeNm = typeParameterName.toLowerCase();
+        if("string".equals(typeNm) || "integer".equals(typeNm) || "long".equals(typeNm)) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isGenericType() {
         return isGenericType;
     }

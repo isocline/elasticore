@@ -92,13 +92,11 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
         if(jsonField!=null || dbField !=null) {
             boolean isSame = false;
-            if(jsonField !=null && dbField !=null) {
-                if(jsonFieldNm.equals(dbFieldNm)) {
-                    makeFindEnumCode(cb, enumName, jsonField, true, true);
-                    isJsonImport = true;
-                    isDbImport = true;
-                    isSame = true;
-                }
+            if(jsonField !=null && dbField !=null && jsonFieldNm.equals(dbFieldNm)) {
+                makeFindEnumCode(cb, enumName, jsonField, true, true);
+                isJsonImport = true;
+                isDbImport = true;
+                isSame = true;
             }
 
             if(!isSame) {
@@ -156,9 +154,9 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
 
         cb.line("public static List<Map> getAllEnumInfo()").block();
-        cb.line("List list = new ArrayList();");
+        cb.line("List<Map> list = new ArrayList();");
         cb.line("for(%s i:%s.class.getEnumConstants())",enumName,enumName).block();
-        cb.line("HashMap map = new HashMap();");
+        cb.line("HashMap<String,Object> map = new HashMap();");
         cb.line("map.put(\"_name\", i.name());");
 
         for(Field field:enumModel.getFieldItems().getItemList()) {
@@ -240,7 +238,7 @@ public class EnumFilePublisher extends SrcFilePublisher {
             cb.line("@Override");
             cb.line("public void setAsText(String txt) throws IllegalArgumentException");
             cb.block();
-            cb.line("if(txt!=null && txt.length()>0)");
+            cb.line("if(txt!=null && !txt.isEmpty())");
             cb.line("  setValue(%s.from%s(txt));", enumName, capitalNm);
             cb.end();
             cb.end();

@@ -177,9 +177,4 @@ public class StringUtils {
     }
 
 
-    public static void main(String[] args) {
-        String sql = "SELECT test, test2 AS ZZZ FROM (SELECT test1, test2, test3 FROM XXX)";
-        List<String> columnNames = extractFirstSelectColumnNames(sql);
-        System.out.println("Extracted column names: " + columnNames);
-    }
 }

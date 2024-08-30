@@ -24,6 +24,7 @@ import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.entity.AnnotationName;
 import io.elasticore.base.model.entity.BaseFieldType;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
@@ -225,7 +226,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             }
 
             // eq,=,%5,in ....etc
-            String conditionCode = f.getAnnotationValue("search", "s");
+            String conditionCode = f.getAnnotationValue(AnnotationName.SEARCH);
 
             setFieldDesc(f, p);
             setFieldDocumentation(f,p);

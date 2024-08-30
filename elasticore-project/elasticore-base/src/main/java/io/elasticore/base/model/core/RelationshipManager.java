@@ -33,6 +33,11 @@ public class RelationshipManager {
         return instance;
     }
 
+    static boolean clear(String domainId) {
+        return relationshipManagerMap.remove(domainId)!=null;
+    }
+
+
     public synchronized void addRelationship(ModelRelationship relationship) {
         if (!relationshipSet.contains(relationship)) {
             this.relationshipList.add(relationship);

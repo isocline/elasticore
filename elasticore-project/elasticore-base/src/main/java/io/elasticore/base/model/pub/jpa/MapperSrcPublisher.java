@@ -11,6 +11,7 @@ import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferModels;
+import io.elasticore.base.model.entity.AnnotationName;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
@@ -133,7 +134,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         for (Field f : listMap.getList()) {
             if (!f.hasAnnotation("search") && !f.hasAnnotation("s")) continue;
 
-            String condition = f.getAnnotationValue("search", "s"); // =, eq, like, between, !=, neq
+            String condition = f.getAnnotationValue(AnnotationName.SEARCH); // =, eq, like, between, !=, neq
 
             String type = f.getTypeInfo().getDefaultTypeName();
             String fieldNm = f.getName();
@@ -145,7 +146,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             boolean isListEntityField = isListfield;
 
             String childFieldName="";
-            String refFieldNm = f.getAnnotationValue("ref");
+            String refFieldNm = f.getAnnotationValue(AnnotationName.REFERENCE);
             if(refFieldNm!=null) {
                 String[] fieldItems = refFieldNm.split("\\.");
                 if(fieldItems.length==2) {
@@ -268,7 +269,6 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                 if( isJoinWithSingleData) {
 
-
                     cb.line("sp = sp.and((root, query, criteriaBuilder) -> {");
                     cb.line("  Join<%s, %s> join = root.join(%s);",entityNm
                             ,joinWithSingleDataTypeName
@@ -378,7 +378,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         String fieldName = fieldWithRefInfo.getName();
         String setFieldNm = StringUtils.capitalize(fieldName);
 
-        String targetRefFieldNm = fieldWithRefInfo.getAnnotationValue("reference", "ref");
+        String targetRefFieldNm = fieldWithRefInfo.getAnnotationValue(AnnotationName.REFERENCE);
         //if(targetRefFieldNm!=null && toModel.getIdentity().getComponentType()==ComponentType.DTO) {
         if (targetRefFieldNm != null) {
             String targetChildFieldNm = null;
@@ -515,8 +515,14 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 if("toDTO".equals(toMethodName))
                     if (fromField.hasAnnotation("password")) continue;
 
-                cb.line("if(!isSkipNull || hasValue(from.get%s()))", fldNm);
-                cb.line("    to.set%s(from.get%s());", fldNm, fldNm);
+                if(fromField.hasAnnotation("forceupdate")) {
+                    cb.line("to.set%s(from.get%s());", fldNm, fldNm);
+                }else {
+                    cb.line("if(!isSkipNull || hasValue(from.get%s()))", fldNm);
+                    cb.line("    to.set%s(from.get%s());", fldNm, fldNm);
+                }
+
+
             }
         }
 

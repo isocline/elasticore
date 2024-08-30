@@ -1,0 +1,19 @@
+
+entity:
+  Person:
+    meta: entity @extend(BaseEntity) -- 주문 정보 | 고객 주문에 대한 상세 정보 관리
+    fields:
+
+      address: List<Address> -- test
+      address2: Address -- test2
+      phone: Phone @embedded
+
+  Address:
+    meta: entity  -- 주문 항목 정보 | 각 주문에 포함된 항목 정보
+    fields:
+      price: long -- 가격
+
+  Phone:
+    meta: entity
+    fields:
+      phNum: string -- 번호

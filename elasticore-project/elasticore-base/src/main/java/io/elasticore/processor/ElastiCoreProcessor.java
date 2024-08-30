@@ -3,6 +3,8 @@ package io.elasticore.processor;
 
 import io.elasticore.base.extract.FileBasedSourceFileAccessFactory;
 import io.elasticore.base.extract.ModelExtractor;
+import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.util.ConsoleLog;
 import lombok.SneakyThrows;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -32,20 +34,13 @@ public class ElastiCoreProcessor extends AbstractProcessor {
         Map<String, String> options = processingEnv.getOptions();
 
         for (String key : options.keySet()) {
-            System.out.println("==" + key);
+            ConsoleLog.print(" - " + key+": "+options.get(key));
         }
         this.projectPath = options.get("projectPath");
         this.generatedPath = options.get("generatedPath");
-        this.modelPath = this.projectPath + "/src/main/resources/blueprint";
+        this.modelPath = this.projectPath + ConstanParam.PROPERTY_ELCORE_HOME;
 
-        File f = new File(" C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasticore-template\\src\\main\\java\\io\\elasticore\\demo\\crm\\entity\\ContractGroup.java");
-
-
-
-        System.err.println("projectPath>>>>>>>>>>>> " + this.projectPath);
-        System.err.println("generatedPath>>>>>>>>>>>> " + this.generatedPath);
-
-
+        //File f = new File(" C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasticore-template\\src\\main\\java\\io\\elasticore\\demo\\crm\\entity\\ContractGroup.java");
 
     }
 

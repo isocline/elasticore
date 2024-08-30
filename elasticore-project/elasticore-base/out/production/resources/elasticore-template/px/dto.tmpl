@@ -1,8 +1,12 @@
 package ${packageName};
 
-import ${enumPackageName}.*;
-import lombok.*;
-import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import ${j2eePkgName}.validation.constraints.NotBlank;
 import ${j2eePkgName}.validation.constraints.NotNull;
 import ${j2eePkgName}.validation.constraints.Size;
@@ -27,11 +31,4 @@ ${classAnnotationList}
 public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
 
 	${fieldList}
-
-
-	/*-- print-if:${isSearchDTO} --*/
-    private String sortColumn; // 정렬 컬럼
-    private Boolean sortAscending; // sort ASC 정렬 여부 (true : ASC, false : DESC)
-    /*-- print-if:end --*/
-
 };

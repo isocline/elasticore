@@ -42,7 +42,7 @@ public class Field implements ModelComponent {
     }
 
     public int getLength() {
-        String lenTxt = getAnnotationValue("length, len");
+        String lenTxt = getAnnotationValue(AnnotationName.LENGTH);
         if(lenTxt!=null)
             return Integer.parseInt(lenTxt);
 
@@ -54,7 +54,7 @@ public class Field implements ModelComponent {
         if(!this.typeInfo.isBaseType())
             return null;
 
-        String dbColumnName = getAnnotationValue("column", "col" ,"db");
+        String dbColumnName = getAnnotationValue(AnnotationName.COLUMN_NAME);
         if(dbColumnName!=null)
             return dbColumnName;
 
@@ -123,12 +123,19 @@ public class Field implements ModelComponent {
 
 
 
-    public boolean hasAnnotation(String name) {
-        if (annotationMap == null || name ==null) {
+    public boolean hasAnnotation(String... names) {
+        if (annotationMap == null || names ==null) {
             return false;
         }
-        String key = name.toLowerCase(Locale.ROOT);
-        return annotationMap.containsKey(key);
+        for (String name : names) {
+            if (name == null) {
+                continue;
+            }
+            String key = name.toLowerCase(Locale.ROOT);
+            if(annotationMap.containsKey(key))
+                return true;
+        }
+        return false;
     }
 
 

@@ -466,18 +466,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         else if (typeInfo.isList()) {
             if(isEntityType) {
 
-                String fetchType = null;
-                if(field.hasAnnotation("fetch")) {
-                    fetchType = field.getAnnotationValue("fetch");
-                }
+                String fetchType = field.getAnnotationValue(AnnotationName.FETCH);
+
                 if(fetchType==null)
                     fetchType = "LAZY";
                 else
                     fetchType = fetchType.toUpperCase();
 
                 String cascade = "";
-                if(field.hasAnnotation("cascade")) {
-                    String cascadeType = field.getAnnotationValue("cascade");
+                if(field.hasAnnotation(AnnotationName.CASCADE)) {
+                    String cascadeType = field.getAnnotationValue(AnnotationName.CASCADE);
                     if(cascadeType==null)
                         cascadeType = "ALL, orphanRemoval = true";
                     else
@@ -555,7 +553,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      */
     private void setFieldColumnAnnotation(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
 
-        String labelTxt = field.getAnnotationValue("label", "comment");
+        String labelTxt = field.getAnnotationValue(AnnotationName.COMMENT);
         if(labelTxt!=null && !labelTxt.isEmpty())
             paragraph.add("@Comment(\"%s\")", labelTxt);
 
@@ -580,14 +578,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list.add("nullable = false");
         }
 
-        if("false".equals(field.getAnnotationValue("updatable"))) {
+        if("false".equals(field.getAnnotationValue(AnnotationName.UPDATABLE))) {
             list.add("updatable = false");
         }
 
         EnumModel enumModel = this.getEnumModelFromType(entity.getIdentity().getDomainId(),field);
 
         boolean isLengthDefine = false;
-        String lengthVal = field.getAnnotationValue("length", "len");
+        String lengthVal = field.getAnnotationValue(AnnotationName.LENGTH);
         if (lengthVal != null) {
             list.add("length = " + lengthVal);
             isLengthDefine = true;
@@ -599,7 +597,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     if(dbFieldNm!=null) {
                         Field enumField = enumModel.getFieldItems().findByName(dbFieldNm);
                         if(enumField!=null) {
-                            lengthVal = enumField.getAnnotationValue("length", "len");
+                            lengthVal = enumField.getAnnotationValue(AnnotationName.LENGTH);
                             if (lengthVal != null) {
                                 list.add("length = " + lengthVal);
                                 isLengthDefine = true;

@@ -7,6 +7,7 @@ import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.entity.AnnotationName;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.relation.ModelRelationship;
@@ -211,6 +212,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             searchResultDTOClassName=dtoClassName;
         }
 
+        boolean isSkipNull = true;
+        if( "false".equals(entity.getMetaInfo().getMetaAnnotationValue("dynamicupdate"))) {
+            isSkipNull = false;
+        }
+
+
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
                 .set("className", className)
@@ -226,6 +233,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("isPageOutput",isPageOutput)
                 .set("isCustomPageOutput",isCustomPageOutput)
                 .set("isCustomListOutput",isCustomListOutput)
+                .set("isSkipNull",isSkipNull)
+
 
                 .set("searchResultDTOClassName",searchResultDTOClassName)
                 .set("selectColumnNmList" ,selectColumnNmList)
@@ -259,7 +268,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         while (items.hasNext()) {
             Field f = items.next();
             // ex) Company.comSeq  || Company
-            String refFieldNm = f.getAnnotationValue("reference", "ref");
+            String refFieldNm = f.getAnnotationValue(AnnotationName.REFERENCE);
             if (refFieldNm == null) continue;
 
             String[] refItems = refFieldNm.split("\\.");

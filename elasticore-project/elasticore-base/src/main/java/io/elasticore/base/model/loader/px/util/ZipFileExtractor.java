@@ -9,15 +9,6 @@ public class ZipFileExtractor {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     private static final String PREVIOUS_EXTRACTION_TIME_FILE = "px.dat";
 
-    public static void main(String[] args) {
-        try {
-            String zipFilePath = "path_to_zip_file.zip";
-            String extractedFilePath = extractMainDxdp(zipFilePath);
-            System.out.println("Extracted file path: " + extractedFilePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      *

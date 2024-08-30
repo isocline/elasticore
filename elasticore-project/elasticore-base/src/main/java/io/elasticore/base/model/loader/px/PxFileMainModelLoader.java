@@ -12,6 +12,7 @@ import io.elasticore.base.model.loader.MainModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.model.loader.px.util.ZipFileExtractor;
 import io.elasticore.base.model.repo.RepositoryModels;
+import io.elasticore.base.util.ConsoleLog;
 import lombok.SneakyThrows;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,12 +61,11 @@ public class PxFileMainModelLoader implements MainModelLoader {
         for(String pxdpzFilePath: pxdpzFilePathList) {
 
             String newXmlPath = ZipFileExtractor.extractMainDxdp(pxdpzFilePath);
-            System.out.println("[PXDPZ] LOAD path: "+pxdpzFilePath);
-            System.out.println("[PXDPZ] temp file path: "+newXmlPath);
+            ConsoleLog.print("[PXDPZ] LOAD path: " + pxdpzFilePath);
+            ConsoleLog.print("[PXDPZ] temp file path: "+newXmlPath);
 
             File f = new File(newXmlPath);
             FileSource fileSource = null;
-
 
             try {
                 documentBuilder = dbFactory.newDocumentBuilder();

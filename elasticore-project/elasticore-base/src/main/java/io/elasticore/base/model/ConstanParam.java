@@ -35,5 +35,10 @@ public interface ConstanParam {
     String POSTFIX_SERVICE = "CoreService";
 
     String POSTFIX_CONTROL = "Controller";
+
+
+    String PROPERTY_ELCORE_HOME = "src/main/resources/blueprint";
+
+    String PROPERTY_JAVA_SRC_HOME = "src/main/java";
     
 }

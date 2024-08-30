@@ -104,7 +104,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
         if (f.hasAnnotation(RelationType.ONE_TO_ONE.getName())) {
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE, f.getName()));
-            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
+            //rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
         } else if (f.hasAnnotation(RelationType.ONE_TO_MANY.getName())) {
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_MANY, f.getName()));
             rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.MANY_TO_ONE, f.getName()));
@@ -121,12 +121,15 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
         } else if (!typeInfo.isBaseType()) {
             if (typeInfo.isGenericType()) {
-                rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE, f.getName()));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY, f.getName()));
+
+                if(!typeInfo.isTypeParameterBaseType()) {
+                    rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.MANY_TO_ONE, f.getName()));
+                    rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_MANY, f.getName()));
+                }
 
             } else {
                 rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.ONE_TO_ONE, f.getName()));
-                rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
+                //rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.ONE_TO_ONE, f.getName()));
             }
 
         }
@@ -154,7 +157,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
     }
 
-    private String getReferenceModelNames(MetaInfo metaInfo) {
+    private String getReferenceModelNames() {
         MetaInfo meta = this.getMetaInfo();
 
         String templateNames = meta.getMetaAnnotationValue("template");
@@ -210,7 +213,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         loadFieldInfo(this, fieldListMap);
 
         {
-            String templates = getReferenceModelNames(this.getMetaInfo());
+            String templates = getReferenceModelNames();
 
             if (templates != null && templates.length() > 0) {
                 String[] templateNmArray = templates.split(",");

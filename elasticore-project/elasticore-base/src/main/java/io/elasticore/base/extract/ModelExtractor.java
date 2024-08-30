@@ -3,6 +3,7 @@ package io.elasticore.base.extract;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
+import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
@@ -17,10 +18,8 @@ import java.util.List;
 public class ModelExtractor {
 
 
-
     private final static String SRC_PATH = "src/main/java";
 
-    private final static String RESOURCE_PATH = "src/main/resources/blueprint";
 
     private String modelResourcePath;
 
@@ -30,11 +29,10 @@ public class ModelExtractor {
 
 
     public ModelExtractor() {
-        this.modelResourcePath = getRootDir() + "/"+RESOURCE_PATH;
+        this.modelResourcePath = getRootDir() + "/"+ ConstanParam.PROPERTY_ELCORE_HOME;
     }
 
     public ModelExtractor(String modelResourcePath) {
-
         this.modelResourcePath = modelResourcePath;
     }
 
@@ -98,7 +96,7 @@ public class ModelExtractor {
         List<String> dirList = findTemplateFilePath();
 
         if(dirList == null || dirList.size()==0) {
-            System.err.println(" NOT FOUND "+rootDir);
+            ConsoleLog.printWarn("Not found model DSL file in "+rootDir);
             return;
         }
 
@@ -112,14 +110,10 @@ public class ModelExtractor {
             ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
             ModelDomain defaultDomain = ctx.getDomain();
 
-            ECoreModel model = defaultDomain.getModel();
-
-
-
-            //publisher.setDestBaseDirPath(rootDir+"/"+SRC_PATH);
+            //ECoreModel model = defaultDomain.getModel();
 
             if(sourceFileAccessFactory ==null) {
-                sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir+"/"+SRC_PATH);
+                sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir+"/"+ConstanParam.PROPERTY_JAVA_SRC_HOME);
             }
             codePublishManager.setSrcCodeWriterFactory(sourceFileAccessFactory);
             codePublishManager.publish(ctx);

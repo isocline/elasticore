@@ -25,6 +25,7 @@ import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferModels;
+import io.elasticore.base.model.entity.AnnotationName;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.pub.jpa.SrcFilePublisher;
@@ -245,7 +246,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 continue;
 
 
-            String val = f.getAnnotationValue("kind") ;
+            String val = f.getAnnotationValue(AnnotationName.KIND) ;
 
             if(mode == REQUEST && "calculated".equals(val))
                 continue;

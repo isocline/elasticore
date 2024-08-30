@@ -9,6 +9,7 @@ import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.listener.ModelObjectListener;
 import io.elasticore.base.model.loader.ModelLoaderContext;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.MapWrapper;
 import io.elasticore.base.util.StringUtils;
 import lombok.SneakyThrows;
@@ -273,12 +274,11 @@ public class SqlQueryInfo {
                 Select selectStatement = (Select) statement;
 
                 String methodNm = getMethodName(selectStatement);
-                if (methodNm != null)
-                    System.err.println(methodNm);
+
 
                 TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
                 this.tableList = tablesNamesFinder.getTableList(selectStatement);
-                System.out.println("Tables in the query: " + tableList);
+                ConsoleLog.print("Tables in the query: " + tableList);
 
                 SelectBody selectBody = selectStatement.getSelectBody();
 
@@ -548,7 +548,7 @@ public class SqlQueryInfo {
             String columnName = matcher.group(1);
             String typeInfo = matcher.group(2);
             typeMap.put(columnName, typeInfo);
-            System.out.println("Column Name: " + columnName + ", Type Info: " + typeInfo);
+            ConsoleLog.print("Column Name: " + columnName + ", Type Info: " + typeInfo);
         }
         return typeMap;
     }

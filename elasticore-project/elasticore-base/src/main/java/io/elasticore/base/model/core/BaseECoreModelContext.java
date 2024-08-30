@@ -7,6 +7,7 @@ import io.elasticore.base.ModelLoader;
 import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.listener.ModelObjectListener;
+import io.elasticore.base.util.ConsoleLog;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,6 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
     private final ModelLoader loader;
 
-
     private static BaseECoreModelContext context;
 
     private BaseECoreModelContext(ModelLoader loader) {
@@ -28,8 +28,6 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
     public void load() {
-
-
 
         modelDomainMap.clear();
         defaultModelDomain = null;
@@ -51,6 +49,11 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
     public synchronized static ECoreModelContext getContext(ModelLoader loader) {
+        loader.getDomainNameList().forEach(name -> {
+            RelationshipManager.clear(name);
+            ConsoleLog.print("clear releation: "+name);
+        });
+
         context = new BaseECoreModelContext(loader);
         context.load();
         return context;

@@ -8,6 +8,7 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.RelationshipManager;
+import io.elasticore.base.model.entity.AnnotationName;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
@@ -15,6 +16,7 @@ import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.HashUtils;
 
 import java.io.File;
@@ -96,7 +98,10 @@ public class MermaidCodePublisher implements CodePublisher {
 
 
         String fileName = "uml_" + ctx.getDomain().getName() + ".html";
-        try (Writer writer = new FileWriter(new File(fileName))) {
+        File umlFile = new File(fileName);
+        ConsoleLog.printInfo("UML file name : " + umlFile.getAbsolutePath());
+
+        try (Writer writer = new FileWriter(umlFile)) {
             writer.write(content);
 
             writer.flush();
@@ -132,7 +137,7 @@ public class MermaidCodePublisher implements CodePublisher {
             }
             String fieldName = f.getName();
 
-            String label = f.getAnnotationValue("label","desc");
+            String label = f.getAnnotationValue(AnnotationName.COMMENT);
             if(label !=null && !label.isEmpty() ) {
                 label = "//"+label;
             }else {
@@ -152,12 +157,15 @@ public class MermaidCodePublisher implements CodePublisher {
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
                 cb.line("%s --o \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
 
+            else if (r.getRelationType() == RelationType.ONE_TO_ONE)
+                cb.line("%s --o \"0..1\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
+
             else if (r.getRelationType() == RelationType.SUPER)
                 cb.line("%s <|-- %s : %s",  r.getToName(),r.getFromName(), "extend");
             else if (r.getRelationType() == RelationType.ROLLUP)
                 cb.line("%s <|-- %s : %s", r.getToName(), r.getFromName(),  r.getRelationType().getName());
             else if (r.getRelationType() == RelationType.EMBEDDED)
-                cb.line("%s *-- %s : %s", r.getToName(), r.getFromName(),  "embedded");
+                cb.line("%s --* %s : %s",  r.getFromName(), r.getToName(),  r.getRelationName()+"(embedded)");
         }
     }
 }

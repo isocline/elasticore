@@ -76,9 +76,31 @@ public class PxCodePublihser implements CodePublisher {
             repositoryCodePublisher.publish(domain, repoModel);
         }
 
-        ConsoleLog.printStoredInfoLog("PUBLISH", "    ");
-        ConsoleLog.printStoredInfoLog("NO_MODIFIED", "    ");
-        ConsoleLog.printStoredWarnLog("USER_MODIFIED", "    ");
+        ConsoleLog.print("");
+        ConsoleLog.print("# Domain: "+domain.getName());
+        ConsoleLog.print("");
+
+        ConsoleLog.print("[INFO] Code Templates:");
+        ConsoleLog.print("--------------------------------------");
+        ConsoleLog.printStoredInfoLog("TEMPLATE", "  ");
+        ConsoleLog.print("");
+
+
+        ConsoleLog.print("[INFO] Unmodified Changes:");
+        ConsoleLog.print("--------------------------------------");
+        ConsoleLog.printStoredLog("NO_MODIFIED", "  ");
+        ConsoleLog.print("");
+
+        ConsoleLog.print("[WARN] Externally Modified Files Detected:");
+        ConsoleLog.print("--------------------------------------");
+        ConsoleLog.printStoredWarnLog("USER_MODIFIED", "  ");
+        ConsoleLog.print("");
+
+        ConsoleLog.print("[INFO] New Changes:");
+        ConsoleLog.print("--------------------------------------");
+        ConsoleLog.printStoredInfoLog("PUBLISH", "  ");
+        ConsoleLog.print("");
+
         ConsoleLog.clear();
 
     }

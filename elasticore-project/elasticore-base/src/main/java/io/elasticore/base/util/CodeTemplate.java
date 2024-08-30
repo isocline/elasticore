@@ -2,9 +2,11 @@ package io.elasticore.base.util;
 
 
 
+import io.elasticore.base.model.ConstanParam;
 import lombok.SneakyThrows;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,11 +42,23 @@ public class CodeTemplate {
 
     private static InputStream getTemplateInputStream(String resourcePath) throws FileNotFoundException {
         InputStream inputStream = null;
-        if (resourcePath.indexOf("resource://") == 0) {
 
-            String path = getRootDir() + "/src/main/resources/" + resourcePath.substring(11);
+        int p = resourcePath.indexOf("file:");
 
+        if(p>=0) {
+            String url = resourcePath.substring(p);
+            ConsoleLog.storeLog("TEMPLATE",url);
+            try {
 
+                URL fileUrl = new URL(url);
+                inputStream = fileUrl.openStream();
+            }catch (Exception e) {
+                throw new FileNotFoundException(url);
+            }
+        }
+        else if (resourcePath.indexOf("resource://") == 0) {
+
+            String path = getRootDir() + "/"+ ConstanParam.PROPERTY_ELCORE_HOME+"/" + resourcePath.substring(11);
 
 
             ConsoleLog.storeLog("TEMPLATE",path);
