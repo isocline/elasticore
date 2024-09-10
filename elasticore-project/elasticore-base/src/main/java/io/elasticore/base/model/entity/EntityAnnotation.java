@@ -3,7 +3,7 @@ package io.elasticore.base.model.entity;
 /**
  * This interface defines various annotation names used in elastiCore modeling.
  */
-public interface AnnotationName {
+public interface EntityAnnotation {
 
 
     String META_TABLE = "table";

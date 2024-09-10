@@ -1,0 +1,24 @@
+
+public class ZipFileExtractor {
+
+    public static String extractMainDxdp(String zipFilePath) throws IOException {
+
+        FileTime lastModifiedTime = Files.getLastModifiedTime(zipPath);
+        // test
+
+        // code
+
+        String extractedFilePath = unzipMainDxdp(zipFilePath);
+
+        return extractedFilePath;
+    }
+
+
+
+    private static void writeFileAsString(String filePath, String data) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(data);
+        }
+    }
+
+}

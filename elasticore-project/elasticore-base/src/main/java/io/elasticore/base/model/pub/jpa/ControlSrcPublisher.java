@@ -9,6 +9,7 @@ import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
@@ -78,7 +79,7 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
 
     private boolean isPageable(DataTransfer searchDTO) {
-        Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation("searchable");
+        Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE);
         if(annotation==null) return false;
 
         Properties props = annotation.getProperties();

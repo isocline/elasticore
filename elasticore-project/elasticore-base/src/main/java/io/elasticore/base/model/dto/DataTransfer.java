@@ -4,6 +4,7 @@ package io.elasticore.base.model.dto;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.*;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.util.StringUtils;
 import lombok.Getter;
 
 @Getter
@@ -45,5 +46,15 @@ public class DataTransfer extends AbstractDataModel implements MetaInfoModel,Dat
         return metaInfo;
     }
 
+
+    public String findFieldName(String fieldName) {
+
+        Field f = this.items.findByName(fieldName);
+
+        if (f == null) return null;
+
+
+        return f.getName();
+    }
 
 }

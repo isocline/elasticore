@@ -42,11 +42,18 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
 
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
         this.ctx = ctx;
+        boolean isProcess = false;
         if (map.containsKey(ConstanParam.KEYNAME_REPOSITORY)) {
             loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_REPOSITORY));
-            return true;
+            isProcess = true;
         }
-        return false;
+
+        if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {
+            loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_ENTITY));
+            isProcess = true;
+        }
+
+        return isProcess;
     }
 
 

@@ -24,16 +24,15 @@ import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.entity.AnnotationName;
-import io.elasticore.base.model.entity.BaseFieldType;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
+import io.elasticore.base.model.dto.DataTransferModels;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.util.CodeTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Handles the publishing of source files for entities.
@@ -137,7 +136,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
-        if (!metaInfo.hasMetaAnnotation("searchable")) return;
+        if (!metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) return;
 
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
@@ -151,7 +150,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph pr = getFieldInfo(dtoModel);
 
 
-        Annotation srchAnt = metaInfo.getMetaAnnotation("searchable");
+        Annotation srchAnt = metaInfo.getMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE);
 
         pr.add("");
         pr.add("private String sortCode;");
@@ -194,29 +193,41 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
     }
 
 
-    private CodeTemplate.Paragraph getFieldInfo(DataModelComponent entity) {
+    private CodeTemplate.Paragraph getFieldInfo(DataModelComponent dataModel) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
-        loadFieldInfo(entity, p);
+        loadFieldInfo(dataModel, p);
         return p;
     }
 
 
-    private void loadFieldInfo(DataModelComponent entity, CodeTemplate.Paragraph p) {
+    private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p) {
+
+        DataTransfer dataTransfer = null;
 
         boolean isEntity = false;
-        if (entity instanceof Entity) {
+        if (dto instanceof Entity) {
             isEntity = true;
+        }else if (dto instanceof DataTransfer) {
+            dataTransfer = (DataTransfer) dto;
         }
 
-        ListMap<String, Field> fields = entity.getAllFieldListMap();
+
+        ListMap<String, Field> fields = dto.getAllFieldListMap();
         List<Field> fieldList = fields.getList();
 
         for (Field f : fieldList) {
-            if (!f.hasAnnotation("id")
+
+            boolean isForceDefineField = false;
+            if(dataTransfer!=null && dataTransfer.findFieldName(f.getName())!=null) {
+                isForceDefineField = true;
+            }
+
+
+            if (!isForceDefineField && !f.hasAnnotation("id")
                     && !f.hasAnnotation("search")
                     && !f.hasAnnotation("s")
-                    && entity.getItems().findByName(f.getName()) == null)
+                    && dto.getItems().findByName(f.getName()) == null)
                 continue;
 
 
@@ -225,8 +236,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                     continue;
             }
 
-            // eq,=,%5,in ....etc
-            String conditionCode = f.getAnnotationValue(AnnotationName.SEARCH);
+
 
             setFieldDesc(f, p);
             setFieldDocumentation(f,p);
@@ -238,6 +248,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             String defaultValDefined = getDefaultValueSetup(f);
 
+            // eq,=,%5,in ....etc
+            String conditionCode = f.getAnnotationValue(EntityAnnotation.SEARCH);
 
             String fieldNm = f.getName();
             String typeName = f.getTypeInfo().getDefaultTypeName();

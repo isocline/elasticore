@@ -41,6 +41,12 @@ public class PxCodePublihser implements CodePublisher {
         return this.ctx;
     }
 
+
+    @Override
+    public boolean deleteSource(ModelDomain domain, String rootDir) {
+        return false;
+    }
+
     @Override
     public void publish(ECoreModelContext ctx, ModelDomain domain) {
         this.ctx = ctx;
@@ -77,7 +83,11 @@ public class PxCodePublihser implements CodePublisher {
         }
 
         ConsoleLog.print("");
+        ConsoleLog.print("######################################");
+        ConsoleLog.print("#");
         ConsoleLog.print("# Domain: "+domain.getName());
+        ConsoleLog.print("#");
+        ConsoleLog.print("######################################");
         ConsoleLog.print("");
 
         ConsoleLog.print("[INFO] Code Templates:");
@@ -86,20 +96,28 @@ public class PxCodePublihser implements CodePublisher {
         ConsoleLog.print("");
 
 
-        ConsoleLog.print("[INFO] Unmodified Changes:");
-        ConsoleLog.print("--------------------------------------");
-        ConsoleLog.printStoredLog("NO_MODIFIED", "  ");
-        ConsoleLog.print("");
+        if(ConsoleLog.countStoredLogkey("NO_MODIFIED") >0) {
+            ConsoleLog.print("[INFO] No Changes Detected");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredLog("NO_MODIFIED", "  ");
+            ConsoleLog.print("");
+        }
 
-        ConsoleLog.print("[WARN] Externally Modified Files Detected:");
-        ConsoleLog.print("--------------------------------------");
-        ConsoleLog.printStoredWarnLog("USER_MODIFIED", "  ");
-        ConsoleLog.print("");
+        if(ConsoleLog.countStoredLogkey("USER_MODIFIED") >0) {
+            ConsoleLog.print("[WARN] Externally Modified Files Detected:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredWarnLog("USER_MODIFIED", "  ");
+            ConsoleLog.print("");
+        }
 
-        ConsoleLog.print("[INFO] New Changes:");
-        ConsoleLog.print("--------------------------------------");
-        ConsoleLog.printStoredInfoLog("PUBLISH", "  ");
-        ConsoleLog.print("");
+
+        if(ConsoleLog.countStoredLogkey("PUBLISH") >0) {
+            ConsoleLog.print("[INFO] New Changes:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredInfoLog("PUBLISH", "  ");
+            ConsoleLog.print("");
+        }
+
 
         ConsoleLog.clear();
 

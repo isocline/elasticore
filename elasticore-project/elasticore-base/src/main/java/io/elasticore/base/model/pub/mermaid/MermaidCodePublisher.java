@@ -8,16 +8,16 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.RelationshipManager;
-import io.elasticore.base.model.entity.AnnotationName;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.ConsoleLog;
-import io.elasticore.base.util.HashUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -62,6 +62,12 @@ public class MermaidCodePublisher implements CodePublisher {
     @Override
     public ECoreModelContext getECoreModelContext() {
         return this.ctx;
+    }
+
+
+    @Override
+    public boolean deleteSource(ModelDomain domain, String rootDir) {
+        return false;
     }
 
     public void publish(ECoreModelContext ctx, ModelDomain domain) {
@@ -137,7 +143,7 @@ public class MermaidCodePublisher implements CodePublisher {
             }
             String fieldName = f.getName();
 
-            String label = f.getAnnotationValue(AnnotationName.COMMENT);
+            String label = f.getAnnotationValue(EntityAnnotation.COMMENT);
             if(label !=null && !label.isEmpty() ) {
                 label = "//"+label;
             }else {
@@ -153,7 +159,18 @@ public class MermaidCodePublisher implements CodePublisher {
 
         List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(classNm);
 
+        ECoreModel model = ctx.getDomain().getModel();
+
+        EntityModels entityModels = model.getEntityModels();
+        EnumModels enumModels = model.getEnumModels();
+
+
         for (ModelRelationship r : list) {
+
+            if( enumModels !=null && enumModels.findByName(r.getToName()) !=null)
+                continue;
+
+
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
                 cb.line("%s --o \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
 

@@ -1,0 +1,56 @@
+
+public class ZipFileExtractor {
+
+    public static String extractMainDxdp(String zipFilePath) throws IOException {
+
+        FileTime lastModifiedTime = Files.getLastModifiedTime(zipPath);
+        // test
+
+        // code
+
+        String extractedFilePath = unzipMainDxdp(zipFilePath);
+
+        return extractedFilePath;
+    }
+
+    List<String> test() {
+       return null;
+    }
+
+
+
+    private static void writeFileAsString(String filePath, String data) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(data);
+        }
+    }
+
+
+    private static String readFileAsString2(String filePath
+    ,List xxx) throws IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+
+            }
+        }
+        return contentBuilder.toString();
+    }
+
+
+    public int test2() {
+          //test
+    }
+
+
+
+
+    private static void writeFileAsString(String filePath, String data) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(data);
+        }
+    }
+
+    public string test() {
+      //test
+    }
+
+}

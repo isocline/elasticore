@@ -46,6 +46,14 @@ public class ConsoleLog {
         }catch (NullPointerException npe) {}
     }
 
+    public static int countStoredLogkey(String key) {
+        try {
+            return consoleLogMap.get(key).size();
+        }catch (NullPointerException npe){}
+
+        return 0;
+    }
+
 
     public static void print(Object message) {
         System.out.println(message);

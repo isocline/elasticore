@@ -25,6 +25,8 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.26'
     implementation 'com.github.jsqlparser:jsqlparser:4.0'
 
+    implementation 'io.github.java-diff-utils:java-diff-utils:4.12'
+
 
 
 

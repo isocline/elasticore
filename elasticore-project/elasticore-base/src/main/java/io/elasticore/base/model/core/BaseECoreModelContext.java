@@ -51,7 +51,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
     public synchronized static ECoreModelContext getContext(ModelLoader loader) {
         loader.getDomainNameList().forEach(name -> {
             RelationshipManager.clear(name);
-            ConsoleLog.print("clear releation: "+name);
+            //ConsoleLog.print("clear releation: "+name);
         });
 
         context = new BaseECoreModelContext(loader);

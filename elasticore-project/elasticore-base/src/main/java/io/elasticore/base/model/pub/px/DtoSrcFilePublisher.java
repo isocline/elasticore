@@ -24,8 +24,9 @@ import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.dto.DataTransferModels;
-import io.elasticore.base.model.entity.AnnotationName;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.pub.jpa.SrcFilePublisher;
@@ -147,7 +148,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
-        if(metaInfo.hasMetaAnnotation("searchable")) return;
+        if(metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) return;
 
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
@@ -246,7 +247,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 continue;
 
 
-            String val = f.getAnnotationValue(AnnotationName.KIND) ;
+            String val = f.getAnnotationValue(EntityAnnotation.KIND) ;
 
             if(mode == REQUEST && "calculated".equals(val))
                 continue;

@@ -180,6 +180,7 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
         annotationMap.put(annotation3.getName(), annotation3);
     }
 
+
     protected Items<Field> loadFieldData(Element StructureElement) {
 
         Items<Field> fieldItems = Items.create(Field.class);
@@ -212,6 +213,8 @@ public class PxDataTransferModelLoader extends AbstractModelLoader implements Co
                 //setAnnotationMap(annotationMap, vd);
 
             } catch (NullPointerException npe) {
+                npe.printStackTrace();
+                System.err.println("xX");
             }
 
 

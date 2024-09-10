@@ -4,8 +4,6 @@ package io.elasticore.base.model.entity;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.*;
-import io.elasticore.base.model.relation.ModelRelationship;
-import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.StringUtils;
 import lombok.Getter;
 
@@ -59,16 +57,22 @@ public class Entity extends AbstractDataModel implements MetaInfoModel, DataMode
     }
 
     public String getTableName() {
-        Annotation annotation = getMetaInfo().getMetaAnnotation("table");
+        Annotation annotation = getMetaInfo().getMetaAnnotation(EntityAnnotation.META_TABLE);
         if (annotation != null) {
             return annotation.getValue();
+        }else {
+            annotation = getMetaInfo().getMetaAnnotation(EntityAnnotation.META_IMMUTABLE);
+            if (annotation != null) {
+                return annotation.getValue();
+            }
+
         }
         return StringUtils.camelToSnake(this.getIdentity().getName());
     }
 
 
     public Entity findParentEntity(ModelDomain domain) {
-        Annotation extendAnnotation = getMetaInfo().getMetaAnnotation("extend");
+        Annotation extendAnnotation = getMetaInfo().getMetaAnnotation(EntityAnnotation.META_EXTEND);
         if (extendAnnotation != null) {
             String parentNm = extendAnnotation.getValue();
             try {

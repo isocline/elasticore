@@ -1,19 +1,32 @@
 
+dto:
+
+
+  PremiumCalcResultSrchDTO:
+    meta: dto @searchable(entity=PremiumCalcResult, pageSize=100)
+    fields:
+      caseNumber: string -- 케이스 번호
+
+
+
+
 entity:
-  Person:
-    meta: entity @extend(BaseEntity) -- 주문 정보 | 고객 주문에 대한 상세 정보 관리
-    fields:
 
-      address: List<Address> -- test
-      address2: Address -- test2
-      phone: Phone @embedded
 
-  Address:
-    meta: entity  -- 주문 항목 정보 | 각 주문에 포함된 항목 정보
+  PremiumCalcResult:
+    meta: entity  -- 보험료 계산결과
     fields:
-      price: long -- 가격
-
-  Phone:
-    meta: entity
-    fields:
-      phNum: string -- 번호
+      id: long @id @sequence
+      processId: string @s(eq)
+      prodCd: string @s(eq) -- 상품코드
+      age: string -- 연령
+      gender: string(1) -- 성별
+      insrPrdTp: string -- 보장기간타입
+      insrPrdVal: string -- 보장기간값
+      premPaymtVal: string -- 납입기간값
+      premPaymtTp: string -- 납입기간타입
+      discClassCd: string -- 고객할인구분코드
+      rateEffDate: string -- 이율적용일자
+      premiumMethod: string -- 납입주기
+      premium: double -- 보험료_계산식
+      premiumUnit: double -- 가입금액단위

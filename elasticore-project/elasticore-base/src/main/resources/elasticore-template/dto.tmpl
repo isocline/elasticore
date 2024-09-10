@@ -28,10 +28,8 @@ public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
 
 	${fieldList}
 
-
 	/*-- print-if:${isSearchDTO} --*/
-    private String sortColumn; // 정렬 컬럼
-    private Boolean sortAscending; // sort ASC 정렬 여부 (true : ASC, false : DESC)
+    private String sortColumn; // Column to sort by
+    private Boolean sortAscending; // Sort order (true: ascending, false: descending)
     /*-- print-if:end --*/
-
-};
+}

@@ -97,7 +97,6 @@ public class ${className} {
     }
 /*-- print-if:end --*/
 
-
     /**
      * Finds a ${entityClassName} entity by its ID and converts it to a ${dtoClassName}.
      *
@@ -108,6 +107,7 @@ public class ${className} {
     public Optional<${dtoClassName}> findById(${pkType} id) {
         return helper.get${entityClassName}().findById(id).map(${mapperName}::toDTO);
     }
+
 
     /**
      * Saves a new ${entityClassName} entity based on the given DTO and returns the saved entity as a DTO.
@@ -131,12 +131,15 @@ public class ${className} {
      */
     public ${dtoClassName} update(${dtoClassName} dto) {
         ${entityClassName} entity = helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
-        ${mapperName}.mapping(dto, entity, true);
+        if(entity==null)
+          throw new IllegalArgumentException("Invalid ${dtoClassName} ID");
+        ${mapperName}.mapping(dto, entity, ${isSkipNull});
         ${childRefInfo}
 
         ${entityClassName} result = helper.get${entityClassName}().save(entity);
         return ${mapperName}.toDTO(result);
     }
+
 
     /**
      * Deletes a ${entityClassName} entity by its ID.
@@ -147,15 +150,14 @@ public class ${className} {
         helper.get${entityClassName}().deleteById(id);
     }
 
-
 /*-- print-if:${isCustomPageOutput} isCustomPageOutput--*/
-
     public Page<${customListDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
         Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
 
         return searchList(specification, pageable);
     }
+
 
     public Page<${customListDTOClassName}> searchList(Specification<${entityClassName}> specification, Pageable pageable) {
         CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
@@ -180,8 +182,6 @@ public class ${className} {
         typedQuery.setMaxResults(pageable.getPageSize());
 
         List<${customListDTOClassName}> resultList = typedQuery.getResultList();
-
-
 
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<${entityClassName}> countRoot = countQuery.from(${entityClassName}.class);
@@ -208,6 +208,7 @@ public class ${className} {
         return searchList(specification, sort);
     }
 
+
     public List<${customListDTOClassName}> searchList(Specification<${entityClassName}> specification, Sort sort) {
         CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
 
@@ -216,7 +217,6 @@ public class ${className} {
 
         query.select(cb.construct(
                 ${customListDTOClassName}.class,
-
                 ${selectColumnNmList}
         ));
 
@@ -240,8 +240,6 @@ public class ${className} {
         return resultList;
     }
 /*-- print-if:end --*/
-
-
 
     /**
      * Finds the greatest string value of the specified field in ${entityClassName} entities
@@ -283,7 +281,7 @@ public class ${className} {
      * @throws IllegalArgumentException if the function name is not recognized
      */
     public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,${searchDTOClassName} dto) {
-        Specification<${entityClassName}> spec = LinkoneMapper.toSpec(dto);
+        Specification<${entityClassName}> spec = ${mapperName}.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }
 

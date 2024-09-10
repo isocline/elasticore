@@ -11,10 +11,10 @@ import java.util.Scanner;
 
 public class HashUtils {
 
-    private final static String STX = "== DEVELOPER SECTION START ==";
-    private final static String ETX = "== DEVELOPER SECTION END ==";
+    private static final String STX = "// !--------------------------";
+    private static final String ETX = "------------------------------!";
 
-    private final static boolean SKIP_BLANK_LINE = true;
+    private static final boolean SKIP_BLANK_LINE = true;
 
 
     public static String getHashCode(String content) {
@@ -148,12 +148,13 @@ public class HashUtils {
 
             customizedScope = customizedScopeContent.toString();
 
+
             if(originalEcdCode==null) {
                 return new Response(content, NO_ECD, null ,customizedScope);
             }
 
             if( checkHashCode(content, originalEcdCode ,version)) {
-                return new Response(content, NO_MODIFIED, originalEcdCode, customizedScope);
+                return new Response(content, NO_MODIFIED, originalEcdCode, customizedScope ,firstLine);
             }else {
                 return new Response(content, MODIFIED, originalEcdCode ,customizedScope);
             }
@@ -183,11 +184,29 @@ public class HashUtils {
 
         private final String customizedScopeContent;
 
+        private String oldEcdLine;
+
         public Response(String content, int status, String ecd ,String customizedScopeContent) {
             this.content = content;
             this.status = status;
             this.ecd = ecd;
             this.customizedScopeContent = customizedScopeContent;
+        }
+
+        public Response(String content, int status, String ecd ,String customizedScopeContent, String oldEcdLine) {
+            this.content = content;
+            this.status = status;
+            this.ecd = ecd;
+            this.customizedScopeContent = customizedScopeContent;
+            this.oldEcdLine = oldEcdLine;
+        }
+
+        public void setOldEcdLine(String oldEcdLine) {
+            this.oldEcdLine = oldEcdLine;
+        }
+
+        public String getOldEcdLine() {
+            return this.oldEcdLine;
         }
 
         public String getContent() {

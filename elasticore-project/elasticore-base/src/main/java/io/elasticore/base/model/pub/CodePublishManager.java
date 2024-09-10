@@ -32,6 +32,23 @@ public class CodePublishManager {
     }
 
 
+    public boolean deleteGenSource(ECoreModelContext ctx, String baseDir) throws ProcessException {
+
+        String[] domainNames = ctx.getDomanNames();
+
+        for (String domainName : domainNames) {
+            ModelDomain domain = ctx.getDomain(domainName);
+
+            List<CodePublisher> codePublishers = getCodePublisher(domain);
+            for(CodePublisher publisher : codePublishers) {
+                publisher.deleteSource(domain, baseDir);
+            }
+        }
+
+        return true;
+    }
+
+
     public boolean publish(ECoreModelContext ctx) throws ProcessException {
 
         String[] domainNames = ctx.getDomanNames();

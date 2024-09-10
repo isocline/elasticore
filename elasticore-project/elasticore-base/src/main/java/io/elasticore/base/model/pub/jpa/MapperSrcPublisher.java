@@ -11,7 +11,7 @@ import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferModels;
-import io.elasticore.base.model.entity.AnnotationName;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
@@ -134,7 +134,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         for (Field f : listMap.getList()) {
             if (!f.hasAnnotation("search") && !f.hasAnnotation("s")) continue;
 
-            String condition = f.getAnnotationValue(AnnotationName.SEARCH); // =, eq, like, between, !=, neq
+            String condition = f.getAnnotationValue(EntityAnnotation.SEARCH); // =, eq, like, between, !=, neq
 
             String type = f.getTypeInfo().getDefaultTypeName();
             String fieldNm = f.getName();
@@ -146,7 +146,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             boolean isListEntityField = isListfield;
 
             String childFieldName="";
-            String refFieldNm = f.getAnnotationValue(AnnotationName.REFERENCE);
+            String refFieldNm = f.getAnnotationValue(EntityAnnotation.REFERENCE);
             if(refFieldNm!=null) {
                 String[] fieldItems = refFieldNm.split("\\.");
                 if(fieldItems.length==2) {
@@ -378,7 +378,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         String fieldName = fieldWithRefInfo.getName();
         String setFieldNm = StringUtils.capitalize(fieldName);
 
-        String targetRefFieldNm = fieldWithRefInfo.getAnnotationValue(AnnotationName.REFERENCE);
+        String targetRefFieldNm = fieldWithRefInfo.getAnnotationValue(EntityAnnotation.REFERENCE);
         //if(targetRefFieldNm!=null && toModel.getIdentity().getComponentType()==ComponentType.DTO) {
         if (targetRefFieldNm != null) {
             String targetChildFieldNm = null;

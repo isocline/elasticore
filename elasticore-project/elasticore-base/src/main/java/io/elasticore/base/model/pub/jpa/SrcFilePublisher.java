@@ -9,7 +9,7 @@ import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.AbstractDataModel;
 import io.elasticore.base.model.core.RelationshipManager;
-import io.elasticore.base.model.entity.AnnotationName;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.BaseFieldType;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
@@ -30,7 +30,7 @@ import java.util.List;
 public class SrcFilePublisher {
 
 
-    private final static String REPLACE_FOR_CUSTOMIZED_SCOPE = "/** DEVELOPER SECTION **/";
+
 
     private CodePublisher publisher;
 
@@ -98,13 +98,20 @@ public class SrcFilePublisher {
 
 
         try (Writer writer = fileAccessFactory.getWriter(qualifiedClassName)) {
-            writer.write(HashUtils.makeEcdCode(content));
+
 
             if(response!=null && response.hasCustomizedScopeContent()) {
+                String oldEcdLine = response.getOldEcdLine();
+                if(oldEcdLine!=null) {
+                    writer.write(oldEcdLine+"\n");
+                }else {
+                    writer.write(HashUtils.makeEcdCode(content));
+                }
                 writer.write(content.substring(0, content.length()-2));
                 writer.write(response.getCustomizedScopeContent());
                 writer.write(content.substring(content.length()-2));
             }else{
+                writer.write(HashUtils.makeEcdCode(content));
                 writer.write(content);
             }
 
@@ -206,7 +213,7 @@ public class SrcFilePublisher {
             paragraph.add("  " + field.getDescription());
             paragraph.add("*/");
         } else {
-            String description = field.getAnnotationValue(AnnotationName.COMMENT);
+            String description = field.getAnnotationValue(EntityAnnotation.COMMENT);
             if (description != null) {
                 paragraph.add("/*");
                 paragraph.add("  " + description);
@@ -215,7 +222,7 @@ public class SrcFilePublisher {
         }
 
 
-        String required = field.getAnnotationValue(AnnotationName.CALCULATION_REQUIRED);
+        String required = field.getAnnotationValue(EntityAnnotation.CALCULATION_REQUIRED);
         if("true".equals(required))
             paragraph.add("// calcRequired:" + required);
 
@@ -224,7 +231,7 @@ public class SrcFilePublisher {
 
     protected void setFieldDocumentation(Field f, CodeTemplate.Paragraph p) {
 
-        String desc = f.getAnnotationValue(AnnotationName.DESCRIPTION);
+        String desc = f.getAnnotationValue(EntityAnnotation.DESCRIPTION);
         if (desc == null) {
             desc = f.getName();
         }
@@ -239,7 +246,7 @@ public class SrcFilePublisher {
     }
 
     protected String getExample(Field f) {
-        String example = f.getAnnotationValue(AnnotationName.EXAMPLE);
+        String example = f.getAnnotationValue(EntityAnnotation.EXAMPLE);
 
         if (example == null) {
 
@@ -291,7 +298,7 @@ public class SrcFilePublisher {
         }
 
         if(example==null) {
-            String format = f.getAnnotationValue(AnnotationName.FORMAT);
+            String format = f.getAnnotationValue(EntityAnnotation.FORMAT);
             if(format==null) {
                 if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
                         || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
@@ -328,8 +335,8 @@ public class SrcFilePublisher {
         if(f.hasAnnotation("notblank"))
             p.add("@NotBlank");
 
-        String minSize = f.getAnnotationValue(AnnotationName.MIN_SIZE);
-        String maxSize = f.getAnnotationValue(AnnotationName.LENGTH);
+        String minSize = f.getAnnotationValue(EntityAnnotation.MIN_SIZE);
+        String maxSize = f.getAnnotationValue(EntityAnnotation.LENGTH);
         if (minSize != null || maxSize != null) {
             StringBuilder sb = new StringBuilder();
             if (minSize != null)
@@ -347,7 +354,7 @@ public class SrcFilePublisher {
 
 
     protected void setJsonInfo(Field f, CodeTemplate.Paragraph p) {
-        String jsonName = f.getAnnotationValue(AnnotationName.JSON_NAME);
+        String jsonName = f.getAnnotationValue(EntityAnnotation.JSON_NAME);
         if (jsonName != null) {
             p.add("@JsonProperty(\"%s\")", jsonName);
         }
@@ -356,8 +363,8 @@ public class SrcFilePublisher {
             p.add("@JsonIgnore");
         }
 
-        String jsonSerialize = f.getAnnotationValue(AnnotationName.JSON_SERIALIZE_USE);
-        String jsonDeserialize = f.getAnnotationValue(AnnotationName.JSON_DESERIALIZE_USE);
+        String jsonSerialize = f.getAnnotationValue(EntityAnnotation.JSON_SERIALIZE_USE);
+        String jsonDeserialize = f.getAnnotationValue(EntityAnnotation.JSON_DESERIALIZE_USE);
 
         if (jsonSerialize != null) {
             p.add("@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = %s)", jsonSerialize);
@@ -393,8 +400,8 @@ public class SrcFilePublisher {
 
 
     protected void setFunctionInfo(Field f, CodeTemplate.Paragraph p) {
-        String getFunc = f.getAnnotationValue(AnnotationName.FUNCTION_GET);
-        String setFunc = f.getAnnotationValue(AnnotationName.FUNCTION_SET);
+        String getFunc = f.getAnnotationValue(EntityAnnotation.FUNCTION_GET);
+        String setFunc = f.getAnnotationValue(EntityAnnotation.FUNCTION_SET);
 
         String fldNm = f.getName();
         String cFldNm = StringUtils.capitalize(fldNm);
@@ -428,7 +435,7 @@ public class SrcFilePublisher {
 
     protected void setFormatAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
 
-        String format = field.getAnnotationValue(AnnotationName.FORMAT);
+        String format = field.getAnnotationValue(EntityAnnotation.FORMAT);
         if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
                 || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
             if(format==null)

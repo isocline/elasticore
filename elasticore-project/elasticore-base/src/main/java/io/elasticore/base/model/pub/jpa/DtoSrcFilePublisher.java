@@ -24,6 +24,7 @@ import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
@@ -131,7 +132,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
-        if(metaInfo.hasMetaAnnotation("searchable")) return;
+        if(metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) return;
 
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();

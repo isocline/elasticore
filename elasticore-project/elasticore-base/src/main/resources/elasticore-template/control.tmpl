@@ -3,139 +3,70 @@ package ${packageName};
 import ${dtoPackageName}.*;
 import ${servicePackageName}.*;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/${domainName}/${entityName}")
 @RequiredArgsConstructor
-@Tag(name = "${entityClassName} (${entityLabel})", description = "${entityDesc}")
+@Tag(name = "${entityClassName} (${entityLabel})", description = "API for managing ${entityLabel} entities.")
 public class ${className} {
 
-    private final ResourceLoader resourceLoader;
     private final ${serviceClassName} ${entityName}Service;
 
-    @Operation(
-        summary = "Retrieve ${entityClassName} by ID",
-        description = "Fetch a single ${entityClassName} by its unique identifier. If the ${entityClassName} is found, the details are returned; otherwise, a 404 status is returned."
-    )
+
+    @Operation(summary = "Create a new ${entityClassName}", description = "Registers a new ${entityClassName} in the system.")
+    @PostMapping
+    public ${dtoClassName} create(@RequestBody ${dtoClassName} inputDto) {
+        return ${entityName}Service.save(inputDto);
+    }
+
+
+    @Operation(summary = "Retrieve a ${entityClassName} by ID", description = "Fetches a single ${entityClassName} using its unique identifier.")
     @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successfully retrieved the ${entityClassName}.",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "${entityClassName} not found",
-            content = @Content
-        )
+            @ApiResponse(responseCode = "200", description = "${entityClassName} found successfully", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}),
+            @ApiResponse(responseCode = "404", description = "${entityClassName} not found", content = @Content)
     })
     @GetMapping("/{id}")
-    @ResponseBody
     public ResponseEntity<${dtoClassName}> findById(@PathVariable("id") ${pkType} id) {
-        Optional<${entityClassName}DTO> ${entityClassName} = ${entityName}Service.findById(id);
-        return ${entityClassName}.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<${dtoClassName}> findOptional = ${entityName}Service.findById(id);
+        return findOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(
-        summary = "Create a new ${entityClassName}",
-        description = "Register a new ${entityClassName} in the system. The details of the ${entityClassName} are provided in the request body."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "201",
-            description = "Successfully created the ${entityClassName}.",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}
-        )
-    })
-    @PostMapping
-    @ResponseBody
-    public ${dtoClassName} create(@RequestBody ${dtoClassName} ${entityClassName}) {
-        return ${entityName}Service.save(${entityClassName});
-    }
 
-    @Operation(
-        summary = "Search ${entityClassName} records",
-        description = "Search ${entityClassName} records based on specific fields. The search criteria provided in the request body will be combined using AND logic to filter results."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successfully retrieved matching ${entityClassName} records.",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${searchResultDTOClassName}.class))}
-        )
-    })
+    @Operation(summary = "Search ${entityClassName} data", description = "Searches for ${entityClassName} records based on provided field criteria. All criteria are combined using logical AND.")
     @PostMapping("/search")
-    @ResponseBody
     public ${searchReturnType}<${searchResultDTOClassName}> search(@RequestBody ${searchDTOClassName} searchDTO) {
         return ${entityName}Service.findBySearch(searchDTO);
     }
 
-    @Operation(
-        summary = "Update an existing ${entityClassName}",
-        description = "Update the details of an existing ${entityClassName}. The ${entityClassName} is identified by its unique ID, and the new details are provided in the request body."
-    )
+
+    @Operation(summary = "Update an existing ${entityClassName}", description = "Updates the details of an existing ${entityClassName} by its ID.")
     @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successfully updated the ${entityClassName}.",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "${entityClassName} not found",
-            content = @Content
-        )
+            @ApiResponse(responseCode = "200", description = "${entityClassName} updated successfully", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}),
+            @ApiResponse(responseCode = "404", description = "${entityClassName} not found", content = @Content)
     })
     @PutMapping("/{id}")
-    @ResponseBody
-    public ResponseEntity<${dtoClassName}> update(@PathVariable("id") ${pkType} id, @RequestBody ${dtoClassName} ${entityName}Details) {
-        ${dtoClassName} ${entityName} = ${entityName}Service.update(${entityName}Details);
-        return ResponseEntity.ok(${entityName});
+    public ResponseEntity<${dtoClassName}> update(@PathVariable("id") ${pkType} id, @RequestBody ${dtoClassName} updateDto) {
+        ${dtoClassName} resultDto = ${entityName}Service.update(updateDto);
+        return ResponseEntity.ok(resultDto);
     }
 
-    @Operation(
-        summary = "Delete an existing ${entityClassName}",
-        description = "Remove an existing ${entityClassName} from the system. The ${entityClassName} is identified by its unique ID."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "204",
-            description = "Successfully deleted the ${entityClassName}.",
-            content = @Content
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "${entityClassName} not found",
-            content = @Content
-        )
-    })
+
+    @Operation(summary = "Delete a ${entityClassName}", description = "Deletes a ${entityClassName} from the system using its unique identifier.")
     @DeleteMapping("/{id}")
-    @ResponseBody
     public ResponseEntity<Void> delete(@PathVariable("id") ${pkType} id) {
         if (!${entityName}Service.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();

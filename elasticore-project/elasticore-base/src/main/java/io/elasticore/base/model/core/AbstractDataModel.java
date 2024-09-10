@@ -2,6 +2,7 @@ package io.elasticore.base.model.core;
 
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
@@ -160,10 +161,10 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
     private String getReferenceModelNames() {
         MetaInfo meta = this.getMetaInfo();
 
-        String templateNames = meta.getMetaAnnotationValue("template");
-        String extendNames = meta.getMetaAnnotationValue("extend");
-        String searchNames = meta.getMetaAnnotationValue("searchable.entity", "searchable");
-        String srchResultNames = meta.getMetaAnnotationValue("searchResult.entity", "searchResult");
+        String templateNames = meta.getMetaAnnotationValue(DataTransferAnnotation.META_TEMPLATE);
+        String extendNames = meta.getMetaAnnotationValue(DataTransferAnnotation.META_EXTEND);
+        String searchNames = meta.getMetaAnnotationValue(DataTransferAnnotation.META_SEARCHABLE_NAME);
+        String srchResultNames = meta.getMetaAnnotationValue( DataTransferAnnotation.META_SEARCH_RESULT_NAME);
 
         StringBuilder sb = new StringBuilder();
 

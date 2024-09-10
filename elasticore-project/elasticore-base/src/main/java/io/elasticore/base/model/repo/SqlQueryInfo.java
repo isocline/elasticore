@@ -278,7 +278,7 @@ public class SqlQueryInfo {
 
                 TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
                 this.tableList = tablesNamesFinder.getTableList(selectStatement);
-                ConsoleLog.print("Tables in the query: " + tableList);
+                //ConsoleLog.print("Tables in the query: " + tableList);
 
                 SelectBody selectBody = selectStatement.getSelectBody();
 

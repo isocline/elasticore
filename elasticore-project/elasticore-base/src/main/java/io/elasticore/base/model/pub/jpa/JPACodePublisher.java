@@ -4,6 +4,7 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
+import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
@@ -16,6 +17,11 @@ import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 
 public class JPACodePublisher implements CodePublisher {
@@ -48,6 +54,93 @@ public class JPACodePublisher implements CodePublisher {
 
     public static JPACodePublisher newInstance() {
         return new JPACodePublisher();
+    }
+
+
+    @Override
+    public boolean deleteSource(ModelDomain domain, String rootDir) {
+        String entityNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_ENTITY);
+
+        String dtoNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_DTO);
+        String enumNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+        String repoNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_REPOSITORY);
+        String svcNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_SERVICE);
+        String controlNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_CONTROL);
+
+
+        deleteFilesWithEcdStart( rootDir + convertToFilePath(entityNs) );
+        deleteFilesWithEcdStart( rootDir + convertToFilePath(dtoNs) );
+        deleteFilesWithEcdStart( rootDir + convertToFilePath(enumNs) );
+        deleteFilesWithEcdStart( rootDir + convertToFilePath(repoNs) );
+        deleteFilesWithEcdStart( rootDir + convertToFilePath(svcNs) );
+        deleteFilesWithEcdStart( rootDir + convertToFilePath(controlNs) );
+
+        if(ConsoleLog.countStoredLogkey("DELETE_OK")>0) {
+            ConsoleLog.print("");
+            ConsoleLog.print("[INFO] delete files:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredLog("DELETE_OK" , "  ");
+        }
+
+
+
+        if(ConsoleLog.countStoredLogkey("DELETE_FAIL")>0) {
+            ConsoleLog.print("");
+            ConsoleLog.print("[WARN] undelete files:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredWarnLog("DELETE_FAIL" , "  ");
+        }
+
+
+
+        return true;
+    }
+
+
+    private static String convertToFilePath(String qualifiedClassName) {
+        return "/"+qualifiedClassName.replace('.', '/');
+    }
+
+
+    public static void deleteFilesWithEcdStart(String directoryPath) {
+
+        File directory = new File(directoryPath);
+
+        if (!directory.isDirectory()) {
+            return;
+        }
+
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return;
+        }
+
+        for (File file : files) {
+            if (file.isFile()) {
+
+                boolean needDelete = false;
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String firstLine = reader.readLine();
+                    if (firstLine != null && firstLine.startsWith("//ecd:")) {
+
+                        needDelete = true;
+
+
+                    }
+                } catch (IOException e) {
+
+                }
+
+                if(needDelete) {
+                    if (file.delete()) {
+                        ConsoleLog.storeLog("DELETE_OK",directoryPath +" "+file.getName() );
+                    }else{
+                        ConsoleLog.storeLog("DELETE_FAIL",directoryPath +" "+file.getName() );
+                    }
+                }
+
+            }
+        }
     }
 
 
@@ -133,7 +226,11 @@ public class JPACodePublisher implements CodePublisher {
 
 
         ConsoleLog.print("");
-        ConsoleLog.print("# Domain: "+domain.getName());
+        ConsoleLog.print("######################################");
+        ConsoleLog.print("#");
+        ConsoleLog.print("# Domain: " + domain.getName());
+        ConsoleLog.print("#");
+        ConsoleLog.print("######################################");
         ConsoleLog.print("");
 
         ConsoleLog.print("[INFO] Code Templates:");
@@ -141,21 +238,27 @@ public class JPACodePublisher implements CodePublisher {
         ConsoleLog.printStoredInfoLog("TEMPLATE", "  ");
         ConsoleLog.print("");
 
+        if (ConsoleLog.countStoredLogkey("NO_MODIFIED") > 0) {
+            ConsoleLog.print("[INFO] No Changes Detected:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredLog("NO_MODIFIED", "  ");
+            ConsoleLog.print("");
+        }
 
-        ConsoleLog.print("[INFO] Unmodified Changes:");
-        ConsoleLog.print("--------------------------------------");
-        ConsoleLog.printStoredLog("NO_MODIFIED", "  ");
-        ConsoleLog.print("");
+        if (ConsoleLog.countStoredLogkey("USER_MODIFIED") > 0) {
+            ConsoleLog.print("[WARN] Externally Modified Files Detected:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredWarnLog("USER_MODIFIED", "  ");
+            ConsoleLog.print("");
+        }
 
-        ConsoleLog.print("[WARN] Externally Modified Files Detected:");
-        ConsoleLog.print("--------------------------------------");
-        ConsoleLog.printStoredWarnLog("USER_MODIFIED", "  ");
-        ConsoleLog.print("");
+        if (ConsoleLog.countStoredLogkey("PUBLISH") > 0) {
+            ConsoleLog.print("[INFO] New Changes:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredInfoLog("PUBLISH", "  ");
+            ConsoleLog.print("");
+        }
 
-        ConsoleLog.print("[INFO] New Changes:");
-        ConsoleLog.print("--------------------------------------");
-        ConsoleLog.printStoredInfoLog("PUBLISH", "  ");
-        ConsoleLog.print("");
 
         ConsoleLog.clear();
     }

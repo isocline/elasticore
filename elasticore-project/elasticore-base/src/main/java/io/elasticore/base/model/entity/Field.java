@@ -42,7 +42,7 @@ public class Field implements ModelComponent {
     }
 
     public int getLength() {
-        String lenTxt = getAnnotationValue(AnnotationName.LENGTH);
+        String lenTxt = getAnnotationValue(EntityAnnotation.LENGTH);
         if(lenTxt!=null)
             return Integer.parseInt(lenTxt);
 
@@ -54,7 +54,7 @@ public class Field implements ModelComponent {
         if(!this.typeInfo.isBaseType())
             return null;
 
-        String dbColumnName = getAnnotationValue(AnnotationName.COLUMN_NAME);
+        String dbColumnName = getAnnotationValue(EntityAnnotation.COLUMN_NAME);
         if(dbColumnName!=null)
             return dbColumnName;
 

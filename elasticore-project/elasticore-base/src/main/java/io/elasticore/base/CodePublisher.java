@@ -44,4 +44,8 @@ public interface CodePublisher {
      * @param e              The exception that was thrown.
      */
     void errorOnPublish(ModelComponent modelComponent, Throwable e);
+
+
+
+    boolean deleteSource(ModelDomain domain,  String rootDir);
 }

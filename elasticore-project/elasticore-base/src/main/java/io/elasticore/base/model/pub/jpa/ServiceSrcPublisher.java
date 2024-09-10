@@ -7,7 +7,8 @@ import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.entity.AnnotationName;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.relation.ModelRelationship;
@@ -16,7 +17,6 @@ import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Properties;
 
@@ -80,7 +80,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
 
     private boolean isPageable(DataTransfer searchDTO) {
-        Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation("searchable");
+        Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE);
         if (annotation == null) return false;
 
         Properties props = annotation.getProperties();
@@ -268,7 +268,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         while (items.hasNext()) {
             Field f = items.next();
             // ex) Company.comSeq  || Company
-            String refFieldNm = f.getAnnotationValue(AnnotationName.REFERENCE);
+            String refFieldNm = f.getAnnotationValue(EntityAnnotation.REFERENCE);
             if (refFieldNm == null) continue;
 
             String[] refItems = refFieldNm.split("\\.");

@@ -29,7 +29,7 @@ public class ModelExtractor {
 
 
     public ModelExtractor() {
-        this.modelResourcePath = getRootDir() + "/"+ ConstanParam.PROPERTY_ELCORE_HOME;
+        this.modelResourcePath = getRootDir() + "/" + ConstanParam.PROPERTY_ELCORE_HOME;
     }
 
     public ModelExtractor(String modelResourcePath) {
@@ -40,36 +40,36 @@ public class ModelExtractor {
     private List<String> findTemplateFilePath() throws FileNotFoundException {
 
         String specDomainName = System.getProperty("elasticore.domain");
-        if(specDomainName == null || specDomainName.trim().length()==0) {
+        if (specDomainName == null || specDomainName.trim().length() == 0) {
             specDomainName = null;
-        }else{
-            log("elasticore.domain = "+specDomainName);
+        } else {
+            log("elasticore.domain = " + specDomainName);
         }
 
 
         String checkDir = this.modelResourcePath;
 
-        log("Base dir: "+checkDir);
+        log("Base dir: " + checkDir);
 
         File f = new File(checkDir);
 
-        if(!f.exists()) {
+        if (!f.exists()) {
             //throw new FileNotFoundException("Template directory not found:"+checkDir);
             return null;
         }
 
         List<String> dirList = new ArrayList<>();
 
-        for(File chiild:f.listFiles()) {
-            if(chiild.isDirectory()) {
-                String envFilePath = chiild.getAbsolutePath()+"/env.yml";
-                ConsoleLog.storeLog("CHECK_ENV",envFilePath);
+        for (File chiild : f.listFiles()) {
+            if (chiild.isDirectory()) {
+                String envFilePath = chiild.getAbsolutePath() + "/env.yml";
+                ConsoleLog.storeLog("CHECK_ENV", envFilePath);
                 File envFile = new File(envFilePath);
-                if(envFile.exists()) {
+                if (envFile.exists()) {
 
-                    String envPath =chiild.getAbsolutePath();
+                    String envPath = chiild.getAbsolutePath();
                     //if(envPath.indexOf("px")>=0)
-                    if(specDomainName ==null || specDomainName.equals(envFile.getParentFile().getName()))
+                    if (specDomainName == null || specDomainName.equals(envFile.getParentFile().getName()))
                         dirList.add(envPath);
                 }
             }
@@ -82,27 +82,50 @@ public class ModelExtractor {
 
     private String getRootDir() {
         String basePath = System.getProperty("elasticore.base.path");
-        if(basePath ==null ) {
+        if (basePath == null) {
             basePath = System.getProperty("user.dir");
         }
 
         return basePath;
     }
 
-    public void extract(SourceFileAccessFactory sourceFileAccessFactory) throws FileNotFoundException{
-
+    public void deleteGenSource(String baseDir) throws FileNotFoundException {
         String rootDir = getRootDir();
 
         List<String> dirList = findTemplateFilePath();
 
-        if(dirList == null || dirList.size()==0) {
-            ConsoleLog.printWarn("Not found model DSL file in "+rootDir);
+        if (dirList == null || dirList.size() == 0) {
             return;
         }
 
         CodePublishManager codePublishManager = CodePublishManager.getInstance();
 
-        for(String path: dirList) {
+        for (String path : dirList) {
+            FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
+            loader.setTemplateFileDirPath(path);
+
+            ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
+
+            codePublishManager.deleteGenSource(ctx ,baseDir);
+        }
+
+    }
+
+
+    public void extract(SourceFileAccessFactory sourceFileAccessFactory) throws FileNotFoundException {
+
+        String rootDir = getRootDir();
+
+        List<String> dirList = findTemplateFilePath();
+
+        if (dirList == null || dirList.size() == 0) {
+            ConsoleLog.printWarn("Not found model DSL file in " + rootDir);
+            return;
+        }
+
+        CodePublishManager codePublishManager = CodePublishManager.getInstance();
+
+        for (String path : dirList) {
             FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
             loader.setTemplateFileDirPath(path);
 
@@ -112,8 +135,8 @@ public class ModelExtractor {
 
             //ECoreModel model = defaultDomain.getModel();
 
-            if(sourceFileAccessFactory ==null) {
-                sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir+"/"+ConstanParam.PROPERTY_JAVA_SRC_HOME);
+            if (sourceFileAccessFactory == null) {
+                sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir + "/" + ConstanParam.PROPERTY_JAVA_SRC_HOME);
             }
             codePublishManager.setSrcCodeWriterFactory(sourceFileAccessFactory);
             codePublishManager.publish(ctx);
@@ -125,18 +148,24 @@ public class ModelExtractor {
     public static void main(String[] args) {
 
         String mode = System.getProperty("mode");
-        if(mode==null) mode = "default";
+        if (mode == null) mode = "default";
 
-        log("ModelExtractor start mode:"+mode);
+        log("ModelExtractor start mode:" + mode);
 
 
         try {
             ModelExtractor extractor = new ModelExtractor();
-            if(args!=null && args.length>0) {
+            if (args != null && args.length > 0) {
                 String srcTargetPath = args[0];
-                log("srcTargetPath: "+srcTargetPath);
-                extractor.extract(new FileBasedSourceFileAccessFactory(srcTargetPath));
-            }else {
+                log("srcTargetPath: " + srcTargetPath);
+
+                if("clean".equals(mode)) {
+                    extractor.deleteGenSource(srcTargetPath);
+                }
+                else {
+                    extractor.extract(new FileBasedSourceFileAccessFactory(srcTargetPath));
+                }
+            } else {
                 extractor.extract(null);
             }
 
@@ -144,10 +173,9 @@ public class ModelExtractor {
             log("ModelExtractor extract 0816-3");
 
 
-        }catch (Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
-
 
 
     }
