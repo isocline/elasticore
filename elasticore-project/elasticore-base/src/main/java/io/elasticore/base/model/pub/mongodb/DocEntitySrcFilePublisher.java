@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.elasticore.base.model.pub.jpa;
+package io.elasticore.base.model.pub.mongodb;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
@@ -26,6 +26,7 @@ import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.model.pub.jpa.SrcFilePublisher;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
@@ -41,7 +42,7 @@ import java.util.Map;
  * This class is responsible for generating Java source code
  * based on entity definitions and their annotations.
  */
-public class EntitySrcFilePublisher extends SrcFilePublisher {
+public class DocEntitySrcFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate javaClassTmpl;
 
@@ -65,7 +66,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      *
      * @param publisher The JPACodePublisher instance used for publishing.
      */
-    public EntitySrcFilePublisher(CodePublisher publisher) {
+    public DocEntitySrcFilePublisher(CodePublisher publisher) {
         super(publisher);
 
 
@@ -76,7 +77,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         String templatePath = model.getConfig("template.entity");
         if(templatePath==null)
-            templatePath = "elasticore-template/entity.tmpl";
+            templatePath = "elasticore-template/entity_mongo.tmpl";
         else
             templatePath = "resource://"+templatePath;
 
@@ -121,22 +122,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private CodeTemplate.Paragraph getEntityAnnotation(Entity entity, String j2eePkgNm) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
-        boolean isEntityClass = false;
-        if(entity.getItems()!=null && entity.getItems().size()>0) {
-
-            if (!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_NOT_ENTITY)) {
-                p.add("@Entity");
-                isEntityClass = true;
-            }
-            else {
-                if(!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
-                    p.add("@MappedSuperclass");
-                }
-
-            }
-        }
 
         MetaInfo metaInfo = entity.getMetaInfo();
+        String mappingNm = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_MAPPING);
+
+        if (mappingNm == null) {
+            mappingNm = entity.getIdentity().getName();
+        }
+
+        p.add("@org.springframework.data.mongodb.core.mapping.Document(collection =\"" + mappingNm + "\")");
 
 
         /*
@@ -144,36 +138,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("@org.hibernate.annotations.DynamicUpdate");
 
          */
-
-        if(isEntityClass) {
-
-            Annotation tblAnnotation = metaInfo.getMetaAnnotation(EntityAnnotation.META_TABLE);
-            if (tblAnnotation != null) {
-                String dbTblNm = tblAnnotation.getValue();
-                p.add("@"+j2eePkgNm+".persistence.Table(name=\"" + dbTblNm + "\")");
-            }
-
-            if(metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE)) {
-                p.add("@org.hibernate.annotations.Immutable");
-
-                if(tblAnnotation==null) {
-                    String viewName = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_IMMUTABLE);
-                    if(viewName !=null) {
-                        p.add("@"+j2eePkgNm+".persistence.Table(name=\"" + viewName + "\")");
-                    }
-                }
-            }
-
-            if(!"false".equals(metaInfo.getMetaAnnotationValue(EntityAnnotation.META_DYNAMIC_UPDATE))) {
-                if(!metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE))
-                    p.add("@org.hibernate.annotations.DynamicUpdate");
-            }
-            if(metaInfo.hasMetaAnnotation(EntityAnnotation.META_DYNAMIC_INSERT))
-                p.add("@org.hibernate.annotations.DynamicInsert");
-
-
-        }
-
 
 
 
@@ -308,7 +272,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setFieldDesc(f, p);
             //setFieldPkInfo(f, p);
-            setFieldColumnAnnotation( entity, f, p);
+            //setFieldColumnAnnotation( entity, f, p);
 
             /*
             BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
@@ -360,14 +324,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             boolean isIdField =
                     setFieldPkInfo(entity, f, p);
 
-            setFieldLabel(entity, f, p);
-            boolean hasColumnInfo = setRelationInfo(f, p);
-            if(!hasColumnInfo)
-                setFieldColumnAnnotation(entity, f, p);
+            //setFieldColumnAnnotation(entity, f, p);
 
             setEnumListAnnotation(entity, f, p);
 
-
+            setRelationInfo(f, p);
             setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
             setConvertAnnotation(entity.getIdentity().getDomainId(), f,p);
@@ -394,12 +355,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             if(isIdField) {
                 String idGenerator = f.getAnnotationValue("genid");
-                if(idGenerator==null && f.hasAnnotation("genid")) {
-                    if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.STRING) {
-                        idGenerator = "java.util.UUID.randomUUID().toString";
-                    }
-                }
-
                 if(idGenerator!=null) {
                     p.add("@PrePersist");
                     p.add("public void prePersist() {");
@@ -453,9 +408,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             paragraph.add("@Id");
             isIdField = true;
 
-            if (isSequence) {
-                paragraph.add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
-            }
 
         }else{
             if(isSequence) {
@@ -488,48 +440,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      * @param field     Field
      * @param paragraph paragraph
      */
-    private boolean setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
+    private void setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
         TypeInfo typeInfo = field.getTypeInfo();
 
-        boolean hasColumnInfo = false;
-
         boolean isEntityType = false;
-
-        Entity typeEntity = this.model.getEntityModels().findByName(typeInfo.getCoreItemType());
-
-
-        if(typeEntity!=null)
+        if(this.model.getEntityModels().findByName(typeInfo.getCoreItemType())!=null)
             isEntityType = true;
 
-
-        if (isEntityType &&
-                (field.hasAnnotation(EntityAnnotation.EMBEDDED)
-                        || typeEntity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) ) {
+        if (field.hasAnnotation("Embedded")) {
             paragraph.add("@Embedded");
-
-            String embPrefix = field.getAnnotationValue(EntityAnnotation.EMBEDDED_PREFIX);
-            if(embPrefix!=null) {
-                paragraph.add("@AttributeOverrides({");
-
-                boolean isFirst = true;
-                ModelComponentItems<Field> items = typeEntity.getItems();
-
-                while(items.hasNext()) {
-
-                    Field ef = items.next();
-
-                    String commaTxt = "";
-                    if(!isFirst)
-                        commaTxt = ",";
-
-                    String newName = embPrefix +"_"+  StringUtils.camelToSnake(ef.getName());
-                    paragraph.add(" %s @AttributeOverride(name = \"%s\", column = @Column(name = \"%s\"))",commaTxt,ef.getName(),newName);
-
-                    isFirst = false;
-                }
-                paragraph.add("})");
-            }
-
         }
 
         else if (typeInfo.isList()) {
@@ -565,7 +484,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     .findByName(targetEntityName);
 
             if (entity != null) {
-                if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
+                if (field.hasAnnotation("onetoone")) {
                     paragraph.add(("@OneToOne"));
                 } else {
                     paragraph.add(("@ManyToOne"));
@@ -573,22 +492,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
                 String joinFieldName = field.getName() + "_id";
-                if (!field.hasAnnotation(EntityAnnotation.JOIN)) {
-                    String nullable = "true";
-                    if(field.hasAnnotation(EntityAnnotation.NOT_NULL)) {
-                        nullable = "false";
-                        paragraph.add(("@JoinColumn(columnDefinition = \"" + joinFieldName + "\", nullable = "+nullable+")"));
-                    }else{
-                        paragraph.add(("@JoinColumn(columnDefinition = \"" + joinFieldName + "\")"));
-                    }
-
-                    hasColumnInfo = true;
+                if (!field.hasAnnotation("join")) {
+                    paragraph.add(("@JoinColumn(columnDefinition = \"" + joinFieldName + "\")"));
                 }
             }
 
         }
-
-        return hasColumnInfo;
     }
 
     private String makeLengthInfo(Field field) {
@@ -624,12 +533,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return null;
     }
 
-    protected void setFieldLabel(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
-        String labelTxt = field.getAnnotationValue(EntityAnnotation.COMMENT);
-        if(labelTxt!=null && !labelTxt.isEmpty())
-            paragraph.add("@Comment(\"%s\")", labelTxt);
-    }
-
     /**
      * Sets JPA annotation information according to the configuration information of each field.
      *
@@ -637,6 +540,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
      * @param paragraph
      */
     private void setFieldColumnAnnotation(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
+
+        String labelTxt = field.getAnnotationValue(EntityAnnotation.COMMENT);
+        if(labelTxt!=null && !labelTxt.isEmpty())
+            paragraph.add("@Comment(\"%s\")", labelTxt);
 
 
         List<String> list = new ArrayList<>();

@@ -235,7 +235,7 @@ public class SrcFilePublisher {
         if (desc == null) {
             desc = f.getName();
         }
-        boolean isNotNull = f.hasAnnotation("notnull") || f.hasAnnotation("notblank");
+        boolean isNotNull = f.hasAnnotation(EntityAnnotation.NOT_NULL);
         String requireTxt = "";
         if (isNotNull) {
             requireTxt = ", requiredMode=Schema.RequiredMode.REQUIRED";

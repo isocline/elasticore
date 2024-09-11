@@ -9,10 +9,7 @@ import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.enums.EnumConstant;
 import io.elasticore.base.model.enums.EnumModel;
-import io.elasticore.base.util.CodeStringBuilder;
-import io.elasticore.base.util.CodeTemplate;
-import io.elasticore.base.util.StringList;
-import io.elasticore.base.util.StringUtils;
+import io.elasticore.base.util.*;
 
 import java.util.List;
 
@@ -287,15 +284,20 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
             sb.append(name).append("(");
 
-            int seq = 0;
-            for (EnumConstant.ConstructParam param : enumConstant.getConstructParamList()) {
-                String val = getValue(param, fieldItem.getItemList().get(seq));
-                sb.add(val);
-                seq++;
-            }
+            try {
+                int seq = 0;
+                for (EnumConstant.ConstructParam param : enumConstant.getConstructParamList()) {
+                    String val = getValue(param, fieldItem.getItemList().get(seq));
+                    sb.add(val);
+                    seq++;
+                }
 
-            sb.append(")");
-            sbLine.add(sb);
+                sb.append(")");
+                sbLine.add(sb);
+            }catch (RuntimeException re) {
+                ConsoleLog.printWarn("enum error. name: "+name);
+                continue;
+            }
         }
         sbLine.append(";");
 

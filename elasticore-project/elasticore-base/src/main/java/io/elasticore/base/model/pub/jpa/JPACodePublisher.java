@@ -17,6 +17,7 @@ import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
+import io.elasticore.base.util.HashUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,11 +27,11 @@ import java.io.IOException;
 
 public class JPACodePublisher implements CodePublisher {
 
-    private ECoreModelContext ctx;
+    protected ECoreModelContext ctx;
 
     private SourceFileAccessFactory sourceFileAccessFactory;
 
-    private JPACodePublisher() {
+    protected JPACodePublisher() {
 
     }
 
@@ -91,6 +92,13 @@ public class JPACodePublisher implements CodePublisher {
             ConsoleLog.printStoredWarnLog("DELETE_FAIL" , "  ");
         }
 
+        if(ConsoleLog.countStoredLogkey("DELETE_FAIL2")>0) {
+            ConsoleLog.print("");
+            ConsoleLog.print("[WARN] modified files:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredWarnLog("DELETE_FAIL2" , "  ");
+        }
+
 
 
         return true;
@@ -118,24 +126,24 @@ public class JPACodePublisher implements CodePublisher {
         for (File file : files) {
             if (file.isFile()) {
 
-                boolean needDelete = false;
+                HashUtils.Response response = null;
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                    String firstLine = reader.readLine();
-                    if (firstLine != null && firstLine.startsWith("//ecd:")) {
 
-                        needDelete = true;
+                    response = HashUtils.checkContentModified(reader);
 
-
-                    }
                 } catch (IOException e) {
 
                 }
 
-                if(needDelete) {
-                    if (file.delete()) {
-                        ConsoleLog.storeLog("DELETE_OK",directoryPath +" "+file.getName() );
-                    }else{
-                        ConsoleLog.storeLog("DELETE_FAIL",directoryPath +" "+file.getName() );
+                if(response !=null) {
+                    if(response.getStatus() == HashUtils.NO_MODIFIED) {
+                        if (file.delete()) {
+                            ConsoleLog.storeLog("DELETE_OK",directoryPath +" "+file.getName() );
+                        }else{
+                            ConsoleLog.storeLog("DELETE_FAIL",directoryPath +" "+file.getName() );
+                        }
+                    }else if(response.getStatus() == HashUtils.MODIFIED) {
+                        ConsoleLog.storeLog("DELETE_FAIL2",directoryPath +" "+file.getName() );
                     }
                 }
 
@@ -149,7 +157,27 @@ public class JPACodePublisher implements CodePublisher {
         return this.ctx;
     }
 
+    protected boolean printRuleCheckInfo(ECoreModelContext ctx, ModelDomain domain) {
+        if(ConsoleLog.countStoredLogkey("FIELD_NM_ERR")>0) {
+            ConsoleLog.print("");
+            ConsoleLog.print("[WARN] field naming convention error:");
+            ConsoleLog.print("--------------------------------------");
+            ConsoleLog.printStoredWarnLog("FIELD_NM_ERR", "  ");
+            ConsoleLog.print("");
+
+            ConsoleLog.printWarn("ElatiCORE processing interrupted");
+
+            return false;
+        }
+
+        return true;
+    }
+
     public void publish(ECoreModelContext ctx, ModelDomain domain) {
+
+        if(!printRuleCheckInfo(ctx, domain))
+            return;
+
         //private void publish(ModelDomain domain) {
         this.ctx = ctx;
 
@@ -225,6 +253,11 @@ public class JPACodePublisher implements CodePublisher {
         controlSrcPublisher.publish(domain);
 
 
+        printInfo(ctx, domain);
+    }
+
+
+    protected void printInfo(ECoreModelContext ctx, ModelDomain domain) {
         ConsoleLog.print("");
         ConsoleLog.print("######################################");
         ConsoleLog.print("#");

@@ -7,6 +7,7 @@ import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.pub.jpa.JPACodePublisher;
 import io.elasticore.base.model.pub.mermaid.MermaidCodePublisher;
+import io.elasticore.base.model.pub.mongodb.MongoDbCodePublisher;
 import io.elasticore.base.model.pub.px.PxCodePublihser;
 
 import java.util.ArrayList;
@@ -80,6 +81,10 @@ public class CodePublishManager {
 
             if("jpa".equals(eachMode)) {
                 codePublisher = JPACodePublisher.newInstance();
+
+            }
+            else if("mongo".equals(eachMode)) {
+                codePublisher = MongoDbCodePublisher.newInstance();
 
             }
             else if("px".equals(eachMode)) {

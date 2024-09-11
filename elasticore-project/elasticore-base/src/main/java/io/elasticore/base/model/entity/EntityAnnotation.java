@@ -9,6 +9,10 @@ public interface EntityAnnotation {
     String META_TABLE = "table";
 
 
+
+    String[] META_MAPPING = new String[]{"mapping", "table"};
+
+
     String META_EXTEND = "extend";
 
 
@@ -37,6 +41,7 @@ public interface EntityAnnotation {
     String META_ROLL_DOWN = "rolldown";
 
 
+    String[] META_NOT_ENTITY =  new String[]{META_ABSTRACT, META_EMBEDDABLE};
 
 
     String[] DISCRIMINATOR = new String[]{"discriminator", "discrim"};
@@ -135,4 +140,18 @@ public interface EntityAnnotation {
      * Annotations for specifying the kind of a field.
      */
     String[] KIND = new String[]{"kind"};
+
+
+
+    String[] ONE_TO_ONE = new String[]{"onetoone"};
+
+
+    String[] NOT_NULL = new String[]{"notnull" ,"notblank"};
+
+
+    String[] JOIN = new String[]{"join"};
+
+    String[] EMBEDDED = new String[] {"embedded"};
+
+    String[] EMBEDDED_PREFIX = new String[] {"embedded.prefix", "embedded"};
 }

@@ -47,7 +47,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;
         if (fields != null)
-            fieldItems = parseField(fields);
+            fieldItems = parseField(fields, entityNm);
 
         return DataTransfer.create(ctx.getDomainId(), entityNm, fieldItems, metaInfo);
 

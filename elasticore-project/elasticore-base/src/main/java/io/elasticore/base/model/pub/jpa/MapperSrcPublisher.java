@@ -200,10 +200,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             if ("like".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s +%s+ %s));", quoteString(entityFieldNm) ,childFieldName, percent, fieldNm, percent);
-            } else if ("%-".equals(condition)) {
+            } else if (condition.startsWith("%")) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s +%s));", quoteString(entityFieldNm),childFieldName, percent, fieldNm);
-            } else if ("-%".equals(condition)) {
+            } else if (condition.endsWith("%")) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s+ %s));", quoteString(entityFieldNm),childFieldName, fieldNm, percent);
             } else if ("in".equals(condition)) {

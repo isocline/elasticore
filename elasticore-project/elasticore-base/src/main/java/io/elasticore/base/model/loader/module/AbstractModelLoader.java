@@ -6,6 +6,7 @@ import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.loader.ModelLoaderContext;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
 import java.util.HashMap;
@@ -25,11 +26,21 @@ public class AbstractModelLoader implements ConstanParam {
 
     protected ModelLoaderContext modelLoaderContext;
 
+    protected Pattern fieldNamePattern;
 
     protected void setModelLoaderContext(ModelLoaderContext modelLoaderContext) {
         this.modelLoaderContext = modelLoaderContext;
+        String fieldRegx = modelLoaderContext.getConfig("fieldRegx", "^[a-zA-Z_$][a-zA-Z\\d_$]*$");
+        fieldNamePattern = Pattern.compile(fieldRegx);
     }
 
+
+    protected boolean isValidFieldName(String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return false;
+        }
+        return fieldNamePattern.matcher(fieldName).matches();
+    }
 
     /**
      * Parses field information from a map where the key is the field name and the value is the field's properties.
@@ -37,15 +48,23 @@ public class AbstractModelLoader implements ConstanParam {
      * @param fieldInfo Map containing field names as keys and field properties as values.
      * @return Items containing Field objects parsed from the input map.
      */
-    protected Items<Field> parseField(Map<String, String> fieldInfo) {
+    protected Items<Field> parseField(Map<String, String> fieldInfo, String entityName) {
         Items<Field> items = Items.create(Field.class);
 
         fieldInfo.forEach((fieldNm, fieldPropery) -> {
             Field f = parseFieldLine(fieldNm, fieldPropery);
+
+            if(entityName!= null && !isValidFieldName(f.getName())) {
+                ConsoleLog.storeLog("FIELD_NM_ERR" , entityName+"."+fieldNm);
+            }
             items.addItem(f);
         });
 
         return items;
+    }
+
+    protected Items<Field> parseField(Map<String, String> fieldInfo) {
+        return parseField(fieldInfo, null);
     }
 
 

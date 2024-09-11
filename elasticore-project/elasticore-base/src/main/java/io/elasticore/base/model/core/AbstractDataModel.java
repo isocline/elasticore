@@ -118,8 +118,9 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         } else if (f.hasAnnotation(RelationType.EMBEDDED.getName())) {
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.EMBEDDED, f.getName()));
             rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.EMBEDDABLE, f.getName()));
-
-
+        } else if (f.hasAnnotation(RelationType.EMBEDDABLE.getName())) {
+            rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.EMBEDDABLE, f.getName()));
+            rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.EMBEDDED, f.getName()));
         } else if (!typeInfo.isBaseType()) {
             if (typeInfo.isGenericType()) {
 

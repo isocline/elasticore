@@ -54,6 +54,14 @@ public class EnumConstant implements ModelComponent {
 
                 return new ConstructParam(name, "string");
             }
+
+            if (line.startsWith("'") && line.endsWith("'")) {
+                String name =  line.substring(1, line.length() - 1);
+
+                return new ConstructParam(name, "string");
+            }
+
+
             int p = line.indexOf(".");
             if(p>0) {
                 String name = line.substring(p+1);

@@ -88,12 +88,19 @@ public class MetaInfo {
         return metaAnnotationMap.get(key);
     }
 
-    public boolean hasMetaAnnotation(String name) {
-        if (metaAnnotationMap == null|| name ==null) {
+    public boolean hasMetaAnnotation(String... names) {
+
+        if (metaAnnotationMap == null|| names ==null) {
             return false;
         }
-        String key = name.toLowerCase(Locale.ROOT);
-        return metaAnnotationMap.containsKey(key);
+
+        for(String name: names) {
+            String key = name.toLowerCase(Locale.ROOT);
+            if(metaAnnotationMap.containsKey(key))
+                return true;
+        }
+
+        return false;
     }
 
     public String getMetaAnnotationValue(String... names) {

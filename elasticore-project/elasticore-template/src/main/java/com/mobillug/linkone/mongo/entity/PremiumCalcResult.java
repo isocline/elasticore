@@ -1,5 +1,5 @@
-//ecd:891177155H20240910160446_V1.0
-package com.mobillug.linkone.biz.entity;
+//ecd:-848827246H20240911110602_V1.0
+package com.mobillug.linkone.mongo.entity;
 
 
 import lombok.Getter;
@@ -20,13 +20,11 @@ import java.time.*;
 
 */
 
-@Entity
-@org.hibernate.annotations.DynamicUpdate
+@org.springframework.data.mongodb.core.mapping.Document(collection ="PremiumCalcResult")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public  class PremiumCalcResult  implements java.io.Serializable  {
 
 	@Id

@@ -11,6 +11,8 @@ import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EnumerationModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<EnumModel> {
 
@@ -79,9 +81,23 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
 
     private static EnumConstant parseEnumLine(String enumName, String valueLine) {
 
-        //System.err.println(enumName + " > " + valueLine);
 
-        String[] items = valueLine.trim().split("\\s*,\\s*");
+
+        //String[] items = valueLine.trim().split("\\s*,\\s*");
+
+        String regex = "'(?:[^']|'')*'|[^,]+";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(valueLine);
+
+        // 결과를 저장할 리스트
+        ArrayList<String> results = new ArrayList<>();
+
+        // 정규식으로 매칭된 그룹을 리스트에 추가
+        while (matcher.find()) {
+            results.add(matcher.group().trim());
+        }
+
+        String[] items = results.toArray(new String[0]);
 
         //System.err.println(enumName + " > " + items.length);
         List<EnumConstant.ConstructParam> paramList = new ArrayList<>();

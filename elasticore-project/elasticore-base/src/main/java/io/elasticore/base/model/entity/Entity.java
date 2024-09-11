@@ -57,17 +57,17 @@ public class Entity extends AbstractDataModel implements MetaInfoModel, DataMode
     }
 
     public String getTableName() {
-        Annotation annotation = getMetaInfo().getMetaAnnotation(EntityAnnotation.META_TABLE);
-        if (annotation != null) {
-            return annotation.getValue();
-        }else {
-            annotation = getMetaInfo().getMetaAnnotation(EntityAnnotation.META_IMMUTABLE);
-            if (annotation != null) {
-                return annotation.getValue();
-            }
 
+        String mappingName = getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_IMMUTABLE);
+        if(mappingName==null) {
+            mappingName = getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_MAPPING);
         }
-        return StringUtils.camelToSnake(this.getIdentity().getName());
+
+        if(mappingName==null) {
+            return StringUtils.camelToSnake(this.getIdentity().getName());
+        }
+
+        return mappingName;
     }
 
 
