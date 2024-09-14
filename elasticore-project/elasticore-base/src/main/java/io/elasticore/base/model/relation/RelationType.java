@@ -6,7 +6,7 @@ public enum RelationType {
 
     CHILD("child"),
     ROLLUP("rollup"),
-    ROLLUP_("rollup"),
+
     ROLLDOWN("rolldown"),
     TEMPLATE("template"),
     TEMPLATE_TO("templateTo"),

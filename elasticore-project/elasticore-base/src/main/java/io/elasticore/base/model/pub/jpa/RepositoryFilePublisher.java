@@ -7,6 +7,7 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.repo.Method;
@@ -56,6 +57,10 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
         String targetModelName = repo.getIdentity().getName();
         Entity entity = domain.getModel().getEntityModels().findByName(targetModelName);
+
+        if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
+            return;
+
         PkField pkField = entity.findPkField(domain);
         if (entity == null
                 //|| entity.getMetaInfo().hasMetaAnnotation("abstract")

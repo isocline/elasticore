@@ -292,10 +292,12 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
     }
 
+
     private void makeSpecificationCode(DataTransfer searchDto, Entity targetEntity, CodeTemplate.Paragraph p) {
 
         String dtoNm = searchDto.getIdentity().getName();
-        String entityNm = targetEntity.getIdentity().getName();
+        //String entityNm = targetEntity.getIdentity().getName();
+        String entityNm = targetEntityName(targetEntity);
 
         String mainMethodNm = "toSpec";
 

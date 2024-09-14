@@ -106,13 +106,22 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         Annotation annotation = entity.getMetaInfo().getMetaAnnotation(EntityAnnotation.META_EXTEND);
         if (annotation != null)
             return "extends " + annotation.getValue();
+        else {
+            String rollupTarget = entity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
+            if(rollupTarget!=null)  {
+                return "extends " + rollupTarget;
+            }
+        }
 
         return "";
     }
 
 
-    private String getAbstractInfo(Entity entity) {
+    private String getAbstractInfo(Entity entity, CodeTemplate.Paragraph p) {
         if (entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT)) {
+            return "abstract";
+        }
+        if(p.contains("@DiscriminatorColumn(")) {
             return "abstract";
         }
         return "";
@@ -202,8 +211,13 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         });
 
         if (metaInfo.hasMetaAnnotation(EntityAnnotation.META_ROLL_UP)) {
-            String disVal = metaInfo.getMetaAnnotation(EntityAnnotation.META_ROLL_UP).getValue();
-            p.add("@DiscriminatorValue(\"" + disVal + "\")");
+
+            String discriminatorVal = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_DISCRIMINATOR);
+            if(discriminatorVal==null) {
+                discriminatorVal = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
+            }
+
+            p.add("@DiscriminatorValue(\"" + discriminatorVal + "\")");
         }
 
 
@@ -240,14 +254,21 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph pr = getFieldInfo(entity);
 
         CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+
+
+        if(this.paragraphForEntity.contains("@Entity")) {
+            importList.add(j2eePkgNm+".persistence.Entity");
+        }
+
         if(pr.contains("@Convert(")) {
-             // TODO
+            // TODO
+            //importList.add(j2eePkgNm+".persistence.Convert");
         }
 
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName)
-                .set("abstract", getAbstractInfo(entity))
+                .set("abstract", getAbstractInfo(entity, this.paragraphForEntity))
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(entity))
                 .set("j2eePkgName",j2eePkgNm)

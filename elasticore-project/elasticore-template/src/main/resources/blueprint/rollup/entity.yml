@@ -1,0 +1,35 @@
+
+entity:
+
+  Vehicle:
+    meta: entity
+    fields:
+      id: long @id @sequence
+      name: string @s(eq)
+      type: string @discriminator
+
+  Car:
+    meta: entity @rollup(entity=Vehicle,type=CAR)
+    fields:
+
+
+  CommonVehicle:
+    meta: entity @rollup(entity=Vehicle,type=COMMON)
+    fields:
+      numberOfDoors: int
+
+
+
+  Bike :
+    meta: entity @rollup(entity=Vehicle,type=BIKE)
+    fields:
+      hasCarrier: boolean
+
+
+dto:
+  CommonVehicleDTO:
+    meta: dto @template(CommonVehicle)
+
+
+  CommonVehicleSrchDTO:
+    meta: dto @searchable(CommonVehicle)

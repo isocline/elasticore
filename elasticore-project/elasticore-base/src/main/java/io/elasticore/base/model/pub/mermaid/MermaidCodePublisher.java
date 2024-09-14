@@ -130,7 +130,12 @@ public class MermaidCodePublisher implements CodePublisher {
 
         String classNm = entity.getIdentity().getName();
 
+
         cb.line("class %s", classNm).block();
+        if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT) ) {
+            cb.line("&lt;&lt;Abstract &gt;&gt;");
+        }
+
 
         ModelComponentItems<Field> fields = entity.getItems();
         while (fields.hasNext()) {

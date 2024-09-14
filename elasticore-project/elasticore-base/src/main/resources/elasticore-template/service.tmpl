@@ -35,6 +35,7 @@ public class ${className} {
      */
     public List<${dtoClassName}> findAll() {
         return helper.get${entityClassName}().findAll().stream()
+                 ${mappingCode}
                 .map(${mapperName}::toDTO)
                 .collect(Collectors.toList());
     }
@@ -58,10 +59,12 @@ public class ${className} {
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
             return helper.get${entityClassName}().findAll(specification).stream()
+                        ${mappingCode}
                         .map(${mapperName}::${toSearchListMappingName})
                         .collect(Collectors.toList());
         }
         return helper.get${entityClassName}().findAll(specification, sort).stream()
+                ${mappingCode}
                 .map(${mapperName}::${toSearchListMappingName})
                 .collect(Collectors.toList());
     }
@@ -105,7 +108,7 @@ public class ${className} {
      */
     @Transactional
     public Optional<${dtoClassName}> findById(${pkType} id) {
-        return helper.get${entityClassName}().findById(id).map(${mapperName}::toDTO);
+        return helper.get${entityClassName}().findById(id)${mappingCode}.map(${mapperName}::toDTO);
     }
 
 
@@ -116,9 +119,9 @@ public class ${className} {
      * @return the saved ${dtoClassName}
      */
     public ${dtoClassName} save(${dtoClassName} dto) {
-        ${entityClassName} entity = ${mapperName}.toEntity(dto);
+        ${orgEntityClassName} entity = ${mapperName}.toEntity(dto);
         ${childRefInfo}
-        ${entityClassName} result = helper.get${entityClassName}().save(entity);
+        ${orgEntityClassName} result = helper.get${entityClassName}().save(entity);
         return ${mapperName}.toDTO(result);
     }
 
@@ -130,13 +133,13 @@ public class ${className} {
      * @return the updated ${dtoClassName}
      */
     public ${dtoClassName} update(${dtoClassName} dto) {
-        ${entityClassName} entity = helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
+        ${orgEntityClassName} entity = ${orgEntityConvert}helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
         if(entity==null)
           throw new IllegalArgumentException("Invalid ${dtoClassName} ID");
         ${mapperName}.mapping(dto, entity, ${isSkipNull});
         ${childRefInfo}
 
-        ${entityClassName} result = helper.get${entityClassName}().save(entity);
+        ${orgEntityClassName} result = ${orgEntityConvert}helper.get${entityClassName}().save(entity);
         return ${mapperName}.toDTO(result);
     }
 

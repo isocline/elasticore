@@ -9,6 +9,7 @@ import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.repo.Method;
@@ -106,12 +107,18 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
         ModelComponentItems<Repository> repoItems = repositoryModels.getItems();
 
+        ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
+
         while (repoItems.hasNext()) {
             Repository repo = repoItems.next();
             if(!isEnable(repo))
                 continue;
 
             String repoName = repo.getIdentity().getName();
+
+            Entity entity = model.getEntityModels().findByName(repoName);
+            if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
+                continue;
 
             String fieldNm = StringUtils.uncapitalize(repoName);
 

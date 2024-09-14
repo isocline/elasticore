@@ -167,8 +167,20 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
     public void publish(ModelDomain domain, Entity entity, DataTransfer dto, DataTransfer searchDto) {
 
         String domainName = domain.getName();
-        String entityClassName = entity.getIdentity().getName();
-        String className = entityClassName + ConstanParam.POSTFIX_SERVICE;
+
+        String orgEntityClassName = entity.getIdentity().getName();
+        String entityClassName = targetEntityName(entity); //for rollup
+        String mappingCode ="";
+        String orgEntityConvert= "";
+        if(!orgEntityClassName.equals(entityClassName)) {
+
+            orgEntityConvert = "("+orgEntityClassName+")";
+            String varName = StringUtils.uncapitalize(entityClassName);
+            mappingCode = String.format(".filter(%s -> %s instanceof %s).map(%s -> (%s) %s)",
+                    varName,varName,orgEntityClassName,varName,orgEntityClassName,varName);
+        }
+
+        String className = orgEntityClassName + ConstanParam.POSTFIX_SERVICE;
 
         String dtoClassName = dto.getIdentity().getName();
         String mapperName = findMapperClassName(dto);
@@ -223,7 +235,13 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("className", className)
                 .set("domainName", StringUtils.capitalize(domainName))
                 .set("entityClassName", entityClassName)
+                .set("orgEntityClassName", orgEntityClassName)
+                .set("orgEntityConvert", orgEntityConvert)
+
+
                 .set("dtoClassName", dtoClassName)
+                .set("mappingCode", mappingCode)
+
                 .set("mapperName", mapperName)
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)

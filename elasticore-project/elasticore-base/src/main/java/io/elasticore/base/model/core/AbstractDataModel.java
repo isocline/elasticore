@@ -4,10 +4,7 @@ import io.elasticore.base.model.*;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.dto.DataTransferModels;
-import io.elasticore.base.model.entity.Entity;
-import io.elasticore.base.model.entity.EntityModels;
-import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.entity.TypeInfo;
+import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import lombok.Getter;
@@ -32,7 +29,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
         String fromName = getIdentity().getName();
 
-        Annotation extendAnt = this.getMetaInfo().getMetaAnnotation("extend");
+        Annotation extendAnt = this.getMetaInfo().getMetaAnnotation(EntityAnnotation.META_EXTEND);
         if(extendAnt!=null) {
             String toName = extendAnt.getValue();
             if(toName==null) {
@@ -42,18 +39,14 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             rm.addRelationship(ModelRelationship.create(fromName, toName, RelationType.SUPER));
             rm.addRelationship(ModelRelationship.create(toName, fromName, RelationType.CHILD));
         }
-        Annotation rollupAnt = this.getMetaInfo().getMetaAnnotation(RelationType.ROLLUP.getName());
-        if(rollupAnt!=null) {
-            String toName = rollupAnt.getValue();
-            if(toName !=null) {
-                String[] toNames =toName.split(",");
-                for(String toNm : toNames) {
-                    rm.addRelationship(ModelRelationship.create(fromName, toNm, RelationType.ROLLUP));
-                    rm.addRelationship(ModelRelationship.create(toNm, fromName, RelationType.ROLLDOWN));
-                }
 
+        String rollupTargetNm = this.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
+        if(rollupTargetNm!=null) {
+            String[] toNames =rollupTargetNm.split(",");
+            for(String toNm : toNames) {
+                rm.addRelationship(ModelRelationship.create(fromName, toNm, RelationType.ROLLUP));
+                rm.addRelationship(ModelRelationship.create(toNm, fromName, RelationType.ROLLDOWN));
             }
-
         }else {
             Annotation rolldownAnt = this.getMetaInfo().getMetaAnnotation(RelationType.ROLLDOWN.getName());
             if(rolldownAnt!=null) {
@@ -167,6 +160,9 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         String searchNames = meta.getMetaAnnotationValue(DataTransferAnnotation.META_SEARCHABLE_NAME);
         String srchResultNames = meta.getMetaAnnotationValue( DataTransferAnnotation.META_SEARCH_RESULT_NAME);
 
+        String rollupNames = meta.getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
+
+
         StringBuilder sb = new StringBuilder();
 
         if(templateNames!=null) {
@@ -183,6 +179,10 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         if(srchResultNames!=null) {
             if(sb.length()>0) sb.append(",");
             sb.append(srchResultNames.trim());
+        }
+        if(rollupNames!=null) {
+            if(sb.length()>0) sb.append(",");
+            sb.append(rollupNames.trim());
         }
 
         return sb.toString();

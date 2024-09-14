@@ -13,7 +13,7 @@ public class Entity extends AbstractDataModel implements MetaInfoModel, DataMode
     private final MetaInfo metaInfo;
     private final Items<Field> items;
     //private final ModelComponentItems<Field> items;
-    private final PkField pkField;
+    private PkField pkField;
 
     private Entity(ComponentIdentity id, Items<Field> items, MetaInfo metaInfo) {
         super(id);
@@ -49,6 +49,31 @@ public class Entity extends AbstractDataModel implements MetaInfoModel, DataMode
     public static Entity create(String domainId, String name, MetaInfo metaInfo, Items<Field> items) {
         BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY, domainId, name);
         return new Entity(identity, items, metaInfo);
+    }
+
+    public PkField getPkField() {
+
+        if(this.pkField==null) {
+            ListMap<String, Field>  allFieldListMap = this.getAllFieldListMap();
+
+            Items<Field> pkFields = Items.create(Field.class);
+
+            for(Field field : allFieldListMap.values()) {
+                if (field.isPrimaryKey())
+                    pkFields.addItem(field);
+
+                setRelationship(field);
+            }
+
+            if (pkFields.size() > 0)
+                this.pkField = PkField.create(pkFields, null, this);
+            else
+                this.pkField = null;
+        }
+
+
+        return this.pkField;
+
     }
 
 

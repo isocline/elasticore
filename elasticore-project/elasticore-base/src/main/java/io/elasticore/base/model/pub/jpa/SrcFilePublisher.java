@@ -454,5 +454,21 @@ public class SrcFilePublisher {
     }
 
 
+    protected String targetEntityName(Entity targetEntity) {
+
+        String rollupTargetNm = targetEntity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
+        if(rollupTargetNm==null) {
+            return targetEntity.getIdentity().getName();
+        }
+
+        Entity rollupEntity = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels().findByName(rollupTargetNm);
+        if(rollupEntity==null)
+            return null;
+
+        return targetEntityName(rollupEntity);
+
+    }
+
+
 
 }
