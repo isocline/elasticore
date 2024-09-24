@@ -120,6 +120,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
             if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
                 continue;
 
+            if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT))
+                continue;
+
             String fieldNm = StringUtils.uncapitalize(repoName);
 
 

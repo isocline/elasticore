@@ -23,9 +23,12 @@ import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.ListMap;
+import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.*;
+import io.elasticore.base.model.relation.ModelRelationship;
+import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
@@ -212,16 +215,43 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
     private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p) {
 
+        // if the dto is a convert from entity, we do not need to generate any field annotation
+        boolean isConvertFromEntity = dto.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_DTO);
+
         ListMap<String, Field> fields = dto.getAllFieldListMap();
 
         List<Field> fieldList = fields.getList();
+
+        RelationshipManager relMgr = RelationshipManager.getInstance(dto.getIdentity().getDomainId());
+
 
         for(Field f: fieldList) {
 
             if(f.hasAnnotation("disable"))
                 continue;
 
-            if(isEntityReturnType(f, eCoreModel)) continue;
+            String typeName = f.getTypeInfo().getDefaultTypeName();
+
+            boolean isEntityReturnType = isEntityReturnType(f, eCoreModel);
+
+            if(isEntityReturnType) {
+                if(!isConvertFromEntity)
+                    continue;
+
+                List<ModelRelationship> byFromNameAndType = relMgr.findByFromNameAndType(typeName, RelationType.TEMPLATE_TO);
+                if(byFromNameAndType!=null && byFromNameAndType.size()==1) {
+                    typeName = byFromNameAndType.get(0).getToName();
+                }
+                else {
+                    continue;
+                }
+
+
+            }
+
+
+
+
 
             setFieldDesc(f, p);
             setFieldDocumentation(f,p);
@@ -246,7 +276,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
              */
 
 
-            p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
+            p.add("%s %s %s%s;", "private", typeName, f.getName(), defaultValDefined);
             p.add("");
 
             setFunctionInfo(f, p);

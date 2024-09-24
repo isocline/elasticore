@@ -1,0 +1,22 @@
+
+entity:
+
+  Customer:
+    meta: entity @dto
+    fields:
+      id: long @id @sequence
+      name: string @s(eq)
+      company: Company
+
+  Company:
+    meta: entity @dto
+    fields:
+      id: long @id @sequence
+      name: string @s(eq)
+
+
+dto:
+  CompanyDTO:
+    meta: dto @template(Company)
+    fields:
+      test: string

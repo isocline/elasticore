@@ -131,7 +131,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
         boolean isEntityClass = false;
-        if(entity.getItems()!=null && entity.getItems().size()>0) {
+        if(entity.getItems()!=null && entity.getItems().size()>0)
+        {
 
             if (!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_NOT_ENTITY)) {
                 p.add("@Entity");
@@ -522,6 +523,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         if(typeEntity!=null)
             isEntityType = true;
 
+        String fetchType = field.getAnnotationValue(EntityAnnotation.FETCH);
 
         if (isEntityType &&
                 (field.hasAnnotation(EntityAnnotation.EMBEDDED)
@@ -556,7 +558,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         else if (typeInfo.isList()) {
             if(isEntityType) {
 
-                String fetchType = field.getAnnotationValue(EntityAnnotation.FETCH);
 
                 if(fetchType==null)
                     fetchType = "LAZY";
@@ -586,11 +587,22 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     .findByName(targetEntityName);
 
             if (entity != null) {
-                if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
-                    paragraph.add(("@OneToOne"));
-                } else {
-                    paragraph.add(("@ManyToOne"));
+                if(fetchType !=null) {
+                    fetchType=fetchType.toUpperCase();
+                    if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
+                        paragraph.add("@OneToOne(fetch = FetchType.%s)",fetchType);
+                    } else {
+                        paragraph.add("@ManyToOne(fetch = FetchType.%s)",fetchType);
+                    }
+                }else {
+                    if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
+                        paragraph.add("@OneToOne");
+                    } else {
+                        paragraph.add("@ManyToOne");
+                    }
                 }
+
+
 
 
                 String joinFieldName = field.getName() + "_id";

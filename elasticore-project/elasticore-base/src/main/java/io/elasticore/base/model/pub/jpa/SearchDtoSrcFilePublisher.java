@@ -225,8 +225,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
 
             if (!isForceDefineField && !f.hasAnnotation("id")
-                    && !f.hasAnnotation("search")
-                    && !f.hasAnnotation("s")
+                    && !f.hasAnnotation(EntityAnnotation.SEARCH)
                     && dto.getItems().findByName(f.getName()) == null)
                 continue;
 

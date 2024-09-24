@@ -2,7 +2,7 @@ plugins {
     id "java-library"
 }
 
-description = "ElastiCore Schema"
+description = "ElastiCORE base library"
 
 repositories {
     // Use Maven Central for resolving dependencies.

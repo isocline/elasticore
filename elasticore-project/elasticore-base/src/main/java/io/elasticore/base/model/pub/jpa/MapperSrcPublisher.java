@@ -132,9 +132,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         ListMap<String, Field> listMap = searchDto.getAllFieldListMap();
 
         for (Field f : listMap.getList()) {
-            if (!f.hasAnnotation("search") && !f.hasAnnotation("s")) continue;
+            //if (!f.hasAnnotation(EntityAnnotation.SEARCH)) continue;
 
             String condition = f.getAnnotationValue(EntityAnnotation.SEARCH); // =, eq, like, between, !=, neq
+            if(condition==null) continue;
 
             String type = f.getTypeInfo().getDefaultTypeName();
             String fieldNm = f.getName();

@@ -177,4 +177,12 @@ public class StringUtils {
     }
 
 
+    public static String escapeQuotes(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.replace("\"", "\\\"");
+    }
+
+
 }

@@ -1,6 +1,12 @@
 
 entity:
 
+  Test:
+    meta: entity @dto
+    fields:
+      id: long @id @sequence
+      name: string @s(eq)
+
   Vehicle:
     meta: entity
     fields:

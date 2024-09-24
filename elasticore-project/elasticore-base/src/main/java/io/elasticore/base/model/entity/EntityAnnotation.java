@@ -31,9 +31,14 @@ public interface EntityAnnotation {
 
     String META_ABSTRACT = "abstract";
 
+
     String META_TYPE = "type";
 
 
+    String META_DTO = "dto";
+
+
+    String META_PAGEABLE = "pageable";
 
     String META_ROLL_UP = "rollup";
 
@@ -53,7 +58,7 @@ public interface EntityAnnotation {
     /**
      * Annotations for search functionality.
      */
-    String[] SEARCH = new String[]{"search", "s"};
+    String[] SEARCH = new String[]{"searchable", "search","s", "srch" ,"filter"};
 
     /**
      * Annotations for reference functionality.
@@ -150,7 +155,7 @@ public interface EntityAnnotation {
     String[] ONE_TO_ONE = new String[]{"onetoone"};
 
 
-    String[] NOT_NULL = new String[]{"notnull" ,"notblank"};
+    String[] NOT_NULL = new String[]{"notnull" ,"notblank" ,"required"};
 
 
     String[] JOIN = new String[]{"join"};

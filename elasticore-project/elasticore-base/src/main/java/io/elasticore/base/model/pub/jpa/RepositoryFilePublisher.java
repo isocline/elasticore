@@ -61,6 +61,9 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
             return;
 
+        if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT))
+            return;
+
         PkField pkField = entity.findPkField(domain);
         if (entity == null
                 //|| entity.getMetaInfo().hasMetaAnnotation("abstract")

@@ -319,7 +319,7 @@ public class SrcFilePublisher {
 
 
         if (example != null) {
-            example = ", example=\"" + example + "\"";
+            example = ", example=\"" + StringUtils.escapeQuotes(example) + "\"";
         } else {
             example = "";
         }

@@ -45,26 +45,16 @@ init: {
 }%%
 
 classDiagram
-    class Test{
+    class Customer{
+        id: Long 
+        name: String 
+        company: Company 
+    }
+    Customer --o "0..1" Company : company
+    class Company{
         id: Long 
         name: String 
     }
-    class Vehicle{
-        id: Long 
-        name: String 
-        type: String 
-    }
-    class Car{
-    }
-    Vehicle <|-- Car : rollup
-    class CommonVehicle{
-        numberOfDoors: Integer 
-    }
-    Vehicle <|-- CommonVehicle : rollup
-    class Bike{
-        hasCarrier: Boolean 
-    }
-    Vehicle <|-- Bike : rollup
 
     </div>
 </body>
