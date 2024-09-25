@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Handles the publishing of source files for entities.
@@ -130,21 +131,28 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     private CodeTemplate.Paragraph getEntityAnnotation(Entity entity, String j2eePkgNm) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
-        boolean isEntityClass = false;
-        if(entity.getItems()!=null && entity.getItems().size()>0)
-        {
 
-            if (!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_NOT_ENTITY)) {
-                p.add("@Entity");
-                isEntityClass = true;
-            }
-            else {
-                if(!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
-                    p.add("@MappedSuperclass");
-                }
+        AtomicBoolean isInheritance = new AtomicBoolean(false);
 
+        entity.getItems().forEachRemaining(field -> {
+            if (field.hasAnnotation(EntityAnnotation.DISCRIMINATOR)) {
+                isInheritance.set(true);
+                p.add("@Inheritance(strategy = InheritanceType.SINGLE_TABLE)");
+                String dbColumnNm = field.getDbColumnName();
+                String type = field.getTypeInfo().getDefaultTypeName().toUpperCase(Locale.ROOT);
+                p.add("@DiscriminatorColumn(name = \"" + dbColumnNm + "\", discriminatorType = DiscriminatorType." + type + ")");
             }
+        });
+
+        boolean isEntityClass = true;
+
+        if(!isInheritance.get() && entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT)) {
+            isEntityClass = false;
+            p.add("@MappedSuperclass");
+        }else if(!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
+            p.add("@Entity");
         }
+
 
         MetaInfo metaInfo = entity.getMetaInfo();
 
@@ -202,14 +210,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             }
         }
 
-        entity.getItems().forEachRemaining(field -> {
-            if (field.hasAnnotation(EntityAnnotation.DISCRIMINATOR)) {
-                p.add("@Inheritance(strategy = InheritanceType.SINGLE_TABLE)");
-                String dbColumnNm = field.getDbColumnName();
-                String type = field.getTypeInfo().getDefaultTypeName().toUpperCase(Locale.ROOT);
-                p.add("@DiscriminatorColumn(name = \"" + dbColumnNm + "\", discriminatorType = DiscriminatorType." + type + ")");
-            }
-        });
+
 
         if (metaInfo.hasMetaAnnotation(EntityAnnotation.META_ROLL_UP)) {
 

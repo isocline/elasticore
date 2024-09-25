@@ -102,6 +102,10 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
      */
     private String getExtendInfo(MetaInfoModel entity) {
 
+        // Check if the entity has a "dto" meta-annotation, which means it's an
+        // entity DTO and should not be extended from any other class.
+        if(entity.getMetaInfo().hasMetaAnnotation("dto"))
+            return "";
 
         Annotation annotation = entity.getMetaInfo().getMetaAnnotation("extend");
         if (annotation != null)

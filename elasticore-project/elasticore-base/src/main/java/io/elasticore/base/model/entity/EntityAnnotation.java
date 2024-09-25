@@ -50,7 +50,7 @@ public interface EntityAnnotation {
     String META_ROLL_DOWN = "rolldown";
 
 
-    String[] META_NOT_ENTITY =  new String[]{META_ABSTRACT, META_EMBEDDABLE};
+    String[] META_NOT_ENTITY =  new String[]{META_ABSTRACT};
 
 
     String[] DISCRIMINATOR = new String[]{"discriminator", "discrim"};

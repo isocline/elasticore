@@ -97,6 +97,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
      */
     private String getExtendInfo(MetaInfoModel entity) {
 
+        if(entity.getMetaInfo().hasMetaAnnotation("dto"))
+            return "";
 
         Annotation annotation = entity.getMetaInfo().getMetaAnnotation("extend");
         if (annotation != null)
@@ -164,6 +166,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             implInfos.append(", PageableObject");
             pr.add("");
+            pr.add("@Builder.Default");
             pr.add("private int pageNumber=0;");
             pr.add("");
             pr.add("@Builder.Default");
