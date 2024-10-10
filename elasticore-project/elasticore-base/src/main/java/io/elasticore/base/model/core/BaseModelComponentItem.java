@@ -9,7 +9,7 @@ import java.util.List;
 public final class BaseModelComponentItem<T extends ModelComponent> implements ModelComponentItems {
     private final Items<T> items;
 
-    private final List<T> itemList;
+    private List<T> itemList;
 
     public BaseModelComponentItem(Items<T> items) {
         if(items==null) {
@@ -24,7 +24,7 @@ public final class BaseModelComponentItem<T extends ModelComponent> implements M
 
     public int size() {
         if(this.items==null) return 0;
-        return this.items.size();
+        return this.itemList.size();
     }
 
     public T find(ComponentIdentity identity) {
@@ -44,7 +44,11 @@ public final class BaseModelComponentItem<T extends ModelComponent> implements M
 
     public T get(int idx) {
         if(this.items==null) return null;
-        return this.itemList.get(idx);
+        try {
+            return this.itemList.get(idx);
+        }catch (RuntimeException re) {
+            return null;
+        }
     }
 
 
@@ -53,7 +57,7 @@ public final class BaseModelComponentItem<T extends ModelComponent> implements M
     public boolean hasNext() {
         if(this.items==null) return false;
 
-        if(this.items.size()>point){
+        if(this.size()>point){
             return true;
         }
 

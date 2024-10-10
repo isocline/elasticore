@@ -11,6 +11,7 @@ import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeTemplate;
@@ -142,6 +143,9 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
     public void publish(ModelDomain domain, Entity entity, DataTransfer dto , DataTransfer searchDto) {
 
+        if(entity.getPkField()==null)
+            return;
+
         String entityClassName = entity.getIdentity().getName();
         String className = entityClassName+ConstanParam.POSTFIX_CONTROL;
         String entityName = StringUtils.uncapitalize(entityClassName);
@@ -171,6 +175,42 @@ public class ControlSrcPublisher extends SrcFilePublisher {
             searchResultDTOClassName=dtoClassName;
         }
 
+        /**
+         * @DeleteMapping("/{id}")
+         *     public ResponseEntity<Void> delete(@PathVariable("id") ${pkType} id) {
+         *         if (!${entityName}Service.findById(id).isPresent()) {
+         */
+        ////////////////////////
+        String pkPathInfo = null;
+        String pkParamInfo = null;
+        String pkFieldInfo = null;
+
+        StringBuilder sb = new StringBuilder(); // for path
+        StringBuilder sb2 = new StringBuilder(); // for field
+        StringBuilder sb3 = new StringBuilder(); // for declare
+        ModelComponentItems<Field> items = entity.getItems();
+
+        List<Field> fieldList = entity.getAllFieldListMap().getList();
+
+        for(Field field: fieldList) {
+            if(!field.isPrimaryKey()) continue;
+            if(sb.length()>0) {
+
+                sb2.append(" ,");
+                sb3.append(" ,");
+            }
+
+            // dto.get${pkName}()
+            sb.append("/{").append(field.getName()).append("}");
+            sb2.append("@PathVariable(\"").append(field.getName()).append("\") ").append(field.getTypeInfo().getDefaultTypeName()).append(" ").append(field.getName());
+            sb3.append(field.getName());
+        }
+
+        pkPathInfo = sb.toString();
+        pkParamInfo = sb2.toString();
+        pkFieldInfo = sb3.toString();
+
+
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
                 .set("className",className)
@@ -186,6 +226,11 @@ public class ControlSrcPublisher extends SrcFilePublisher {
                 .set("mapperName",mapperName)
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)
+
+                .set("pkPathInfo", pkPathInfo)
+                .set("pkParamInfo", pkParamInfo)
+                .set("pkFieldInfo", pkFieldInfo)
+
                 .set("searchReturnType", searchReturnType)
 
                 .set("searchResultDTOClassName" ,searchResultDTOClassName)

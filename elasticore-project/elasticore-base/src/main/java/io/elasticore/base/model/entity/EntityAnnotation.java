@@ -9,6 +9,14 @@ public interface EntityAnnotation {
     String META_TABLE = "table";
 
 
+    String[] META_DISABLE =  new String[]{"disable", "deferred"};
+
+
+    String META_DEFERRED = "deferred";
+
+    String META_ID = "id";
+
+
 
     String[] META_MAPPING = new String[]{"mapping", "table"};
 

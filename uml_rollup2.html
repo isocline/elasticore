@@ -52,32 +52,19 @@ classDiagram
         lastModifiedBy: String 
         lastModifiedDate: java.time.LocalDateTime 
     }
-    class BaseCarInfo{
-        carId: String //차량 아이디
-        type: String 
-        displacement: Long //배기량
-        fuelType: String //연료 타입 // 예
+    class BaseResidualInfo{
+        &lt;&lt;Abstract &gt;&gt;
+        id: String //아이디
+        type: String //rollup 대응 discriminator 타입정보
+        division: String //잔가구분
     }
-    AuditEntity <|-- BaseCarInfo : extend
-    class DefaultCarInfo{
-        testRollup: String 
+    AuditEntity <|-- BaseResidualInfo : extend
+    class ResidualMobillug{
+        period36: Float 
+        period48: Float 
+        period60: Float 
     }
-    BaseCarInfo <|-- DefaultCarInfo : rollup
-    class DefaultCarInfo2{
-        testRollup2: String 
-    }
-    BaseCarInfo <|-- DefaultCarInfo2 : rollup
-    class ColorInfo{
-        colorName: String //색상명 // 예
-        colorFrontCode: String //색상 프론트 코드 // 예
-        colorCode: String //색상 코드 // 예
-        colorPrice: Long //색상 가격
-    }
-    class InnerColor{
-        id: String //순번 아이디
-        color: ColorInfo 
-    }
-    InnerColor --* ColorInfo : color(embedded)
+    BaseResidualInfo <|-- ResidualMobillug : rollup
 
     </div>
 </body>

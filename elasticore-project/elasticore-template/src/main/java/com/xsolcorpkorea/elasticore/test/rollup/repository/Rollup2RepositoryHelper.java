@@ -1,5 +1,5 @@
-//ecd:-1621092712H20240924235117_V1.0
-package com.xsolcorpkorea.elasticore.test.dto.repository;
+//ecd:-2070007194H20241010182122_V1.0
+package com.xsolcorpkorea.elasticore.test.rollup.repository;
 
 import io.elasticore.base.util.ModelTransList;
 
@@ -15,21 +15,19 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import com.xsolcorpkorea.elasticore.test.dto.entity.*;
-import com.xsolcorpkorea.elasticore.test.dto.dto.*;
+import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
+import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
 
 
 
 @Getter
 @Service
 @AllArgsConstructor
-public class DtoRepositoryHelper {
+public class Rollup2RepositoryHelper {
 
     private final EntityManager entityManager;
 
-    private final CustomerRepository customer;
-    
-    private final CompanyRepository company;
+    private final BaseResidualInfoRepository baseResidualInfo;
     
 
 

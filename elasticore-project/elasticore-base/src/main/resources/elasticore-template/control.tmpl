@@ -39,9 +39,9 @@ public class ${className} {
             @ApiResponse(responseCode = "200", description = "${entityClassName} found successfully", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}),
             @ApiResponse(responseCode = "404", description = "${entityClassName} not found", content = @Content)
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<${dtoClassName}> findById(@PathVariable("id") ${pkType} id) {
-        Optional<${dtoClassName}> findOptional = ${entityName}Service.findById(id);
+    @GetMapping("${pkPathInfo}")
+    public ResponseEntity<${dtoClassName}> findById(${pkParamInfo}) {
+        Optional<${dtoClassName}> findOptional = ${entityName}Service.findById(${pkFieldInfo});
         return findOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -58,20 +58,20 @@ public class ${className} {
             @ApiResponse(responseCode = "200", description = "${entityClassName} updated successfully", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ${dtoClassName}.class))}),
             @ApiResponse(responseCode = "404", description = "${entityClassName} not found", content = @Content)
     })
-    @PutMapping("/{id}")
-    public ResponseEntity<${dtoClassName}> update(@PathVariable("id") ${pkType} id, @RequestBody ${dtoClassName} updateDto) {
+    @PutMapping
+    public ResponseEntity<${dtoClassName}> update(@RequestBody ${dtoClassName} updateDto) {
         ${dtoClassName} resultDto = ${entityName}Service.update(updateDto);
         return ResponseEntity.ok(resultDto);
     }
 
 
     @Operation(summary = "Delete a ${entityClassName}", description = "Deletes a ${entityClassName} from the system using its unique identifier.")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") ${pkType} id) {
-        if (!${entityName}Service.findById(id).isPresent()) {
+    @DeleteMapping("${pkPathInfo}")
+    public ResponseEntity<Void> delete(${pkParamInfo}) {
+        if (!${entityName}Service.findById(${pkFieldInfo}).isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        ${entityName}Service.deleteById(id);
+        ${entityName}Service.deleteById(${pkFieldInfo});
         return ResponseEntity.noContent().build();
     }
 }

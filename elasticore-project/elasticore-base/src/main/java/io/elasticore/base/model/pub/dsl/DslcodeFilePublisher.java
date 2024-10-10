@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.elasticore.base.model.pub.px;
+package io.elasticore.base.model.pub.dsl;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
@@ -26,12 +26,15 @@ import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.dto.DataTransferModels;
-import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.entity.EntityAnnotation;
+import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.pub.jpa.SrcFilePublisher;
+import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +43,7 @@ import java.util.Map;
  * This class is responsible for generating Java source code
  * based on entity definitions and their annotations.
  */
-public class DtoSrcFilePublisher extends SrcFilePublisher {
+public class DslcodeFilePublisher extends SrcFilePublisher {
 
     private CodeTemplate javaClassTmpl;
 
@@ -64,7 +67,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
      *
      * @param publisher The JPACodePublisher instance used for publishing.
      */
-    public DtoSrcFilePublisher(CodePublisher publisher) {
+    public DslcodeFilePublisher(CodePublisher publisher) {
         super(publisher);
 
         this.publisher = publisher;
@@ -76,18 +79,51 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         if (templatePath == null)
             templatePath = "elasticore-template/px/dto.tmpl";
         else
-            templatePath = "resource://"+templatePath;
+            templatePath = "resource://" + templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+        processEntityModel(model);
 
-        if(model.getEnumModels().getItems().size()>0)
-            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
-        else
-            this.enumPackageName ="";
+    }
 
+    protected void processEntityModel(ECoreModel model) {
+
+        EntityModels entityModels = model.getEntityModels();
+        ModelComponentItems<Entity> items = entityModels.getItems();
+
+        CodeStringBuilder cb = new CodeStringBuilder("","",2);
+        cb.line("entity:").block("");
+
+
+        while (items.hasNext()) {
+
+            Entity entity = items.next();
+            cb.line("%s:",entityModels.getIdentity().getName()).block("");
+            cb.line("meta: entity %s","");
+            cb.line("fields:").block("");
+
+            ModelComponentItems<Field> fieldItem = entity.getItems();
+            while (fieldItem.hasNext()) {
+                Field f = fieldItem.next();
+
+                String label = f.getAnnotationValue("label");
+                if(label!=null)
+                    label = " -- "+label.trim();
+
+                cb.line("%s: %s %s",f.getName(),f.getTypeInfo().getInitTypeInfo(),label);
+
+            }
+
+            cb.end("");
+            cb.end("");
+
+
+
+        }
+
+        System.out.println(cb.toString());
     }
 
     /**
@@ -119,11 +155,11 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
     public void publish(ModelDomain domain) {
         DataTransferModels dataTransferModels = this.eCoreModel.getDataTransferModels();
-        ModelComponentItems<DataTransfer> dtoItems= dataTransferModels.getItems();
+        ModelComponentItems<DataTransfer> dtoItems = dataTransferModels.getItems();
         for (int i = 0; i < dtoItems.size(); i++) {
             DataTransfer dto = dtoItems.get(i);
-            publish(domain, dto ,REQUEST);
-            publish(domain, dto ,RESPONSE);
+            publish(domain, dto, REQUEST);
+            publish(domain, dto, RESPONSE);
         }
     }
 
@@ -138,9 +174,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
      * dto definition and annotations.
      *
      * @param domain The model domain to which the dto belongs.
-     * @param dto The dto for which source code is to be published.
+     * @param dto    The dto for which source code is to be published.
      */
-    public void publish(ModelDomain domain, DataTransfer dto ,int mode ) {
+    public void publish(ModelDomain domain, DataTransfer dto, int mode) {
         MetaInfo metaInfo = dto.getMetaInfo();
         Annotation typeAnnotation = metaInfo.getMetaAnnotation("type");
         if (typeAnnotation != null) {
@@ -148,12 +184,11 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
-        if(metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) return;
+        if (metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) return;
 
 
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
         String classNm = dto.getIdentity().getName();
-
 
 
         this.paragraphForEntity = CodeTemplate.newParagraph();
@@ -161,21 +196,21 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         setNativeAnnotation(dto, this.paragraphForEntity);
 
         // must call 'getFieldInfo' first
-        CodeTemplate.Paragraph pr = getFieldInfo(dto ,mode);
+        CodeTemplate.Paragraph pr = getFieldInfo(dto, mode);
 
         String classPkgName = packageName;
-        if(mode == REQUEST)
-            classPkgName = classPkgName +".request";
+        if (mode == REQUEST)
+            classPkgName = classPkgName + ".request";
         else
-            classPkgName = classPkgName +".response";
+            classPkgName = classPkgName + ".response";
 
         String desc = metaInfo.getInfoAnnotationValue("description");
-        if(desc==null)
-            desc="";
+        if (desc == null)
+            desc = "";
 
         p
                 .set("packageName", classPkgName)
-                .set("j2eePkgName",getPersistentPackageName(domain))
+                .set("j2eePkgName", getPersistentPackageName(domain))
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(dto))
                 .set("classAnnotationList", this.paragraphForEntity)
@@ -226,13 +261,12 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         return p;
     }
 
-    private CodeTemplate.Paragraph getFieldInfo(DataModelComponent dto ,int mode) {
+    private CodeTemplate.Paragraph getFieldInfo(DataModelComponent dto, int mode) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
-        loadFieldInfo(dto, p ,mode);
+        loadFieldInfo(dto, p, mode);
         return p;
     }
-
 
 
     private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p, int mode) {
@@ -241,23 +275,23 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         List<Field> fieldList = fields.getList();
 
-        for(Field f: fieldList) {
+        for (Field f : fieldList) {
 
-            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
+            if (f.hasAnnotation(EntityAnnotation.META_DISABLE))
                 continue;
 
 
-            String val = f.getAnnotationValue(EntityAnnotation.KIND) ;
+            String val = f.getAnnotationValue(EntityAnnotation.KIND);
 
-            if(mode == REQUEST && "calculated".equals(val))
+            if (mode == REQUEST && "calculated".equals(val))
                 continue;
 
 
-            if(isEntityReturnType(f, eCoreModel)) continue;
+            if (isEntityReturnType(f, eCoreModel)) continue;
 
             setFieldDesc(f, p);
             //setFieldDocumentation(f,p);
-            setFieldValidation(f,p);
+            setFieldValidation(f, p);
             setJsonInfo(f, p);
 
 
@@ -278,10 +312,10 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
             String type = f.getTypeInfo().getDefaultTypeName();
 
-            if(mode == RESPONSE && f.getTypeInfo().isList()) {
+            if (mode == RESPONSE && f.getTypeInfo().isList()) {
                 String coreType = f.getTypeInfo().getCoreItemType();
                 p.add("%s %s %s = new ArrayList<%s>(Arrays.asList(new %s()));", "private", type, f.getName(), coreType, coreType);
-            }else{
+            } else {
                 p.add("%s %s %s%s;", "private", type, f.getName(), defaultValDefined);
             }
 
@@ -294,7 +328,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
     }
 
 
-
     private String getDefaultValueSetup(Field f) {
         if (!f.hasAnnotation("default")) return "";
         String val = f.getAnnotation("default").getValue();
@@ -304,7 +337,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             return " = " + val;
         }
     }
-
 
 
     private void setFieldPkInfo(Field field, CodeTemplate.Paragraph paragraph) {
@@ -322,9 +354,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             paragraph.add("@GeneratedValue(strategy = GenerationType." + field.getGenerationType());
         }
     }
-
-
-
 
 
     private void setNativeAnnotation(MetaInfoModel entity, CodeTemplate.Paragraph paragraph) {

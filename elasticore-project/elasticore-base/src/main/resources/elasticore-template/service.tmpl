@@ -107,8 +107,8 @@ public class ${className} {
      * @return an Optional containing the ${dtoClassName} if found, or an empty Optional if not found
      */
     @Transactional
-    public Optional<${dtoClassName}> findById(${pkType} id) {
-        return helper.get${entityClassName}().findById(id)${mappingCode}.map(${mapperName}::toDTO);
+    public Optional<${dtoClassName}> findById(${pkDtoDefine}) {
+        return helper.get${entityClassName}().findById(${pkDtoInfo2})${mappingCode}.map(${mapperName}::toDTO);
     }
 
 
@@ -133,7 +133,7 @@ public class ${className} {
      * @return the updated ${dtoClassName}
      */
     public ${dtoClassName} update(${dtoClassName} dto) {
-        ${orgEntityClassName} entity = ${orgEntityConvert}helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
+        ${orgEntityClassName} entity = ${orgEntityConvert}helper.get${entityClassName}().findById(${pkDtoInfo}).orElse(null);
         if(entity==null)
           throw new IllegalArgumentException("Invalid ${dtoClassName} ID");
         ${mapperName}.mapping(dto, entity, ${isSkipNull});
@@ -149,8 +149,8 @@ public class ${className} {
      *
      * @param id the ID of the ${entityClassName} entity to delete
      */
-    public void deleteById(${pkType} id) {
-        helper.get${entityClassName}().deleteById(id);
+    public void deleteById(${pkDtoDefine}) {
+        helper.get${entityClassName}().deleteById(${pkDtoInfo2});
     }
 
 /*-- print-if:${isCustomPageOutput} isCustomPageOutput--*/

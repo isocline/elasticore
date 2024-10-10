@@ -147,7 +147,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         //root.get("comSeq")
         for(Field f:listMap.getList()) {
-            if(f.hasAnnotation("disable"))
+            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
                 continue;
             String coreItemType = f.getTypeInfo().getCoreItemType();
             if(this.findEntity(coreItemType)!=null) continue;
@@ -165,6 +165,9 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
 
     public void publish(ModelDomain domain, Entity entity, DataTransfer dto, DataTransfer searchDto) {
+
+        if(entity.getPkField() ==null)
+            return;
 
         String domainName = domain.getName();
 
@@ -229,6 +232,38 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             isSkipNull = false;
         }
 
+        StringBuilder sb = new StringBuilder(); // for DTO
+        StringBuilder sb2 = new StringBuilder(); // for field
+        StringBuilder sb3 = new StringBuilder(); // for declare
+
+        List<Field> fieldList = entity.getAllFieldListMap().getList();
+
+        for(Field field: fieldList) {
+            if(!field.isPrimaryKey()) continue;
+            if(sb.length()>0) {
+                sb.append(" ,");
+                sb2.append(" ,");
+                sb3.append(" ,");
+            }
+
+            // dto.get${pkName}()
+            sb.append("dto.get").append(StringUtils.capitalize(field.getName())).append("()");
+            sb2.append(field.getName());
+            sb3.append(field.getTypeInfo().getDefaultTypeName()).append(" ").append(field.getName());
+        }
+
+        String pkDtoInfo = null;
+        String pkDtoInfo2 = null;
+        String pkDtoDefine = sb3.toString();
+        if(entity.getPkField().isMultiple()) {
+
+            pkDtoInfo = "new "+entity.getPkField().getType()+"("+sb.toString()+")";
+            pkDtoInfo2 = "new "+entity.getPkField().getType()+"("+sb2.toString()+")";
+
+        }else {
+            pkDtoInfo = sb.toString();
+            pkDtoInfo2 = sb2.toString();
+        }
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
@@ -246,6 +281,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)
                 .set("pkName", StringUtils.capitalize(pkName))
+
+                // dto.get${pkName}()
+                .set("pkDtoInfo", pkDtoInfo)
+                .set("pkDtoInfo2", pkDtoInfo2)
+                .set("pkDtoDefine", pkDtoDefine)
+
                 .set("childRefInfo", cb.toString())
                 .set("isListOutput",isListOutput)
                 .set("isPageOutput",isPageOutput)
@@ -298,7 +339,6 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
             Field targetField = entity.getItems().findByName(refFieldNm);
             if (targetField == null) continue;
-            ;
 
             String getTypeNm = targetField.getTypeInfo().getDefaultTypeName();
 

@@ -1,19 +1,24 @@
-//ecd:-1635884547H20240924235117_V1.0
-package com.xsolcorpkorea.elasticore.test.dto.dto;
+//ecd:-2022056413H20241010182122_V1.0
+package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 import org.springframework.data.domain.Sort;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 
 public interface SortableObject {
 
+    @Schema(description = "Field used to specify the sorting criteria. Use '+' for ascending and '-' for descending. Multiple fields can be specified, separated by commas.",
+            example = "name+,age-")
     String getSortCode();
 
+    @Schema(hidden = true)
     String getSortColumn();
 
+    @Schema(hidden = true)
     Boolean getSortAscending();
 
+    @Schema(hidden = true)
     default Sort getSort() {
         String sortTxt = getSortCode();
 

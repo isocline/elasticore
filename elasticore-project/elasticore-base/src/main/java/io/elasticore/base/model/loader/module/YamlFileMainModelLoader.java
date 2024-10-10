@@ -15,6 +15,7 @@ import io.elasticore.base.model.loader.MainModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
+import io.elasticore.base.util.ConsoleLog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -119,13 +120,18 @@ public class YamlFileMainModelLoader implements MainModelLoader {
             return null;
         }
 
+        if(f.length()==0) {
+            ConsoleLog.printWarn(" * EMPTY: "+f.getAbsolutePath());
+            return null;
+        }
+
         FileSource fileSource = null;
 
         try {
             Map map = mapper.readValue(f, LinkedHashMap.class);
             return FileSource.builder().filepath(f.getAbsolutePath()).infoMap(map).build();
         } catch (Throwable e) {
-            System.err.println(" * LOAD ERROR: "+f.getAbsolutePath());
+            ConsoleLog.printWarn(" * LOAD ERROR: "+f.getAbsolutePath());
             e.printStackTrace();
             return FileSource.builder().filepath(f.getAbsolutePath()).error(e).build();
         }

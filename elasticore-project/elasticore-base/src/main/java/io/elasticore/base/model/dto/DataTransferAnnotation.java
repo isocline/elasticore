@@ -1,12 +1,17 @@
 package io.elasticore.base.model.dto;
 
+import io.elasticore.base.model.entity.EntityAnnotation;
+
 /**
  * This interface defines various annotation names used in elastiCore modeling.
  */
-public interface DataTransferAnnotation {
+public interface DataTransferAnnotation extends EntityAnnotation {
+
 
 
     String META_SEARCHABLE = "searchable";
+
+    String META_SEARCHABLE_PAGESIZE = "searchable.pageSize";
 
     String META_EXTEND = "extend";
 

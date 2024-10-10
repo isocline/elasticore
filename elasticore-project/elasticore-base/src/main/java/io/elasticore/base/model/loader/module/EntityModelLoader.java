@@ -55,7 +55,7 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;
         if (fields != null)
-            fieldItems = parseField(fields, entityNm);
+            fieldItems = parseField(fields, entityNm ,metaInfo);
 
         return Entity.create(ctx.getDomainId(), entityNm, metaInfo, fieldItems);
 

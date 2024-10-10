@@ -162,6 +162,11 @@ public class DocEntitySrcFilePublisher extends SrcFilePublisher {
                 String dbColumnNm = field.getDbColumnName();
                 String type = field.getTypeInfo().getDefaultTypeName().toUpperCase(Locale.ROOT);
                 p.add("@DiscriminatorColumn(name = \"" + dbColumnNm + "\", discriminatorType = DiscriminatorType." + type + ")");
+
+                String defaultDesciminatorValue = field.getAnnotationValue(EntityAnnotation.DISCRIMINATOR);
+                if(defaultDesciminatorValue!=null) {
+                    p.add("@DiscriminatorValue(\"" + defaultDesciminatorValue + "\")");
+                }
             }
         });
 

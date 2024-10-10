@@ -122,9 +122,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         if (entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT)) {
             return "abstract";
         }
+        /*
         if(p.contains("@DiscriminatorColumn(")) {
             return "abstract";
         }
+         */
         return "";
     }
 
@@ -141,6 +143,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 String dbColumnNm = field.getDbColumnName();
                 String type = field.getTypeInfo().getDefaultTypeName().toUpperCase(Locale.ROOT);
                 p.add("@DiscriminatorColumn(name = \"" + dbColumnNm + "\", discriminatorType = DiscriminatorType." + type + ")");
+
+                String defaultDesciminatorValue = field.getAnnotationValue(EntityAnnotation.DISCRIMINATOR);
+                if(defaultDesciminatorValue!=null) {
+                    p.add("@DiscriminatorValue(\"" + defaultDesciminatorValue + "\")");
+                }
             }
         });
 
@@ -223,6 +230,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
 
+        if (entity.getPkField() != null && entity.getPkField().isMultiple()) {
+            //@IdClass(PersonFamilyIdentity.class)
+            p.add("@IdClass(%s.class)",entity.getPkField().getType());
+        }
+
+
         return p;
     }
 
@@ -299,6 +312,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             String j2eePkgNm = getPersistentPackageName(domain);
 
+            CodeTemplate.Paragraph p2 = CodeTemplate.newParagraph();
+            p2.add("@Embeddable");
+            p2.add("@AllArgsConstructor");
+
             CodeTemplate.Parameters param = CodeTemplate.newParameters();
             param
                     .set("packageName", packageName)
@@ -306,7 +323,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     .set("extendInfo", "")
                     .set("j2eePkgName",j2eePkgNm)
                     .set("implementInfo", "implements java.io.Serializable")
-                    .set("classAnnotationList", "@Embeddable")
+                    .set("classAnnotationList", p2)
                     .set("className", classNm);
 
             CodeTemplate.Paragraph p = getMultiplePkField(entity);
@@ -363,6 +380,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         ModelComponentItems<Field> fields = entity.getItems();
 
         boolean isExtendIdentity = false;
+        /*
         if (entity.getPkField() != null && entity.getPkField().isMultiple()) {
             isExtendIdentity = true;
 
@@ -370,6 +388,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("private %s %s;", entity.getPkField().getType() , entity.getPkField().getName());
             p.add("");
         }
+        */
         while (fields.hasNext()) {
             Field f = fields.next();
 

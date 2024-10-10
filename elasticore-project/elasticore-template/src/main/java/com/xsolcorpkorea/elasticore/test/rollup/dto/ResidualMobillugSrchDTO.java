@@ -1,5 +1,5 @@
-//ecd:1918608372H20240924235117_V1.0
-package com.xsolcorpkorea.elasticore.test.dto.dto;
+//ecd:-1595362343H20241010182122_V1.0
+package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
 import lombok.*;
@@ -25,21 +25,19 @@ import java.time.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class CompanySrchDTO  implements java.io.Serializable, SortableObject, PageableObject  {
+public  class ResidualMobillugSrchDTO  implements java.io.Serializable, SortableObject  {
 
-	@Schema(description = "id"  )
-	private Long id;
+	@Schema(description = "period36"  )
+	private Float period36;
 	
-	@Schema(description = "name"  )
-	private String name;
+	@Schema(description = "period48"  )
+	private Float period48;
+	
+	@Schema(description = "period60"  )
+	private Float period60;
 	
 	
 	private String sortCode;
-	
-	private int pageNumber=0;
-	
-	@Builder.Default
-	private int pageSize=100;
 
     private String sortColumn; // Column to sort by
     private Boolean sortAscending; // Sort order (true: ascending, false: descending)

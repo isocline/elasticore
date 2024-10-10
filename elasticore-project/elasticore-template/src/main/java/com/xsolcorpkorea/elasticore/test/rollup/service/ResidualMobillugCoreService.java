@@ -1,9 +1,9 @@
-//ecd:-948707505H20240924235119_V1.0
-package com.xsolcorpkorea.elasticore.test.dto.service;
+//ecd:-1170443023H20241010182726_V1.0
+package com.xsolcorpkorea.elasticore.test.rollup.service;
 
-import com.xsolcorpkorea.elasticore.test.dto.entity.*;
-import com.xsolcorpkorea.elasticore.test.dto.dto.*;
-import com.xsolcorpkorea.elasticore.test.dto.repository.*;
+import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
+import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
+import com.xsolcorpkorea.elasticore.test.rollup.repository.*;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
@@ -24,128 +24,128 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class CompanyCoreService {
+public class ResidualMobillugCoreService {
 
-    protected final DtoRepositoryHelper helper;
+    protected final Rollup2RepositoryHelper helper;
 
 
     /**
-     * Retrieves all tCompany entities, converts them to CompanyDTO objects, and returns them as a list.
+     * Retrieves all tBaseResidualInfo entities, converts them to ResidualMobillugDTO objects, and returns them as a list.
      *
-     * @return a list of CompanyDTO objects
+     * @return a list of ResidualMobillugDTO objects
      */
-    public List<CompanyDTO> findAll() {
-        return helper.getCompany().findAll().stream()
-                 
-                .map(DtoMapper::toDTO)
+    public List<ResidualMobillugDTO> findAll() {
+        return helper.getBaseResidualInfo().findAll().stream()
+                 .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
+                .map(Rollup2Mapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Deletes Company entities that match the given search criteria.
+     * Deletes BaseResidualInfo entities that match the given search criteria.
      *
      * @param searchDTO the search criteria
      * @return the number of entities deleted
      */
     @javax.transaction.Transactional
-    public long delete(CompanySrchDTO searchDTO) {
-            Specification<Company> specification = DtoMapper.toSpec(searchDTO);
-            return helper.getCompany().delete(specification);
+    public long delete(ResidualMobillugSrchDTO searchDTO) {
+            Specification<BaseResidualInfo> specification = Rollup2Mapper.toSpec(searchDTO);
+            return helper.getBaseResidualInfo().delete(specification);
     }
 
     @Transactional
-    public List<CompanyDTO> findBySearch(CompanySrchDTO searchDTO) {
-        Specification<Company> specification = DtoMapper.toSpec(searchDTO);
+    public List<ResidualMobillugDTO> findBySearch(ResidualMobillugSrchDTO searchDTO) {
+        Specification<BaseResidualInfo> specification = Rollup2Mapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
-            return helper.getCompany().findAll(specification).stream()
-                        
-                        .map(DtoMapper::toDTO)
+            return helper.getBaseResidualInfo().findAll(specification).stream()
+                        .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
+                        .map(Rollup2Mapper::toDTO)
                         .collect(Collectors.toList());
         }
-        return helper.getCompany().findAll(specification, sort).stream()
-                
-                .map(DtoMapper::toDTO)
+        return helper.getBaseResidualInfo().findAll(specification, sort).stream()
+                .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
+                .map(Rollup2Mapper::toDTO)
                 .collect(Collectors.toList());
     }
 
 
 
     /**
-     * Finds a Company entity by its ID and converts it to a CompanyDTO.
+     * Finds a BaseResidualInfo entity by its ID and converts it to a ResidualMobillugDTO.
      *
      * @param id the ID of the FaxResult entity
-     * @return an Optional containing the CompanyDTO if found, or an empty Optional if not found
+     * @return an Optional containing the ResidualMobillugDTO if found, or an empty Optional if not found
      */
     @Transactional
-    public Optional<CompanyDTO> findById(Long id) {
-        return helper.getCompany().findById(id).map(DtoMapper::toDTO);
+    public Optional<ResidualMobillugDTO> findById(String id) {
+        return helper.getBaseResidualInfo().findById(id).filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo).map(Rollup2Mapper::toDTO);
     }
 
 
     /**
-     * Saves a new Company entity based on the given DTO and returns the saved entity as a DTO.
+     * Saves a new BaseResidualInfo entity based on the given DTO and returns the saved entity as a DTO.
      *
-     * @param dto the CompanyDTO to save
-     * @return the saved CompanyDTO
+     * @param dto the ResidualMobillugDTO to save
+     * @return the saved ResidualMobillugDTO
      */
-    public CompanyDTO save(CompanyDTO dto) {
-        Company entity = DtoMapper.toEntity(dto);
+    public ResidualMobillugDTO save(ResidualMobillugDTO dto) {
+        ResidualMobillug entity = Rollup2Mapper.toEntity(dto);
         
     
 
-        Company result = helper.getCompany().save(entity);
-        return DtoMapper.toDTO(result);
+        ResidualMobillug result = helper.getBaseResidualInfo().save(entity);
+        return Rollup2Mapper.toDTO(result);
     }
 
 
     /**
-     * Updates an existing Company entity based on the given DTO and returns the updated entity as a DTO.
+     * Updates an existing BaseResidualInfo entity based on the given DTO and returns the updated entity as a DTO.
      *
-     * @param dto the CompanyDTO with updated information
-     * @return the updated CompanyDTO
+     * @param dto the ResidualMobillugDTO with updated information
+     * @return the updated ResidualMobillugDTO
      */
-    public CompanyDTO update(CompanyDTO dto) {
-        Company entity = helper.getCompany().findById(dto.getId()).orElse(null);
+    public ResidualMobillugDTO update(ResidualMobillugDTO dto) {
+        ResidualMobillug entity = (ResidualMobillug)helper.getBaseResidualInfo().findById(dto.getId()).orElse(null);
         if(entity==null)
-          throw new IllegalArgumentException("Invalid CompanyDTO ID");
-        DtoMapper.mapping(dto, entity, true);
+          throw new IllegalArgumentException("Invalid ResidualMobillugDTO ID");
+        Rollup2Mapper.mapping(dto, entity, true);
         
     
 
 
-        Company result = helper.getCompany().save(entity);
-        return DtoMapper.toDTO(result);
+        ResidualMobillug result = (ResidualMobillug)helper.getBaseResidualInfo().save(entity);
+        return Rollup2Mapper.toDTO(result);
     }
 
 
     /**
-     * Deletes a Company entity by its ID.
+     * Deletes a BaseResidualInfo entity by its ID.
      *
-     * @param id the ID of the Company entity to delete
+     * @param id the ID of the BaseResidualInfo entity to delete
      */
-    public void deleteById(Long id) {
-        helper.getCompany().deleteById(id);
+    public void deleteById(String id) {
+        helper.getBaseResidualInfo().deleteById(id);
     }
 
 
 
 
     /**
-     * Finds the greatest string value of the specified field in Company entities
+     * Finds the greatest string value of the specified field in BaseResidualInfo entities
      * that match the given search criteria.
      *
      * @param dto        the search criteria
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(CompanySrchDTO dto, String fieldName) {
+    public String findGreatest(ResidualMobillugSrchDTO dto, String fieldName) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
-        Root<Company> root = cq.from(Company.class);
+        Root<BaseResidualInfo> root = cq.from(BaseResidualInfo.class);
 
-        Specification<Company> spec = DtoMapper.toSpec(dto);
+        Specification<BaseResidualInfo> spec = Rollup2Mapper.toSpec(dto);
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);
 
@@ -170,8 +170,8 @@ public class CompanyCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,CompanySrchDTO dto) {
-        Specification<Company> spec = DtoMapper.toSpec(dto);
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,ResidualMobillugSrchDTO dto) {
+        Specification<BaseResidualInfo> spec = Rollup2Mapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }
 
@@ -188,11 +188,11 @@ public class CompanyCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<Company> spec ) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<BaseResidualInfo> spec ) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(typeClass);
-        Root<Company> root = cq.from(Company.class);
+        Root<BaseResidualInfo> root = cq.from(BaseResidualInfo.class);
 
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);

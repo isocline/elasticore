@@ -104,10 +104,10 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         // Check if the entity has a "dto" meta-annotation, which means it's an
         // entity DTO and should not be extended from any other class.
-        if(entity.getMetaInfo().hasMetaAnnotation("dto"))
+        if(entity.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_DTO))
             return "";
 
-        Annotation annotation = entity.getMetaInfo().getMetaAnnotation("extend");
+        Annotation annotation = entity.getMetaInfo().getMetaAnnotation(DataTransferAnnotation.META_EXTEND);
         if (annotation != null)
             return "extends " + annotation.getValue();
 
@@ -116,7 +116,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
 
     private String getAbstractInfo(MetaInfoModel entity) {
-        if (entity.getMetaInfo().hasMetaAnnotation("abstract")) {
+        if (entity.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_ABSTRACT)) {
             return "abstract";
         }
         return "";
@@ -231,7 +231,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         for(Field f: fieldList) {
 
-            if(f.hasAnnotation("disable"))
+            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
                 continue;
 
             String typeName = f.getTypeInfo().getDefaultTypeName();

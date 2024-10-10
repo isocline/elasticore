@@ -152,15 +152,16 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph pr = getFieldInfo(dtoModel);
 
 
-        Annotation srchAnt = metaInfo.getMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE);
+
+        String pageSize = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_SEARCHABLE_PAGESIZE);
 
         pr.add("");
         pr.add("private String sortCode;");
 
-        if (srchAnt != null) {
+        if (pageSize != null) {
             int defaultPageSize = 100;
             try {
-                defaultPageSize = Integer.parseInt(srchAnt.getProperties().getProperty("pageSize"));
+                defaultPageSize = Integer.parseInt(pageSize);
             } catch (RuntimeException re) {
             }
 
@@ -221,13 +222,17 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
         for (Field f : fieldList) {
 
+            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
+                continue;
+
             boolean isForceDefineField = false;
             if(dataTransfer!=null && dataTransfer.findFieldName(f.getName())!=null) {
                 isForceDefineField = true;
             }
 
 
-            if (!isForceDefineField && !f.hasAnnotation("id")
+            if (!isForceDefineField
+                    //&& !f.hasAnnotation("id")
                     && !f.hasAnnotation(EntityAnnotation.SEARCH)
                     && dto.getItems().findByName(f.getName()) == null)
                 continue;

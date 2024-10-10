@@ -45,39 +45,26 @@ init: {
 }%%
 
 classDiagram
-    class AuditEntity{
-        &lt;&lt;Abstract &gt;&gt;
-        createDate: java.time.LocalDateTime 
-        createdBy: String 
-        lastModifiedBy: String 
-        lastModifiedDate: java.time.LocalDateTime 
+    class EmpGroup{
+        id: String 
+        name: String 
     }
-    class BaseCarInfo{
-        carId: String //차량 아이디
-        type: String 
-        displacement: Long //배기량
-        fuelType: String //연료 타입 // 예
+    class Person{
+        id: String //아이디
+        name: String //이름
+        age: Integer 
+        title: String //이름
+        name2: String //이름
+        name3: String //이름
+        empGrp: EmpGroup 
     }
-    AuditEntity <|-- BaseCarInfo : extend
-    class DefaultCarInfo{
-        testRollup: String 
+    Person --o "0..1" EmpGroup : empGrp
+    class PersonFamily{
+        id: String 
+        seq: Long 
+        name: String //이름
+        revName: String //관계명
     }
-    BaseCarInfo <|-- DefaultCarInfo : rollup
-    class DefaultCarInfo2{
-        testRollup2: String 
-    }
-    BaseCarInfo <|-- DefaultCarInfo2 : rollup
-    class ColorInfo{
-        colorName: String //색상명 // 예
-        colorFrontCode: String //색상 프론트 코드 // 예
-        colorCode: String //색상 코드 // 예
-        colorPrice: Long //색상 가격
-    }
-    class InnerColor{
-        id: String //순번 아이디
-        color: ColorInfo 
-    }
-    InnerColor --* ColorInfo : color(embedded)
 
     </div>
 </body>

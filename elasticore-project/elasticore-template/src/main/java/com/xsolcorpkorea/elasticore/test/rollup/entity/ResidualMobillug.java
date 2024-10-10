@@ -1,5 +1,5 @@
-//ecd:-1646482887H20240924235117_V1.0
-package com.xsolcorpkorea.elasticore.test.dto.entity;
+//ecd:-1534010010H20241010182122_V1.0
+package com.xsolcorpkorea.elasticore.test.rollup.entity;
 
 
 import lombok.Getter;
@@ -22,21 +22,24 @@ import javax.persistence.Entity;
 
 @Entity
 @org.hibernate.annotations.DynamicUpdate
+@DiscriminatorValue("MBLG")
 @Getter
 @Setter
 @NoArgsConstructor
 
 @EntityListeners(AuditingEntityListener.class)
-public  class Company  implements java.io.Serializable  {
+public  class ResidualMobillug extends BaseResidualInfo implements java.io.Serializable  {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Long id;
+	@Column(name = "period36")
+	private Float period36;
 	
 	
-	@Column(name = "name")
-	private String name;
+	@Column(name = "period48")
+	private Float period48;
+	
+	
+	@Column(name = "period60")
+	private Float period60;
 	
 	
 }

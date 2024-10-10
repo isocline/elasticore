@@ -2,8 +2,11 @@ package io.elasticore.base.model.loader.module;
 
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.MetaInfo;
+import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
@@ -11,11 +14,9 @@ import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.util.ConsoleLog;
+import io.elasticore.base.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataTransferModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<DataTransfer> {
 
@@ -37,17 +38,68 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
             loadModel(ctx, ctx.getDataTransferItems(), entityMap);
         }
 
-        if(ctx.getDataTransferItems().size()>0)
+        if(ctx.getDataTransferItems().size()>0) {
+            List<DataTransfer> itemList = ctx.getDataTransferItems().getItemList();
+            for(DataTransfer dto : itemList) {
+
+                ModelComponentItems<Field> items = dto.getItems();
+                while(items.hasNext()) {
+                    Field f = items.next();
+                    //if(f==null) break;
+
+                    String baseFieldNm = f.getName();
+
+                    if(f.hasAnnotation(DataTransferAnnotation.META_DEFERRED)) {
+
+                        String typeName = f.getTypeInfo().getDefaultTypeName();
+                        Entity entity = ctx.getEntityItems().findByName(typeName);
+
+                        if(entity !=null) {
+                            ModelComponentItems<Field> entityFields = entity.getItems();
+                            while (entityFields.hasNext()) {
+                                Field entityField = entityFields.next();
+                                if(entityField.hasAnnotation(EntityAnnotation.META_ID)) {
+
+                                    String refFieldNm = baseFieldNm+"."+ entityField.getName();
+                                    String newFieldNm = baseFieldNm+StringUtils.capitalize(entityField.getName());
+
+                                    Annotation annotation = Annotation.create(  "ref", refFieldNm);
+                                    Map<String,Annotation> antMap = new HashMap<>();
+                                    antMap.put(annotation.getName(), annotation);
+
+                                    Annotation.create(  "s", "eq");
+                                    antMap.put(annotation.getName(), annotation);
+
+
+                                    Field newRefField = Field.builder()
+                                            .name(newFieldNm)
+                                            .type(entityField.getTypeInfo().getDefaultTypeName())
+                                            .annotationMap(antMap)
+                                            .build();
+
+                                    dto.addField(newRefField);
+                                }
+                            }
+                        }
+
+                    }
+
+
+                }
+
+            }
+
             return true;
+        }
 
         return false;
     }
 
-    public void loadModel(ModelLoaderContext ctx, Items<DataTransfer> items, Map<String, LinkedHashMap> entityMap) {
+    public void loadModel(ModelLoaderContext ctx, Items<DataTransfer> items, Map<String, LinkedHashMap> dtoInfoMap) {
 
         this.setModelLoaderContext(ctx);
 
-        entityMap.forEach((entityNm, value) -> {
+        dtoInfoMap.forEach((entityNm, value) -> {
             List<DataTransfer> dtos = loadDataTransfer(ctx, entityNm, value);
             for(DataTransfer dto: dtos) {
                 if( items.find(dto.getIdentity()) == null) {
@@ -70,12 +122,38 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;
         if (fields != null)
-            fieldItems = parseField(fields, entityNm);
+            fieldItems = parseField(fields, entityNm ,metaInfo);
 
 
+        // Handles the "dto" annotation declared within the entity model
         if( "entity".equals(metaInfo.getMetaAnnotationValue(EntityAnnotation.META_TYPE))) {
 
             if( metaInfo.hasMetaAnnotation(EntityAnnotation.META_DTO)) {
+
+                Items<Field> items = Items.create(Field.class);
+                // for fields
+                if(fieldItems!=null) {
+                    List<Field> itemList = fieldItems.getItemList();
+                    for(Field field : itemList) {
+
+
+
+                        if(!field.getTypeInfo().isBaseType()) {
+
+                            Annotation annotation = Annotation.create(EntityAnnotation.META_DEFERRED);
+                            Map<String, Annotation> annotationMap = new HashMap<>();
+                            annotationMap.put(annotation.getName(), annotation);
+
+                            items.addItem(
+                                    Field.builder().name(field.getName()).type(field.getTypeInfo().getDefaultTypeName()).annotationMap(annotationMap).build()
+                            );
+
+
+                        }
+
+                    }
+                }
+
 
                 boolean isPagable = metaInfo.hasMetaAnnotation(EntityAnnotation.META_PAGEABLE);
 
@@ -94,7 +172,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
                     entityMap.put(PROPERTY_META, newLineData);
                     metaInfo = parseMetaInfoObject(entityMap);
-                    result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"DTO", null, metaInfo));
+                    result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"DTO", items, metaInfo));
 
 
                     if(isPagable) {
@@ -108,7 +186,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
                     entityMap.put(PROPERTY_META, newLineData);
                     metaInfo = parseMetaInfoObject(entityMap);
-                    result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"SrchDTO", null, metaInfo));
+                    result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"SrchDTO", items, metaInfo));
 
                     return result;
                 }

@@ -11,6 +11,7 @@ import io.elasticore.base.model.enums.EnumModels;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.elasticore.base.model.loader.javasrc.JavaSrcFileMainModelLoader;
 import io.elasticore.base.model.loader.module.*;
 import io.elasticore.base.model.loader.px.PxFileMainModelLoader;
 import io.elasticore.base.model.repo.Repository;
@@ -169,10 +170,23 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
 
     private MainModelLoader getMainModelLoader(ModelLoaderContext context, String baseFilePath) {
         String mode = context.getConfig("mode", "jpa");
-        if("px".equals(mode)) {
+        String[] modes = mode.split(",");
+        if(containsMode(modes,"px")) {
             return new PxFileMainModelLoader(baseFilePath);
+        }
+        else if(containsMode(modes,"java")) {
+            return new JavaSrcFileMainModelLoader(baseFilePath);
         }
         return new YamlFileMainModelLoader(baseFilePath);
     }
 
+
+    private boolean containsMode(String[] modes, String targetMode) {
+        for (String m : modes) {
+            if (m.trim().equals(targetMode)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

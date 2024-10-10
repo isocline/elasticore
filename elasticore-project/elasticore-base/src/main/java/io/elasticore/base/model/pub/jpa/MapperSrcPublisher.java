@@ -10,6 +10,7 @@ import io.elasticore.base.model.core.AbstractDataModel;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
@@ -134,8 +135,14 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         for (Field f : listMap.getList()) {
             //if (!f.hasAnnotation(EntityAnnotation.SEARCH)) continue;
 
+            if(!f.hasAnnotation(EntityAnnotation.SEARCH))
+                continue;
+
             String condition = f.getAnnotationValue(EntityAnnotation.SEARCH); // =, eq, like, between, !=, neq
-            if(condition==null) continue;
+            if(condition==null) {
+                //continue;
+                condition = "auto";
+            }
 
             String type = f.getTypeInfo().getDefaultTypeName();
             String fieldNm = f.getName();
@@ -197,8 +204,13 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 cb.block();
             }
 
-
-            if ("like".equals(condition) || "%%".equals(condition)) {
+            if("auto".equals(condition)) {
+                cb.line("if(%s.startsWith(\"%%\") || %s.endsWith(\"%%\"))",fieldNm,fieldNm);
+                cb.line("  sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s));", quoteString(entityFieldNm) ,childFieldName, fieldNm);
+                cb.line("else");
+                cb.line("  sp = sp.and((r,q,c) -> c.equal(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+            }
+            else if ("like".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s +%s+ %s));", quoteString(entityFieldNm) ,childFieldName, percent, fieldNm, percent);
             } else if (condition.startsWith("%")) {
@@ -498,7 +510,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         List<Field> list = toListMap.getList();
 
         for (Field f : list) {
-            if (f.hasAnnotation("disable")) continue;
+            if (f.hasAnnotation(EntityAnnotation.META_DISABLE)) continue;
 
             if (isEntityReturnType(f, model)) continue;
 
@@ -513,7 +525,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             if (!makeModelRefMappingCode(f, fromModel, cb ,true)) {
                 if (fromField == null) continue;
-                if (fromField.hasAnnotation("disable")) continue;
+                if (fromField.hasAnnotation(DataTransferAnnotation.META_DISABLE)) continue;
 
                 if("toDTO".equals(toMethodName))
                     if (fromField.hasAnnotation("password")) continue;

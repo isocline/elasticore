@@ -151,7 +151,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         //root.get("comSeq")
         for(Field f:listMap.getList()) {
-            if(f.hasAnnotation("disable"))
+            if(f.hasAnnotation(EntityAnnotation.META_DISABLE))
                 continue;
             String coreItemType = f.getTypeInfo().getCoreItemType();
             if(this.findEntity(coreItemType)!=null) continue;

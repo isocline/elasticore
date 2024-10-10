@@ -4,6 +4,7 @@ import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.util.ConsoleLog;
@@ -49,10 +50,21 @@ public class AbstractModelLoader implements ConstanParam {
      * @return Items containing Field objects parsed from the input map.
      */
     protected Items<Field> parseField(Map<String, String> fieldInfo, String entityName) {
+        return parseField(fieldInfo, entityName, null);
+    }
+    /**
+     * Parses field information from a map where the key is the field name and the value is the field's properties.
+     *
+     * @param fieldInfo Map containing field names as keys and field properties as values.
+     * @param entityName String
+     * @param metaInfo MetaInfo
+     * @return Items containing Field objects parsed from the input map.
+     */
+    protected Items<Field> parseField(Map<String, String> fieldInfo, String entityName, MetaInfo metaInfo) {
         Items<Field> items = Items.create(Field.class);
 
         fieldInfo.forEach((fieldNm, fieldPropery) -> {
-            Field f = parseFieldLine(fieldNm, fieldPropery);
+            Field f = parseFieldLine(fieldNm, fieldPropery ,metaInfo);
 
             if(entityName!= null && !isValidFieldName(f.getName())) {
                 ConsoleLog.storeLog("FIELD_NM_ERR" , entityName+"."+fieldNm);
@@ -287,6 +299,18 @@ public class AbstractModelLoader implements ConstanParam {
      * @return A Field object populated with the parsed information.
      */
     protected Field parseFieldLine(String fieldNm, String fieldLine) {
+        return parseFieldLine(fieldNm, fieldLine, null);
+    }
+
+    /**
+     * Parses a single field line to extract field information and annotations.
+     *
+     * @param fieldNm The name of the field.
+     * @param fieldLine The string representation of the field and its annotations.
+     * @param metaInfo MetaInfo
+     * @return A Field object populated with the parsed information.
+     */
+    protected Field parseFieldLine(String fieldNm, String fieldLine ,MetaInfo metaInfo) {
         if("--".equals(fieldLine)) {
             fieldLine = "undefined @disable";
         }
@@ -337,6 +361,17 @@ public class AbstractModelLoader implements ConstanParam {
 
 
         Map<String, Annotation> annotationMap = loadAnnotationMap(fieldLine);
+
+        // Automatically adds the "search" annotation if the "dto" annotation is defined in the entity
+        if(metaInfo!=null && metaInfo.hasMetaAnnotation(EntityAnnotation.META_DTO)) {
+            if( !annotationMap.containsKey("s") && !annotationMap.containsKey("searchable")) {
+                if("string".equals(type.toLowerCase())) {
+                    annotationMap.put("searchable", Annotation.create("searchable"));
+                }else {
+                    annotationMap.put("searchable", Annotation.create("searchable", "eq"));
+                }
+            }
+        }
 
         return Field.builder().name(fieldNm)
                 .type(type)

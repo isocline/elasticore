@@ -29,6 +29,11 @@ public class DataTransfer extends AbstractDataModel implements MetaInfoModel,Dat
         this.setRelationModel();
     }
 
+    public void addField(Field field) {
+        this.orgItems.addItem(field);
+
+    }
+
     public static DataTransfer create(String domainId, String name, Items<Field> items, MetaInfo metaInfo) {
         BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.DTO, domainId, name);
         return new DataTransfer(identity, items, metaInfo);

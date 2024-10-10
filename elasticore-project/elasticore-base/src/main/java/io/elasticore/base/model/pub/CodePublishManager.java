@@ -5,6 +5,7 @@ import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.exeption.ProcessException;
+import io.elasticore.base.model.pub.dsl.DslCodePublihser;
 import io.elasticore.base.model.pub.jpa.JPACodePublisher;
 import io.elasticore.base.model.pub.mermaid.MermaidCodePublisher;
 import io.elasticore.base.model.pub.mongodb.MongoDbCodePublisher;
@@ -93,7 +94,9 @@ public class CodePublishManager {
             else if("uml".equals(eachMode)) {
                 codePublisher = MermaidCodePublisher.newInstance();
             }
-
+            else if("dsl".equals(eachMode)) {
+                codePublisher = new DslCodePublihser();
+            }
             if(codePublisher!=null) {
                 codePublisher.setSrcCodeWriterFactory(this.sourceFileAccessFactory);
 

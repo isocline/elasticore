@@ -1,18 +1,23 @@
 package ${packageName};
 
 import org.springframework.data.domain.Sort;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 
 public interface SortableObject {
 
+    @Schema(description = "Field used to specify the sorting criteria. Use '+' for ascending and '-' for descending. Multiple fields can be specified, separated by commas.",
+            example = "name+,age-")
     String getSortCode();
 
+    @Schema(hidden = true)
     String getSortColumn();
 
+    @Schema(hidden = true)
     Boolean getSortAscending();
 
+    @Schema(hidden = true)
     default Sort getSort() {
         String sortTxt = getSortCode();
 
