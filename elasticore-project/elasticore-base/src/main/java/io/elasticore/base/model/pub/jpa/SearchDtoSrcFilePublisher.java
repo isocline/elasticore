@@ -225,6 +225,10 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
                 continue;
 
+
+            if(f.hasAnnotation(DataTransferAnnotation.META_SEARCHABLE_BYPASS))
+                continue;
+
             boolean isForceDefineField = false;
             if(dataTransfer!=null && dataTransfer.findFieldName(f.getName())!=null) {
                 isForceDefineField = true;

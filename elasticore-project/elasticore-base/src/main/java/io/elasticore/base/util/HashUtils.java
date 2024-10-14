@@ -11,8 +11,8 @@ import java.util.Scanner;
 
 public class HashUtils {
 
-    private static final String STX = "// !--------------------------";
-    private static final String ETX = "------------------------------!";
+    private static final String STX = "// !----------";
+    private static final String ETX = "------------!";
 
     private static final boolean SKIP_BLANK_LINE = true;
 

@@ -1,4 +1,4 @@
-//ecd:-1595362343H20241014191354_V1.0
+//ecd:1931857130H20241014191354_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
@@ -25,16 +25,10 @@ import java.time.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class ResidualMobillugSrchDTO  implements java.io.Serializable, SortableObject  {
+public  class PersonSrchDTO  implements java.io.Serializable, SortableObject  {
 
-	@Schema(description = "period36"  )
-	private Float period36;
-	
-	@Schema(description = "period48"  )
-	private Float period48;
-	
-	@Schema(description = "period60"  )
-	private Float period60;
+	@Schema(description = "age"  )
+	private Integer age;
 	
 	
 	private String sortCode;

@@ -524,17 +524,32 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             String fldNm = StringUtils.capitalize(fieldName);
 
             if (!makeModelRefMappingCode(f, fromModel, cb ,true)) {
+                String prefix = "";
+                String postfix = "";
+                if(!f.getTypeInfo().isBaseType()) {
+
+                    if( !this.isExist(this.publisher.getECoreModelContext().getDomain().getModel(), f.getTypeInfo().getDefaultTypeName()))
+                        continue;
+
+                    prefix = "toDTO(";
+                    postfix = ")";
+                }
+
+
                 if (fromField == null) continue;
                 if (fromField.hasAnnotation(DataTransferAnnotation.META_DISABLE)) continue;
 
                 if("toDTO".equals(toMethodName))
                     if (fromField.hasAnnotation("password")) continue;
 
+
+
+
                 if(fromField.hasAnnotation("forceupdate")) {
-                    cb.line("to.set%s(from.get%s());", fldNm, fldNm);
+                    cb.line("to.set%s(%sfrom.get%s()%s);", fldNm,prefix, fldNm ,postfix);
                 }else {
                     cb.line("if(!isSkipNull || hasValue(from.get%s()))", fldNm);
-                    cb.line("    to.set%s(from.get%s());", fldNm, fldNm);
+                    cb.line("    to.set%s(%sfrom.get%s()%s);", fldNm, prefix, fldNm ,postfix);
                 }
 
 

@@ -1,4 +1,4 @@
-//ecd:-2070007194H20241010182122_V1.0
+//ecd:1907264658H20241014191354_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -28,6 +28,8 @@ public class Rollup2RepositoryHelper {
     private final EntityManager entityManager;
 
     private final BaseResidualInfoRepository baseResidualInfo;
+    
+    private final ExtPersonRepository extPerson;
     
 
 

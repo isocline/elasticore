@@ -59,12 +59,23 @@ classDiagram
         division: String //잔가구분
     }
     AuditEntity <|-- BaseResidualInfo : extend
+    class Person{
+        age: Integer 
+    }
+    class ExtPerson{
+        id: String 
+        person: Person 
+        name: String 
+    }
+    ExtPerson --* Person : person(embedded)
     class ResidualMobillug{
         period36: Float 
         period48: Float 
         period60: Float 
+        person: Person 
     }
     BaseResidualInfo <|-- ResidualMobillug : rollup
+    ResidualMobillug --o "0..1" Person : person
 
     </div>
 </body>

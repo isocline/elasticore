@@ -470,5 +470,19 @@ public class SrcFilePublisher {
     }
 
 
+    protected boolean isExist(ECoreModel eCoreModel, String typeName) {
+        boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
+        if(isEntity)
+            return true;
+        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        if(isDTO)
+            return true;
+        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
+        if(isEnum)
+            return true;
+
+        return false;
+    }
+
 
 }

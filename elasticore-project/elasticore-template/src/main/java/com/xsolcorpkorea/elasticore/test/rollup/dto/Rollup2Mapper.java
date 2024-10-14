@@ -1,4 +1,4 @@
-//ecd:1236168535H20241010182122_V1.0
+//ecd:1973876158H20241014192242_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -42,6 +42,49 @@ public class Rollup2Mapper {
         }
     }
 
+    
+    public static void mapping(ExtPerson from, ExtPersonDTO to, boolean isSkipNull){
+        checkPermission(from, to);
+        if(from ==null || to ==null) return;
+        if(!isSkipNull || hasValue(from.getId()))
+            to.setId(from.getId());
+        if(!isSkipNull || hasValue(from.getName()))
+            to.setName(from.getName());
+    }
+    
+    
+    public static void mapping(ExtPerson from, ExtPersonDTO to){
+        mapping(from,to,false);
+    }
+    
+    
+    public static ExtPersonDTO toDTO(ExtPerson from){
+        if(from==null) return null;
+        ExtPersonDTO to = new ExtPersonDTO();
+        mapping(from, to);
+        return to;
+    }
+    
+    
+    public static List<ExtPersonDTO> toExtPersonDTOList(List<ExtPerson> fromList){
+        if(fromList==null) return null;
+        return fromList.stream().map(Rollup2Mapper::toDTO).collect(Collectors.toList());
+    }
+    
+    
+    public static List<ExtPersonDTO> toExtPersonDTOList(List<ExtPerson> fromList, BiFunction<ExtPerson, ExtPersonDTO, ExtPersonDTO> modifier){
+        if(fromList==null) return null;
+        return fromList.stream()
+            .map(from -> {
+                ExtPersonDTO to = toDTO(from);
+                return modifier.apply(from, to);
+            }
+            )
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+    }
+    
     
     public static void mapping(ResidualMobillug from, ResidualMobillugDTO to, boolean isSkipNull){
         checkPermission(from, to);
@@ -93,6 +136,49 @@ public class Rollup2Mapper {
         return fromList.stream()
             .map(from -> {
                 ResidualMobillugDTO to = toDTO(from);
+                return modifier.apply(from, to);
+            }
+            )
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+    }
+    
+    
+    public static void mapping(ExtPersonDTO from, ExtPerson to, boolean isSkipNull){
+        checkPermission(from, to);
+        if(from ==null || to ==null) return;
+        if(!isSkipNull || hasValue(from.getId()))
+            to.setId(from.getId());
+        if(!isSkipNull || hasValue(from.getName()))
+            to.setName(from.getName());
+    }
+    
+    
+    public static void mapping(ExtPersonDTO from, ExtPerson to){
+        mapping(from,to,false);
+    }
+    
+    
+    public static ExtPerson toEntity(ExtPersonDTO from){
+        if(from==null) return null;
+        ExtPerson to = new ExtPerson();
+        mapping(from, to);
+        return to;
+    }
+    
+    
+    public static List<ExtPerson> toExtPersonList(List<ExtPersonDTO> fromList){
+        if(fromList==null) return null;
+        return fromList.stream().map(Rollup2Mapper::toEntity).collect(Collectors.toList());
+    }
+    
+    
+    public static List<ExtPerson> toExtPersonList(List<ExtPersonDTO> fromList, BiFunction<ExtPersonDTO, ExtPerson, ExtPerson> modifier){
+        if(fromList==null) return null;
+        return fromList.stream()
+            .map(from -> {
+                ExtPerson to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )
@@ -158,6 +244,30 @@ public class Rollup2Mapper {
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
         
+    }
+    
+    
+    public static Specification<ExtPerson> toSpec(ExtPersonSrchDTO searchDTO){
+        return toSpec(searchDTO, Specification.where(null));
+    }
+    
+    
+    public static Specification<ExtPerson> toSpec(ExtPersonSrchDTO searchDTO, Specification<ExtPerson> sp){
+        String id = searchDTO.getId();
+        if(hasValue(id)){
+            if(id.startsWith("%") || id.endsWith("%"))
+              sp = sp.and((r,q,c) -> c.like(r.get("id"),id));
+            else
+              sp = sp.and((r,q,c) -> c.equal(r.get("id"),id));
+        }
+        String name = searchDTO.getName();
+        if(hasValue(name)){
+            if(name.startsWith("%") || name.endsWith("%"))
+              sp = sp.and((r,q,c) -> c.like(r.get("name"),name));
+            else
+              sp = sp.and((r,q,c) -> c.equal(r.get("name"),name));
+        }
+        return sp;
     }
     
     

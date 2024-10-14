@@ -1,4 +1,4 @@
-//ecd:-1170443023H20241014191354_V1.0
+//ecd:-443070485H20241014191354_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.service;
 
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
@@ -24,47 +24,47 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ResidualMobillugCoreService {
+public class ExtPersonCoreService {
 
     protected final Rollup2RepositoryHelper helper;
 
 
     /**
-     * Retrieves all tBaseResidualInfo entities, converts them to ResidualMobillugDTO objects, and returns them as a list.
+     * Retrieves all tExtPerson entities, converts them to ExtPersonDTO objects, and returns them as a list.
      *
-     * @return a list of ResidualMobillugDTO objects
+     * @return a list of ExtPersonDTO objects
      */
-    public List<ResidualMobillugDTO> findAll() {
-        return helper.getBaseResidualInfo().findAll().stream()
-                 .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
+    public List<ExtPersonDTO> findAll() {
+        return helper.getExtPerson().findAll().stream()
+                 
                 .map(Rollup2Mapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Deletes BaseResidualInfo entities that match the given search criteria.
+     * Deletes ExtPerson entities that match the given search criteria.
      *
      * @param searchDTO the search criteria
      * @return the number of entities deleted
      */
     @javax.transaction.Transactional
-    public long delete(ResidualMobillugSrchDTO searchDTO) {
-            Specification<BaseResidualInfo> specification = Rollup2Mapper.toSpec(searchDTO);
-            return helper.getBaseResidualInfo().delete(specification);
+    public long delete(ExtPersonSrchDTO searchDTO) {
+            Specification<ExtPerson> specification = Rollup2Mapper.toSpec(searchDTO);
+            return helper.getExtPerson().delete(specification);
     }
 
     @Transactional
-    public List<ResidualMobillugDTO> findBySearch(ResidualMobillugSrchDTO searchDTO) {
-        Specification<BaseResidualInfo> specification = Rollup2Mapper.toSpec(searchDTO);
+    public List<ExtPersonDTO> findBySearch(ExtPersonSrchDTO searchDTO) {
+        Specification<ExtPerson> specification = Rollup2Mapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
-            return helper.getBaseResidualInfo().findAll(specification).stream()
-                        .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
+            return helper.getExtPerson().findAll(specification).stream()
+                        
                         .map(Rollup2Mapper::toDTO)
                         .collect(Collectors.toList());
         }
-        return helper.getBaseResidualInfo().findAll(specification, sort).stream()
-                .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
+        return helper.getExtPerson().findAll(specification, sort).stream()
+                
                 .map(Rollup2Mapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -72,80 +72,80 @@ public class ResidualMobillugCoreService {
 
 
     /**
-     * Finds a BaseResidualInfo entity by its ID and converts it to a ResidualMobillugDTO.
+     * Finds a ExtPerson entity by its ID and converts it to a ExtPersonDTO.
      *
      * @param id the ID of the FaxResult entity
-     * @return an Optional containing the ResidualMobillugDTO if found, or an empty Optional if not found
+     * @return an Optional containing the ExtPersonDTO if found, or an empty Optional if not found
      */
     @Transactional
-    public Optional<ResidualMobillugDTO> findById(String id) {
-        return helper.getBaseResidualInfo().findById(id).filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo).map(Rollup2Mapper::toDTO);
+    public Optional<ExtPersonDTO> findById(String id) {
+        return helper.getExtPerson().findById(id).map(Rollup2Mapper::toDTO);
     }
 
 
     /**
-     * Saves a new BaseResidualInfo entity based on the given DTO and returns the saved entity as a DTO.
+     * Saves a new ExtPerson entity based on the given DTO and returns the saved entity as a DTO.
      *
-     * @param dto the ResidualMobillugDTO to save
-     * @return the saved ResidualMobillugDTO
+     * @param dto the ExtPersonDTO to save
+     * @return the saved ExtPersonDTO
      */
-    public ResidualMobillugDTO save(ResidualMobillugDTO dto) {
-        ResidualMobillug entity = Rollup2Mapper.toEntity(dto);
+    public ExtPersonDTO save(ExtPersonDTO dto) {
+        ExtPerson entity = Rollup2Mapper.toEntity(dto);
         
     
 
-        ResidualMobillug result = helper.getBaseResidualInfo().save(entity);
+        ExtPerson result = helper.getExtPerson().save(entity);
         return Rollup2Mapper.toDTO(result);
     }
 
 
     /**
-     * Updates an existing BaseResidualInfo entity based on the given DTO and returns the updated entity as a DTO.
+     * Updates an existing ExtPerson entity based on the given DTO and returns the updated entity as a DTO.
      *
-     * @param dto the ResidualMobillugDTO with updated information
-     * @return the updated ResidualMobillugDTO
+     * @param dto the ExtPersonDTO with updated information
+     * @return the updated ExtPersonDTO
      */
-    public ResidualMobillugDTO update(ResidualMobillugDTO dto) {
-        ResidualMobillug entity = (ResidualMobillug)helper.getBaseResidualInfo().findById(dto.getId()).orElse(null);
+    public ExtPersonDTO update(ExtPersonDTO dto) {
+        ExtPerson entity = helper.getExtPerson().findById(dto.getId()).orElse(null);
         if(entity==null)
-          throw new IllegalArgumentException("Invalid ResidualMobillugDTO ID");
+          throw new IllegalArgumentException("Invalid ExtPersonDTO ID");
         Rollup2Mapper.mapping(dto, entity, true);
         
     
 
 
-        ResidualMobillug result = (ResidualMobillug)helper.getBaseResidualInfo().save(entity);
+        ExtPerson result = helper.getExtPerson().save(entity);
         return Rollup2Mapper.toDTO(result);
     }
 
 
     /**
-     * Deletes a BaseResidualInfo entity by its ID.
+     * Deletes a ExtPerson entity by its ID.
      *
-     * @param id the ID of the BaseResidualInfo entity to delete
+     * @param id the ID of the ExtPerson entity to delete
      */
     public void deleteById(String id) {
-        helper.getBaseResidualInfo().deleteById(id);
+        helper.getExtPerson().deleteById(id);
     }
 
 
 
 
     /**
-     * Finds the greatest string value of the specified field in BaseResidualInfo entities
+     * Finds the greatest string value of the specified field in ExtPerson entities
      * that match the given search criteria.
      *
      * @param dto        the search criteria
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(ResidualMobillugSrchDTO dto, String fieldName) {
+    public String findGreatest(ExtPersonSrchDTO dto, String fieldName) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
-        Root<BaseResidualInfo> root = cq.from(BaseResidualInfo.class);
+        Root<ExtPerson> root = cq.from(ExtPerson.class);
 
-        Specification<BaseResidualInfo> spec = Rollup2Mapper.toSpec(dto);
+        Specification<ExtPerson> spec = Rollup2Mapper.toSpec(dto);
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);
 
@@ -170,8 +170,8 @@ public class ResidualMobillugCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,ResidualMobillugSrchDTO dto) {
-        Specification<BaseResidualInfo> spec = Rollup2Mapper.toSpec(dto);
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,ExtPersonSrchDTO dto) {
+        Specification<ExtPerson> spec = Rollup2Mapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }
 
@@ -188,11 +188,11 @@ public class ResidualMobillugCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<BaseResidualInfo> spec ) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<ExtPerson> spec ) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(typeClass);
-        Root<BaseResidualInfo> root = cq.from(BaseResidualInfo.class);
+        Root<ExtPerson> root = cq.from(ExtPerson.class);
 
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);

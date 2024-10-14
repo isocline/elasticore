@@ -16,9 +16,22 @@ entity:
       type: string @discriminator('BASE') -- rollup 대응 discriminator 타입정보
       division: string(4) -- 잔가구분
 
+  Person:
+    meta: entity  @embeddable
+    fields:
+      age: int
+
+  ExtPerson:
+    meta: entity @dto
+    fields:
+      id: string @id
+      person: Person @embedded
+      name: string
+
   ResidualMobillug:
     meta: entity @rollup(entity=BaseResidualInfo,type=MBLG) @dto -- 모빌러그 잔가
     fields:
       period36: float
       period48: float
       period60: float
+      person: Person

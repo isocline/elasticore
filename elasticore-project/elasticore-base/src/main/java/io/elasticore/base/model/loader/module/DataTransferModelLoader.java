@@ -55,6 +55,22 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                         Entity entity = ctx.getEntityItems().findByName(typeName);
 
                         if(entity !=null) {
+
+                            Annotation att = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE_BYPASS );
+                            Map<String,Annotation> antMp = new HashMap<>();
+                            antMp.put(att.getName(), att);
+
+                            if(!dto.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) {
+                                Field dtoField = Field.builder()
+                                        .name(f.getName())
+                                        .type(typeName+"DTO")
+                                        .annotationMap(antMp)
+                                        .build();
+
+                                dto.addField(dtoField);
+                            }
+
+
                             ModelComponentItems<Field> entityFields = entity.getItems();
                             while (entityFields.hasNext()) {
                                 Field entityField = entityFields.next();
@@ -78,6 +94,9 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                                             .build();
 
                                     dto.addField(newRefField);
+
+
+
                                 }
                             }
                         }
@@ -148,6 +167,12 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                                     Field.builder().name(field.getName()).type(field.getTypeInfo().getDefaultTypeName()).annotationMap(annotationMap).build()
                             );
 
+                            /*
+                            items.addItem(
+                                    Field.builder().name(field.getName()).type(field.getTypeInfo().getDefaultTypeName()+"DTO").build()
+                            );
+
+                             */
 
                         }
 
