@@ -1,4 +1,4 @@
-//ecd:-1753732294H20241014191354_V1.0
+//ecd:780895997H20241028203810_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.entity;
 
 
@@ -12,7 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.util.*;
 import java.time.*;
-
+import javax.persistence.Entity;
 
 
 /**
@@ -20,8 +20,8 @@ import java.time.*;
 
 */
 
+@Entity
 @org.hibernate.annotations.DynamicUpdate
-@Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,8 +29,18 @@ import java.time.*;
 @EntityListeners(AuditingEntityListener.class)
 public  class Person  implements java.io.Serializable  {
 
-	@Column(name = "age")
-	private Integer age;
+	@Id
+	@Column(name = "id")
+	private String id;
+	
+	
+	@Column(name = "name")
+	private String name;
+	
+	
+	@ManyToOne
+	@JoinColumn(columnDefinition = "personGrp_id")
+	private PersonGroup personGrp;
 	
 	
 }

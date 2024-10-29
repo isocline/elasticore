@@ -4,11 +4,10 @@ package io.elasticore.base.model.pub.jpa;
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
-import io.elasticore.base.model.ECoreModel;
-import io.elasticore.base.model.ModelComponent;
-import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.AbstractDataModel;
 import io.elasticore.base.model.core.RelationshipManager;
+import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.BaseFieldType;
 import io.elasticore.base.model.entity.Entity;
@@ -469,6 +468,53 @@ public class SrcFilePublisher {
 
     }
 
+    /**
+     * check entity or dto
+     *
+     * @param eCoreModel
+     * @param typeName
+     * @return
+     */
+    protected boolean isModel(ECoreModel eCoreModel, String typeName) {
+        boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
+        if(isEntity)
+            return true;
+        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        if(isDTO)
+            return true;
+
+
+        return false;
+    }
+
+
+    protected boolean isEntityModel(ECoreModel eCoreModel, String typeName) {
+        boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
+        if(isEntity)
+            return true;
+
+        return false;
+    }
+
+    protected boolean isDTOModel(ECoreModel eCoreModel, String typeName) {
+
+        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        if(isDTO)
+            return true;
+
+
+        return false;
+    }
+
+    protected boolean isEnumModel(ECoreModel eCoreModel, String typeName) {
+
+        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
+        if(isEnum)
+            return true;
+
+        return false;
+    }
+
 
     protected boolean isExist(ECoreModel eCoreModel, String typeName) {
         boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
@@ -477,6 +523,26 @@ public class SrcFilePublisher {
         boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
         if(isDTO)
             return true;
+        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
+        if(isEnum)
+            return true;
+
+        return false;
+    }
+
+    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName) {
+
+        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        if(isDTO) {
+            String type =metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_TYPE);
+            boolean isSearchResult = metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCH_RESULT);
+            if("entity".equals(type) && isSearchResult) {
+                return false;
+            }
+
+
+            return true;
+        }
         boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
         if(isEnum)
             return true;

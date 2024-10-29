@@ -1,4 +1,4 @@
-//ecd:-1870472176H20241014192241_V1.0
+//ecd:-776635676H20241028203810_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
@@ -25,7 +25,7 @@ import java.time.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class ExtPersonDTO  implements java.io.Serializable  {
+public  class PersonGroupDTO  implements java.io.Serializable  {
 
 	@Schema(description = "id"  )
 	private String id;

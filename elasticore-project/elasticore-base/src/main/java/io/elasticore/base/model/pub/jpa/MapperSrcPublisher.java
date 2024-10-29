@@ -138,6 +138,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             if(!f.hasAnnotation(EntityAnnotation.SEARCH))
                 continue;
 
+            if ("entity".equals(searchDto.getMetaInfo().getMetaAnnotationValue("type"))
+                    && f.getTypeInfo().isList())
+                continue;
+
             String condition = f.getAnnotationValue(EntityAnnotation.SEARCH); // =, eq, like, between, !=, neq
             if(condition==null) {
                 //continue;
@@ -198,17 +202,19 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             }
 
-            if (!isJoinWithSingleData && !isBetweenCondition) {
+            boolean isAutoCondition = false;
+
+            if("auto".equals(condition)) {
+                cb.line("sp=setSpec(sp, %s, searchDTO.get%s());", quoteString(entityFieldNm),capFidNm );
+                isAutoCondition = true;
+            }else if (!isJoinWithSingleData && !isBetweenCondition) {
                 cb.line("%s %s = searchDTO.get%s();", type, fieldNm, capFidNm);
                 cb.line("if(hasValue(%s))", fieldNm);
                 cb.block();
             }
 
-            if("auto".equals(condition)) {
-                cb.line("if(%s.startsWith(\"%%\") || %s.endsWith(\"%%\"))",fieldNm,fieldNm);
-                cb.line("  sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s));", quoteString(entityFieldNm) ,childFieldName, fieldNm);
-                cb.line("else");
-                cb.line("  sp = sp.and((r,q,c) -> c.equal(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+            if(isAutoCondition) {
+
             }
             else if ("like".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");
@@ -294,11 +300,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     cb.line("sp = sp.and((r,q,c) -> c.equal(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
                 }
 
-
-
             }
 
-            if (!isBetweenCondition)
+            if (!isBetweenCondition && !isAutoCondition)
                 cb.end();
         }
 
@@ -510,6 +514,25 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         List<Field> list = toListMap.getList();
 
         for (Field f : list) {
+
+            if(f.hasAnnotation(DataTransferAnnotation.META_SEARCHABLE_BYPASS)) {
+                String typeName = f.getTypeInfo().getDefaultTypeName();
+                if(! f.getTypeInfo().isBaseType()) {
+
+                    String checkTypeName = typeName;
+
+                    if(f.getTypeInfo().isList()) {
+                        String coreType = f.getTypeInfo().getCoreItemType();
+                        checkTypeName = coreType;
+                    }
+
+                    if( !this.isEnableInDTO(model, toModel.getMetaInfo(), checkTypeName))
+                        continue;
+
+                }
+            }
+
+
             if (f.hasAnnotation(EntityAnnotation.META_DISABLE)) continue;
 
             if (isEntityReturnType(f, model)) continue;
@@ -518,9 +541,6 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             Field fromField = fromListMap.get(fieldName);
 
-
-
-
             String fldNm = StringUtils.capitalize(fieldName);
 
             if (!makeModelRefMappingCode(f, fromModel, cb ,true)) {
@@ -528,13 +548,20 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 String postfix = "";
                 if(!f.getTypeInfo().isBaseType()) {
 
-                    if( !this.isExist(this.publisher.getECoreModelContext().getDomain().getModel(), f.getTypeInfo().getDefaultTypeName()))
+                    String checkTypeName = f.getTypeInfo().getDefaultTypeName();
+                    if(f.getTypeInfo().isList()) {
+                        checkTypeName = f.getTypeInfo().getCoreItemType();
+                    }
+
+                    if( this.isDTOModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName))
+                    {
+                        prefix = "toDTO(";
+                        postfix = ")";
+                    }
+                    else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {
                         continue;
-
-                    prefix = "toDTO(";
-                    postfix = ")";
+                    }
                 }
-
 
                 if (fromField == null) continue;
                 if (fromField.hasAnnotation(DataTransferAnnotation.META_DISABLE)) continue;
@@ -543,16 +570,12 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     if (fromField.hasAnnotation("password")) continue;
 
 
-
-
                 if(fromField.hasAnnotation("forceupdate")) {
                     cb.line("to.set%s(%sfrom.get%s()%s);", fldNm,prefix, fldNm ,postfix);
                 }else {
                     cb.line("if(!isSkipNull || hasValue(from.get%s()))", fldNm);
                     cb.line("    to.set%s(%sfrom.get%s()%s);", fldNm, prefix, fldNm ,postfix);
                 }
-
-
             }
         }
 

@@ -1,4 +1,4 @@
-//ecd:-443070485H20241014191354_V1.0
+//ecd:-1083606282H20241028203937_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.service;
 
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
@@ -19,133 +19,160 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ExtPersonCoreService {
+public class PersonCoreService {
 
-    protected final Rollup2RepositoryHelper helper;
+    protected final SearchResultRepositoryHelper helper;
 
 
     /**
-     * Retrieves all tExtPerson entities, converts them to ExtPersonDTO objects, and returns them as a list.
+     * Retrieves all tPerson entities, converts them to PersonDTO objects, and returns them as a list.
      *
-     * @return a list of ExtPersonDTO objects
+     * @return a list of PersonDTO objects
      */
-    public List<ExtPersonDTO> findAll() {
-        return helper.getExtPerson().findAll().stream()
+    public List<PersonDTO> findAll() {
+        return helper.getPerson().findAll().stream()
                  
-                .map(Rollup2Mapper::toDTO)
+                .map(SearchResultMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Deletes ExtPerson entities that match the given search criteria.
+     * Deletes Person entities that match the given search criteria.
      *
      * @param searchDTO the search criteria
      * @return the number of entities deleted
      */
     @javax.transaction.Transactional
-    public long delete(ExtPersonSrchDTO searchDTO) {
-            Specification<ExtPerson> specification = Rollup2Mapper.toSpec(searchDTO);
-            return helper.getExtPerson().delete(specification);
+    public long delete(PersonSrchDTO searchDTO) {
+            Specification<Person> specification = SearchResultMapper.toSpec(searchDTO);
+            return helper.getPerson().delete(specification);
     }
 
     @Transactional
-    public List<ExtPersonDTO> findBySearch(ExtPersonSrchDTO searchDTO) {
-        Specification<ExtPerson> specification = Rollup2Mapper.toSpec(searchDTO);
+    public List<PersonResultDTO> findBySearch(PersonSrchDTO searchDTO) {
+        Specification<Person> specification = SearchResultMapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
-            return helper.getExtPerson().findAll(specification).stream()
+            return helper.getPerson().findAll(specification).stream()
                         
-                        .map(Rollup2Mapper::toDTO)
+                        .map(SearchResultMapper::toPersonResultDTO)
                         .collect(Collectors.toList());
         }
-        return helper.getExtPerson().findAll(specification, sort).stream()
+        return helper.getPerson().findAll(specification, sort).stream()
                 
-                .map(Rollup2Mapper::toDTO)
+                .map(SearchResultMapper::toPersonResultDTO)
                 .collect(Collectors.toList());
     }
 
 
 
     /**
-     * Finds a ExtPerson entity by its ID and converts it to a ExtPersonDTO.
+     * Finds a Person entity by its ID and converts it to a PersonDTO.
      *
      * @param id the ID of the FaxResult entity
-     * @return an Optional containing the ExtPersonDTO if found, or an empty Optional if not found
+     * @return an Optional containing the PersonDTO if found, or an empty Optional if not found
      */
     @Transactional
-    public Optional<ExtPersonDTO> findById(String id) {
-        return helper.getExtPerson().findById(id).map(Rollup2Mapper::toDTO);
+    public Optional<PersonDTO> findById(String id) {
+        return helper.getPerson().findById(id).map(SearchResultMapper::toDTO);
     }
 
 
     /**
-     * Saves a new ExtPerson entity based on the given DTO and returns the saved entity as a DTO.
+     * Saves a new Person entity based on the given DTO and returns the saved entity as a DTO.
      *
-     * @param dto the ExtPersonDTO to save
-     * @return the saved ExtPersonDTO
+     * @param dto the PersonDTO to save
+     * @return the saved PersonDTO
      */
-    public ExtPersonDTO save(ExtPersonDTO dto) {
-        ExtPerson entity = Rollup2Mapper.toEntity(dto);
+    public PersonDTO save(PersonDTO dto) {
+        Person entity = SearchResultMapper.toEntity(dto);
         
+        if(dto.getPersonGrpId()!=null){
+            PersonGroup item = helper.getPersonGroup().findById(dto.getPersonGrpId()).orElse(null);
+            if(item!=null) entity.setPersonGrp(item);
+        }
     
 
-        ExtPerson result = helper.getExtPerson().save(entity);
-        return Rollup2Mapper.toDTO(result);
+        Person result = helper.getPerson().save(entity);
+        return SearchResultMapper.toDTO(result);
     }
 
 
     /**
-     * Updates an existing ExtPerson entity based on the given DTO and returns the updated entity as a DTO.
+     * Updates an existing Person entity based on the given DTO and returns the updated entity as a DTO.
      *
-     * @param dto the ExtPersonDTO with updated information
-     * @return the updated ExtPersonDTO
+     * @param dto the PersonDTO with updated information
+     * @return the updated PersonDTO
      */
-    public ExtPersonDTO update(ExtPersonDTO dto) {
-        ExtPerson entity = helper.getExtPerson().findById(dto.getId()).orElse(null);
+    public PersonDTO update(PersonDTO dto) {
+        Person entity = helper.getPerson().findById(dto.getId()).orElse(null);
         if(entity==null)
-          throw new IllegalArgumentException("Invalid ExtPersonDTO ID");
-        Rollup2Mapper.mapping(dto, entity, true);
+          throw new IllegalArgumentException("Invalid PersonDTO ID");
+        SearchResultMapper.mapping(dto, entity, true);
         
+        if(dto.getPersonGrpId()!=null){
+            PersonGroup item = helper.getPersonGroup().findById(dto.getPersonGrpId()).orElse(null);
+            if(item!=null) entity.setPersonGrp(item);
+        }
     
 
 
-        ExtPerson result = helper.getExtPerson().save(entity);
-        return Rollup2Mapper.toDTO(result);
+        Person result = helper.getPerson().save(entity);
+        return SearchResultMapper.toDTO(result);
     }
 
-
     /**
-     * Deletes a ExtPerson entity by its ID.
+     * Deletes a list of Person entities based on the given list of DTOs and returns a list of boolean results
+     * indicating the success or failure of each deletion.
      *
-     * @param id the ID of the ExtPerson entity to delete
+     * @param dtoList the list of Person representing the entities to delete
+     * @return a list of boolean values where each value represents the deletion success (true) or failure (false)
+     *         for the corresponding ContractRelated entity
      */
-    public void deleteById(String id) {
-        helper.getExtPerson().deleteById(id);
+    public List<Boolean> delete(List<PersonDTO> dtoList) {
+        List<Boolean> result = new ArrayList<>();
+        for (PersonDTO dto : dtoList) {
+            result.add(this.deleteById(dto.getId()));
+        }
+        return result;
+    }
+
+
+    /**
+     * Deletes a Person entity by its ID.
+     *
+     * @param id the ID of the Person entity to delete
+     * @return true if the Person entity was successfully deleted, false if it still exists
+     */
+    public boolean deleteById(String id) {
+        helper.getPerson().deleteById(id);
+        return helper.getPerson().existsById(id);
     }
 
 
 
 
     /**
-     * Finds the greatest string value of the specified field in ExtPerson entities
+     * Finds the greatest string value of the specified field in Person entities
      * that match the given search criteria.
      *
      * @param dto        the search criteria
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(ExtPersonSrchDTO dto, String fieldName) {
+    public String findGreatest(PersonSrchDTO dto, String fieldName) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
-        Root<ExtPerson> root = cq.from(ExtPerson.class);
+        Root<Person> root = cq.from(Person.class);
 
-        Specification<ExtPerson> spec = Rollup2Mapper.toSpec(dto);
+        Specification<Person> spec = SearchResultMapper.toSpec(dto);
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);
 
@@ -170,8 +197,8 @@ public class ExtPersonCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,ExtPersonSrchDTO dto) {
-        Specification<ExtPerson> spec = Rollup2Mapper.toSpec(dto);
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,PersonSrchDTO dto) {
+        Specification<Person> spec = SearchResultMapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }
 
@@ -188,11 +215,11 @@ public class ExtPersonCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<ExtPerson> spec ) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<Person> spec ) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(typeClass);
-        Root<ExtPerson> root = cq.from(ExtPerson.class);
+        Root<Person> root = cq.from(Person.class);
 
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);

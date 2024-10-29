@@ -1,4 +1,4 @@
-//ecd:-2022056413H20241014191354_V1.0
+//ecd:-2022056413H20241028203810_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 import org.springframework.data.domain.Sort;

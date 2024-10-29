@@ -53,6 +53,12 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
             isProcess = true;
         }
 
+
+        if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
+            loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_DTO));
+            isProcess = true;
+        }
+
         return isProcess;
     }
 
@@ -100,7 +106,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         methodItems = Items.create(Method.class);
 
         for (Map<String, Object> method : methods) {
-            Method methodInfo = loadMethodInfo(method);
+            Method methodInfo = loadMethodInfo(entityNm,  method);
 
             methodItems.addItem(methodInfo);
         }
@@ -114,7 +120,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
      * @param map
      * @return
      */
-    private Method loadMethodInfo(Map<String, Object> map) {
+    private Method loadMethodInfo(String rootObjName, Map<String, Object> map) {
         MapWrapper mapWrapper = new MapWrapper(map);
         String id = mapWrapper.getString("id");
         String methodName = mapWrapper.getString("name");
@@ -122,6 +128,10 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         boolean pageable = mapWrapper.getBoolean("pageable", false);
         String query = mapWrapper.getString("query");
         String returnType = mapWrapper.getString("return");
+
+        if(returnType==null) {
+            returnType = "List<"+rootObjName+">";
+        }
 
         SqlQueryInfo queryInfo = null;
         if(query !=null && query.length()>0) {

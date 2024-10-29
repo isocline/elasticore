@@ -1,4 +1,4 @@
-//ecd:-1170443023H20241014191354_V1.0
+//ecd:-296294186H20241028203810_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.service;
 
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
@@ -19,133 +19,152 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ResidualMobillugCoreService {
+public class PersonGroupCoreService {
 
-    protected final Rollup2RepositoryHelper helper;
+    protected final SearchResultRepositoryHelper helper;
 
 
     /**
-     * Retrieves all tBaseResidualInfo entities, converts them to ResidualMobillugDTO objects, and returns them as a list.
+     * Retrieves all tPersonGroup entities, converts them to PersonGroupDTO objects, and returns them as a list.
      *
-     * @return a list of ResidualMobillugDTO objects
+     * @return a list of PersonGroupDTO objects
      */
-    public List<ResidualMobillugDTO> findAll() {
-        return helper.getBaseResidualInfo().findAll().stream()
-                 .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
-                .map(Rollup2Mapper::toDTO)
+    public List<PersonGroupDTO> findAll() {
+        return helper.getPersonGroup().findAll().stream()
+                 
+                .map(SearchResultMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Deletes BaseResidualInfo entities that match the given search criteria.
+     * Deletes PersonGroup entities that match the given search criteria.
      *
      * @param searchDTO the search criteria
      * @return the number of entities deleted
      */
     @javax.transaction.Transactional
-    public long delete(ResidualMobillugSrchDTO searchDTO) {
-            Specification<BaseResidualInfo> specification = Rollup2Mapper.toSpec(searchDTO);
-            return helper.getBaseResidualInfo().delete(specification);
+    public long delete(PersonGroupSrchDTO searchDTO) {
+            Specification<PersonGroup> specification = SearchResultMapper.toSpec(searchDTO);
+            return helper.getPersonGroup().delete(specification);
     }
 
     @Transactional
-    public List<ResidualMobillugDTO> findBySearch(ResidualMobillugSrchDTO searchDTO) {
-        Specification<BaseResidualInfo> specification = Rollup2Mapper.toSpec(searchDTO);
+    public List<PersonGroupDTO> findBySearch(PersonGroupSrchDTO searchDTO) {
+        Specification<PersonGroup> specification = SearchResultMapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
-            return helper.getBaseResidualInfo().findAll(specification).stream()
-                        .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
-                        .map(Rollup2Mapper::toDTO)
+            return helper.getPersonGroup().findAll(specification).stream()
+                        
+                        .map(SearchResultMapper::toDTO)
                         .collect(Collectors.toList());
         }
-        return helper.getBaseResidualInfo().findAll(specification, sort).stream()
-                .filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo)
-                .map(Rollup2Mapper::toDTO)
+        return helper.getPersonGroup().findAll(specification, sort).stream()
+                
+                .map(SearchResultMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
 
 
     /**
-     * Finds a BaseResidualInfo entity by its ID and converts it to a ResidualMobillugDTO.
+     * Finds a PersonGroup entity by its ID and converts it to a PersonGroupDTO.
      *
      * @param id the ID of the FaxResult entity
-     * @return an Optional containing the ResidualMobillugDTO if found, or an empty Optional if not found
+     * @return an Optional containing the PersonGroupDTO if found, or an empty Optional if not found
      */
     @Transactional
-    public Optional<ResidualMobillugDTO> findById(String id) {
-        return helper.getBaseResidualInfo().findById(id).filter(baseResidualInfo -> baseResidualInfo instanceof ResidualMobillug).map(baseResidualInfo -> (ResidualMobillug) baseResidualInfo).map(Rollup2Mapper::toDTO);
+    public Optional<PersonGroupDTO> findById(String id) {
+        return helper.getPersonGroup().findById(id).map(SearchResultMapper::toDTO);
     }
 
 
     /**
-     * Saves a new BaseResidualInfo entity based on the given DTO and returns the saved entity as a DTO.
+     * Saves a new PersonGroup entity based on the given DTO and returns the saved entity as a DTO.
      *
-     * @param dto the ResidualMobillugDTO to save
-     * @return the saved ResidualMobillugDTO
+     * @param dto the PersonGroupDTO to save
+     * @return the saved PersonGroupDTO
      */
-    public ResidualMobillugDTO save(ResidualMobillugDTO dto) {
-        ResidualMobillug entity = Rollup2Mapper.toEntity(dto);
+    public PersonGroupDTO save(PersonGroupDTO dto) {
+        PersonGroup entity = SearchResultMapper.toEntity(dto);
         
     
 
-        ResidualMobillug result = helper.getBaseResidualInfo().save(entity);
-        return Rollup2Mapper.toDTO(result);
+        PersonGroup result = helper.getPersonGroup().save(entity);
+        return SearchResultMapper.toDTO(result);
     }
 
 
     /**
-     * Updates an existing BaseResidualInfo entity based on the given DTO and returns the updated entity as a DTO.
+     * Updates an existing PersonGroup entity based on the given DTO and returns the updated entity as a DTO.
      *
-     * @param dto the ResidualMobillugDTO with updated information
-     * @return the updated ResidualMobillugDTO
+     * @param dto the PersonGroupDTO with updated information
+     * @return the updated PersonGroupDTO
      */
-    public ResidualMobillugDTO update(ResidualMobillugDTO dto) {
-        ResidualMobillug entity = (ResidualMobillug)helper.getBaseResidualInfo().findById(dto.getId()).orElse(null);
+    public PersonGroupDTO update(PersonGroupDTO dto) {
+        PersonGroup entity = helper.getPersonGroup().findById(dto.getId()).orElse(null);
         if(entity==null)
-          throw new IllegalArgumentException("Invalid ResidualMobillugDTO ID");
-        Rollup2Mapper.mapping(dto, entity, true);
+          throw new IllegalArgumentException("Invalid PersonGroupDTO ID");
+        SearchResultMapper.mapping(dto, entity, true);
         
     
 
 
-        ResidualMobillug result = (ResidualMobillug)helper.getBaseResidualInfo().save(entity);
-        return Rollup2Mapper.toDTO(result);
+        PersonGroup result = helper.getPersonGroup().save(entity);
+        return SearchResultMapper.toDTO(result);
     }
 
-
     /**
-     * Deletes a BaseResidualInfo entity by its ID.
+     * Deletes a list of PersonGroup entities based on the given list of DTOs and returns a list of boolean results
+     * indicating the success or failure of each deletion.
      *
-     * @param id the ID of the BaseResidualInfo entity to delete
+     * @param dtoList the list of PersonGroup representing the entities to delete
+     * @return a list of boolean values where each value represents the deletion success (true) or failure (false)
+     *         for the corresponding ContractRelated entity
      */
-    public void deleteById(String id) {
-        helper.getBaseResidualInfo().deleteById(id);
+    public List<Boolean> delete(List<PersonGroupDTO> dtoList) {
+        List<Boolean> result = new ArrayList<>();
+        for (PersonGroupDTO dto : dtoList) {
+            result.add(this.deleteById(dto.getId()));
+        }
+        return result;
+    }
+
+
+    /**
+     * Deletes a PersonGroup entity by its ID.
+     *
+     * @param id the ID of the PersonGroup entity to delete
+     * @return true if the PersonGroup entity was successfully deleted, false if it still exists
+     */
+    public boolean deleteById(String id) {
+        helper.getPersonGroup().deleteById(id);
+        return helper.getPersonGroup().existsById(id);
     }
 
 
 
 
     /**
-     * Finds the greatest string value of the specified field in BaseResidualInfo entities
+     * Finds the greatest string value of the specified field in PersonGroup entities
      * that match the given search criteria.
      *
      * @param dto        the search criteria
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(ResidualMobillugSrchDTO dto, String fieldName) {
+    public String findGreatest(PersonGroupSrchDTO dto, String fieldName) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
-        Root<BaseResidualInfo> root = cq.from(BaseResidualInfo.class);
+        Root<PersonGroup> root = cq.from(PersonGroup.class);
 
-        Specification<BaseResidualInfo> spec = Rollup2Mapper.toSpec(dto);
+        Specification<PersonGroup> spec = SearchResultMapper.toSpec(dto);
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);
 
@@ -170,8 +189,8 @@ public class ResidualMobillugCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,ResidualMobillugSrchDTO dto) {
-        Specification<BaseResidualInfo> spec = Rollup2Mapper.toSpec(dto);
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,PersonGroupSrchDTO dto) {
+        Specification<PersonGroup> spec = SearchResultMapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }
 
@@ -188,11 +207,11 @@ public class ResidualMobillugCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<BaseResidualInfo> spec ) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<PersonGroup> spec ) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(typeClass);
-        Root<BaseResidualInfo> root = cq.from(BaseResidualInfo.class);
+        Root<PersonGroup> root = cq.from(PersonGroup.class);
 
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);

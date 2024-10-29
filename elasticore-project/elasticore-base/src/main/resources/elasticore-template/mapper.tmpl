@@ -43,6 +43,15 @@ public class ${className} {
 
     ${methodList}
 
+    protected static Specification setSpec(Specification sp, String fieldName, String value) {
+        if(hasValue(value)){
+            if(value.startsWith("%") || value.endsWith("%"))
+                return sp.and((r,q,c) -> c.like(r.get(fieldName),value));
+            else
+                return sp.and((r,q,c) -> c.equal(r.get(fieldName),value));
+        }
+        return sp;
+    }
 
     private static boolean hasValue(String val) {
         if(val != null && !val.isEmpty())

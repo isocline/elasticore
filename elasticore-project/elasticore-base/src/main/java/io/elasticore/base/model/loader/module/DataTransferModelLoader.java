@@ -10,6 +10,7 @@ import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.entity.TypeInfo;
 import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
@@ -150,22 +151,34 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
             if( metaInfo.hasMetaAnnotation(EntityAnnotation.META_DTO)) {
 
                 Items<Field> items = Items.create(Field.class);
+
                 // for fields
                 if(fieldItems!=null) {
                     List<Field> itemList = fieldItems.getItemList();
                     for(Field field : itemList) {
 
+                        TypeInfo fieldTypeInfo = field.getTypeInfo();
 
+                        if(!fieldTypeInfo.isBaseType()) {
 
-                        if(!field.getTypeInfo().isBaseType()) {
+                            boolean isProcess = true;
 
-                            Annotation annotation = Annotation.create(EntityAnnotation.META_DEFERRED);
-                            Map<String, Annotation> annotationMap = new HashMap<>();
-                            annotationMap.put(annotation.getName(), annotation);
+                            if(!fieldTypeInfo.isList()) {
+                                if(ctx.getEnumModelItems().findByName(fieldTypeInfo.getInitTypeInfo())!=null) {
+                                    isProcess = false;
+                                }
+                            }else {
+                                isProcess = false;
+                            }
 
-                            items.addItem(
-                                    Field.builder().name(field.getName()).type(field.getTypeInfo().getDefaultTypeName()).annotationMap(annotationMap).build()
-                            );
+                            if(isProcess) {
+                                Annotation annotation = Annotation.create(EntityAnnotation.META_DEFERRED);
+                                Map<String, Annotation> annotationMap = new HashMap<>();
+                                annotationMap.put(annotation.getName(), annotation);
+
+                                items.addItem(
+                                        Field.builder().name(field.getName()).type(field.getTypeInfo().getDefaultTypeName()).annotationMap(annotationMap).build()
+                                );
 
                             /*
                             items.addItem(
@@ -173,8 +186,28 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                             );
 
                              */
+                            }
+
 
                         }
+
+                    }
+                }
+
+                // for @searchResult
+                if(metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCH_RESULT)) {
+                    Object metaInfoObj = entityMap.get(PROPERTY_META);
+
+                    if(metaInfoObj instanceof String) {
+                        //String lineData = (String) entityMap.get(PROPERTY_META) +" @dto";
+                        String lineData = "entity @dto";
+
+                        String newLineData = lineData +String.format("@searchResult(%s)",entityNm);
+
+
+                        entityMap.put(PROPERTY_META, newLineData);
+                        MetaInfo metaInfo2 = parseMetaInfoObject(entityMap);
+                        result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"ResultDTO", items, metaInfo2));
 
                     }
                 }
@@ -190,7 +223,8 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                 Object metaInfoObj = entityMap.get(PROPERTY_META);
 
                 if(metaInfoObj instanceof String) {
-                    String lineData = (String) entityMap.get(PROPERTY_META) +" @dto";
+                    //String lineData = (String) entityMap.get(PROPERTY_META) +" @dto";
+                    String lineData = "entity @dto";
 
                     String newLineData = lineData +String.format("@template(%s)",entityNm);
 
@@ -222,8 +256,6 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                 return result;
             }
         }
-
-
 
         result.add(DataTransfer.create(ctx.getDomainId(), entityNm, fieldItems, metaInfo));
         return result;

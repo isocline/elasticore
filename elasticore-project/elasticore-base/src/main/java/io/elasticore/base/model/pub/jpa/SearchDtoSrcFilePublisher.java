@@ -229,6 +229,9 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             if(f.hasAnnotation(DataTransferAnnotation.META_SEARCHABLE_BYPASS))
                 continue;
 
+            if(f.getTypeInfo().isList())
+                continue;
+
             boolean isForceDefineField = false;
             if(dataTransfer!=null && dataTransfer.findFieldName(f.getName())!=null) {
                 isForceDefineField = true;
@@ -257,7 +260,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             setNativeAnnotation(f, p);
 
-            String defaultValDefined = getDefaultValueSetup(f);
+            //String defaultValDefined = getDefaultValueSetup(f);
+            String defaultValDefined = "";
 
             // eq,=,%5,in ....etc
             String conditionCode = f.getAnnotationValue(EntityAnnotation.SEARCH);

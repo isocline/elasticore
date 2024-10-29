@@ -240,7 +240,14 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
             if(! f.getTypeInfo().isBaseType()) {
 
-                if( !this.isExist(this.eCoreModel, typeName))
+                String checkTypeName = typeName;
+
+                if(f.getTypeInfo().isList()) {
+                    String coreType = f.getTypeInfo().getCoreItemType();
+                    checkTypeName = coreType;
+                }
+
+                if( !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), checkTypeName))
                     continue;
 
             }

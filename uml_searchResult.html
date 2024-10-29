@@ -46,14 +46,14 @@ init: {
 
 classDiagram
     class Person{
+        id: String 
         name: String 
-        testList: Test[] 
+        personGrp: PersonGroup 
     }
-    Person --o "0..*" Test : testList
-    class Test{
+    Person --o "0..1" PersonGroup : personGrp
+    class PersonGroup{
+        id: String 
         name: String 
-        fuelType: FuelType 
-        fuelTypeList: FuelType[] 
     }
 
     </div>

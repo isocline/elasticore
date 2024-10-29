@@ -1,0 +1,36 @@
+
+entity:
+  Person:
+    meta: entity @dto @searchResult
+    fields:
+      id: string @id
+      name: string
+      personGrp: PersonGroup
+
+  PersonGroup:
+    meta: entity @dto
+    fields:
+      id: string @id
+      name: string
+
+
+
+dto:
+  TestDTO:
+    meta: dto
+    fields:
+      name: string
+
+    methods:
+      - id: test2
+        params:
+          id: string
+        
+
+        pageable: true
+        nativeQuery: true
+        query: |
+          SELECT series_Name
+          FROM series_info lc
+          where lc.id  = :id
+            

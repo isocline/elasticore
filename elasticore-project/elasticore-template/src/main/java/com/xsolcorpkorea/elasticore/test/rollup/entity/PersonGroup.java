@@ -1,4 +1,4 @@
-//ecd:2066681382H20241014191354_V1.0
+//ecd:1536345615H20241028203810_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.entity;
 
 
@@ -22,28 +22,20 @@ import javax.persistence.Entity;
 
 @Entity
 @org.hibernate.annotations.DynamicUpdate
-@DiscriminatorValue("MBLG")
 @Getter
 @Setter
 @NoArgsConstructor
 
 @EntityListeners(AuditingEntityListener.class)
-public  class ResidualMobillug extends BaseResidualInfo implements java.io.Serializable  {
+public  class PersonGroup  implements java.io.Serializable  {
 
-	@Column(name = "period36")
-	private Float period36;
+	@Id
+	@Column(name = "id")
+	private String id;
 	
 	
-	@Column(name = "period48")
-	private Float period48;
-	
-	
-	@Column(name = "period60")
-	private Float period60;
-	
-	
-	@Embedded
-	private Person person;
+	@Column(name = "name")
+	private String name;
 	
 	
 }

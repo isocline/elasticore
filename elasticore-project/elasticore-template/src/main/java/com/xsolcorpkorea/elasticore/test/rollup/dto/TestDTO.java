@@ -1,4 +1,4 @@
-//ecd:345518652H20241014191354_V1.0
+//ecd:1315940122H20241029020416_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
@@ -25,17 +25,10 @@ import java.time.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class ExtPersonSrchDTO  implements java.io.Serializable, SortableObject  {
+public  class TestDTO  implements java.io.Serializable  {
 
-	@Schema(description = "id"  )
-	private String id;
-	
 	@Schema(description = "name"  )
 	private String name;
 	
-	
-	private String sortCode;
 
-    private String sortColumn; // Column to sort by
-    private Boolean sortAscending; // Sort order (true: ascending, false: descending)
 }

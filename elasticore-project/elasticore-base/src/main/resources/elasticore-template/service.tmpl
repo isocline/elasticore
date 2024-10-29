@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -143,14 +144,32 @@ public class ${className} {
         return ${mapperName}.toDTO(result);
     }
 
+    /**
+     * Deletes a list of ${entityClassName} entities based on the given list of DTOs and returns a list of boolean results
+     * indicating the success or failure of each deletion.
+     *
+     * @param dtoList the list of ${entityClassName} representing the entities to delete
+     * @return a list of boolean values where each value represents the deletion success (true) or failure (false)
+     *         for the corresponding ContractRelated entity
+     */
+    public List<Boolean> delete(List<${dtoClassName}> dtoList) {
+        List<Boolean> result = new ArrayList<>();
+        for (${dtoClassName} dto : dtoList) {
+            result.add(this.deleteById(${pkDtoParamInfo}));
+        }
+        return result;
+    }
+
 
     /**
      * Deletes a ${entityClassName} entity by its ID.
      *
      * @param id the ID of the ${entityClassName} entity to delete
+     * @return true if the ${entityClassName} entity was successfully deleted, false if it still exists
      */
-    public void deleteById(${pkDtoDefine}) {
+    public boolean deleteById(${pkDtoDefine}) {
         helper.get${entityClassName}().deleteById(${pkDtoInfo2});
+        return helper.get${entityClassName}().existsById(${pkDtoInfo2});
     }
 
 /*-- print-if:${isCustomPageOutput} isCustomPageOutput--*/

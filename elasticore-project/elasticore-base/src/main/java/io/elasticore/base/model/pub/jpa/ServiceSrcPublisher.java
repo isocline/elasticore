@@ -253,11 +253,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         }
 
         String pkDtoInfo = null;
+        String pkDtoParamInfo = sb.toString();
         String pkDtoInfo2 = null;
         String pkDtoDefine = sb3.toString();
         if(entity.getPkField().isMultiple()) {
 
-            pkDtoInfo = "new "+entity.getPkField().getType()+"("+sb.toString()+")";
+            pkDtoInfo = "new "+entity.getPkField().getType()+"("+pkDtoParamInfo+")";
             pkDtoInfo2 = "new "+entity.getPkField().getType()+"("+sb2.toString()+")";
 
         }else {
@@ -283,6 +284,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("pkName", StringUtils.capitalize(pkName))
 
                 // dto.get${pkName}()
+
+                .set("pkDtoParamInfo", pkDtoParamInfo)
                 .set("pkDtoInfo", pkDtoInfo)
                 .set("pkDtoInfo2", pkDtoInfo2)
                 .set("pkDtoDefine", pkDtoDefine)

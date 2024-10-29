@@ -92,6 +92,10 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         ModelDomain modelDomain =BaseModelDomain.getModelDomain(repo.getIdentity().getDomainId());
 
         Entity entity = modelDomain.getModel().getEntityModels().findByName(targetModelName);
+        if(entity==null)
+            return true;
+
+
         PkField pkField = entity.findPkField(modelDomain);
         if (entity == null
                 //|| entity.getMetaInfo().hasMetaAnnotation("abstract")
@@ -117,17 +121,22 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
             String repoName = repo.getIdentity().getName();
 
             Entity entity = model.getEntityModels().findByName(repoName);
-            if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
-                continue;
+
+            String fieldNm = null;
+            if(entity!=null) {
+                if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
+                    continue;
 
             /*if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT))
                 continue;*/
 
-            String fieldNm = StringUtils.uncapitalize(repoName);
+                fieldNm = StringUtils.uncapitalize(repoName);
 
 
-            fieldP.add("private final %s %s;", repoName + "Repository", fieldNm);
-            fieldP.add("");
+                fieldP.add("private final %s %s;", repoName + "Repository", fieldNm);
+                fieldP.add("");
+            }
+
 
             /*
             public List<ContractGroupDTO2> selectCnctCustList(Integer grpSeq) {
@@ -146,7 +155,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                 Method method = methods.next();
 
                 if (method.getQueryInfo() != null) {
-                    if (method.getQueryInfo().isDynamicQuery()) {
+                    if (method.getQueryInfo().isDynamicQuery() || fieldNm ==null) {
                         makeDynamicQueryMethod(method, methodP);
                     } else if (method.getQueryInfo().isOwnOutputDTO()) {
 
@@ -198,7 +207,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         if (queryInfo == null) return;
         String sqlQuery = queryInfo.getSqlTxt();
 
-        if (sqlQuery == null || sqlQuery.indexOf("/* if:") < 0) return;
+        //if (sqlQuery == null || sqlQuery.indexOf("/* if:") < 0) return;
 
 
         DataTransfer outputDTO = queryInfo.getDataTransfer();
@@ -352,6 +361,12 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
 
     private void makeTransformMethod(Method method, CodeTemplate.Paragraph methodP, String repoName) {
+
+        if(repoName==null)  {
+            repoName = "test";
+        }
+
+
         SqlQueryInfo queryInfo = method.getQueryInfo();
         DataTransfer outputDTO = queryInfo.getDataTransfer();
 

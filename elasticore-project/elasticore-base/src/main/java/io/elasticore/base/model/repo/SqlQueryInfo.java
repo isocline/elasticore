@@ -128,6 +128,9 @@ public class SqlQueryInfo {
             }
         }
 
+        if(this.targetEntity==null)
+            return;
+
         setVarNameList.stream()
                 .forEach(varName -> {
                     //Field f = this.targetEntity.getItems().findByName(varName);

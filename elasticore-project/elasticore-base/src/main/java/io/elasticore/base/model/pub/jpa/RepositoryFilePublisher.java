@@ -58,6 +58,9 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         String targetModelName = repo.getIdentity().getName();
         Entity entity = domain.getModel().getEntityModels().findByName(targetModelName);
 
+        if(entity==null)
+            return;
+
         if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ROLL_UP))
             return;
 

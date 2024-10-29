@@ -1,4 +1,4 @@
-//ecd:-1167229541H20241014191354_V1.0
+//ecd:1488330636H20241028203810_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +20,7 @@ import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
 
  */
 
-public interface BaseResidualInfoRepository extends JpaRepository<BaseResidualInfo,String>, JpaSpecificationExecutor<BaseResidualInfo> {
+public interface PersonRepository extends JpaRepository<Person,String>, JpaSpecificationExecutor<Person> {
 
 
 

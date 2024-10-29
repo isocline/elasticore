@@ -12,6 +12,9 @@ public interface DataTransferAnnotation extends EntityAnnotation {
     String META_SEARCHABLE = "searchable";
 
 
+    String META_SEARCH_RESULT = "searchResult";
+
+
     String META_SEARCHABLE_BYPASS = "searchBypass";
 
 
