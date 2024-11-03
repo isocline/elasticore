@@ -16,6 +16,10 @@ public class RelationshipManager {
         this.relationshipSet = new HashSet<>();
     }
 
+    public static RelationshipManager getInstance() {
+        return null;
+    }
+
     synchronized void reset() {
         this.relationshipList.clear();
         this.relationshipSet.clear();

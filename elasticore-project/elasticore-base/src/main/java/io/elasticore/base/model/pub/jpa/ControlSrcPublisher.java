@@ -11,6 +11,7 @@ import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.Entity;
+import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
@@ -37,11 +38,17 @@ public class ControlSrcPublisher extends SrcFilePublisher {
     private String dtoPackageName;
     private String servicePackageName;
 
+    private boolean isDefaultGen = true;
+
 ;
 
 
     public ControlSrcPublisher(CodePublisher publisher) {
         super(publisher);
+
+        String config = publisher.getECoreModelContext().getDomain().getModel().getConfig("defaultGeneration.api", "true");
+        if("false".equals(config))
+            isDefaultGen = false;
 
         this.model = publisher.getECoreModelContext().getDomain().getModel();
 
@@ -142,6 +149,13 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
 
     public void publish(ModelDomain domain, Entity entity, DataTransfer dto , DataTransfer searchDto) {
+
+        //this.isDefaultGen
+        boolean hasApiAnt = entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_API);
+        String isGen = entity.getMetaInfo().getInfoAnnotationValue(EntityAnnotation.META_API);
+
+        if("false".equals(isGen) || (!hasApiAnt && !this.isDefaultGen))
+            return;
 
         if(entity.getPkField()==null)
             return;

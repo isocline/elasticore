@@ -121,6 +121,19 @@ public class AbstractModelLoader implements ConstanParam {
      * @return A MetaInfo object populated with parsed annotations and other meta-information.
      */
     protected MetaInfo parseMetaInfoObject(Map<String, Object> entityMap) {
+        return parseMetaInfoObject(entityMap, null, null);
+    }
+
+
+    /**
+     * Parses meta-information about an entity from a map representation.
+     *
+     * @param entityMap
+     * @param type
+     * @param mainClassName
+     * @return
+     */
+    protected MetaInfo parseMetaInfoObject(Map<String, Object> entityMap, String type, String mainClassName) {
         if(entityMap ==null)
             entityMap = new HashMap<>();
 
@@ -129,7 +142,15 @@ public class AbstractModelLoader implements ConstanParam {
 
 
         Object metaInfoObj = entityMap.get(PROPERTY_META);
-        Map<String, Annotation> metaAnnotation = getAnnotationObj(metaInfoObj);
+        Map<String, Annotation> metaAnnotation = null;
+        if(metaInfoObj==null) {
+            metaAnnotation = new HashMap<>();
+            if(type!=null)
+                metaAnnotation.put("type", Annotation.create("type",type) );
+        }else{
+            metaAnnotation = getAnnotationObj(metaInfoObj);
+        }
+
 
         return MetaInfo.creat(infoAnnotation, metaAnnotation);
     }

@@ -1,4 +1,4 @@
-//ecd:-296294186H20241028203810_V1.0
+//ecd:1621663592H20241031172111_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.service;
 
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
@@ -42,6 +42,21 @@ public class PersonGroupCoreService {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Retrieves all tPersonGroup entities, converts them to PersonGroupDTO objects, and returns them as a list.
+     *
+     * @param sort the sort information
+     * @return a list of PersonGroupDTO objects
+     */
+    public List<PersonGroupDTO> findAll(Sort sort) {
+        return helper.getPersonGroup().findAll(sort).stream()
+                 
+                .map(SearchResultMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
     /**
      * Deletes PersonGroup entities that match the given search criteria.
      *
@@ -54,23 +69,34 @@ public class PersonGroupCoreService {
             return helper.getPersonGroup().delete(specification);
     }
 
+
+
+
+    /**
+     * Finds PersonGroup entities that match the given search criteria and returns them as a paginated list of PersonGroupResultDTO.
+     *
+     * @param searchDTO the search criteria
+     * @return a paginated list of PersonGroupResultDTO objects
+     */
     @Transactional
-    public List<PersonGroupDTO> findBySearch(PersonGroupSrchDTO searchDTO) {
+    public Page<PersonGroupResultDTO> findBySearch(PersonGroupSrchDTO searchDTO) {
         Specification<PersonGroup> specification = SearchResultMapper.toSpec(searchDTO);
-        Sort sort = searchDTO.getSort();
-        if(sort ==null) {
-            return helper.getPersonGroup().findAll(specification).stream()
-                        
-                        .map(SearchResultMapper::toDTO)
-                        .collect(Collectors.toList());
-        }
-        return helper.getPersonGroup().findAll(specification, sort).stream()
-                
-                .map(SearchResultMapper::toDTO)
-                .collect(Collectors.toList());
+        Pageable pageable = searchDTO.getPageable();
+        Page<PersonGroup> result = helper.getPersonGroup().findAll(specification, pageable);
+        return result.map(SearchResultMapper::toPersonGroupResultDTO);
     }
 
 
+    /**
+     * Counts the number of PersonGroup entities that match the given search criteria.
+     *
+     * @param searchDTO the search criteria
+     * @return the number of entities that match the search criteria
+     */
+    public long countBySearch(PersonGroupSrchDTO searchDTO) {
+        Specification<PersonGroup> specification = SearchResultMapper.toSpec(searchDTO);
+        return helper.getPersonGroup().count(specification);
+    }
 
     /**
      * Finds a PersonGroup entity by its ID and converts it to a PersonGroupDTO.

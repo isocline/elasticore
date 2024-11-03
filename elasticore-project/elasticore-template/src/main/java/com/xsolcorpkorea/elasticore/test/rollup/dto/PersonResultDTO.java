@@ -1,4 +1,4 @@
-//ecd:-415636602H20241028203810_V1.0
+//ecd:-415636602H20241031172121_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 

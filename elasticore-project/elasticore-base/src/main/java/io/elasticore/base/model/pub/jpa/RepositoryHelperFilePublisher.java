@@ -41,7 +41,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         this.publisher = publisher;
 
-        String templatePath = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("template.templateHelper");
+        ECoreModel eCoreModel = this.publisher.getECoreModelContext().getDomain().getModel();
+
+        String templatePath = eCoreModel.getConfig("template.templateHelper");
         if (templatePath == null)
             templatePath = "elasticore-template/repositoryHelper.tmpl";
         else
@@ -51,8 +53,12 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
-        this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
-        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+
+        if(eCoreModel.getEntityModels().getItems().size()>0)
+            this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+
+        if(eCoreModel.getDataTransferModels().getItems().size()>0)
+            this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
 
     }
 

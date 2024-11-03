@@ -1,4 +1,4 @@
-//ecd:-1083606282H20241028203937_V1.0
+//ecd:165241400H20241031175957_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.service;
 
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
@@ -42,6 +42,21 @@ public class PersonCoreService {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Retrieves all tPerson entities, converts them to PersonDTO objects, and returns them as a list.
+     *
+     * @param sort the sort information
+     * @return a list of PersonDTO objects
+     */
+    public List<PersonDTO> findAll(Sort sort) {
+        return helper.getPerson().findAll(sort).stream()
+                 
+                .map(SearchResultMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
     /**
      * Deletes Person entities that match the given search criteria.
      *
@@ -49,24 +64,24 @@ public class PersonCoreService {
      * @return the number of entities deleted
      */
     @javax.transaction.Transactional
-    public long delete(PersonSrchDTO searchDTO) {
+    public long delete(PersonSrhDTO searchDTO) {
             Specification<Person> specification = SearchResultMapper.toSpec(searchDTO);
             return helper.getPerson().delete(specification);
     }
 
     @Transactional
-    public List<PersonResultDTO> findBySearch(PersonSrchDTO searchDTO) {
+    public List<PersonDTO> findBySearch(PersonSrhDTO searchDTO) {
         Specification<Person> specification = SearchResultMapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
             return helper.getPerson().findAll(specification).stream()
                         
-                        .map(SearchResultMapper::toPersonResultDTO)
+                        .map(SearchResultMapper::toDTO)
                         .collect(Collectors.toList());
         }
         return helper.getPerson().findAll(specification, sort).stream()
                 
-                .map(SearchResultMapper::toPersonResultDTO)
+                .map(SearchResultMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -166,7 +181,7 @@ public class PersonCoreService {
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(PersonSrchDTO dto, String fieldName) {
+    public String findGreatest(PersonSrhDTO dto, String fieldName) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
@@ -197,7 +212,7 @@ public class PersonCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,PersonSrchDTO dto) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,PersonSrhDTO dto) {
         Specification<Person> spec = SearchResultMapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }

@@ -79,6 +79,7 @@ public class CodeTemplate {
 
     @SneakyThrows
     public static CodeTemplate newInstance(String resourcePath) {
+        //ConsoleLog.printInfo("Template: "+resourcePath);
         CodeTemplate codeTemplate = new CodeTemplate();
         InputStream inputStream = getTemplateInputStream(resourcePath);
         if (inputStream == null) {

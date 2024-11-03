@@ -530,7 +530,7 @@ public class SrcFilePublisher {
         return false;
     }
 
-    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName) {
+    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName ,ComponentIdentity identity) {
 
         boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
         if(isDTO) {
@@ -539,13 +539,25 @@ public class SrcFilePublisher {
             if("entity".equals(type) && isSearchResult) {
                 return false;
             }
+            String targetNm = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_TEMPLATE);
+            if(targetNm!=null) {
 
+                // Cross-referencing can lead to an infinite loop, so it has been excluded.
+                RelationshipManager instance = RelationshipManager.getInstance(identity.getDomainId());
+                List<ModelRelationship> byToName = instance.findByToNameAndType(targetNm ,RelationType.MANY_TO_ONE);
+                if(byToName!=null && byToName.size()>0)
+                    return false;
+            }
 
             return true;
         }
         boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
         if(isEnum)
             return true;
+
+
+
+
 
         return false;
     }

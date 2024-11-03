@@ -44,7 +44,9 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
         this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
-        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+
+        if(model.getDataTransferModels().getItems().size()>0)
+            this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
 
         if(model.getEnumModels().getItems().size()>0)
             this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);

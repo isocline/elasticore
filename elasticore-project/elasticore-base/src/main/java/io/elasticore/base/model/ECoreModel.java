@@ -51,7 +51,9 @@ public class ECoreModel {
                     return null;
                 }
             } else {
-                return value instanceof String ? (String) value : null;
+                if(value==null)
+                    return null;
+                return value instanceof String ? (String) value : String.valueOf(value);
             }
         }
         return null;

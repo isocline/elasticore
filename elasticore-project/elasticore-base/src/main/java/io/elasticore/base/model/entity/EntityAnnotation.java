@@ -45,6 +45,11 @@ public interface EntityAnnotation {
 
     String META_DTO = "dto";
 
+    String META_API = "api";
+
+
+    String META_SERVICE = "service";
+
 
     String META_PAGEABLE = "pageable";
 

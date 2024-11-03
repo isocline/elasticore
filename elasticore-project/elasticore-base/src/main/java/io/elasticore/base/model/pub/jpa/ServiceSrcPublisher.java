@@ -35,11 +35,15 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
     private String dtoPackageName;
     private String repoPackageName;
 
-    ;
+    private boolean isDefaultGen = true;
 
 
     public ServiceSrcPublisher(CodePublisher publisher) {
         super(publisher);
+
+        String config = publisher.getECoreModelContext().getDomain().getModel().getConfig("defaultGeneration.service", "true");
+        if("false".equals(config))
+            isDefaultGen = false;
 
         this.model = publisher.getECoreModelContext().getDomain().getModel();
 
@@ -165,6 +169,13 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
 
     public void publish(ModelDomain domain, Entity entity, DataTransfer dto, DataTransfer searchDto) {
+
+        //this.isDefaultGen
+        boolean hasApiAnt = entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_SERVICE);
+        String isGen = entity.getMetaInfo().getInfoAnnotationValue(EntityAnnotation.META_SERVICE);
+        if("false".equals(isGen) || (!hasApiAnt && !this.isDefaultGen))
+            return;
+
 
         if(entity.getPkField() ==null)
             return;

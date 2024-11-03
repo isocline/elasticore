@@ -80,9 +80,13 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                                     String refFieldNm = baseFieldNm+"."+ entityField.getName();
                                     String newFieldNm = baseFieldNm+StringUtils.capitalize(entityField.getName());
 
+                                    // for search
+                                    Annotation srchAnt = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE, "eq");
                                     Annotation annotation = Annotation.create(  "ref", refFieldNm);
                                     Map<String,Annotation> antMap = new HashMap<>();
                                     antMap.put(annotation.getName(), annotation);
+                                    antMap.put(srchAnt.getName(), srchAnt);
+
 
                                     Annotation.create(  "s", "eq");
                                     antMap.put(annotation.getName(), annotation);
@@ -137,7 +141,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
         List<DataTransfer> result = new ArrayList<>();
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap, KEYNAME_DTO, entityNm);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;

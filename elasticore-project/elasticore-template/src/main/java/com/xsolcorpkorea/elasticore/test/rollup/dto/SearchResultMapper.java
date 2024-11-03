@@ -1,4 +1,4 @@
-//ecd:49709706H20241028210156_V1.0
+//ecd:631194838H20241031175957_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -42,51 +42,6 @@ public class SearchResultMapper {
         }
     }
 
-    
-    public static void mapping(Person from, PersonResultDTO to, boolean isSkipNull){
-        checkPermission(from, to);
-        if(from ==null || to ==null) return;
-        if(hasValue(from.getPersonGrp()))
-            to.setPersonGrpId(from.getPersonGrp().getId());
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
-    }
-    
-    
-    public static void mapping(Person from, PersonResultDTO to){
-        mapping(from,to,false);
-    }
-    
-    
-    public static PersonResultDTO toPersonResultDTO(Person from){
-        if(from==null) return null;
-        PersonResultDTO to = new PersonResultDTO();
-        mapping(from, to);
-        return to;
-    }
-    
-    
-    public static List<PersonResultDTO> toPersonResultDTOList(List<Person> fromList){
-        if(fromList==null) return null;
-        return fromList.stream().map(SearchResultMapper::toPersonResultDTO).collect(Collectors.toList());
-    }
-    
-    
-    public static List<PersonResultDTO> toPersonResultDTOList(List<Person> fromList, BiFunction<Person, PersonResultDTO, PersonResultDTO> modifier){
-        if(fromList==null) return null;
-        return fromList.stream()
-            .map(from -> {
-                PersonResultDTO to = toPersonResultDTO(from);
-                return modifier.apply(from, to);
-            }
-            )
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        
-    }
-    
     
     public static void mapping(Person from, PersonDTO to, boolean isSkipNull){
         checkPermission(from, to);
@@ -135,6 +90,49 @@ public class SearchResultMapper {
     }
     
     
+    public static void mapping(PersonGroup from, PersonGroupResultDTO to, boolean isSkipNull){
+        checkPermission(from, to);
+        if(from ==null || to ==null) return;
+        if(!isSkipNull || hasValue(from.getId()))
+            to.setId(from.getId());
+        if(!isSkipNull || hasValue(from.getName()))
+            to.setName(from.getName());
+    }
+    
+    
+    public static void mapping(PersonGroup from, PersonGroupResultDTO to){
+        mapping(from,to,false);
+    }
+    
+    
+    public static PersonGroupResultDTO toPersonGroupResultDTO(PersonGroup from){
+        if(from==null) return null;
+        PersonGroupResultDTO to = new PersonGroupResultDTO();
+        mapping(from, to);
+        return to;
+    }
+    
+    
+    public static List<PersonGroupResultDTO> toPersonGroupResultDTOList(List<PersonGroup> fromList){
+        if(fromList==null) return null;
+        return fromList.stream().map(SearchResultMapper::toPersonGroupResultDTO).collect(Collectors.toList());
+    }
+    
+    
+    public static List<PersonGroupResultDTO> toPersonGroupResultDTOList(List<PersonGroup> fromList, BiFunction<PersonGroup, PersonGroupResultDTO, PersonGroupResultDTO> modifier){
+        if(fromList==null) return null;
+        return fromList.stream()
+            .map(from -> {
+                PersonGroupResultDTO to = toPersonGroupResultDTO(from);
+                return modifier.apply(from, to);
+            }
+            )
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+    }
+    
+    
     public static void mapping(PersonGroup from, PersonGroupDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
@@ -169,6 +167,49 @@ public class SearchResultMapper {
         return fromList.stream()
             .map(from -> {
                 PersonGroupDTO to = toDTO(from);
+                return modifier.apply(from, to);
+            }
+            )
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+    }
+    
+    
+    public static void mapping(PersonGroupDTO from, PersonGroup to, boolean isSkipNull){
+        checkPermission(from, to);
+        if(from ==null || to ==null) return;
+        if(!isSkipNull || hasValue(from.getId()))
+            to.setId(from.getId());
+        if(!isSkipNull || hasValue(from.getName()))
+            to.setName(from.getName());
+    }
+    
+    
+    public static void mapping(PersonGroupDTO from, PersonGroup to){
+        mapping(from,to,false);
+    }
+    
+    
+    public static PersonGroup toEntity(PersonGroupDTO from){
+        if(from==null) return null;
+        PersonGroup to = new PersonGroup();
+        mapping(from, to);
+        return to;
+    }
+    
+    
+    public static List<PersonGroup> toPersonGroupList(List<PersonGroupDTO> fromList){
+        if(fromList==null) return null;
+        return fromList.stream().map(SearchResultMapper::toEntity).collect(Collectors.toList());
+    }
+    
+    
+    public static List<PersonGroup> toPersonGroupList(List<PersonGroupDTO> fromList, BiFunction<PersonGroupDTO, PersonGroup, PersonGroup> modifier){
+        if(fromList==null) return null;
+        return fromList.stream()
+            .map(from -> {
+                PersonGroup to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )
@@ -228,46 +269,23 @@ public class SearchResultMapper {
     }
     
     
-    public static void mapping(PersonGroupDTO from, PersonGroup to, boolean isSkipNull){
-        checkPermission(from, to);
-        if(from ==null || to ==null) return;
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
+    public static Specification<Person> toSpec(PersonSrhDTO searchDTO){
+        return toSpec(searchDTO, Specification.where(null));
     }
     
     
-    public static void mapping(PersonGroupDTO from, PersonGroup to){
-        mapping(from,to,false);
-    }
-    
-    
-    public static PersonGroup toEntity(PersonGroupDTO from){
-        if(from==null) return null;
-        PersonGroup to = new PersonGroup();
-        mapping(from, to);
-        return to;
-    }
-    
-    
-    public static List<PersonGroup> toPersonGroupList(List<PersonGroupDTO> fromList){
-        if(fromList==null) return null;
-        return fromList.stream().map(SearchResultMapper::toEntity).collect(Collectors.toList());
-    }
-    
-    
-    public static List<PersonGroup> toPersonGroupList(List<PersonGroupDTO> fromList, BiFunction<PersonGroupDTO, PersonGroup, PersonGroup> modifier){
-        if(fromList==null) return null;
-        return fromList.stream()
-            .map(from -> {
-                PersonGroup to = toEntity(from);
-                return modifier.apply(from, to);
-            }
-            )
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        
+    public static Specification<Person> toSpec(PersonSrhDTO searchDTO, Specification<Person> sp){
+        String personGrpId = searchDTO.getPersonGrpId();
+        if(hasValue(personGrpId)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("personGrp").get("id"),personGrpId));
+        }
+        sp=setSpec(sp, "id", searchDTO.getId());
+        sp=setSpec(sp, "name", searchDTO.getName());
+        PersonGroup personGrp = searchDTO.getPersonGrp();
+        if(hasValue(personGrp)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("personGrp"),personGrp));
+        }
+        return sp;
     }
     
     
@@ -277,6 +295,10 @@ public class SearchResultMapper {
     
     
     public static Specification<Person> toSpec(PersonSrchDTO searchDTO, Specification<Person> sp){
+        String personGrpId = searchDTO.getPersonGrpId();
+        if(hasValue(personGrpId)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("personGrp").get("id"),personGrpId));
+        }
         sp=setSpec(sp, "id", searchDTO.getId());
         sp=setSpec(sp, "name", searchDTO.getName());
         return sp;

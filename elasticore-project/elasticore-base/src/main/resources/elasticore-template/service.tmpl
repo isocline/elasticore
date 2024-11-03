@@ -41,6 +41,21 @@ public class ${className} {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Retrieves all t${entityClassName} entities, converts them to ${dtoClassName} objects, and returns them as a list.
+     *
+     * @param sort the sort information
+     * @return a list of ${dtoClassName} objects
+     */
+    public List<${dtoClassName}> findAll(Sort sort) {
+        return helper.get${entityClassName}().findAll(sort).stream()
+                 ${mappingCode}
+                .map(${mapperName}::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
     /**
      * Deletes ${entityClassName} entities that match the given search criteria.
      *

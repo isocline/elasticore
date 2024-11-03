@@ -403,7 +403,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     setFieldPkInfo(entity, f, p);
 
             setFieldLabel(entity, f, p);
-            boolean hasColumnInfo = setRelationInfo(f, p);
+            boolean hasColumnInfo = setRelationInfo(f, p , entity);
             if(!hasColumnInfo)
                 setFieldColumnAnnotation(entity, f, p);
 
@@ -524,13 +524,30 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return isIdField;
     }
 
+    private String getMappedByName(Field field ,Entity entity) {
+        if( field.getTypeInfo().isList()) {
+            String fieldCoreType = field.getTypeInfo().getCoreItemType();
+
+            Entity byName = this.model.getEntityModels().findByName(fieldCoreType);
+            ModelComponentItems<Field> items = byName.getItems();
+            String entityClassName = entity.getIdentity().getName();
+            while(items.hasNext()) {
+                Field f = items.next();
+                if(entityClassName.equals(f.getTypeInfo().getInitTypeInfo())) {
+                    return f.getName();
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Sets annotation information for configuring relational information in JPA.
      *
      * @param field     Field
      * @param paragraph paragraph
      */
-    private boolean setRelationInfo(Field field, CodeTemplate.Paragraph paragraph) {
+    private boolean setRelationInfo(Field field, CodeTemplate.Paragraph paragraph, Entity ety) {
         TypeInfo typeInfo = field.getTypeInfo();
 
         boolean hasColumnInfo = false;
@@ -584,7 +601,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 else
                     fetchType = fetchType.toUpperCase();
 
-                String cascade = "";
+                String extPropsTxt = "";
                 if(field.hasAnnotation(EntityAnnotation.CASCADE)) {
                     String cascadeType = field.getAnnotationValue(EntityAnnotation.CASCADE);
                     if(cascadeType==null)
@@ -592,11 +609,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     else
                         cascadeType = cascadeType.toUpperCase(Locale.ROOT);
 
-                    cascade = ",cascade = CascadeType."+cascadeType;
+                    extPropsTxt = ",cascade = CascadeType."+cascadeType;
+                }
+
+                String mappedByName = getMappedByName(field, ety);
+                if(mappedByName!=null) {
+                    extPropsTxt = extPropsTxt+",mappedBy=\""+mappedByName+"\"";
                 }
 
 
-                paragraph.add("@OneToMany(fetch = FetchType.%s %s)",fetchType,cascade);
+                paragraph.add("@OneToMany(fetch = FetchType.%s %s)",fetchType,extPropsTxt);
             }
 
         } else if (isEntityType) {

@@ -124,7 +124,12 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         MapWrapper mapWrapper = new MapWrapper(map);
         String id = mapWrapper.getString("id");
         String methodName = mapWrapper.getString("name");
-        boolean isNativeQuery = mapWrapper.getBoolean("nativeQuery", false);
+
+        boolean isDefaultNativeQuery = false;
+        if(rootObjName.indexOf("DTO")>0)
+            isDefaultNativeQuery = true;
+
+        boolean isNativeQuery = mapWrapper.getBoolean("nativeQuery", isDefaultNativeQuery);
         boolean pageable = mapWrapper.getBoolean("pageable", false);
         String query = mapWrapper.getString("query");
         String returnType = mapWrapper.getString("return");

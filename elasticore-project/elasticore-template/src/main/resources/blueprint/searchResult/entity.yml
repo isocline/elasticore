@@ -1,21 +1,33 @@
 
 entity:
   Person:
-    meta: entity @dto @searchResult
+    meta: entity @dto
     fields:
       id: string @id
       name: string
       personGrp: PersonGroup
 
   PersonGroup:
-    meta: entity @dto
+    meta: entity @dto @pageable @searchResult
     fields:
       id: string @id
       name: string
 
 
 
+
 dto:
+  PersonSrhDTO:
+    meta: dto @searchable(Person)
+    fields:
+      personGrpId: string @ref(personGrp.id) @s(eq)
+
+
+  PersonGroupDTO:
+    meta: dto @template(PersonGroup)
+    fields:
+      personList: List<PersonDTO>
+
   TestDTO:
     meta: dto
     fields:

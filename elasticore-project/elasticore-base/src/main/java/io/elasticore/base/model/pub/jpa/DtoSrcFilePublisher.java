@@ -245,9 +245,10 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 if(f.getTypeInfo().isList()) {
                     String coreType = f.getTypeInfo().getCoreItemType();
                     checkTypeName = coreType;
+                }else {
                 }
 
-                if( !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), checkTypeName))
+                if( !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), checkTypeName ,dto.getIdentity()))
                     continue;
 
             }

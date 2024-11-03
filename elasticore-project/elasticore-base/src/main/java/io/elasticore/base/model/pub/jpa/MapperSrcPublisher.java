@@ -526,7 +526,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                         checkTypeName = coreType;
                     }
 
-                    if( !this.isEnableInDTO(model, toModel.getMetaInfo(), checkTypeName))
+                    if( !this.isEnableInDTO(model, toModel.getMetaInfo(), checkTypeName ,toModel.getIdentity()))
                         continue;
 
                 }
@@ -555,7 +555,12 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                     if( this.isDTOModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName))
                     {
-                        prefix = "toDTO(";
+                        if(f.getTypeInfo().isList()) {
+                            prefix = "to"+checkTypeName+"List(";
+                        }else {
+                            prefix = "toDTO(";
+                        }
+
                         postfix = ")";
                     }
                     else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {

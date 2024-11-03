@@ -1,4 +1,4 @@
-//ecd:1428475464H20241028203810_V1.0
+//ecd:-354590374H20241030193157_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.control;
 
 import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
@@ -52,7 +52,7 @@ public class PersonGroupController {
 
     @Operation(summary = "Search PersonGroup data", description = "Searches for PersonGroup records based on provided field criteria. All criteria are combined using logical AND.")
     @PostMapping("/search")
-    public List<PersonGroupDTO> search(@RequestBody PersonGroupSrchDTO searchDTO) {
+    public Page<PersonGroupResultDTO> search(@RequestBody PersonGroupSrchDTO searchDTO) {
         return personGroupService.findBySearch(searchDTO);
     }
 
