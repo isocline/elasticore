@@ -94,7 +94,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
 
     protected Repository loadRepository(String entityNm, Map<String, Object> entityMap) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_REPOSITORY, entityNm);
 
         List<Map> methods = (List) entityMap.get(PROPERTY_METHODS);
 

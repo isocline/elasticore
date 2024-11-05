@@ -185,4 +185,45 @@ public class StringUtils {
     }
 
 
+    /**
+     * Splits the input text based on the delimiters "$" or " " (space).
+     * This method separates the text at each occurrence of either "$" or " ",
+     * producing an array of strings.
+     *
+     * @param text the input string to be split. If null, the method returns null.
+     * @return an array of strings split around each occurrence of "$" or " ",
+     *         or null if the input is null.
+     */
+    public static String[] splitConditionText(String text) {
+        if(text==null) return null;
+        String regex = "[$ ]";
+        return text.split(regex);
+    }
+
+
+    /**
+     * Generates an English description for a given search operator.
+     *
+     * @param operator the search operator, such as "<", ">", ">=", "<=", "=", or "like"
+     * @return a description of the operator in English, or a default message if the operator is unrecognized
+     */
+    public static String getOperatorDescription(String operator) {
+        switch (operator) {
+            case "<":
+                return "Field is less than value.";
+            case ">":
+                return "Field is greater than value.";
+            case "<=":
+                return "Field is less than or equal to value.";
+            case ">=":
+                return "Field is greater than or equal to value.";
+            case "=":
+                return "Field equals value.";
+            case "like":
+                return "Field matches pattern.";
+            default:
+                return "Use 'like' if value has %, else 'equal'";
+        }
+    }
+
 }

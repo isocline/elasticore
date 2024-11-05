@@ -31,8 +31,12 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.util.CodeTemplate;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static io.elasticore.base.util.StringUtils.splitConditionText;
 
 /**
  * Handles the publishing of source files for entities.
@@ -220,6 +224,9 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
         ListMap<String, Field> fields = dto.getAllFieldListMap();
         List<Field> fieldList = fields.getList();
 
+
+        Set<String> fieldNmSet = new HashSet<>();
+
         for (Field f : fieldList) {
 
             if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
@@ -250,10 +257,24 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                     continue;
             }
 
+            // eq,=,%5,in ....etc
+            String conditionCode = f.getAnnotationValue(EntityAnnotation.SEARCH);
+
+            String fieldNm = f.getName();
+
+            String[] conditionItems = splitConditionText(conditionCode);
+            if(conditionItems!=null && conditionItems.length==2) {
+                fieldNm = conditionItems[1];
+            }
+
+            if(fieldNmSet.contains(fieldNm))
+                return;
+
+            fieldNmSet.add(fieldNm);
 
 
             setFieldDesc(f, p);
-            setFieldDocumentation(f,p);
+            setFieldDocumentation(f,p ,conditionItems);
             setFieldValidation(f,p);
             setJsonInfo(f, p);
             setFormatAnnotation(f,p);
@@ -263,10 +284,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             //String defaultValDefined = getDefaultValueSetup(f);
             String defaultValDefined = "";
 
-            // eq,=,%5,in ....etc
-            String conditionCode = f.getAnnotationValue(EntityAnnotation.SEARCH);
 
-            String fieldNm = f.getName();
             String typeName = f.getTypeInfo().getDefaultTypeName();
             if ("between".equals(conditionCode) || "~".equals(conditionCode)) {
                 p.add("%s %s %s%s;", "private", typeName, fieldNm + "From", defaultValDefined);

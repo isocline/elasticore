@@ -3,6 +3,7 @@ package ${packageName};
 import ${dtoPackageName}.*;
 import ${servicePackageName}.*;
 
+import ${j2eePkgName}.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +33,7 @@ public class ${className} {
 
     @Operation(summary = "Create a new ${entityClassName}", description = "Registers a new ${entityClassName} in the system.")
     @PostMapping
-    public ${dtoClassName} create(@RequestBody ${dtoClassName} inputDto) {
+    public ${dtoClassName} create(@Valid @RequestBody ${dtoClassName} inputDto) {
         return ${entityName}Service.save(inputDto);
     }
 
@@ -62,7 +63,7 @@ public class ${className} {
             @ApiResponse(responseCode = "404", description = "${entityClassName} not found", content = @Content)
     })
     @PutMapping
-    public ResponseEntity<${dtoClassName}> update(@RequestBody ${dtoClassName} updateDto) {
+    public ResponseEntity<${dtoClassName}> update(@Valid @RequestBody ${dtoClassName} updateDto) {
         ${dtoClassName} resultDto = ${entityName}Service.update(updateDto);
         return ResponseEntity.ok(resultDto);
     }

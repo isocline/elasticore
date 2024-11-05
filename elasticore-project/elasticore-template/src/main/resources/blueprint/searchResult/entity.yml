@@ -1,7 +1,12 @@
 
 entity:
+  AbstractEntity:
+    meta: entity @abstract
+    fields:
+      ownerId: string
+
   Person:
-    meta: entity @dto
+    meta: entity @dto @extend(AbstractEntity)
     fields:
       id: string @id
       name: string
@@ -12,6 +17,9 @@ entity:
     fields:
       id: string @id
       name: string
+      scope1: int @s(<$scopeVal)
+      scope2: int @s(>$scopeVal)
+
 
 
 

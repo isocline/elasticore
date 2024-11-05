@@ -244,6 +244,31 @@ public class SrcFilePublisher {
         p.add("@Schema(description = \"%s\" %s %s)", desc, requireTxt, example);
     }
 
+    protected void setFieldDocumentation(Field f, CodeTemplate.Paragraph p, String[] conditions) {
+
+        String conditionTxt = "";
+        if(conditions!=null && conditions.length>0) {
+            conditionTxt = StringUtils.getOperatorDescription(conditions[0]) +" field:"+f.getName();
+        }else {
+            conditionTxt = StringUtils.getOperatorDescription("") +" field:"+f.getName();
+        }
+
+        String desc = f.getAnnotationValue(EntityAnnotation.DESCRIPTION);
+        if (desc == null) {
+            desc = conditionTxt;
+        }else {
+            desc = desc +" "+conditionTxt;
+        }
+        boolean isNotNull = f.hasAnnotation(EntityAnnotation.NOT_NULL);
+        String requireTxt = "";
+        if (isNotNull) {
+            requireTxt = ", requiredMode=Schema.RequiredMode.REQUIRED";
+        }
+
+        String example = getExample(f);
+        p.add("@Schema(description = \"%s\" %s %s)", desc, requireTxt, example);
+    }
+
     protected String getExample(Field f) {
         String example = f.getAnnotationValue(EntityAnnotation.EXAMPLE);
 

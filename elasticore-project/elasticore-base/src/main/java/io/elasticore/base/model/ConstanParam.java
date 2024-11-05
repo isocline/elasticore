@@ -9,6 +9,8 @@ public interface ConstanParam {
 
     String KEYNAME_DTO = "dto";
 
+    String KEYNAME_ENUM = "enum";
+
     String KEYNAME_ENUMERATION = "enumeration";
 
     String KEYNAME_REPOSITORY = "repository";

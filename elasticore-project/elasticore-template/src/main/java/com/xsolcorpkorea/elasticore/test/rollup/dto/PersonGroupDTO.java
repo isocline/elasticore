@@ -1,4 +1,4 @@
-//ecd:1907375917H20241031172121_V1.0
+//ecd:1308131655H20241104230940_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
@@ -35,6 +35,12 @@ public  class PersonGroupDTO  implements java.io.Serializable  {
 	
 	@Schema(description = "name"  )
 	private String name;
+	
+	@Schema(description = "scope1"  )
+	private Integer scope1;
+	
+	@Schema(description = "scope2"  )
+	private Integer scope2;
 	
 
 }

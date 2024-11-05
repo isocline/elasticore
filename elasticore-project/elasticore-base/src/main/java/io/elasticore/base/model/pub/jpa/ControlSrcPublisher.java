@@ -224,6 +224,8 @@ public class ControlSrcPublisher extends SrcFilePublisher {
         pkParamInfo = sb2.toString();
         pkFieldInfo = sb3.toString();
 
+        String j2eePkgNm = getPersistentPackageName(domain);
+
 
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
@@ -232,6 +234,7 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
                 .set("entityLabel", entityLabel)
                 .set("entityDesc", entityDesc)
+                .set("j2eePkgName",j2eePkgNm)
 
                 .set("entityName", entityName)
                 .set("serviceClassName",serviceClassName)

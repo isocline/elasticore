@@ -1,4 +1,4 @@
-//ecd:631194838H20241031175957_V1.0
+//ecd:1849382168H20241105131031_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -10,8 +10,10 @@ import org.springframework.data.jpa.domain.Specification;
 import javax.persistence.criteria.Join;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Collectors"e"e
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
 import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
 
@@ -46,14 +48,13 @@ public class SearchResultMapper {
     public static void mapping(Person from, PersonDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        if(!isSkipNull || hasValue(from.getPersonGrp()))
-            to.setPersonGrp(toDTO(from.getPersonGrp()));
+        setVal(from.getPersonGrp(), to::setPersonGrp, isSkipNull, SearchResultMapper::toDTO);
         if(hasValue(from.getPersonGrp()))
             to.setPersonGrpId(from.getPersonGrp().getId());
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
+        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getName(), to::setName, isSkipNull);
+        if(isSkip("Person","AbstractEntity")) return;
+        setVal(from.getOwnerId(), to::setOwnerId, isSkipNull);
     }
     
     
@@ -93,10 +94,10 @@ public class SearchResultMapper {
     public static void mapping(PersonGroup from, PersonGroupResultDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
+        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getScope1(), to::setScope1, isSkipNull);
+        setVal(from.getScope2(), to::setScope2, isSkipNull);
     }
     
     
@@ -136,10 +137,10 @@ public class SearchResultMapper {
     public static void mapping(PersonGroup from, PersonGroupDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
+        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getScope1(), to::setScope1, isSkipNull);
+        setVal(from.getScope2(), to::setScope2, isSkipNull);
     }
     
     
@@ -179,10 +180,10 @@ public class SearchResultMapper {
     public static void mapping(PersonGroupDTO from, PersonGroup to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
+        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getScope1(), to::setScope1, isSkipNull);
+        setVal(from.getScope2(), to::setScope2, isSkipNull);
     }
     
     
@@ -222,10 +223,9 @@ public class SearchResultMapper {
     public static void mapping(PersonDTO from, Person to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        if(!isSkipNull || hasValue(from.getId()))
-            to.setId(from.getId());
-        if(!isSkipNull || hasValue(from.getName()))
-            to.setName(from.getName());
+        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getOwnerId(), to::setOwnerId, isSkipNull);
         
         
         if(hasValue(from.getPersonGrpId())){
@@ -313,6 +313,14 @@ public class SearchResultMapper {
     public static Specification<PersonGroup> toSpec(PersonGroupSrchDTO searchDTO, Specification<PersonGroup> sp){
         sp=setSpec(sp, "id", searchDTO.getId());
         sp=setSpec(sp, "name", searchDTO.getName());
+        Integer scopeVal = searchDTO.getScopeVal();
+        if(hasValue(scopeVal)){
+            sp = sp.and((r,q,c) -> c.lessThan(r.get("scopeVal"),scopeVal));
+        }
+        Integer scopeVal = searchDTO.getScopeVal();
+        if(hasValue(scopeVal)){
+            sp = sp.and((r,q,c) -> c.greaterThan(r.get("scopeVal"),scopeVal));
+        }
         return sp;
     }
     
@@ -353,5 +361,31 @@ public class SearchResultMapper {
             return true;
 
         return false;
+    }
+
+
+    private static boolean isSkip(String fromClassName, String refClassName) {
+        return false;
+    }
+
+    public static void setVal(String value, Consumer<String> setter, boolean isSkipNull) {
+        if ((value != null && !value.isEmpty())  || !isSkipNull) {
+            Optional.ofNullable(value).ifPresent(setter);
+        }
+    }
+
+    public static <T> void setVal(T value, Consumer<T> setter, boolean isSkipNull) {
+        if (value != null || !isSkipNull) {
+            Optional.ofNullable(value).ifPresent(setter);
+        }
+    }
+
+
+    public static <T, R> void setVal(T value, Consumer<R> setter, boolean isSkipNull, Function<T, R> mapper) {
+
+
+        if (value != null || !isSkipNull) {
+            Optional.ofNullable(value).map(mapper).ifPresent(setter);
+        }
     }
 }

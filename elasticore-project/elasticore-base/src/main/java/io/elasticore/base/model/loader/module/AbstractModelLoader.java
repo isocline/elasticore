@@ -114,15 +114,7 @@ public class AbstractModelLoader implements ConstanParam {
         return Annotation.create(annotationName, singleValue, properties);
     }
 
-    /**
-     * Parses meta-information about an entity from a map representation.
-     *
-     * @param entityMap The map containing entity information including meta-information.
-     * @return A MetaInfo object populated with parsed annotations and other meta-information.
-     */
-    protected MetaInfo parseMetaInfoObject(Map<String, Object> entityMap) {
-        return parseMetaInfoObject(entityMap, null, null);
-    }
+
 
 
     /**
@@ -149,6 +141,10 @@ public class AbstractModelLoader implements ConstanParam {
                 metaAnnotation.put("type", Annotation.create("type",type) );
         }else{
             metaAnnotation = getAnnotationObj(metaInfoObj);
+        }
+
+        if(mainClassName!=null) {
+            metaAnnotation.put("name", Annotation.create("name",mainClassName) );
         }
 
 
@@ -396,6 +392,7 @@ public class AbstractModelLoader implements ConstanParam {
 
         return Field.builder().name(fieldNm)
                 .type(type)
+                .parentMetaInfo(metaInfo)
                 .isPrimaryKey(annotationMap.containsKey("id"))
                 .unique(annotationMap.containsKey("unique"))
                 .annotationMap(annotationMap).build();

@@ -1,4 +1,4 @@
-//ecd:1999439431H20241031172121_V1.0
+//ecd:-1547327513H20241104095801_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
@@ -38,6 +38,9 @@ public  class PersonDTO  implements java.io.Serializable  {
 	
 	@Schema(description = "name"  )
 	private String name;
+	
+	@Schema(description = "ownerId"  )
+	private String ownerId;
 	
 
 }

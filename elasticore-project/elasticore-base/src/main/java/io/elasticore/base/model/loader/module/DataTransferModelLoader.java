@@ -64,6 +64,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                             if(!dto.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) {
                                 Field dtoField = Field.builder()
                                         .name(f.getName())
+                                        .parentMetaInfo(dto.getMetaInfo())
                                         .type(typeName+"DTO")
                                         .annotationMap(antMp)
                                         .build();
@@ -94,6 +95,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
                                     Field newRefField = Field.builder()
                                             .name(newFieldNm)
+                                            .parentMetaInfo(dto.getMetaInfo())
                                             .type(entityField.getTypeInfo().getDefaultTypeName())
                                             .annotationMap(antMap)
                                             .build();
@@ -181,7 +183,11 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                                 annotationMap.put(annotation.getName(), annotation);
 
                                 items.addItem(
-                                        Field.builder().name(field.getName()).type(field.getTypeInfo().getDefaultTypeName()).annotationMap(annotationMap).build()
+                                        Field.builder()
+                                                .name(field.getName())
+                                                .parentMetaInfo(metaInfo)
+                                                .type(field.getTypeInfo().getDefaultTypeName())
+                                                .annotationMap(annotationMap).build()
                                 );
 
                             /*
@@ -210,8 +216,9 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
 
                         entityMap.put(PROPERTY_META, newLineData);
-                        MetaInfo metaInfo2 = parseMetaInfoObject(entityMap);
-                        result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"ResultDTO", items, metaInfo2));
+                        String mainClassNm = entityNm+"ResultDTO";
+                        MetaInfo metaInfo2 = parseMetaInfoObject(entityMap ,"dto", mainClassNm);
+                        result.add(DataTransfer.create(ctx.getDomainId(), mainClassNm, items, metaInfo2));
 
                     }
                 }
@@ -234,8 +241,9 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
 
                     entityMap.put(PROPERTY_META, newLineData);
-                    metaInfo = parseMetaInfoObject(entityMap);
-                    result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"DTO", items, metaInfo));
+                    String mainClassNm = entityNm+"DTO";
+                    metaInfo = parseMetaInfoObject(entityMap ,"dto", mainClassNm);
+                    result.add(DataTransfer.create(ctx.getDomainId(), mainClassNm, items, metaInfo));
 
 
                     if(isPagable) {
@@ -248,8 +256,9 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
 
                     entityMap.put(PROPERTY_META, newLineData);
-                    metaInfo = parseMetaInfoObject(entityMap);
-                    result.add(DataTransfer.create(ctx.getDomainId(), entityNm+"SrchDTO", items, metaInfo));
+                    String mainClassName = entityNm+"SrchDTO";
+                    metaInfo = parseMetaInfoObject(entityMap ,"dto", mainClassName);
+                    result.add(DataTransfer.create(ctx.getDomainId(), mainClassName, items, metaInfo));
 
                     return result;
                 }

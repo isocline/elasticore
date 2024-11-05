@@ -11,6 +11,8 @@ import ${j2eePkgName}.persistence.criteria.Join;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import ${entityPackageName}.*;
 import ${dtoPackageName}.*;
 import ${enumPackageName}.*;
@@ -79,5 +81,31 @@ public class ${className} {
             return true;
 
         return false;
+    }
+
+
+    private static boolean isSkip(String fromClassName, String refClassName) {
+        return false;
+    }
+
+    public static void setVal(String value, Consumer<String> setter, boolean isSkipNull) {
+        if ((value != null && !value.isEmpty())  || !isSkipNull) {
+            Optional.ofNullable(value).ifPresent(setter);
+        }
+    }
+
+    public static <T> void setVal(T value, Consumer<T> setter, boolean isSkipNull) {
+        if (value != null || !isSkipNull) {
+            Optional.ofNullable(value).ifPresent(setter);
+        }
+    }
+
+
+    public static <T, R> void setVal(T value, Consumer<R> setter, boolean isSkipNull, Function<T, R> mapper) {
+
+
+        if (value != null || !isSkipNull) {
+            Optional.ofNullable(value).map(mapper).ifPresent(setter);
+        }
     }
 }

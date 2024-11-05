@@ -45,15 +45,22 @@ init: {
 }%%
 
 classDiagram
+    class AbstractEntity{
+        &lt;&lt;Abstract &gt;&gt;
+        ownerId: String 
+    }
     class Person{
         id: String 
         name: String 
         personGrp: PersonGroup 
     }
+    AbstractEntity <|-- Person : extend
     Person --o "0..1" PersonGroup : personGrp
     class PersonGroup{
         id: String 
         name: String 
+        scope1: Integer 
+        scope2: Integer 
     }
 
     </div>

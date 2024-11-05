@@ -1,5 +1,6 @@
 package io.elasticore.base.model.loader.module;
 
+import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Items;
@@ -50,7 +51,7 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
 
     protected Entity loadEntity(ModelLoaderContext ctx, String entityNm, Map<String, Object> entityMap) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap , ConstanParam.KEYNAME_ENTITY, entityNm);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;

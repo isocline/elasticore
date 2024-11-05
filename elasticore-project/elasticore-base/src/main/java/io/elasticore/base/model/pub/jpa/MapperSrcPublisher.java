@@ -128,6 +128,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         }
     }
 
+
+
+
     private void makeSpecificationFieldCode(DataTransfer searchDto, CodeStringBuilder cb, String entityNm) {
 
         ListMap<String, Field> listMap = searchDto.getAllFieldListMap();
@@ -142,14 +145,29 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     && f.getTypeInfo().isList())
                 continue;
 
+
+
+
+            String type = f.getTypeInfo().getDefaultTypeName();
+            String fieldNm = f.getName();
+
+
             String condition = f.getAnnotationValue(EntityAnnotation.SEARCH); // =, eq, like, between, !=, neq
+            String[] conditionItems = splitConditionText(condition);
+
+            String customerFieldName = null;
             if(condition==null) {
                 //continue;
                 condition = "auto";
             }
+            else {
+                condition = conditionItems[0];
+                if(conditionItems.length>1) {
+                    customerFieldName = conditionItems[1];
+                    fieldNm = customerFieldName;
+                }
+            }
 
-            String type = f.getTypeInfo().getDefaultTypeName();
-            String fieldNm = f.getName();
             String capFidNm = StringUtils.capitalize(fieldNm);
 
             String entityFieldNm = fieldNm;
@@ -215,6 +233,18 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             if(isAutoCondition) {
 
+            }
+            else if (">=".equals(condition)) {
+                cb.line("sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+            }
+            else if ("<=".equals(condition)) {
+                cb.line("sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+            }
+            else if (">".equals(condition)) {
+                cb.line("sp = sp.and((r,q,c) -> c.greaterThan(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+            }
+            else if ("<".equals(condition)) {
+                cb.line("sp = sp.and((r,q,c) -> c.lessThan(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
             }
             else if ("like".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");
@@ -496,15 +526,18 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         if (isEntityTarget)
             toMethodName = "toEntity";
 
-        if(relationType == RelationType.CHILD.SEARCH_RESULT)
-            toMethodName = "to"+toModel.getIdentity().getName();
+        String fromClassNm = fromModel.getIdentity().getName();
+        String toClassNm = toModel.getIdentity().getName();
 
-        this.relationshipManager.addRelationship(ModelRelationship.create(fromModel.getIdentity().getName()
+        if(relationType == RelationType.CHILD.SEARCH_RESULT)
+            toMethodName = "to"+toClassNm;
+
+        this.relationshipManager.addRelationship(ModelRelationship.create(fromClassNm
                 , this.className, RelationType.MAPPER)
         );
 
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
-        cb.line("public static void mapping(%s from, %s to, boolean isSkipNull)", fromModel.getIdentity().getName(), toModel.getIdentity().getName()).block();
+        cb.line("public static void mapping(%s from, %s to, boolean isSkipNull)", fromClassNm, toClassNm).block();
         cb.line("checkPermission(from, to);");
         cb.line("if(from ==null || to ==null) return;");
 
@@ -513,6 +546,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         List<Field> list = toListMap.getList();
 
+        String parentName = null;
         for (Field f : list) {
 
             if(f.hasAnnotation(DataTransferAnnotation.META_SEARCHABLE_BYPASS)) {
@@ -537,6 +571,22 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             if (isEntityReturnType(f, model)) continue;
 
+            if(!isEntityTarget) {
+
+                String fieldParentName = f.getParentMetaInfo().getMetaAnnotationValue("name");
+                if(parentName !=null && fieldParentName!=null && !parentName.equals(fieldParentName)) {
+
+                    if( f.getParentMetaInfo().hasMetaAnnotation("abstract")) {
+                        if(!fromClassNm.equals(fieldParentName)) {
+                            cb.line("if(isSkip(\"%s\",\"%s\")) return;", fromClassNm,fieldParentName);
+                        }
+
+                    }
+
+                }
+                parentName = fieldParentName;
+            }
+
             String fieldName = f.getName();
 
             Field fromField = fromListMap.get(fieldName);
@@ -544,6 +594,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             String fldNm = StringUtils.capitalize(fieldName);
 
             if (!makeModelRefMappingCode(f, fromModel, cb ,true)) {
+
+                String mappingfunc =null;
                 String prefix = "";
                 String postfix = "";
                 if(!f.getTypeInfo().isBaseType()) {
@@ -557,8 +609,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     {
                         if(f.getTypeInfo().isList()) {
                             prefix = "to"+checkTypeName+"List(";
+                            mappingfunc = "to"+checkTypeName+"List";
                         }else {
                             prefix = "toDTO(";
+                            mappingfunc = "toDTO";
                         }
 
                         postfix = ")";
@@ -578,8 +632,16 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                 if(fromField.hasAnnotation("forceupdate")) {
                     cb.line("to.set%s(%sfrom.get%s()%s);", fldNm,prefix, fldNm ,postfix);
                 }else {
+                    if(mappingfunc!=null)
+                        cb.line("setVal(from.get%s(), to::set%s, isSkipNull, %s::%s);", fldNm, fldNm, this.className,mappingfunc);
+                    else
+                        cb.line("setVal(from.get%s(), to::set%s, isSkipNull);", fldNm, fldNm);
+
+                    /*
                     cb.line("if(!isSkipNull || hasValue(from.get%s()))", fldNm);
                     cb.line("    to.set%s(%sfrom.get%s()%s);", fldNm, prefix, fldNm ,postfix);
+
+                     */
                 }
             }
         }
@@ -604,8 +666,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
 
         CodeStringBuilder cb2 = new CodeStringBuilder("{", "}");
-        String toClassNm = toModel.getIdentity().getName();
-        String fromClassNm = fromModel.getIdentity().getName();
+
         cb2.line("public static %s %s(%s from)", toClassNm, toMethodName, fromClassNm).block();
         cb2.line("if(from==null) return null;");
         cb2.line("%s to = new %s();", toClassNm, toClassNm);

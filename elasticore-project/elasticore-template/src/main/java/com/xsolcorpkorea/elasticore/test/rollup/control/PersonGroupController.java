@@ -1,9 +1,10 @@
-//ecd:-354590374H20241030193157_V1.0
+//ecd:576335133H20241104230940_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.control;
 
 import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
 import com.xsolcorpkorea.elasticore.test.rollup.service.*;
 
+import javax.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,7 +34,7 @@ public class PersonGroupController {
 
     @Operation(summary = "Create a new PersonGroup", description = "Registers a new PersonGroup in the system.")
     @PostMapping
-    public PersonGroupDTO create(@RequestBody PersonGroupDTO inputDto) {
+    public PersonGroupDTO create(@Valid @RequestBody PersonGroupDTO inputDto) {
         return personGroupService.save(inputDto);
     }
 
@@ -63,7 +64,7 @@ public class PersonGroupController {
             @ApiResponse(responseCode = "404", description = "PersonGroup not found", content = @Content)
     })
     @PutMapping
-    public ResponseEntity<PersonGroupDTO> update(@RequestBody PersonGroupDTO updateDto) {
+    public ResponseEntity<PersonGroupDTO> update(@Valid @RequestBody PersonGroupDTO updateDto) {
         PersonGroupDTO resultDto = personGroupService.update(updateDto);
         return ResponseEntity.ok(resultDto);
     }

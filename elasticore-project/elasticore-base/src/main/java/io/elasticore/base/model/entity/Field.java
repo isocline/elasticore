@@ -2,6 +2,7 @@ package io.elasticore.base.model.entity;
 
 import io.elasticore.base.model.ComponentIdentity;
 import io.elasticore.base.model.ComponentType;
+import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseComponentIdentity;
@@ -27,18 +28,21 @@ public class Field implements ModelComponent {
 
     private String description;
 
+    private MetaInfo parentMetaInfo;
+
     @Builder.Default
     private boolean nullable = true;
 
 
     @Builder(builderMethodName = "builder")
-    private Field(String name, String type, boolean isPrimaryKey, boolean unique, String description, Map<String, Annotation> annotationMap) {
+    private Field(String name, String type, boolean isPrimaryKey, boolean unique, String description, Map<String, Annotation> annotationMap ,MetaInfo parentMetaInfo) {
         this.name = name;
         this.type = type;
         this.isPrimaryKey = isPrimaryKey;
         this.unique = unique;
         this.description = description;
         this.annotationMap = annotationMap;
+        this.parentMetaInfo = parentMetaInfo;
     }
 
     public int getLength() {

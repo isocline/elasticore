@@ -1,4 +1,4 @@
-//ecd:-167200468H20241031172121_V1.0
+//ecd:1348188222H20241105131031_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 
@@ -27,11 +27,14 @@ import java.time.*;
 @AllArgsConstructor
 public  class PersonGroupSrchDTO  implements java.io.Serializable, SortableObject, PageableObject  {
 
-	@Schema(description = "id"  )
+	@Schema(description = "Use 'like' if value has %, else 'equal' field:id"  )
 	private String id;
 	
-	@Schema(description = "name"  )
+	@Schema(description = "Use 'like' if value has %, else 'equal' field:name"  )
 	private String name;
+	
+	@Schema(description = "Field is less than value. field:scope1"  )
+	private Integer scopeVal;
 	
 	
 	private String sortCode;
