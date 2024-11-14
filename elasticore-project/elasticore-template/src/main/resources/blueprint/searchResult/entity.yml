@@ -31,10 +31,12 @@ dto:
       personGrpId: string @ref(personGrp.id) @s(eq)
 
 
+
   PersonGroupDTO:
     meta: dto @template(PersonGroup)
     fields:
       personList: List<PersonDTO>
+      test: ZZZZ
 
   TestDTO:
     meta: dto

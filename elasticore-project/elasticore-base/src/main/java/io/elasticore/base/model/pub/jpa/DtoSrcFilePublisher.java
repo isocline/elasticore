@@ -284,6 +284,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             setNativeAnnotation(f, p);
 
             String defaultValDefined = getDefaultValueSetup(f);
+            if(defaultValDefined!=null && !defaultValDefined.isEmpty()) {
+                p.add("@Builder.Default");
+            }
 
             /*
             BaseFieldType ft = f.getTypeInfo().getBaseFieldType();
@@ -295,6 +298,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 p.add("@Temporal(TemporalType.TIME)");
 
              */
+
 
 
             p.add("%s %s %s%s;", "private", typeName, f.getName(), defaultValDefined);
