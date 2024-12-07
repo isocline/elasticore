@@ -1,7 +1,7 @@
-//ecd:1308131655H20241104230940_V1.0
+//ecd:-1832412207H20241207204629_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
@@ -29,6 +29,24 @@ public  class PersonGroupDTO  implements java.io.Serializable  {
 
 	@Schema(description = "personList"  )
 	private List<PersonDTO> personList;
+	
+	@Schema(description = "testMap2"  )
+	private java.util.HashMap<String,Object> testMap2;
+	
+	@Schema(description = "test2"  )
+	private Integer test2;
+	
+	/*
+	  차량분류
+	*/
+	@Schema(description = "차량분류"  )
+	private com.mobillug.leaserent.estimator.biz.enums.CarClassType carClassType;
+	
+	/*
+	  유종
+	*/
+	@Schema(description = "유종"  )
+	private com.mobillug.leaserent.estimator.biz.enums.FuelType fuelType;
 	
 	@Schema(description = "id"  )
 	private String id;

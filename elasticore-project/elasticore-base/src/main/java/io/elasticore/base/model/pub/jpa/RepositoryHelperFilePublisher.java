@@ -7,6 +7,7 @@ import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityAnnotation;
@@ -17,6 +18,7 @@ import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.model.repo.SqlQueryInfo;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
 import java.util.ArrayList;
@@ -182,6 +184,47 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
     }
 
 
+    protected String getMappingFieldNames(Items<Field> selectFieldItems, DataTransfer dto) {
+
+        ListMap<String,Field> allFieldListMap = dto.getAllFieldListMap();
+
+
+        StringBuilder sb = new StringBuilder();
+        List<Field> itemList = selectFieldItems.getItemList();
+
+        String notFoundField = null;
+        for(Field f: itemList) {
+            String fieldName = f.getName();
+            if( allFieldListMap.getIgnoreCase(fieldName) ==null) {
+                notFoundField = fieldName;
+                continue;
+            }
+
+            if(notFoundField!=null)
+                throw new IllegalArgumentException("Field: "+notFoundField+ " is not exist in DTO");
+
+
+            if(sb.length()>0)
+                sb.append(" ,");
+
+            sb.append(StringUtils.quoteString(fieldName));
+        }
+
+        if(notFoundField!=null) {
+            ConsoleLog.storeLog("getMappingFieldNames", "Field: "+notFoundField+ " is not exist in DTO");
+        }
+
+        return sb.toString();
+    }
+
+    private boolean hasReplaceFieldName(String template, String fieldName) {
+        if(template==null) return false;
+
+        if( template.indexOf("/*${"+fieldName+"}*/")<0)
+            return false;
+
+        return true;
+    }
 
 
     /**
@@ -216,6 +259,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         //if (sqlQuery == null || sqlQuery.indexOf("/* if:") < 0) return;
 
 
+
         DataTransfer outputDTO = queryInfo.getDataTransfer();
 
         String params = getParametersForMethod(method.getParams(), true);
@@ -228,7 +272,13 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                 DataTransfer outputDTO2 = queryInfo.getDataTransfer();
                 outputClassNm = outputDTO2.getIdentity().getName();
 
-                fieldNames = getMappingFieldNames(outputDTO2.getItems(), queryInfo.getSelectColumnCount());
+                Items<Field> selectFieldItems = queryInfo.getSelectFieldItems();
+                fieldNames = getMappingFieldNames(selectFieldItems, outputDTO2);
+
+                //fieldNames = getMappingFieldNames(outputDTO2, queryInfo.getSelectColumnCount());
+
+
+
             } else
                 outputClassNm = "Object[]";
 
@@ -271,20 +321,38 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
             }
         }
 
+        p.add("    java.util.Map<String, Object> placeholders = new java.util.HashMap<>();");
+        Items<Field> params1 = method.getParams();
+        List<Field> itemList = params1.getItemList();
+        for(Field fld:itemList) {
+            if(hasReplaceFieldName(sqlQuery,fld.getName()))
+                p.add("    placeholders.put(%s ,%s);", StringUtils.quoteString(fld.getName()), fld.getName());
+        }
+
+        p.add("    String sql = ModelTransList.replace(sb.toString(),  placeholders);");
+
+
+
         if (queryInfo.isNativeQuery()) {
-            p.add("    Query query = entityManager.createNativeQuery(sb.toString());");
+            p.add("    Query query = entityManager.createNativeQuery(sql);");
         } else {
-            p.add("    Query query = entityManager.createQuery(sb.toString(), %s.class);", outputClassNm);
+            p.add("    Query query = entityManager.createQuery(sql, %s.class);", outputClassNm);
         }
 
 
         for (String var : varList) {
+            if(hasReplaceFieldName(sqlQuery,var))
+                continue;
+
             p.add("    if(" + var + "!=null)");
             p.add("      query.setParameter(\"" + var + "\" , " + var + ");");
         }
 
         for(Field f: method.getParams().getItemList()) {
             String inputParamName = f.getIdentity().getName();
+
+            if(hasReplaceFieldName(sqlQuery,inputParamName))
+                continue;
 
             boolean isDynamicField = false;
             for (String var : varList) {
@@ -352,7 +420,12 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         p.add("}");
         p.add("");
 
+        if(ConsoleLog.hasStoredLogkey("getMappingFieldNames")) {
 
+            ConsoleLog.printWarn("");
+            ConsoleLog.printWarn("Need to check [Query method] "+method.getName());
+            ConsoleLog.printStoredWarnLog("getMappingFieldNames","  ");
+        }
     }
 
     public static String extractContentBetweenBrackets(String input) {
@@ -383,7 +456,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         methodP.add("public List<%s> %s(%s) {", outputClassNm, methodName, params);
 
-        String fieldNames = getMappingFieldNames(outputDTO.getItems() ,queryInfo.getSelectColumnCount());
+        String fieldNames = getMappingFieldNames(outputDTO ,queryInfo.getSelectColumnCount());
         methodP.add("    String[] fieldNames = {%s};", fieldNames);
 
         params = getParametersForMethod(method.getParams(), false);
@@ -391,6 +464,33 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         methodP.add("    return new ModelTransList<%s>(result, %s.class, fieldNames);", outputClassNm, outputClassNm);
         methodP.add("}");
         methodP.add("");
+    }
+
+
+    private String getMappingFieldNames(DataTransfer dto, int maxCount) {
+        if(maxCount<200) {
+            return getMappingFieldNames(dto.getItems(), maxCount);
+        }
+
+        ListMap<String,Field> allFieldListMap = dto.getAllFieldListMap();
+
+        List<Field> list = allFieldListMap.getList();
+
+        int count=0;
+        StringBuilder sb = new StringBuilder();
+        for(Field f :list) {
+            if(!f.getTypeInfo().isBaseType())
+                continue;
+
+            if (sb.length() > 0)
+                sb.append(" ,");
+            sb.append("\"").append(f.getName()).append("\"");
+            count++;
+            if(count >= maxCount)
+                break;
+        }
+
+        return sb.toString();
     }
 
     private String getMappingFieldNames(ModelComponentItems<Field> params, int maxCount) {

@@ -1,4 +1,4 @@
-//ecd:1904720876H20241031172122_V1.0
+//ecd:1904720876H20241128111456_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -71,12 +71,14 @@ public class ModelTransList<E> extends AbstractList<E>
         this.propertyEditors = new ArrayList<>();
 
         for(String fieldName : fieldNames) {
-            Field f = itemClass.getDeclaredField(fieldName);
-            f.setAccessible(true);
-            fieldList.add(f);
+            try {
+                Field f = itemClass.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                fieldList.add(f);
 
-            PropertyEditor editor = PropertyEditorManager.findEditor(f.getType());
-            propertyEditors.add(editor);
+                PropertyEditor editor = PropertyEditorManager.findEditor(f.getType());
+                propertyEditors.add(editor);
+            }catch (NoSuchFieldException nsfe) {}
         }
     }
 
@@ -149,5 +151,17 @@ public class ModelTransList<E> extends AbstractList<E>
     public void forEach(Consumer<? super E> action) {
         replaceAll();
         this.newList.forEach(action);
+    }
+
+
+    public static String replace(String template, Map<String, Object> placeholders) {
+        if(placeholders==null)
+            return template;
+        for (Map.Entry<String, Object> entry : placeholders.entrySet()) {
+            String placeholder = "/*${" + entry.getKey() + "}*/";
+            String replacement = entry.getValue() != null ? entry.getValue().toString() : "";
+            template = template.replace(placeholder, replacement);
+        }
+        return template;
     }
 }

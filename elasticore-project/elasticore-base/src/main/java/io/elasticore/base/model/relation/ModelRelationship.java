@@ -1,6 +1,7 @@
 package io.elasticore.base.model.relation;
 
 import io.elasticore.base.model.ModelComponent;
+import io.elasticore.base.model.core.ReferenceResolver;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -13,6 +14,8 @@ public class ModelRelationship {
     private RelationType relationType;
 
     private String relationName;
+
+    private ReferenceResolver referenceResolver;
 
 
     private ModelRelationship(String fromName, String toName, RelationType relationType ,String relationName) {
@@ -28,6 +31,33 @@ public class ModelRelationship {
         this.toName = toName.trim();
         this.relationType = relationType;
         this.relationName = relationName;
+    }
+
+    public void setReferenceResolver(ReferenceResolver referenceResolver) {
+        this.referenceResolver = referenceResolver;
+    }
+
+    private String getRefTarget(String keyName) {
+        if(referenceResolver!=null) {
+            Object refTarget = referenceResolver.getReferenceTarget(keyName);
+            if(refTarget!=null)
+                return refTarget.toString();
+        }
+        return null;
+    }
+
+    public String getFromName() {
+        String refTarget = getRefTarget(this.fromName);
+        if(refTarget!=null) return refTarget;
+
+        return fromName;
+    }
+
+    public String getToName() {
+        String refTarget = getRefTarget(this.toName);
+        if(refTarget!=null) return refTarget;
+
+        return toName;
     }
 
     public static ModelRelationship create(String fromName, String toName, RelationType relationType) {

@@ -4,6 +4,7 @@ entity:
     meta: entity @abstract
     fields:
       ownerId: string
+      testId: string @s(eq)
 
   Person:
     meta: entity @dto @extend(AbstractEntity)
@@ -11,6 +12,8 @@ entity:
       id: string @id
       name: string
       personGrp: PersonGroup
+      age: int
+      addr: string @s(eq)
 
   PersonGroup:
     meta: entity @dto @pageable @searchResult
@@ -25,10 +28,12 @@ entity:
 
 
 dto:
-  PersonSrhDTO:
+  PersonSrchDTO:
     meta: dto @searchable(Person)
     fields:
       personGrpId: string @ref(personGrp.id) @s(eq)
+      testZZ: string
+      optList: List<PersonGroupDTO>
 
 
 
@@ -37,6 +42,10 @@ dto:
     fields:
       personList: List<PersonDTO>
       test: ZZZZ
+      testMap2: java.util.HashMap<String,Object>
+      test2: int
+      carClassType: com.mobillug.leaserent.estimator.biz.enums.CarClassType -- 차량분류
+      fuelType: com.mobillug.leaserent.estimator.biz.enums.FuelType -- 유종
 
   TestDTO:
     meta: dto

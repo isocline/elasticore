@@ -1,7 +1,7 @@
-//ecd:-1155815089H20241104230940_V1.0
+//ecd:-1002800353H20241207204628_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.entity;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;

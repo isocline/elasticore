@@ -1,7 +1,7 @@
-//ecd:751181337H20241105131031_V1.0
+//ecd:-1964895782H20241207204629_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
@@ -27,14 +27,20 @@ import java.time.*;
 @AllArgsConstructor
 public  class PersonSrchDTO  implements java.io.Serializable, SortableObject  {
 
-	@Schema(description = "Use 'like' if value has %, else 'equal' field:personGrpId"  )
+	@Schema(description = "Field equals value. field:personGrpId"  )
 	private String personGrpId;
 	
-	@Schema(description = "Use 'like' if value has %, else 'equal' field:id"  )
-	private String id;
+	@Schema(description = ""  )
+	private String testZZ;
 	
-	@Schema(description = "Use 'like' if value has %, else 'equal' field:name"  )
-	private String name;
+	@Schema(description = ""  )
+	private List<PersonGroupDTO> optList;
+	
+	@Schema(description = "Field equals value. field:addr"  )
+	private String addr;
+	
+	@Schema(description = "Field equals value. field:testId"  )
+	private String testId;
 	
 	
 	private String sortCode;

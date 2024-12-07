@@ -1,4 +1,4 @@
-//ecd:165241400H20241031175957_V1.0
+//ecd:19570064H20241128111456_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.service;
 
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
@@ -64,13 +64,13 @@ public class PersonCoreService {
      * @return the number of entities deleted
      */
     @javax.transaction.Transactional
-    public long delete(PersonSrhDTO searchDTO) {
+    public long delete(PersonSrchDTO searchDTO) {
             Specification<Person> specification = SearchResultMapper.toSpec(searchDTO);
             return helper.getPerson().delete(specification);
     }
 
     @Transactional
-    public List<PersonDTO> findBySearch(PersonSrhDTO searchDTO) {
+    public List<PersonDTO> findBySearch(PersonSrchDTO searchDTO) {
         Specification<Person> specification = SearchResultMapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
@@ -181,7 +181,7 @@ public class PersonCoreService {
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(PersonSrhDTO dto, String fieldName) {
+    public String findGreatest(PersonSrchDTO dto, String fieldName) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
@@ -212,7 +212,7 @@ public class PersonCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,PersonSrhDTO dto) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,PersonSrchDTO dto) {
         Specification<Person> spec = SearchResultMapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }

@@ -94,11 +94,70 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
                 }
             }
         }
-
-
-
     }
 
+
+    protected void setPkRelationship(Items<Field> pkFields) {
+
+        if(pkFields==null || pkFields.size()==0)
+            return;
+
+        // for parent key names
+        StringBuilder sb = new StringBuilder();
+        sb.append("PK:");
+
+        String firstKeyInfo = null;
+        String refEntityIfno = null;
+        Field lastField = null;
+        List<Field> pkFieldList = new ArrayList<>();
+        int pkSize = pkFields.getItemList().size();
+        for(Field f: pkFields.getItemList()) {
+            if(lastField!=null) {
+                pkFieldList.add(lastField);
+                sb.append(getKeyInfo(lastField));
+
+            }else {
+                firstKeyInfo = f.getName();
+                refEntityIfno = f.getAnnotationValue("ref");
+            }
+            lastField = f;
+        }
+
+
+
+        if(pkSize<1)
+            return;
+
+        String parentKeyNames = sb.toString();
+        String thisKeyNames = parentKeyNames+getKeyInfo(lastField);
+
+        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
+        String fromName = getIdentity().getName();
+
+        rm.setRefTargetInfo(thisKeyNames, fromName);
+
+
+        if(pkSize>1) {
+            if(pkSize>2) {
+                rm.addRelationship(ModelRelationship.create(fromName, parentKeyNames, RelationType.MANY_TO_ONE, "FK"));
+                rm.addRelationship(ModelRelationship.create(parentKeyNames, fromName, RelationType.ONE_TO_MANY, "FK"));
+            }
+
+            for(Field f: pkFields.getItemList()) {
+                String keyInfo= "PK:"+getKeyInfo(f);
+                rm.addRelationship(ModelRelationship.create(fromName, keyInfo, RelationType.MANY_TO_ONE, "FK"));
+            }
+        }
+
+        if(refEntityIfno!=null) {
+            rm.addRelationship(ModelRelationship.create(fromName, refEntityIfno, RelationType.MANY_TO_ONE, firstKeyInfo));
+            rm.addRelationship(ModelRelationship.create(refEntityIfno, fromName, RelationType.ONE_TO_MANY, firstKeyInfo));
+        }
+    }
+
+    private String getKeyInfo(Field lastField) {
+        return lastField.getName()+"["+lastField.getTypeInfo().getInitTypeInfo()+"]";
+    }
 
     protected void setRelationship(Field f) {
         RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());

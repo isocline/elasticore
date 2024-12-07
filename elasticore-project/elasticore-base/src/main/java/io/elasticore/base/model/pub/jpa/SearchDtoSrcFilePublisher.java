@@ -220,7 +220,6 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             dataTransfer = (DataTransfer) dto;
         }
 
-
         ListMap<String, Field> fields = dto.getAllFieldListMap();
         List<Field> fieldList = fields.getList();
 
@@ -236,7 +235,9 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             if(f.hasAnnotation(DataTransferAnnotation.META_SEARCHABLE_BYPASS))
                 continue;
 
-            if(f.getTypeInfo().isList())
+            boolean enableSearch = f.hasAnnotation(EntityAnnotation.SEARCH);
+
+            if(f.getTypeInfo().isList() && enableSearch)
                 continue;
 
             boolean isForceDefineField = false;
@@ -245,10 +246,18 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             }
 
 
+
+            if(isSkipSearchField(dto, f))
+                continue;
+
+
+
             if (!isForceDefineField
                     //&& !f.hasAnnotation("id")
-                    && !f.hasAnnotation(EntityAnnotation.SEARCH)
-                    && dto.getItems().findByName(f.getName()) == null)
+                    && !enableSearch
+                    &&  ( dto.getItems().findByName(f.getName()) == null )
+
+            )
                 continue;
 
 
@@ -274,7 +283,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
 
             setFieldDesc(f, p);
-            setFieldDocumentation(f,p ,conditionItems);
+            setFieldDocumentation(f,p ,conditionItems ,enableSearch);
             setFieldValidation(f,p);
             setJsonInfo(f, p);
             setFormatAnnotation(f,p);

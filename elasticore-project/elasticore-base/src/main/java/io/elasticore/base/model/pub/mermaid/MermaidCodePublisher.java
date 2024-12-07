@@ -175,6 +175,9 @@ public class MermaidCodePublisher implements CodePublisher {
             if( enumModels !=null && enumModels.findByName(r.getToName()) !=null)
                 continue;
 
+            if(r.getToName().indexOf("[")>0)
+                continue;
+
 
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
                 cb.line("%s --o \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());

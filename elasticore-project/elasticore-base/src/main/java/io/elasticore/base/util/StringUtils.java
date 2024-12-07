@@ -218,9 +218,12 @@ public class StringUtils {
             case ">=":
                 return "Field is greater than or equal to value.";
             case "=":
+            case "eq":
                 return "Field equals value.";
             case "like":
                 return "Field matches pattern.";
+            case "between":
+                return "Field is between two values (inclusive).";
             default:
                 return "Use 'like' if value has %, else 'equal'";
         }

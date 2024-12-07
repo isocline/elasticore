@@ -6,10 +6,12 @@ import io.elasticore.base.model.relation.RelationType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RelationshipManager {
+public class RelationshipManager implements ReferenceResolver{
 
     private List<ModelRelationship> relationshipList;
     private Set<ModelRelationship> relationshipSet;
+
+    private Map<String,Object> refTargetMap = new HashMap<>();
 
     private RelationshipManager() {
         this.relationshipList = new ArrayList<>();
@@ -27,6 +29,14 @@ public class RelationshipManager {
 
     private static Map<String, RelationshipManager> relationshipManagerMap = new HashMap<>();
 
+    @Override
+    public Object getReferenceTarget(String refName) {
+        return refTargetMap.get(refName);
+    }
+
+    public void setRefTargetInfo(String refName, Object targetObject){
+        refTargetMap.put(refName, targetObject);
+    }
 
     public static RelationshipManager getInstance(String domainId) {
         RelationshipManager instance = relationshipManagerMap.get(domainId);
@@ -43,6 +53,7 @@ public class RelationshipManager {
 
 
     public synchronized void addRelationship(ModelRelationship relationship) {
+        relationship.setReferenceResolver(this);
         if (!relationshipSet.contains(relationship)) {
             this.relationshipList.add(relationship);
             this.relationshipSet.add(relationship);

@@ -1,7 +1,7 @@
-//ecd:-1547327513H20241104095801_V1.0
+//ecd:-25297608H20241207204629_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
@@ -39,8 +39,17 @@ public  class PersonDTO  implements java.io.Serializable  {
 	@Schema(description = "name"  )
 	private String name;
 	
+	@Schema(description = "age"  )
+	private Integer age;
+	
+	@Schema(description = "addr"  )
+	private String addr;
+	
 	@Schema(description = "ownerId"  )
 	private String ownerId;
+	
+	@Schema(description = "testId"  )
+	private String testId;
 	
 
 }

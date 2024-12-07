@@ -48,11 +48,14 @@ classDiagram
     class AbstractEntity{
         &lt;&lt;Abstract &gt;&gt;
         ownerId: String 
+        testId: String 
     }
     class Person{
         id: String 
         name: String 
         personGrp: PersonGroup 
+        age: Integer 
+        addr: String 
     }
     AbstractEntity <|-- Person : extend
     Person --o "0..1" PersonGroup : personGrp
@@ -62,6 +65,411 @@ classDiagram
         scope1: Integer 
         scope2: Integer 
     }
+    class AuditEntity{
+        &lt;&lt;Abstract &gt;&gt;
+        createDate: java.time.LocalDateTime 
+        createdBy: String 
+        lastModifiedBy: String 
+        lastModifiedDate: java.time.LocalDateTime 
+        createIP: String //시스템 입력 IP
+        lastModifiedIP: String //시스템 수정 IP
+    }
+    class CommonCode{
+        codeType: String 
+        mainCode: String 
+        useFrmdt: String //사용 시작일 (YYYYMMDD)
+        useTodt: String //사용 종료일 (YYYYMMDD)
+        shortName: String //코드 짧은 이름
+        longName: String //코드 긴 이름
+        orderNo: Integer //정렬 순서
+        upType: String //상위 유형
+        upCode: String //상위 코드
+    }
+    AuditEntity <|-- CommonCode : extend
+    class Organization{
+        orgCd: String 
+        orgNm: String 
+        orgLevelCd: String //조직 레벨 코드
+        upOrgCd: String //상위 조직 코드
+        orderNo: Long //정렬 순서
+        orgBossId: String //조직장 ID
+        directPhone1: String //직통전화 1
+        directPhone2: String //직통전화 2
+        directPhone3: String //직통전화 3
+        faxPhone1: String //팩스 전화 1
+        faxPhone2: String //팩스 전화 2
+        faxPhone3: String //팩스 전화 3
+        postNo1: String //우편번호 1
+        postNo2: String //우편번호 2
+        baseAddr: String //기본 주소
+        detailAddr: String //상세 주소
+        openYmd: String //개설일자
+        closeYmd: String //폐쇄일자
+        orgTypeCd: String //조직 유형 코드
+        increaseOrgCd: String //증감 조직 코드
+        searchYN: Indicator //검색 여부
+    }
+    AuditEntity <|-- Organization : extend
+    class Employee{
+        empNo: String 
+        juminNo: String //주민등록번호
+        korNm: String //한국 이름
+        engNm: String //영어 이름
+        orgCd: String //조직 코드
+        jobPositionCd: String //직위 코드
+        jobGradeCd: String //직급 코드
+        jobTitleCd: String //직책 코드
+        careerCd: String //경력 코드
+        inVtmentYn: Indicator //투자 여부
+        enterYmd: String //입사 일자 (YYYYMMDD)
+        retireYmd: String //퇴사 일자 (YYYYMMDD)
+        orderYmd: String //발령 일자 (YYYYMMDD)
+        retireReason: String //퇴사 사유
+        birthYmd: String //생년월일 (YYYYMMDD)
+        mobilePhone1: String //휴대전화 1
+        mobilePhone2: String //휴대전화 2
+        mobilePhone3: String //휴대전화 3
+        directPhone1: String //직통전화 1
+        directPhone2: String //직통전화 2
+        directPhone3: String //직통전화 3
+        email: String //이메일
+        postNo1: String //우편번호 1
+        postNo2: String //우편번호 2
+        baseAddr: String //기본 주소
+        detailAddr: String //상세 주소
+        marryYn: Indicator //결혼 여부
+        bloodCd: String //혈액형 코드
+        religionCd: String //종교 코드
+        hobbyNm: String //취미명
+        ctbno: String //헌혈 번호
+        bioTypeCd: String //생체 정보 유형
+        lifeInsuYn: Indicator //생명보험 가입 여부
+        pnpnSvn: Indicator //연금보험 가입 여부
+        bankCd: String //은행 코드
+        accountNo: String //계좌 번호
+        photoFileNm: String //사진 파일명
+        emailUseYn: Indicator //이메일 사용 여부
+        eCommP: Indicator //전자통신 우편 여부
+        includeNumber: Integer 
+        advancedPayment: Indicator 
+        scholarship: Indicator //장학금 여부
+        scholarshipStart: String //장학금 시작일 (YYYYMM)
+        scholarshipEnd: String //장학금 종료일 (YYYYMM)
+        childCare: Indicator //육아 휴직 여부
+        appoint: Indicator //임명 여부
+        appointMonth: String //임명 월 (YYYYMM)
+        introductionPolicy: String //소개 정책
+        revertMonth: String //복귀 월 (YYYYMM)
+    }
+    AuditEntity <|-- Employee : extend
+    class EmpFamily{
+        empNo: String //사원번호
+        seq: Long //순번
+        juminNo: String //주민번호
+        familyRelNm: String //가족관계명
+        name: String //이름
+        etc: String //기타사항
+        togetherYn: Indicator //동거여부
+    }
+    AuditEntity <|-- EmpFamily : extend
+    EmpFamily --o "0..*" CustContactHistory : FK
+    class EmpEducation{
+        empNo: String 
+        enterYmd: String 
+        outYmd: String //졸업일자
+        schoolNm: String //학교명
+        schoolCareerCd: String //학력코드
+        subjectNm: String //전공명
+    }
+    AuditEntity <|-- EmpEducation : extend
+    EmpEducation --o "0..*" CustContactHistory : FK
+    class Customer{
+        custNo: String 
+        custCd: String //고객 코드
+        orgEmpNo: String //조직 사원 번호
+        custNm: String 
+        directPhone1: String //직통 전화 1
+        directPhone2: String //직통 전화 2
+        directPhone3: String //직통 전화 3
+        academicCd: String //학력 코드
+        jobNm: String //직업명
+        mobilePhone1: String //휴대폰 1
+        mobilePhone2: String //휴대폰 2
+        mobilePhone3: String //휴대폰 3
+        gender: GenderCode //남여구분
+        birthCd: String //생년 코드
+        birthYmd: String 
+        email: String //이메일
+        homePostNo1: String //자택 우편번호 1
+        homePostNo2: String //자택 우편번호 2
+        homeBaseAddr: String //자택 기본 주소
+        homeDetailAddr: String //자택 상세 주소
+        memorialCd: MemorialCode //기념일 코드
+        memorialYmd: String //기념일 날짜
+        groupCd: String //그룹 코드
+        groupNm: String //그룹명
+        recommNm: String //추천인명
+        channelCd: String //채널 코드
+        companyNm: String //회사명
+        jobPhone1: String //회사 전화 1
+        jobPhone2: String //회사 전화 2
+        jobPhone3: String //회사 전화 3
+        jobPostNo1: String //회사 우편번호 1
+        jobPostNo2: String //회사 우편번호 2
+        jobBaseAddr: String //회사 기본 주소
+        jobDetailAddr: String //회사 상세 주소
+        insuComCd: String //보험사 코드
+        insuProdNm: String //보험 상품명
+        startYmd: String //계약 시작일
+        endYmd: String //계약 종료일
+        contYn: Indicator //계약 여부
+        plateNo: String //차량 번호
+        policyNo: String //정책 번호
+    }
+    AuditEntity <|-- Customer : extend
+    class CustContactHistory{
+        empNo: String 
+        contactSeq: Integer //접촉 시퀀스
+        contactYmd: String 
+        contactTime: String 
+        contactCd: String //접촉 코드
+        custNm: String 
+        custSeq: String //고객 시퀀스
+        custNo: String //고객 번호
+        policyNo: String //정책 번호
+        openYN: Indicator //오픈 여부
+        contactTtl: String //접촉 제목
+        contactPlace: String //접촉 장소
+        contactDesc: String 
+    }
+    AuditEntity <|-- CustContactHistory : extend
+    class CustInsuranceStatus{
+        custSeq: String 
+        seq: Integer //순번
+        insuComNm: String 
+        insuItemNm: String 
+        insuProdNm: String 
+        startYmd: String 
+        endYmd: String 
+    }
+    AuditEntity <|-- CustInsuranceStatus : extend
+    class Contract{
+        policyNo: String 
+        insuComCd: String 
+        insuItemCd: String //상품유형코드
+        insuProdCd: String //상품코드
+        insuProdNm: String //상품명
+        polHolderNo: String //계약자주민번호
+        polHolderNm: String //계약자명
+        insHolderNo: String //피보험자주민번호
+        insHolderNm: String //피보험자명
+        contYmd: String //계약일자
+        pamCyclCd: String //납입주기코드
+        payMethodCd: String //납입방법코드
+        policStateCd: String //계약상태코드
+        endorseYmd: String //계약상태변경일
+        startYmd: String //계약시작일자
+        endYmd: String //계약종료일자
+        mainPrem: Long //주계약보험료
+        spePrem: Long //특약보험료
+        sumPrem: Long //합계보험료
+        realPrem: Long //실납입보험료
+        holderCd: char //계약자 코드
+        benefCd: char //수익자 코드
+        benefNm: String //수익자명
+        benefNo: String //수익자주민번호
+        orgEmpNo: String //모집자사번
+        empNo: String //취급자사번
+        sysInputDate: java.time.LocalDateTime //전산처리일자
+        sysyInputUser: String 
+        sysInputIP: String 
+        polHolderSeq: String //계약자고객seq
+        insHolderSeq: String //피보험자고객seq
+        pmtyCd: String //납입코드
+        payYmd: String //지급일자
+        endPayCnt: Integer //최종회차
+        distriCnt: Integer //자동차납입회차
+        orgEmpComCd: String //모집자회사코드
+        empComCd: String //취급자회사코드
+        payTerm: String //납입기간
+        transCd: String //이체방법코드
+        modifyPrem: Long //수정보험료
+        cnvrPrem: Long //전환보험료
+        recogPrem: Long //인정보험료
+        premYmd: String //보험료일자
+        payYYMM: String //최종월도
+        plateNo: String //자동차번호
+        signYN: Indicator //자필서명여부
+        BWDate: char //계약생성일
+        graceDate: char //유예기간
+        gradeZone: String //등급구역
+        spcGb: char //물건구분
+        changeReason: String //변경사유
+        blueChipYN: Indicator //우량여부
+        memo: String //메모
+        signRecoveryDt: String //서명복구일자
+        autotransferAcc: String //자동이체계좌
+        orgInsuProdCd: String //조직보험상품코드
+        objectCd: String //대상 코드
+        commission: Long //수수료
+        expirationPeriod: String //만기기간
+        expirationTypeCd: String //만기유형코드
+        policyNo_BK: String //계약번호(이전)
+        policyNo_New: String //계약번호(신규)
+        medicalPrem: Long //의료보험료
+        guaranteePrem: Long //보증보험료
+        vitualBankNo: String //가상계좌번호
+        silbiYN: Indicator //실비가입여부
+        billEmpNo: String //수금자사번
+    }
+    Contract --o "0..1" char : holderCd
+    class ContractSpecialClause{
+        insuComCd: String 
+        policyNo: String 
+        seq: Integer //순번
+        speNm: String 
+        startYmd: String 
+        endYmd: String 
+        basePrem: Long 
+        payPrem: Long 
+        speCd: String 
+    }
+    AuditEntity <|-- ContractSpecialClause : extend
+    ContractSpecialClause --o "0..*" Contract : FK
+    class ContractRelated{
+        insuComCd: String 
+        policyNo: String 
+        seq: Integer //순번
+        insTypeCd: String 
+        insHolderNm: String 
+        insHolderNo: String //계약자 번호
+        insRelCd: String //계약 관계 코드
+        insAge: String //계약자 나이
+    }
+    AuditEntity <|-- ContractRelated : extend
+    ContractRelated --o "0..*" Contract : FK
+    class ContractPayment{
+        policyNo: String 
+        insuComCd: String 
+        seq: Integer //순번
+        distrCnt: Integer //배포 횟수
+        payYMM: String 
+        payMethodCd: String //납입 방법 코드
+        payYmd: String 
+        sumPrem: Long 
+        modifyPrem: Long //수정 보험료
+        payStateCd: String 
+        rectNo: String //영수증 번호
+        rateType: String //요율 유형
+        payAmt: Long 
+        jobDate: String //작업일자
+        closYn: Indicator //마감 여부
+        policyNo_BK: String //계약번호 (이전)
+        policyNo_New: String //계약번호 (신규)
+    }
+    AuditEntity <|-- ContractPayment : extend
+    ContractPayment --o "0..*" Contract : FK
+    class InsuranceCompanyCode{
+        insCpCode: String 
+        insCpTypeCd: String 
+        insCpNm: String 
+        regDate: String 
+        startDate: String 
+        endDate: String //종료일 (YYYYMMDD)
+        mgrNm: String //담당자 이름
+        contNum: String //계약 번호
+        contYN: Indicator //계약 여부
+        mgtCnt: Integer //관리 수량
+        feeCnt: Integer //수수료 수량
+        companyFaxNo: String //회사 팩스 번호
+        startCnt: Integer //시작 수량
+        endCnt: Integer //종료 수량
+        pensionAdjustRate: Float 
+        protectionAdjustRate: Float 
+        adjustRate: Float 
+    }
+    AuditEntity <|-- InsuranceCompanyCode : extend
+    class InsProductCode{
+        insCpCode: String 
+        productCode: String 
+        prodNm: String 
+        prodTypeCd: String 
+        prodGrpCd: String 
+        insProdCd: String 
+        saleStartDate: String 
+        saleEndDate: String //판매 종료일 (YYYYMMDD)
+        saleYN: Indicator //판매 여부
+        mgtCnt: Integer //관리 수량
+        adjustRate: Integer 
+        newAdjustRate: Float 
+    }
+    AuditEntity <|-- InsProductCode : extend
+    class CommissionMaster{
+        closYm: String 
+        insCpCode: String 
+        policyNo: String 
+        endPayCnt: Integer 
+        policStateCd: String 
+        empNo: String 
+        empName: String //직원 이름
+        orgEmpNo: String //조직 직원 번호
+        insProdCd: String //보험 상품 코드
+        productCode: String //상품 코드
+        polHolderNm: String //계약자 이름
+        contYmd: String //계약일 (YYYYMMDD)
+        payCyclCd: String //납입 주기 코드
+        pmtyCd: String //납입 방식 코드
+        payMethodCd: String //납입 방법 코드
+        payYmd: String //납입일
+        inPrem: Long //보험료
+        distrCnt: Integer //배분 횟수
+        cnvnFre: Long //계약 수수료
+        cnvrtCnt: Integer //계약 전환 횟수
+        efficAchi: Integer //실적 달성 비율
+        payYMM: String //납입 년월
+        cmiFeeAmt: Long //수수료 금액
+        payBackFeeAmt: Long //환급 수수료 금액
+        incentiveFee: Long //인센티브 수수료
+    }
+    AuditEntity <|-- CommissionMaster : extend
+    CommissionMaster --o "0..*" Contract : FK
+    class CommissionContractDetails{
+        closYm: String 
+        insCpCode: String 
+        policyNo: String 
+        endPayCnt: Integer 
+        commiTypeCd: String 
+        cmiFeeCd: String 
+        feeStateCd: String 
+        cnvFre: Long 
+        cmiFeeRate: Integer 
+        payBackFeeAmt: Long 
+        cmiFeeAmt: Long 
+        empNo: String 
+        payPtrnCode: String //납입 패턴 코드
+        prodGrpCd: String //상품 그룹 코드
+    }
+    AuditEntity <|-- CommissionContractDetails : extend
+    CommissionContractDetails --o "0..*" Contract : FK
+    class CommissionDetails{
+        closYm: String 
+        insCpCode: String 
+        policyNo: String 
+        endPayCnt: Integer 
+        commiTypeCd: String 
+        cmiFeeCd: String 
+        feeStateCd: String 
+        cnvrFe: Long //환산 보험료
+        cmiFeeRate: Float //수수료율
+        payBackFeeAmt: Long //환수 대상 금액
+        cmiFeeAmt: Long //수수료
+        policStateCd: String //계약 상태 코드
+        sysInputDate: java.time.LocalDateTime //전산 처리 일자
+        sysInputUser: String //전산 처리자
+        sysInputIP: String //사용자 IP
+        payPtrnCode: String //수수료 패턴 코드
+    }
+    CommissionDetails --o "0..*" Contract : FK
 
     </div>
 </body>

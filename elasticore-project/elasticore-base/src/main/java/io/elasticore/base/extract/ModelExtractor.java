@@ -150,8 +150,18 @@ public class ModelExtractor {
         String mode = System.getProperty("mode");
         if (mode == null) mode = "default";
 
-        log("ModelExtractor start mode:" + mode);
 
+
+        ConsoleLog.printInfo(
+                        "    ________           __  _ __________  ____  ______\n" +
+                        "   / ____/ /___ ______/ /_(_) ____/ __ \\/ __ \\/ ____/\n" +
+                        "  / __/ / / __ `/ ___/ __/ / /   / / / / /_/ / __/   \n" +
+                        " / /___/ / /_/ (__  ) /_/ / /___/ /_/ / _, _/ /___   \n" +
+                        "/_____/_/\\__,_/____/\\__/_/\\____/\\____/_/ |_/_____/   \n" +
+                        "                                                     \n");
+
+
+        ConsoleLog.printInfo("ModelExtractor execution mode:" + mode);
 
         try {
             ModelExtractor extractor = new ModelExtractor();

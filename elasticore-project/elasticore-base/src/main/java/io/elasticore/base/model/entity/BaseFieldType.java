@@ -27,6 +27,7 @@ public enum BaseFieldType {
     DATE("Date", null, "java.time.LocalDate"),
 
     LIST("List", null, "java.util.List"),
+    //MAP("Map", null, "java.util.Map"),
 
     INTEGER("Integer", "int", "Integer"),
     LONG("Long", "long", "Long"),

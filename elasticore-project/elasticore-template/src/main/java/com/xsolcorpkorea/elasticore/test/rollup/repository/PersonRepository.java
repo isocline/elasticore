@@ -1,4 +1,4 @@
-//ecd:1488330636H20241028203810_V1.0
+//ecd:-1111215806H20241207204629_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.*;
 import com.xsolcorpkorea.elasticore.test.rollup.entity.*;
 import com.xsolcorpkorea.elasticore.test.rollup.dto.*;
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 
 
 

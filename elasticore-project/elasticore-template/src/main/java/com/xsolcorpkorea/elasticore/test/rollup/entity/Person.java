@@ -1,7 +1,7 @@
-//ecd:815983185H20241104095801_V1.0
+//ecd:599033668H20241207204628_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.entity;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -41,6 +41,14 @@ public  class Person extends AbstractEntity implements java.io.Serializable  {
 	@ManyToOne
 	@JoinColumn(columnDefinition = "personGrp_id")
 	private PersonGroup personGrp;
+	
+	
+	@Column(name = "age")
+	private Integer age;
+	
+	
+	@Column(name = "addr")
+	private String addr;
 	
 	
 }

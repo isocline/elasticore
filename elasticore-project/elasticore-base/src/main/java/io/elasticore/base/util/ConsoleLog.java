@@ -55,6 +55,11 @@ public class ConsoleLog {
     }
 
 
+    public static boolean hasStoredLogkey(String key) {
+        return consoleLogMap.containsKey(key);
+    }
+
+
     public static void print(Object message) {
         System.out.println(message);
     }

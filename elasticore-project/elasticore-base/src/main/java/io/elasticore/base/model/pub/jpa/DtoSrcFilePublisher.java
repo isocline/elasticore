@@ -235,10 +235,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 continue;
 
 
-
             String typeName = f.getTypeInfo().getDefaultTypeName();
 
-            if(! f.getTypeInfo().isBaseType()) {
+            if(! f.getTypeInfo().isBaseType() && typeName.indexOf(".")<0) {
 
                 String checkTypeName = typeName;
 

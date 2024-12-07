@@ -182,6 +182,26 @@ public class SqlQueryInfo {
         return outputDataTransfer;
     }
 
+    private Items<Field> items = Items.create(Field.class);
+
+    public Items<Field> getSelectFieldItems() {
+        return items;
+    }
+
+    public String getSelectFieldNames() {
+        StringBuilder sb = new StringBuilder();
+        List<Field> itemList = items.getItemList();
+        for(Field f : itemList) {
+            if(sb.length()>0)
+                sb.append(" ,");
+
+            sb.append(f.getName());
+        }
+
+        return sb.toString();
+
+    }
+
 
     private void makeDtoModel(List<SelectItem> selectItems) {
 
@@ -189,7 +209,7 @@ public class SqlQueryInfo {
 
         if (selectItems == null || selectItems.size() == 0) return;
 
-        Items<Field> items = Items.create(Field.class);
+        //Items<Field> items = Items.create(Field.class);
 
         // AllColumns
         for (SelectItem item : selectItems) {
@@ -291,6 +311,15 @@ public class SqlQueryInfo {
                     List<SelectItem> selectItems = plainSelect.getSelectItems();
 
                     this.selectColumnCount = selectItems.size();
+
+                    if(this.selectColumnCount>0) {
+                        for(SelectItem selectItem : selectItems) {
+                            if(selectItem.toString().indexOf(".*")>0) {
+                                this.selectColumnCount = 500;
+                                break;
+                            }
+                        }
+                    }
 
                     makeDtoModel(selectItems);
 

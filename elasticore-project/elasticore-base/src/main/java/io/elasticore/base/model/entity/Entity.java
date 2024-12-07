@@ -37,6 +37,7 @@ public class Entity extends AbstractDataModel implements MetaInfoModel, DataMode
                 setRelationship(f);
             }
         }
+        setPkRelationship(pkFields);
 
         if (pkFields.size() > 0)
             this.pkField = PkField.create(pkFields, null, this);

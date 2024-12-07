@@ -379,9 +379,11 @@ public class AbstractModelLoader implements ConstanParam {
 
         Map<String, Annotation> annotationMap = loadAnnotationMap(fieldLine);
 
+
         // Automatically adds the "search" annotation if the "dto" annotation is defined in the entity
         if(metaInfo!=null && metaInfo.hasMetaAnnotation(EntityAnnotation.META_DTO)) {
             if( !annotationMap.containsKey("s") && !annotationMap.containsKey("searchable")) {
+                annotationMap.put(EntityAnnotation.AUTOSEARCH, Annotation.create(EntityAnnotation.AUTOSEARCH));
                 if("string".equals(type.toLowerCase())) {
                     annotationMap.put("searchable", Annotation.create("searchable"));
                 }else {

@@ -1,0 +1,94 @@
+entity:
+
+  BrandInfo:
+    meta: entity
+    fields:
+      brandId: string(12) @id
+
+
+
+  BaseCarInfo:
+    meta: entity @parent(BrandInfo)
+    fields:
+      brandId: string(12) @id
+      carId: string(12) @id
+
+
+      taxExempt: boolean -- 면세 여부 // 예) TRUE - 면세 FALSE - 면세 X
+      carBasePrice: long -- 차량 기본가
+
+      payment36M: long -- 36개월 예상 렌트료
+      payment48M: long -- 48개월 예상 렌트료
+      payment60M: long -- 60개월 예상 렌트료
+
+  BaseCarInfo2:
+    meta: entity @parent(BrandInfo)
+    fields:
+      brandId: string(12) @id
+      carId: string(12) @id
+      txId: string(12) @id
+
+
+
+      taxExempt: boolean -- 면세 여부 // 예) TRUE - 면세 FALSE - 면세 X
+dto:
+  BaseCarInfoDTO:
+    meta: dto @template(BaseCarInfo)
+    fields:
+
+
+    methods:
+      - id: findCarInfoByKeyword
+        params:
+          keyword: string
+          priceFrom: long
+          priceTo: long
+          payment36mFrom: long
+          payment36mTo: long
+          testSQL: string
+        query: |
+          WITH search_query AS (
+            SELECT websearch_to_tsquery('simple', :keyword) AS query
+          )
+          SELECT
+          
+            c.car_id AS car_id,
+          
+            c.tax_exempt AS tax_exempt,
+            c.carBasePrice AS carBasePrice,
+            c.payment36M ,
+            c.payment48M AS payment48M,
+            c.payment60M AS payment60M,
+            c.displacement AS displacement,
+            c.efficiency AS efficiency,
+            
+            
+            
+            c.trim AS trim,
+            c.lineup_info_id AS lineup_info_id,
+            c.srch_nm AS srch_nm,
+            c.curb_weight AS curb_weight,
+            c.high_output AS high_output,
+            c.max_torque AS max_torque,
+            c.name AS name,
+            c.overall_height AS overall_height,
+            c.overall_length AS overall_length,
+            c.overall_width AS overall_width,
+            c.tread_front AS tread_front,
+            c.tread_rear AS tread_rear,
+            c.wheelbase AS wheelbase,
+          
+            ts_rank_cd(to_tsvector('simple', c.car_full_name), query) AS ts_rank_cd_score,
+            ts_rank(to_tsvector('simple', c.car_full_name), query) AS rank
+          FROM
+            base_car_info c,
+            search_query
+          WHERE
+            to_tsvector('simple', c.car_full_name) @@ query
+            and c.car_base_price  >= :priceFrom
+            and c.car_base_price  <= :priceTo
+            /*${testSQL}*/
+            and c.payment36m >= :payment36mFrom
+            and c.payment36m <= :payment36mTo            
+          ORDER BY
+            ts_rank_cd_score asc,rank desc   

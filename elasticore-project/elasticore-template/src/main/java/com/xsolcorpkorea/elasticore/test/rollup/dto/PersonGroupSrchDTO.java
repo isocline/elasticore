@@ -1,7 +1,7 @@
-//ecd:1348188222H20241105131031_V1.0
+//ecd:-1202822322H20241207204629_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.dto;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;

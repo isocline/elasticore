@@ -358,10 +358,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
             Entity targetEntity = findEntity(getTypeNm);
             if (targetEntity == null) continue;
-            ;
 
-            String refClassPkNm2 = targetEntity.getPkField().getName();
-
+            String refClassPkNm2 = (targetEntity.getPkField()!=null)?targetEntity.getPkField().getName():null;
 
             if (refClassPkNm == null || !refClassPkNm.equals(refClassPkNm2)) {
                 continue;

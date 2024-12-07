@@ -40,8 +40,6 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
     private boolean isDefaultGen = true;
 
-;
-
 
     public ControlSrcPublisher(CodePublisher publisher) {
         super(publisher);
@@ -169,7 +167,7 @@ public class ControlSrcPublisher extends SrcFilePublisher {
         String dtoClassName = dto.getIdentity().getName();
         String mapperName = findMapperClassName(dto);
         String searchDTOClassName = searchDto.getIdentity().getName();
-        String pkType = entity.getPkField().getType();
+        String pkType = ( entity.getPkField()!=null)?entity.getPkField().getType():"";
         String searchReturnType = "List";
         if(isPageable(searchDto)) {
             searchReturnType = "Page";

@@ -1,7 +1,7 @@
-//ecd:-843011117H20241104095801_V1.0
+//ecd:-147209298H20241207204628_V1.0
 package com.xsolcorpkorea.elasticore.test.rollup.entity;
 
-
+import com.xsolcorpkorea.elasticore.test.rollup.enums.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -30,6 +30,10 @@ public abstract class AbstractEntity  implements java.io.Serializable  {
 
 	@Column(name = "owner_id")
 	private String ownerId;
+	
+	
+	@Column(name = "test_id")
+	private String testId;
 	
 	
 }

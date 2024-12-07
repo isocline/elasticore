@@ -145,6 +145,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     && f.getTypeInfo().isList())
                 continue;
 
+            if(isSkipSearchField(searchDto, f))
+                continue;
 
 
 
