@@ -29,6 +29,7 @@ import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
+import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
@@ -228,8 +229,11 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         RelationshipManager relMgr = RelationshipManager.getInstance(dto.getIdentity().getDomainId());
 
+        String parentName = dto.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_EXTEND);
+        SourceShadowModel shadowModel = new SourceShadowModel(dto.getIdentity().getName());
 
         for(Field f: fieldList) {
+
 
             if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
                 continue;
@@ -247,8 +251,13 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 }else {
                 }
 
-                if( !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), checkTypeName ,dto.getIdentity()))
+                boolean hasRef = f.hasAnnotation(DataTransferAnnotation.REFERENCE);
+
+                if(!hasRef && !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), checkTypeName ,dto.getIdentity())) {
+                    // disable check
+                    //f.getAnnotationMap().put("disable", Annotation.create("disable"));
                     continue;
+                }
 
             }
 
@@ -268,9 +277,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
 
             }
-
-
-
 
 
             setFieldDesc(f, p);
@@ -305,7 +311,11 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
             setFunctionInfo(f, p);
 
+
+            shadowModel.addField(f);
         }
+
+        this.eCoreModel.setShadowModel(shadowModel);
     }
 
 

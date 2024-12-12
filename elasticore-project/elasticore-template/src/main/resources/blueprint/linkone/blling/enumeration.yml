@@ -1,0 +1,15 @@
+enumeration:
+
+
+  CostMgrCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(6)
+      priceDateCatCd: string
+
+      startDate: string(8) -- 유효일
+      endDate: string(8) -- 종료일
+    enum:
+      MASTER: 마스타,MASTER,T1,20240701,99991231
+

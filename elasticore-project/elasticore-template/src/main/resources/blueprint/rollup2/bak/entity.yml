@@ -1,0 +1,67 @@
+
+entity:
+  AbstractEntity:
+    meta: entity @abstract
+    fields:
+      ownerId: string
+      testId: string @s(eq)
+
+  Person:
+    meta: entity @dto @extend(AbstractEntity)
+    fields:
+      id: string @id
+      name: string
+      personGrp: PersonGroup
+      age: int
+      addr: string @s(eq)
+
+  PersonGroup:
+    meta: entity @dto @pageable @searchResult
+    fields:
+      id: string @id
+      name: string
+      scope1: int @s(<$scopeVal)
+      scope2: int @s(>$scopeVal)
+
+
+
+
+
+dto:
+  PersonSrchDTO:
+    meta: dto @searchable(Person)
+    fields:
+      personGrpId: string @ref(personGrp.id) @s(eq)
+      testZZ: string
+      optList: List<PersonGroupDTO>
+
+
+
+  PersonGroupDTO:
+    meta: dto @template(PersonGroup)
+    fields:
+      personList: List<PersonDTO>
+      test: ZZZZ
+      testMap2: java.util.HashMap<String,Object>
+      test2: int
+      carClassType: com.mobillug.leaserent.estimator.biz.enums.CarClassType -- 차량분류
+      fuelType: com.mobillug.leaserent.estimator.biz.enums.FuelType -- 유종
+
+  TestDTO:
+    meta: dto
+    fields:
+      name: string
+
+    methods:
+      - id: test2
+        params:
+          id: string
+        
+
+        pageable: true
+        nativeQuery: true
+        query: |
+          SELECT series_Name
+          FROM series_info lc
+          where lc.id  = :id
+            

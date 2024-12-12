@@ -220,10 +220,28 @@ public class StringUtils {
             case "=":
             case "eq":
                 return "Field equals value.";
+
+            case "__=":
+            case "=__":
+                return "Field equals value(case-insensitive).";
             case "like":
+            case "%%":
+            case "%_%":
                 return "Field matches pattern.";
             case "between":
                 return "Field is between two values (inclusive).";
+            case "%_":
+                return "Field matches value with the trailing part being identical.";
+            case "_%":
+                return "Field matches value with the leading part being identical.";
+
+            case "%__":
+                return "Field matches value (case-insensitive) with the trailing part being identical.";
+            case "__%":
+                return "Field matches value (case-insensitive) with the leading part being identical.";
+
+            case "%__%":
+                return "Field matches value (case-insensitive) with identical content between start and end.";
             default:
                 return "Use 'like' if value has %, else 'equal'";
         }

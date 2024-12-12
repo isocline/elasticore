@@ -2,10 +2,7 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.ConstanParam;
-import io.elasticore.base.model.ECoreModel;
-import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.AbstractDataModel;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
@@ -20,11 +17,13 @@ import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
 import static io.elasticore.base.util.StringUtils.*;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MapperSrcPublisher extends SrcFilePublisher {
 
@@ -135,8 +134,14 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         ListMap<String, Field> listMap = searchDto.getAllFieldListMap();
 
+        ShadowModel shadowModel = this.model.getShadowModel(searchDto.getIdentity().getName());
+
+
         for (Field f : listMap.getList()) {
             //if (!f.hasAnnotation(EntityAnnotation.SEARCH)) continue;
+
+            if(shadowModel!=null && shadowModel.getField(f.getName())==null)
+                continue;
 
             if(!f.hasAnnotation(EntityAnnotation.SEARCH))
                 continue;
@@ -248,15 +253,35 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             else if ("<".equals(condition)) {
                 cb.line("sp = sp.and((r,q,c) -> c.lessThan(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
             }
-            else if ("like".equals(condition) || "%%".equals(condition)) {
+            else if ("like".equals(condition) || "%_%".equals(condition) || "%%".equals(condition)) {
                 String percent = quoteString("%");
                 cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s +%s+ %s));", quoteString(entityFieldNm) ,childFieldName, percent, fieldNm, percent);
-            } else if (condition.startsWith("%")) {
+            }
+            else if ("%__%".equals(condition)) {
                 String percent = quoteString("%");
-                cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s +%s));", quoteString(entityFieldNm),childFieldName, percent, fieldNm);
+                cb.line("sp = sp.and((r,q,c) -> c.like(c.lower(r.get(%s)%s),%s +%s.toLowerCase()+ %s));", quoteString(entityFieldNm) ,childFieldName, percent, fieldNm, percent);
+            }
+            else if ("__=".equals(condition) || "=__".equals(condition)) {
+                cb.line("sp = sp.and((r,q,c) -> c.equal(c.lower(r.get(%s)%s),%s.toLowerCase()));", quoteString(entityFieldNm),childFieldName, fieldNm);
+            }
+
+            else if (condition.startsWith("%")) {
+                String percent = quoteString("%");
+                if(condition.endsWith("__")) {
+                    // ignore case
+                    cb.line("sp = sp.and((r,q,c) -> c.like(c.lower(r.get(%s)%s),%s +%s.toLowerCase()));", quoteString(entityFieldNm),childFieldName, percent, fieldNm);
+                }else {
+                    cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s +%s));", quoteString(entityFieldNm),childFieldName, percent, fieldNm);
+                }
+
             } else if (condition.endsWith("%")) {
                 String percent = quoteString("%");
-                cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s+ %s));", quoteString(entityFieldNm),childFieldName, fieldNm, percent);
+                if(condition.startsWith("__")) {
+                    cb.line("sp = sp.and((r,q,c) -> c.like(c.like(r.get(%s)%s),%s.toLowerCase()+ %s));", quoteString(entityFieldNm),childFieldName, fieldNm, percent);
+                }else {
+                    cb.line("sp = sp.and((r,q,c) -> c.like(r.get(%s)%s,%s+ %s));", quoteString(entityFieldNm),childFieldName, fieldNm, percent);
+                }
+
             } else if ("in".equals(condition)) {
                 if(isListEntityField) {
                     cb.line("sp = sp.and((root, query, criteriaBuilder) -> {");
@@ -424,7 +449,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
     }
 
-    private boolean makeModelRefMappingCode(Field fieldWithRefInfo, AbstractDataModel fromModel, CodeStringBuilder cb, boolean isDtoSet) {
+    private boolean makeModelRefMappingCode(String fromModelName, String toModelName, Field fieldWithRefInfo, AbstractDataModel fromModel, CodeStringBuilder cb, boolean isDtoSet) {
 
         String fieldName = fieldWithRefInfo.getName();
         String setFieldNm = StringUtils.capitalize(fieldName);
@@ -444,12 +469,32 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             //Field entityGetField = findFieldByTypeName(fromModel, targetRefFieldNm);
             Field entityGetField = (Field) fromModel.getAllFieldListMap().get(targetRefFieldNm);
             if (entityGetField != null) {
+
+                try {
+                    ShadowModel shadowModel = this.model.getShadowModel(fromModelName);
+                    if(shadowModel!=null) {
+                        boolean isExist = shadowModel.hasField(entityGetField);
+
+                        if(!isExist && targetChildFieldNm==null)
+                            return false;
+                    }
+
+                }catch (NullPointerException npe) {}
+
+
                 String getFieldNm = StringUtils.capitalize(entityGetField.getName());
 
                 if(!isDtoSet) {
                     String tmp = getFieldNm;
                     getFieldNm = setFieldNm;
                     setFieldNm = tmp;
+                }
+
+                ShadowModel shadowModel = this.model.getShadowModel(toModelName);
+                if(shadowModel!=null) {
+                    boolean isExist = shadowModel.hasField(fieldName);
+                    if(!isExist && targetChildFieldNm==null)
+                        return false;
                 }
 
                 if (targetChildFieldNm == null) {
@@ -517,6 +562,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
     private void makeMappingCode(ECoreModel model, String fromName, String toName, CodeTemplate.Paragraph methodP ,RelationType relationType) {
 
+        Objects.requireNonNull(fromName, "fromName must not be null");
+        Objects.requireNonNull(toName, "toName must not be null");
+
         AbstractDataModel fromModel = getDataModel(model, fromName);
         AbstractDataModel toModel = getDataModel(model, toName);
 
@@ -548,8 +596,27 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         List<Field> list = toListMap.getList();
 
+        ShadowModel fromShadowModel = this.model.getShadowModel(fromName);
+        ShadowModel toShadowModel = this.model.getShadowModel(toClassNm);
+
+        if(fromShadowModel == null ) {
+            ConsoleLog.printWarn(fromName+" not found");
+        }
+
+        if(toShadowModel == null) {
+            ConsoleLog.printWarn(toShadowModel+" not found");
+        }
+
         String parentName = null;
         for (Field f : list) {
+
+            if(!f.hasAnnotation(EntityAnnotation.REFERENCE)) {
+                if( fromShadowModel !=null && !fromShadowModel.hasField(f))
+                    continue;
+                if(toShadowModel !=null &&  !toShadowModel.hasField(f) )
+                    continue;
+            }
+
 
             if(f.hasAnnotation(DataTransferAnnotation.META_SEARCHABLE_BYPASS)) {
                 String typeName = f.getTypeInfo().getDefaultTypeName();
@@ -569,7 +636,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             }
 
 
-            if (f.hasAnnotation(EntityAnnotation.META_DISABLE)) continue;
+            //if (f.hasAnnotation(EntityAnnotation.META_DISABLE)) continue;
 
             if (isEntityReturnType(f, model)) continue;
 
@@ -595,7 +662,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             String fldNm = StringUtils.capitalize(fieldName);
 
-            if (!makeModelRefMappingCode(f, fromModel, cb ,true)) {
+            if (!makeModelRefMappingCode(fromName, toName, f, fromModel, cb ,true)) {
 
                 String mappingfunc =null;
                 String prefix = "";
@@ -651,7 +718,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         List<Field> list2 = fromListMap.getList();
 
         for (Field f : list2) {
-            makeModelRefMappingCode(f, toModel, cb ,false);
+            makeModelRefMappingCode(fromName, toName, f, toModel, cb ,false);
         }
         cb.end();
 

@@ -1,0 +1,66 @@
+repository:
+
+  RcmdCarInfo:
+    methods:
+      - id: selectBySameCarOptions
+        params:
+          carId: string
+          innerColorId: string
+          outsideColorId: string
+          optionList: List<String>
+          listSize: int
+        return: List<RcmdCarInfo>
+
+        pageable: false
+        nativeQuery: true
+        query: |
+          SELECT r.* 
+          FROM Rcmd_Car_Info r 
+          JOIN Rcmd_Car_Info_Option_List o ON r.id = o.rcmd_car_info_id 
+          WHERE r.car_id = :carId 
+            AND r.inner_color_id = :innerColorId 
+            AND r.outside_color_id = :outsideColorId 
+            AND ( 
+              SELECT COUNT(*) 
+              FROM Rcmd_Car_Info_Option_List o2 
+              WHERE o2.rcmd_car_info_id = r.id 
+                AND o2.option_list_id IN :optionList 
+            ) = :listSize
+
+
+  BrandInfo:
+    methods:
+      - id: updateEndDateExcludingTxId
+        params:
+          txId: String
+          endDate: string
+        return: int
+        query: UPDATE BrandInfo e SET e.endDate = :endDate WHERE e.txId != :txId
+
+  SeriesInfo:
+    methods:
+      - id: updateEndDateExcludingTxId
+        params:
+          txId: String
+          endDate: string
+        return: int
+        query: UPDATE SeriesInfo e SET e.endDate = :endDate WHERE e.txId != :txId
+
+
+  CarLineupInfo:
+    methods:
+      - id: updateEndDateExcludingTxId
+        params:
+          txId: String
+          endDate: string
+        return: int
+        query: UPDATE CarLineupInfo e SET e.endDate = :endDate WHERE e.txId != :txId
+
+  BaseCarInfo:
+    methods:
+      - id: updateEndDateExcludingTxId
+        params:
+          txId: String
+          endDate: string
+        return: int
+        query: UPDATE BaseCarInfo e SET e.endDate = :endDate WHERE e.txId != :txId

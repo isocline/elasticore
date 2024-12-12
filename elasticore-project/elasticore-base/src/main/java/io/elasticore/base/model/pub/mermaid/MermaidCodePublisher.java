@@ -131,9 +131,12 @@ public class MermaidCodePublisher implements CodePublisher {
         String classNm = entity.getIdentity().getName();
 
 
-        cb.line("class %s", classNm).block();
+
         if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT) ) {
+            cb.line("class %s:::abstract", classNm).block();
             cb.line("&lt;&lt;Abstract &gt;&gt;");
+        }else{
+            cb.line("class %s", classNm).block();
         }
 
 
@@ -155,6 +158,8 @@ public class MermaidCodePublisher implements CodePublisher {
                 label ="";
             }
 
+            if(f.isPrimaryKey())
+                type = type+"[PK]";
 
             cb.line("%s: %s %s", fieldName, type,label);
         }
@@ -175,9 +180,11 @@ public class MermaidCodePublisher implements CodePublisher {
             if( enumModels !=null && enumModels.findByName(r.getToName()) !=null)
                 continue;
 
-            if(r.getToName().indexOf("[")>0)
+            if(r.getToName().indexOf("PK:")>=0)
                 continue;
 
+            if(r.getFromName().indexOf("PK:")>=0)
+                continue;
 
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
                 cb.line("%s --o \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
@@ -191,6 +198,9 @@ public class MermaidCodePublisher implements CodePublisher {
                 cb.line("%s <|-- %s : %s", r.getToName(), r.getFromName(),  r.getRelationType().getName());
             else if (r.getRelationType() == RelationType.EMBEDDED)
                 cb.line("%s --* %s : %s",  r.getFromName(), r.getToName(),  r.getRelationName()+"(embedded)");
+
+            else if (r.getRelationType() == RelationType.AOSSOCIATION)
+                cb.line("%s --> \"0..*\" %s : %s", r.getToName(), r.getFromName(), r.getRelationName());
         }
     }
 }

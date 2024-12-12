@@ -1,0 +1,84 @@
+package io.elasticore.base.model.shadow;
+
+import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.ShadowModel;
+import io.elasticore.base.model.entity.Field;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SourceShadowModel implements ShadowModel {
+
+    private ECoreModel eCoreModel;
+    private String parentName;
+    private String name;
+    private List<Field> fieldList = new ArrayList<>();
+
+
+    public SourceShadowModel(String name) {
+        this.name = name;
+    }
+
+    public SourceShadowModel(String name, String parentName) {
+        this.name = name;
+        this.parentName = parentName;
+
+    }
+
+    @Override
+    public String getParentName() {
+        return this.parentName;
+    }
+
+    @Override
+    public void setECoreModel(ECoreModel eCoreModel) {
+        this.eCoreModel = eCoreModel;
+    }
+
+    @Override
+    public boolean hasField(Field f) {
+
+        return hasField(f.getName());
+    }
+
+    @Override
+    public boolean hasField(String fieldName) {
+        if( getField(fieldName) ==null) {
+            if(this.parentName!=null) {
+                ShadowModel shadowModel = eCoreModel.getShadowModel(this.parentName);
+                if(shadowModel!=null) {
+                    return shadowModel.hasField(fieldName);
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public List<Field> listFields() {
+        return fieldList;
+    }
+
+    @Override
+    public Field getField(String name) {
+        if(name==null || name.isEmpty())
+            return null;
+
+        for(Field f: fieldList) {
+            if(name.equals(f.getName()))
+                return f;
+        }
+
+        return null;
+    }
+
+    public void addField(Field f) {
+        this.fieldList.add(f);
+    }
+}

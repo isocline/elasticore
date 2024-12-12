@@ -1,0 +1,73 @@
+dto:
+
+  CostTableDTO:
+    meta: dto @template('CostTable')
+    fields:
+      vClassCdId: string @ref(vClassCd.codeId) -- 차량등급코드 id
+      vClassCdNm: string @ref(vClassCd.codeNm) -- 차량등급코드 이름
+      displacementCdId: string @ref(displacementCd.codeId) -- 차량등급코드 id
+      displacementCdNm: string @ref(displacementCd.codeNm) -- 차량등급코드 이름
+      createdBy: --
+      createDate: --
+      lastModifiedBy: --
+      lastModifiedDate: --
+
+
+
+  CostTableSrchDTO:
+    meta: dto @searchable(entity=CostTable, pageSize=100)
+    fields:
+      vClassCdId: string @s(eq)  @ref(vClassCd.codeId) -- 차량등급코드 id
+      displacementCdId: string @s(eq)  @ref(displacementCd.codeId) -- 차량등급코드 id
+      partnerComId: string @s(eq) @ref(displacementCd.codeOptn3) -- 고객사 id
+
+
+
+  CostTableSetDTO:
+    meta: dto
+    fields:
+#      costMgrCd: CostMgrCode -- 요금표 id
+      costMgrCd: string -- 요금표 id
+      labelCodeList: List<CommonCodeDTO> -- 라벨 리스트
+      displCodeList: List<CommonCodeDTO> -- 배기량별 리스트
+      priceList: List<CostTableDTO> -- 요금 리스트
+
+
+  CostCalcInputDTO:
+    meta: dto
+    fields:
+#      costMgrCd: CostMgrCode -- 요금 기준 코드
+      costMgrCd: string -- 요금 기준 코드
+      displacementCdId: string -- 적용 차량코드
+      useDay: int -- 사용일수
+      useHour: int -- 사용시간
+      faultRatio: int -- 과실율 퍼센트 단위
+      claimRate: int -- 청규율 퍼센트 단위
+      claimAmount: int -- (사용자 설정) 청구금액
+
+  CostCalcOutputDTO:
+    meta: dto
+    fields:
+      standardRentalFee: int -- 기준대여료
+      claimAmount: int -- 청구금액
+      basePrice: string -- 기준대여료
+      price1: string -- 2일까지 대여로
+      price2: string -- 3일이상 대여로
+      price3: string -- 5일이상 대여로
+      price4: string -- 7일이상 대여로
+      price5: string -- 30일이상 대여로
+      gradeName: string --적용등급
+
+
+
+  InvoicePDFOutputDTO:
+    meta: dto
+    fields:
+      pdfUrl: string -- 청구서 pdf url
+      loanCarId: string -- 대차 내부 아이디
+
+  InvoiceFaxOutputDTO:
+    meta: dto
+    fields:
+      isSuccess: boolean -- 성공여부
+      receiptNum: string -- FAX 응답코드

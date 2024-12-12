@@ -6,12 +6,17 @@ entity:
     fields:
       lcpCode: long @id @sequence -- 순번 아이디
 
+      #07/09 추가건==============
+      empNo: string -- 접수자 코드
+      empNm: string -- 접수자 이름
+      #=========================
       rentCompany: Company -- 렌트카 업체
       processType: RentCarProcessType @s(eq) -- 상태 프로세스
       applyDate: string(8) -- 적용일자 yyyyMMdd
       applyTime: string(6) -- 적용일시 HHmmss
       callHistory: CallHistory -- 통화내역
       memo: text @s(%%) -- 기타메모(담당자처리내용)
+      mgrMsgYN: Indicator @default(Indicator.NO) -- 관리자 메세지 여부
 
       loanCarMasterId: string(30) @s(eq)  -- 대차 마스터 번호
 
@@ -37,20 +42,71 @@ entity:
     fields:
       id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 내부 접수번호
       lcCode: string(50) @s(-%) -- 외부(마스터) 접수번호
+      superficialCreateDate: datetime -- 표면적 접수일시
+
+      #07/09 이후 추가건==============
+      requestType: RequestType @s(=) -- 요청 구분
+      requestCompany: Company -- 요청 고객사
+      empNm: string -- 접수자 명
+      custRel: string -- 운전자와의 관계
+      insureEmpId: string -- 보험 담당자 id
+      insureEmpName: string -- 보험 담당자
+      insureTempName: string -- 임시 담당자 이름
+      insureTempTel: string -- 임시 담당자 전화번호
+      repairCompany: Company -- 담당 공업사 업체
+      indeMoneyType: Indicator @default(Indicator.NO) -- 면책금 상태
+      accidentCode: string  @s(%%) -- 사고 접수번호
+      accidentType: AccidentType @s(=) -- 사고 유형
+      accidentAddr: string  -- 사고 장소
+      accidentDateTime: string(20) -- 사고일시 yyyy/MM/dd HH:mm
+      carReceiptAddr: string  -- 대차 수령지
+      comment: text  -- 특이사항
+      rentalDate: string(20) -- 배송일시 yyyy/MM/dd HH:mm
+      rentalETADate: string(20) -- 배송예정일시 yyyy/MM/dd HH:mm
+      returnDate: string(20) -- 반납일시 yyyy/MM/dd HH:mm
+      firstDriver: RentDriver -- 운전자 정보
+      secondDriver: RentDriver -- 제2 운전자 정보
+      otherCosts: int  -- 기타 처리 금액
+      claimRate: int -- 청구율
+      faultRatio: int -- 과실율
+      claimAmount: int -- 청구금액
+      claimFormula: string -- 청구 수식
+      displacementCdId: string -- 청구기준금액 코드 Id
+      displacementCdNm: string -- 청구기준금액 코드 이름
+      displacement: string  -- 배기량
+      prdtYear: string  -- 연식
+      claimMemo: string -- 청구 기타사항
+
+      invoicePdfUrl: string(512) -- 청구서 PDF url
+      contractPdfUrl: string(512) -- 계약서 PDF url
+      carRegCertPdfUrl: string(512)  -- 차량등록증 PDF url
+      
+      faxReceiptNo: string(50) -- fax(popbill) 접수 번호
+      faxReceiptOrgNo: string(50) -- fax(popbill) 원 접수 번호
+      faxCompleteYN: Indicator @default(Indicator.NO) -- 팩스 전송상태 완료 여부
+
+      faxStatusType: FaxStatusType @s(=)  -- 팩스 전송상태코드
+      faxRetryCount: int -- 재전송 횟수
+
+
+      #=========================
 
       statusType: StatusType @s(=) -- 대차작업상태
-      empNo: string --요청상담사
-      rentKind: RentKindType @s(=) -- 사고유형
+      empNo: string -- 접수자 코드
+      rentKind: RentKindType @s(=) -- 대차 용도
 
       rentCarCode: string(12) @s(%%) --대차차량코드
       rentCarNm: string(200) @s(%%) --대차차량명
+
+      custCarCode: string(12) @s(%%) --고객차량코드
+      custCarNm: string(200) @s(%%) --고객차량명
 
       rentCost: string(50) --대차비용
       insurNm: string(100) --보험사
       indeMoney: string(50) --면책금
       regDate: string --신청일 yyyyMMdd
       regTime: string --신청시간 hhmi
-      joinCode: string --제휴사
+      joinCode: string @s(eq) --제휴사
 
       custNm: string! @s(%%) --고객명
       custTel: string! @s(%%) --연락처
@@ -71,6 +127,8 @@ entity:
 
       lcReason: text --대차미진행 사유
 
+      accidentReason: text  --사고 내용
+      custRequest: text --고객 요청사항
 
       smsParseType: Indicator @default(Indicator.NO) --문자파싱 성공여부
       content: text --문자내용(문자처리시)
@@ -82,10 +140,72 @@ entity:
 
       processHistory: List<LoanCarProcess>
 
+      imsRespCnt: int -- IMS 응답 건수(여기서 1에서 2로 바뀌면 교체건으로 본다)
+
+      lastPushedComId: string -- 웹앱 확인 여부 컬럼
+      isInactive: string -- 대차건 비활성화 여부
 
 
 
+  #07/09 이후 추가건==============
+  RentDriver:
+    meta: entity @extend(AuditEntity) @DynamicUpdate(false) -- 운전자 정보 | 대차 건 운전자 정보 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 내부 접수번호
+      driverName: string -- 운전자 이름
+      registrationCode: string -- 운전자 주민번호
+      driverTel: string -- 운전자 전화번호
+      driverAddr: string -- 운전자 주소
+      licenseCode: string -- 면허번호
+      licenseType: string -- 면허종류
+      licenseCertified: string -- 면허취득일
+      licenseExpired: string -- 면허만기일
+  #==============================
 
+
+  UploadFile:
+    meta: entity @extend(AuditEntity)
+    fields:
+      id: string(30) @id @env:genid -- 아이디
+      refId: string(30) @s(eq) -- 대차 접수번호 또는 차량 관리
+      seq: int @default(0) -- 순번
+      uploadType: string(10)! @s(eq) -- 업로드 타입  IMG_RP:고객차량 / IMG_DL:대차차량 / IMG_RT:반납차량이미지  / CONTRACT:계약서 / REGCERT:등록증 / INVOICE:청구서
+      fileUrl: string(512)! @s(eq) -- 파일 (full url)
+      filePath: string(512) -- 경로정보
+      fileType: string(16) -- 파일 타입
+      size: long -- 파일 크기
+      
+  FaxResult:
+    meta: entity @extend(AuditEntity)
+    fields:
+      id: string @id -- fax 전송 고유 번호 (popbill에서 수신)
+      loanCarId: string -- 대차접수 내부 아이디
+      sendState: int
+      convState: int
+      sendNum: string(30)  @s(%%) -- 발신번호
+      senderName: string
+      receiveNum: string(30) @s(%%) -- 수신번호
+      receiveName: string
+      sendPageCnt: int
+      successPageCnt: int
+      failPageCnt: int
+      refundPageCnt: int
+      cancelPageCnt: int
+      reserveDT: string
+      sendDT: string @s(%%) -- 전송일시
+      resultDT: string
+      sendResult: string
+      receiptDT: string @s(%%) -- 접수일시
+      title: string
+      state: int @s(eq) -- 전송상태 코드
+      result: int @s(eq) -- 전송결과코드
+      receiptNum: string
+      requestNum: string
+      interOPRefKey: string
+      chargePageCnt: int
+      tiffFileSize: string
+      iSuccessPageCnt: int
+      receiveNumType: string
 
 
 

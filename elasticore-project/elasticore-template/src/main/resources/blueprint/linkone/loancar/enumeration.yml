@@ -1,5 +1,13 @@
 enumeration:
 
+  RequestType:
+    meta: enum @json(code) @db(code) -- 요청 구분
+    fields:
+      msg: string
+      code: string @length(2)
+      name: string
+    enum:
+      MASTER: 마스타,01,마스타자동차
 
   RentKindType:
     meta: enum @json(code) @db(code) -- 사고 유형
@@ -7,11 +15,9 @@ enumeration:
       msg: string
       code: string  @length(2)
     enum:
-      DESTORY: 피해,01
-      REPAIR: 정비,02
-      FAULT: 가해,03
-      SOLO: 단독,04
-      UNKNOWN: 미정,08
+      ACCIDENT: 사고,01
+      INSURE: 보험,02
+      REPAIR: 정비,03
       ETC: 기타,09
 
   NoWayType:
@@ -30,12 +36,15 @@ enumeration:
       msg: string
       code: string @length(2)
     enum:
-      REQUEST: 요청,RQ
-      CONFIRM: 확정,CF
-      DILIVERY: 배송,DL
-      RETURN: 반납,RT
-      CHANGE: 변경요청,CG
-      FAIL: 불가,FL
+      RECEIPT : 접수,RP
+      REQUEST: 요청중,RQ
+      CONFIRM: 배정확정,CF
+      DELIVERY: 배차 완료,DL
+      RETURN: 반납 완료,RT
+      CLAIM_COMPLETE: 청구 완료, CM
+      CLOSURE: 종결 처리, CS
+      CHANGE: 렌트카 변경요청,CG
+      FAIL: 대차 취소,FL
 
   RentCarProcessType:
     meta: enum @json(code) @db(code)
@@ -43,11 +52,48 @@ enumeration:
       msg: string
       code: string(2)
     enum:
-      REQUEST: 요청,RQ
-      DILIVERY: 배송,DL
+      RECEIPT : 접수,RP
+      REQUEST: 요청중,RQ
+      CHANGE: 배차 변경 요청,CG
+      CONFIRM: 배정 확정,CF
+      DELIVERY: 배송 완료,DL
       CALL: 통화,CL
-      FAIL: 불가,FL
+      FAIL: 대차 취소,FL
       ETC: 기타,ET
-      RETURN: 반납확인,RT
+      RETURN: 반납 완료,RT
+      CLAIM_COMPLETE: 청구 완료, CM
+      CLOSURE: 종결 처리, CS
+      MODIFY: 정보 수정, MD
+      CHANGE_DL: 교체배정,CD
+      STATUS_UPDATE: 상황전달,SU
+      DOCUMENT_UPDATE: 문서전달,DU
+
+  AccidentType:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+      rentKindType: RentKindType
+    enum:
+      SELF: 자차, SL, RentKindType.ACCIDENT
+      SINGLE: 단독, SG, RentKindType.ACCIDENT
+      INFLICT: 가해, IL, RentKindType.ACCIDENT
+      DAMAGED: 피해, DM, RentKindType.INSURE
+      MISTAKE: 과실, MT, RentKindType.INSURE
+      UNDECIDED: 미정,UD, RentKindType.INSURE
+
+  FaxStatusType:
+    meta: enum @json(code) @db(code) -- 팩스 전송상태
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      NOT_SEND: 미전송, N
+      SENDING: 전송 중, S
+      RESENDING: 재전송, R
+      FAIL: 전송 실패, F
+      COMPLETE: 전송 완료, Y
+      EMAIL: 이메일 발송건, E
+
 
 

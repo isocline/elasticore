@@ -46,6 +46,8 @@ public class ModelExtractor {
             log("elasticore.domain = " + specDomainName);
         }
 
+        specDomainName = ","+specDomainName+",";
+
 
         String checkDir = this.modelResourcePath;
 
@@ -69,7 +71,9 @@ public class ModelExtractor {
 
                     String envPath = chiild.getAbsolutePath();
                     //if(envPath.indexOf("px")>=0)
-                    if (specDomainName == null || specDomainName.equals(envFile.getParentFile().getName()))
+
+                    String envName = envFile.getParentFile().getName();
+                    if (specDomainName == null || specDomainName.indexOf(","+envName+",")>=0)
                         dirList.add(envPath);
                 }
             }

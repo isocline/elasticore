@@ -6,7 +6,7 @@
     <title>Mermaid UML Diagram</title>
     <!-- Mermaid CDN -->
     <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
         mermaid.initialize({ startOnLoad: true });
     </script>
     <style>
@@ -45,7 +45,32 @@ init: {
 }%%
 
 classDiagram
-    class AuditEntity{
+    class AlarmEvent{
+        id: String[PK] //알림 아이디
+        title: String 
+        msg: String 
+        alarmType: String //알람여부 ('1' 알람표시, '0' 알람 표시 안함)
+        mainTypeInfo: String //주 타입정보
+        subTypeInfo: String //서브 타입정보
+        loanCarId: String //관련 대차코드
+        partnerComId: String //대차 접수 고객사 정보
+        lcCode: String //대차 접수번호
+        presentDateTime: String //발생 시간(표시용)
+        isChecked: String //알림 확인여부 코드
+    }
+    AuditEntity <|-- AlarmEvent : extend
+    class CostTable{
+        id: Long[PK] //요금표 아이디
+        costMgrCd: String //요금표 종류
+        vClassCd: CommonCode //차량등급코드
+        displacementCd: CommonCode //배기량정보 코드
+        mainCarNames: String //대표 차종
+        prices: String[] //요금  리스트
+    }
+    AuditEntity <|-- CostTable : extend
+    CostTable --o "0..1" CommonCode : vClassCd
+    class AuditEntity:::abstract{
+        &lt;&lt;Abstract &gt;&gt;
         createDate: java.time.LocalDateTime 
         createdBy: String 
         lastModifiedBy: String 
@@ -53,7 +78,8 @@ classDiagram
     }
     class CommonCode{
         codeSn: Long //코드 sequence
-        codeId: String 
+        codeId: String[PK] 
+        codePntId: String //상위 코드 아이디
         codeNm: String 
         codeValue: String 
         codeOptn1: String //코드옵션1
@@ -64,40 +90,102 @@ classDiagram
     }
     AuditEntity <|-- CommonCode : extend
     class Company{
-        id: String //업체아이디
+        id: String[PK] //업체아이디
         comGrpCode: CompanyGroupCode //업체그룹코드
         areaCodeList: AreaCode[] //담당지역
-        partnerCust: CommonCode //제휴고객사
+        partnerCust: Company //제휴고객사
         comName: String //업체명
         respName: String 
         respTel: String //담당자전화번호
         respZone: String 
         useYn: Indicator //업체활성화여부 Y:활성화 / N:비활성화
         userList: CustUser[] //해당업체 사용자목록
+        centerName: String //센터명
+        wireTel: String //업체 유선전화
+        managementArea: String //관리지역
+        insureEmpId: String //보험 담당자
+        logoImgUrl: String //로고 Url
     }
     AuditEntity <|-- Company : extend
-    Company --o "0..*" AreaCode : areaCodeList
+    Company --o "0..1" Company : partnerCust
     Company --o "0..*" CustUser : userList
     class CustUser{
-        id: String //사용자 내부아이디
+        id: String[PK] //사용자 내부아이디
         company: Company //업체
         usrId: String 
         password: String 
         name: String 
         telNo: String 
+        workTelNo: String 
+        faxNo: String //팩스번호
         email: String //이메일
         deptNm: String //부서
         grade: String //직급
+        useYn: Indicator //사용자 활성화여부 Y:활성 / N:차단
+        blockReason: String //차단 사유
+        authDivision: AuthDivisionType //권한 분류
+        claimPartTextInfo: String //청구 파트 목록 텍스트형태
+        roleCode: EmpAuthorization //role 코드 정보
+        permission: Integer //권한 코드 정보
     }
     AuditEntity <|-- CustUser : extend
+    CustUser --o "0..1" Company : company
+    CustUser --o "0..1" EmpAuthorization : roleCode
+    class EmpAuthorization{
+        id: String[PK] //권한그룹 내부아이디
+        company: Company //업체
+        name: String 
+        useYn: Indicator //권한 그룹 활성화여부 Y:활성 / N:차단
+        permission: Integer //권한 코드 정보
+    }
+    AuditEntity <|-- EmpAuthorization : extend
+    EmpAuthorization --o "0..1" Company : company
+    class CarInfo{
+        id: String[PK] //차량 아이디(등록번호)
+        carRegNo: String 
+        companyId: String 
+        contractFileUrl: String //차량등록증 url
+    }
+    AuditEntity <|-- CarInfo : extend
+    class InsureCustUserMap{
+        id: Long[PK] //매핑 아이디
+        companyId: String //업체 아이디
+        custUser: CustUser //캐피탈 담당자
+    }
+    AuditEntity <|-- InsureCustUserMap : extend
+    InsureCustUserMap --o "0..1" CustUser : custUser
+    class RetrieveCarInfo{
+        carNumber: String[PK] //차량 번호
+        capacity: String //용량
+        carSize: String //차량 크기
+        color: String //색상
+        companyName: String //제조사 이름
+        displacement: String //displacement
+        fuel: String //연료 종류
+        gradeName: String //등급 이름
+        id: Integer //차량 내부 ID
+        modelName: String 
+        modelType: String //모델 유형
+        overseas: Boolean //해외 여부
+        payload: String //적재량
+        prdtYear: String //제조 연도 yyyy
+        rgstYm: String //등록 연월 yyyyMM
+        segmentCode: String //세그먼트 코드
+        subGradeName: String //하위 등급 이름
+        subModelName: String //하위 모델 이름
+    }
+    AuditEntity <|-- RetrieveCarInfo : extend
     class LoanCarProcess{
-        lcpCode: Long //순번 아이디
+        lcpCode: Long[PK] //순번 아이디
+        empNo: String //접수자 코드
+        empNm: String //접수자 이름
         rentCompany: Company //렌트카 업체
         processType: RentCarProcessType //상태 프로세스
         applyDate: String //적용일자 yyyyMMdd
         applyTime: String //적용일시 HHmmss
         callHistory: CallHistory //통화내역
         memo: String //기타메모(담당자처리내용)
+        mgrMsgYN: Indicator //관리자 메세지 여부
         loanCarMasterId: String //대차 마스터 번호
         custReqMemo: String //고객요청사항
         reqCarName: String //고객 요청 차량명
@@ -105,22 +193,67 @@ classDiagram
         insureYN: Indicator //자차보험 서비스제공여부
     }
     AuditEntity <|-- LoanCarProcess : extend
+    LoanCarProcess --o "0..1" Company : rentCompany
+    LoanCarProcess --o "0..1" CallHistory : callHistory
     class CallHistory{
-        callCode: Long 
+        callCode: Long[PK] 
         loanCarProcess: LoanCarProcess //관련 작업
         callContent: String //통화내용
         callDate: String //통화일자 yyyyMMdd
         callTime: String //통화시간 HHmmss
     }
     AuditEntity <|-- CallHistory : extend
+    CallHistory --o "0..1" LoanCarProcess : loanCarProcess
     class LoanCar{
-        id: String //내부 접수번호
+        id: String[PK] //내부 접수번호
         lcCode: String //외부(마스터) 접수번호
+        superficialCreateDate: java.time.LocalDateTime //표면적 접수일시
+        requestType: RequestType //요청 구분
+        requestCompany: Company //요청 고객사
+        empNm: String //접수자 명
+        custRel: String //운전자와의 관계
+        insureEmpId: String //보험 담당자 id
+        insureEmpName: String //보험 담당자
+        insureTempName: String //임시 담당자 이름
+        insureTempTel: String //임시 담당자 전화번호
+        repairCompany: Company //담당 공업사 업체
+        indeMoneyType: Indicator //면책금 상태
+        accidentCode: String //사고 접수번호
+        accidentType: AccidentType //사고 유형
+        accidentAddr: String //사고 장소
+        accidentDateTime: String //사고일시 yyyy/MM/dd HH:mm
+        carReceiptAddr: String //대차 수령지
+        comment: String //특이사항
+        rentalDate: String //배송일시 yyyy/MM/dd HH:mm
+        rentalETADate: String //배송예정일시 yyyy/MM/dd HH:mm
+        returnDate: String //반납일시 yyyy/MM/dd HH:mm
+        firstDriver: RentDriver //운전자 정보
+        secondDriver: RentDriver //제2 운전자 정보
+        otherCosts: Integer //기타 처리 금액
+        claimRate: Integer //청구율
+        faultRatio: Integer //과실율
+        claimAmount: Integer //청구금액
+        claimFormula: String //청구 수식
+        displacementCdId: String //청구기준금액 코드 Id
+        displacementCdNm: String //청구기준금액 코드 이름
+        displacement: String //배기량
+        prdtYear: String //연식
+        claimMemo: String //청구 기타사항
+        invoicePdfUrl: String //청구서 PDF url
+        contractPdfUrl: String //계약서 PDF url
+        carRegCertPdfUrl: String //차량등록증 PDF url
+        faxReceiptNo: String //fax(popbill) 접수 번호
+        faxReceiptOrgNo: String //fax(popbill) 원 접수 번호
+        faxCompleteYN: Indicator //팩스 전송상태 완료 여부
+        faxStatusType: FaxStatusType //팩스 전송상태코드
+        faxRetryCount: Integer //재전송 횟수
         statusType: StatusType //대차작업상태
-        empNo: String //요청상담사
-        rentKind: RentKindType //사고유형
+        empNo: String //접수자 코드
+        rentKind: RentKindType //대차 용도
         rentCarCode: String //대차차량코드
         rentCarNm: String //대차차량명
+        custCarCode: String //고객차량코드
+        custCarNm: String //고객차량명
         rentCost: String //대차비용
         insurNm: String //보험사
         indeMoney: String //면책금
@@ -143,16 +276,80 @@ classDiagram
         consignDaddr: String //탁송장소(상세주소)
         consignTel: String //탁송장소(전화번호)
         lcReason: String //대차미진행 사유
+        accidentReason: String //사고 내용
+        custRequest: String //고객 요청사항
         smsParseType: Indicator //문자파싱 성공여부
         content: String //문자내용(문자처리시)
         partnerCust: CommonCode //제휴고객사
         partnerEtcNm: String //기타 제휴 고객사명
         rentCompany: Company //담당 렌트카 업체
         processHistory: LoanCarProcess[] 
+        imsRespCnt: Integer //IMS 응답 건수(여기서 1에서 2로 바뀌면 교체건으로 본다)
+        lastPushedComId: String //웹앱 확인 여부 컬럼
+        isInactive: String //대차건 비활성화 여부
     }
     AuditEntity <|-- LoanCar : extend
+    LoanCar --o "0..1" Company : requestCompany
+    LoanCar --o "0..1" RentDriver : firstDriver
+    LoanCar --o "0..1" CommonCode : partnerCust
     LoanCar --o "0..*" LoanCarProcess : processHistory
+    class RentDriver{
+        id: String[PK] //내부 접수번호
+        driverName: String //운전자 이름
+        registrationCode: String //운전자 주민번호
+        driverTel: String //운전자 전화번호
+        driverAddr: String //운전자 주소
+        licenseCode: String //면허번호
+        licenseType: String //면허종류
+        licenseCertified: String //면허취득일
+        licenseExpired: String //면허만기일
+    }
+    AuditEntity <|-- RentDriver : extend
+    class UploadFile{
+        id: String[PK] //아이디
+        refId: String //대차 접수번호 또는 차량 관리
+        seq: Integer //순번
+        uploadType: String 
+        fileUrl: String 
+        filePath: String //경로정보
+        fileType: String //파일 타입
+        size: Long //파일 크기
+    }
+    AuditEntity <|-- UploadFile : extend
+    class FaxResult{
+        id: String[PK] //fax 전송 고유 번호 (popbill에서 수신)
+        loanCarId: String //대차접수 내부 아이디
+        sendState: Integer 
+        convState: Integer 
+        sendNum: String //발신번호
+        senderName: String 
+        receiveNum: String //수신번호
+        receiveName: String 
+        sendPageCnt: Integer 
+        successPageCnt: Integer 
+        failPageCnt: Integer 
+        refundPageCnt: Integer 
+        cancelPageCnt: Integer 
+        reserveDT: String 
+        sendDT: String //전송일시
+        resultDT: String 
+        sendResult: String 
+        receiptDT: String //접수일시
+        title: String 
+        state: Integer //전송상태 코드
+        result: Integer //전송결과코드
+        receiptNum: String 
+        requestNum: String 
+        interOPRefKey: String 
+        chargePageCnt: Integer 
+        tiffFileSize: String 
+        iSuccessPageCnt: Integer 
+        receiveNumType: String 
+    }
+    AuditEntity <|-- FaxResult : extend
 
+
+    classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5
     </div>
 </body>
 </html>

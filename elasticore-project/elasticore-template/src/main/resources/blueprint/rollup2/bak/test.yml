@@ -1,0 +1,452 @@
+
+entity:
+
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+      createIP: string(20) -- 시스템 입력 IP
+      lastModifiedIP: string(20) -- 시스템 수정 IP
+
+  CommonCode:
+    meta: entity  @extend(AuditEntity) -- 공통코드 | GA 시스템에서 공통적으로 사용되는 코드 정보를 관리하는 테이블
+    fields:
+      codeType: string(20)! @id -- 코드 유형
+      mainCode: string(20)! @id   -- 메인 코드
+      useFrmdt: string(8) -- 사용 시작일 (YYYYMMDD)
+      useTodt: string(8) -- 사용 종료일 (YYYYMMDD)
+      shortName: string(100) -- 코드 짧은 이름
+      longName: string(200) -- 코드 긴 이름
+      orderNo: int -- 정렬 순서
+      upType: string(20) -- 상위 유형
+      upCode: string(20) -- 상위 코드
+
+  Organization:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 조직 기본 | GA 시스템의 조직 관리에서 사용되는 기본 조직 정보 테이블
+    fields:
+      orgCd: string(15)! @id @env:genid -- 조직 코드
+      orgNm: string(300)! -- 조직명
+      orgLevelCd: string(15) -- 조직 레벨 코드
+      upOrgCd: string(15) -- 상위 조직 코드
+      orderNo: long -- 정렬 순서
+      orgBossId: string(15) -- 조직장 ID
+      directPhone1: string(4) -- 직통전화 1
+      directPhone2: string(4) -- 직통전화 2
+      directPhone3: string(4) -- 직통전화 3
+      faxPhone1: string(4) -- 팩스 전화 1
+      faxPhone2: string(4) -- 팩스 전화 2
+      faxPhone3: string(4) -- 팩스 전화 3
+      postNo1: string(7) -- 우편번호 1
+      postNo2: string(7) -- 우편번호 2
+      baseAddr: string(200) -- 기본 주소
+      detailAddr: string(300) -- 상세 주소
+      openYmd: string(8) -- 개설일자
+      closeYmd: string(8) -- 폐쇄일자
+      orgTypeCd: string(15) -- 조직 유형 코드
+      increaseOrgCd: string(15) -- 증감 조직 코드
+      searchYN: Indicator @default(Indicator.YES) -- 검색 여부
+
+  Employee:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 인사_기본 | GA 시스템에서 인사 기본 정보를 관리하는 테이블
+    fields:
+      empNo: string(15)! @id   -- 사원 번호
+      juminNo: string(13) -- 주민등록번호
+      korNm: string(50) -- 한국 이름
+      engNm: string(50) -- 영어 이름
+      orgCd: string(20) -- 조직 코드
+      jobPositionCd: string(20) -- 직위 코드
+      jobGradeCd: string(20) -- 직급 코드
+      jobTitleCd: string(20) -- 직책 코드
+      careerCd: string(20) -- 경력 코드
+      inVtmentYn: Indicator @default(Indicator.YES) -- 투자 여부
+      enterYmd: string(8) -- 입사 일자 (YYYYMMDD)
+      retireYmd: string(8) -- 퇴사 일자 (YYYYMMDD)
+      orderYmd: string(8) -- 발령 일자 (YYYYMMDD)
+      retireReason: string(100) -- 퇴사 사유
+      birthYmd: string(8) -- 생년월일 (YYYYMMDD)
+      mobilePhone1: string(4) -- 휴대전화 1
+      mobilePhone2: string(4) -- 휴대전화 2
+      mobilePhone3: string(70) -- 휴대전화 3
+      directPhone1: string(4) -- 직통전화 1
+      directPhone2: string(4) -- 직통전화 2
+      directPhone3: string(70) -- 직통전화 3
+      email: string(100) -- 이메일
+      postNo1: string(3) -- 우편번호 1
+      postNo2: string(3) -- 우편번호 2
+      baseAddr: string(200) -- 기본 주소
+      detailAddr: string(300) -- 상세 주소
+      marryYn: Indicator  -- 결혼 여부
+      bloodCd: string(2) -- 혈액형 코드
+      religionCd: string(2) -- 종교 코드
+      hobbyNm: string(200) -- 취미명
+      ctbno: string(1000) -- 헌혈 번호
+      bioTypeCd: string(1) -- 생체 정보 유형
+      lifeInsuYn: Indicator @default(Indicator.NO) -- 생명보험 가입 여부
+      pnpnSvn: Indicator @default(Indicator.NO) -- 연금보험 가입 여부
+      bankCd: string(20) -- 은행 코드
+      accountNo: string(20) -- 계좌 번호
+      photoFileNm: string(150) -- 사진 파일명
+      emailUseYn: Indicator @default(Indicator.NO)  -- 이메일 사용 여부
+      eCommP: Indicator @default(Indicator.NO) -- 전자통신 우편 여부
+      includeNumber: int! @default(0) -- 포함 번호
+      advancedPayment: Indicator @default(Indicator.NO)-- 선불 여부
+      scholarship: Indicator @default(Indicator.NO) -- 장학금 여부
+      scholarshipStart: string(6) -- 장학금 시작일 (YYYYMM)
+      scholarshipEnd: string(6) -- 장학금 종료일 (YYYYMM)
+      childCare: Indicator @default(Indicator.NO) -- 육아 휴직 여부
+      appoint: Indicator @default(Indicator.NO) -- 임명 여부
+      appointMonth: string(6) -- 임명 월 (YYYYMM)
+      introductionPolicy: string(1) -- 소개 정책
+      revertMonth: string(6) -- 복귀 월 (YYYYMM)
+
+  EmpFamily:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 인사_가족사항 | GA 시스템의 인사 관리에서 사용되는 가족사항 테이블
+    fields:
+      empNo: string(15) @id -- 사원번호
+      seq: long  @id @sequence @len(5) @precision(5) -- 순번
+      juminNo: string(13) -- 주민번호
+      familyRelNm: string(30) -- 가족관계명
+      name: string(20) -- 이름
+      etc: string(50) -- 기타사항
+      togetherYn: Indicator @default(Indicator.NO) -- 동거여부
+
+  EmpEducation:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 인사_학력사항 | GA 시스템의 인사 관리에서 사용되는 학력사항 테이블
+    fields:
+      empNo: string(15)! @id -- 사원번호
+      enterYmd: string(8)! @id -- 입학일자
+      outYmd: string(8) -- 졸업일자
+      schoolNm: string(100) -- 학교명
+      schoolCareerCd: string(15) -- 학력코드
+      subjectNm: string(100) -- 전공명
+
+  Customer:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 고객_기본 | GA 시스템의 고객 관리에서 사용되는 기본 고객 정보 테이블
+    fields:
+      custNo: string(13)! @id @env:genid -- 고객 번호
+      custCd: string(5) -- 고객 코드
+      orgEmpNo: string(15) -- 조직 사원 번호
+      custNm: string(50)! -- 고객명
+      directPhone1: string(4) -- 직통 전화 1
+      directPhone2: string(4) -- 직통 전화 2
+      directPhone3: string(4) -- 직통 전화 3
+      academicCd: string(4) -- 학력 코드
+      jobNm: string(100) -- 직업명
+      mobilePhone1: string(4) -- 휴대폰 1
+      mobilePhone2: string(4) -- 휴대폰 2
+      mobilePhone3: string(70) -- 휴대폰 3
+      gender: GenderCode -- 남여구분
+      birthCd: string(5) -- 생년 코드
+      birthYmd: string(8)! -- 생년월일
+      email: string(100) -- 이메일
+      homePostNo1: string(7) -- 자택 우편번호 1
+      homePostNo2: string(7) -- 자택 우편번호 2
+      homeBaseAddr: string(200) -- 자택 기본 주소
+      homeDetailAddr: string(300) -- 자택 상세 주소
+      memorialCd: MemorialCode -- 기념일 코드
+      memorialYmd: string(8) -- 기념일 날짜
+      groupCd: string(13) -- 그룹 코드
+      groupNm: string(100) -- 그룹명
+      recommNm: string(28) -- 추천인명
+      channelCd: string(2) -- 채널 코드
+      companyNm: string(100) -- 회사명
+      jobPhone1: string(4) -- 회사 전화 1
+      jobPhone2: string(4) -- 회사 전화 2
+      jobPhone3: string(70) -- 회사 전화 3
+      jobPostNo1: string(7) -- 회사 우편번호 1
+      jobPostNo2: string(7) -- 회사 우편번호 2
+      jobBaseAddr: string(200) -- 회사 기본 주소
+      jobDetailAddr: string(300) -- 회사 상세 주소
+      insuComCd: string(20) -- 보험사 코드
+      insuProdNm: string(500) -- 보험 상품명
+      startYmd: string(8) -- 계약 시작일
+      endYmd: string(8) -- 계약 종료일
+      contYn: Indicator @default(Indicator.NO) -- 계약 여부
+      plateNo: string(30) -- 차량 번호
+      policyNo: string(30) -- 정책 번호
+
+  CustContactHistory:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 고객_접촉이력 | GA 시스템의 고객 접촉 이력 정보를 관리하는 테이블
+    fields:
+      empNo: string(15)! @id -- 사원번호
+      contactSeq: int @len(5) @precision(6)! -- 접촉 시퀀스
+      contactYmd: string(8)! -- 접촉 날짜 (YYYYMMDD)
+      contactTime: string(12)! -- 접촉 시간
+      contactCd: string(2) -- 접촉 코드
+      custNm: string(20)! -- 고객명
+      custSeq: string(13) -- 고객 시퀀스
+      custNo: string(13) -- 고객 번호
+      policyNo: string(30) -- 정책 번호
+      openYN: Indicator @default(Indicator.NO) -- 오픈 여부
+      contactTtl: string(100) -- 접촉 제목
+      contactPlace: string(100) -- 접촉 장소
+      contactDesc: string(300)! -- 접촉 설명
+
+  CustInsuranceStatus:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 고객_보험가입현황 | GA 시스템에서 고객의 보험 가입 현황을 관리하는 테이블
+    fields:
+      custSeq: string(10)! @id -- 고객 시퀀스
+      seq: int @len(5) @precision(2)! @id -- 순번
+      insuComNm: string(30)! -- 보험사명
+      insuItemNm: string(20)! -- 보험 상품명
+      insuProdNm: string(100)! -- 보험 상품 설명
+      startYmd: string(8)! -- 계약 시작일 (YYYYMMDD)
+      endYmd: string(8)! -- 계약 종료일 (YYYYMMDD)
+
+  Contract:
+    meta: entity -- 계약_기본 | GA 시스템에서 계약 정보를 관리하는 테이블
+    fields:
+      policyNo: string(30)! @id @genid -- 계약번호
+      insuComCd: string(6)! -- 보험사코드
+      insuItemCd: string(6) -- 상품유형코드
+      insuProdCd: string(20) -- 상품코드
+      insuProdNm: string(100) -- 상품명
+      polHolderNo: string(13) -- 계약자주민번호
+      polHolderNm: string(50) -- 계약자명
+      insHolderNo: string(13) -- 피보험자주민번호
+      insHolderNm: string(50) -- 피보험자명
+      contYmd: string(8) -- 계약일자
+      pamCyclCd: string(4) -- 납입주기코드
+      payMethodCd: string(4) -- 납입방법코드
+      policStateCd: string(4) -- 계약상태코드
+      endorseYmd: string(8) -- 계약상태변경일
+      startYmd: string(8) -- 계약시작일자
+      endYmd: string(8) -- 계약종료일자
+      mainPrem: long -- 주계약보험료
+      spePrem: long -- 특약보험료
+      sumPrem: long -- 합계보험료
+      realPrem: long -- 실납입보험료
+      holderCd: char(1) -- 계약자 코드
+      benefCd: char(1) -- 수익자 코드
+      benefNm: string(20) -- 수익자명
+      benefNo: string(13) -- 수익자주민번호
+      orgEmpNo: string(15) -- 모집자사번
+      empNo: string(15) -- 취급자사번
+      sysInputDate: datetime  -- 전산처리일자
+      sysyInputUser: string(20)! -- 전산처리자
+      sysInputIP: string(20)! -- 전산처리IP
+      polHolderSeq: string(10) -- 계약자고객seq
+      insHolderSeq: string(10) -- 피보험자고객seq
+      pmtyCd: string(4) -- 납입코드
+      payYmd: string(8) -- 지급일자
+      endPayCnt: int -- 최종회차
+      distriCnt: int -- 자동차납입회차
+      orgEmpComCd: string(15) -- 모집자회사코드
+      empComCd: string(15) -- 취급자회사코드
+      payTerm: string(4) -- 납입기간
+      transCd: string(4) -- 이체방법코드
+      modifyPrem: long -- 수정보험료
+      cnvrPrem: long -- 전환보험료
+      recogPrem: long -- 인정보험료
+      premYmd: string(8) -- 보험료일자
+      payYYMM: string(6) -- 최종월도
+      plateNo: string(20) -- 자동차번호
+      signYN: Indicator -- 자필서명여부
+      BWDate: char(8) -- 계약생성일
+      graceDate: char(8) -- 유예기간
+      gradeZone: string(4) -- 등급구역
+      spcGb: char(1) -- 물건구분
+      changeReason: string(250) -- 변경사유
+      blueChipYN: Indicator -- 우량여부
+      memo: string(500) -- 메모
+      signRecoveryDt: string(8) -- 서명복구일자
+      autotransferAcc: string(50) -- 자동이체계좌
+      orgInsuProdCd: string(20) -- 조직보험상품코드
+      objectCd: string(2) -- 대상 코드
+      commission: long -- 수수료
+      expirationPeriod: string(4) -- 만기기간
+      expirationTypeCd: string(2) -- 만기유형코드
+      policyNo_BK: string(30) -- 계약번호(이전)
+      policyNo_New: string(30) -- 계약번호(신규)
+      medicalPrem: long -- 의료보험료
+      guaranteePrem: long -- 보증보험료
+      vitualBankNo: string(50) -- 가상계좌번호
+      silbiYN: Indicator -- 실비가입여부
+      billEmpNo: string(20) -- 수금자사번
+
+  ContractSpecialClause:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 계약_특약사항 | GA 시스템에서 계약의 특약 사항을 관리하는 테이블
+    fields:
+      insuComCd: string(6)! @id -- 보험사 코드
+      policyNo: string(30)! @id  -- 계약번호
+      seq: int @len(5) @precision(2)! @id -- 순번
+      speNm: string(50)! -- 특약명
+      startYmd: string(8)! -- 특약 시작일 (YYYYMMDD)
+      endYmd: string(8)! -- 특약 종료일 (YYYYMMDD)
+      basePrem: long! -- 기본 보험료
+      payPrem: long! -- 납입 보험료
+      speCd: string(30)! -- 특약 코드
+
+  ContractRelated:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 계약_관련계약사항 | GA 시스템에서 계약의 관련 계약 사항을 관리하는 테이블
+    fields:
+      insuComCd: string(6)! @id  -- 보험사 코드
+      policyNo: string(30)! @id  -- 계약번호
+      seq: int @len(5) @precision(2)! @id  -- 순번
+      insTypeCd: string(1)! -- 보험 유형 코드
+      insHolderNm: string(20)! -- 계약자 이름
+      insHolderNo: string(13) -- 계약자 번호
+      insRelCd: string(3) -- 계약 관계 코드
+      insAge: string(3) -- 계약자 나이
+
+  ContractPayment:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 계약_수금사항 | GA 시스템에서 계약의 수금 사항을 관리하는 테이블
+    fields:
+      policyNo: string(30)! @id -- 계약번호
+      insuComCd: string(6)! @id  -- 보험사 코드
+      seq: int @len(5) @precision(7)! @id -- 순번
+      distrCnt: int @len(3) -- 배포 횟수
+      payYMM: string(6)! -- 납입 년월
+      payMethodCd: string(4) -- 납입 방법 코드
+      payYmd: string(8)! -- 납입 일자
+      sumPrem: long! -- 총 보험료
+      modifyPrem: long -- 수정 보험료
+      payStateCd: string(3)! -- 납입 상태 코드
+      rectNo: string(30) -- 영수증 번호
+      rateType: string(4) -- 요율 유형
+      payAmt: long! -- 납입 금액
+      jobDate: string(8) -- 작업일자
+      closYn: Indicator -- 마감 여부
+      policyNo_BK: string(30) -- 계약번호 (이전)
+      policyNo_New: string(30) -- 계약번호 (신규)
+
+  InsuranceCompanyCode:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 보험사코드 목록 | GA 시스템에서 수수료와 관련된 보험사 코드를 관리하는 테이블
+    fields:
+      insCpCode: string(6)! @id -- 보험사 코드
+      insCpTypeCd: string(2)! @id -- 보험사 유형 코드
+      insCpNm: string(50)! -- 보험사명
+      regDate: string(8)! -- 등록일 (YYYYMMDD)
+      startDate: string(8)! -- 시작일 (YYYYMMDD)
+      endDate: string(8) -- 종료일 (YYYYMMDD)
+      mgrNm: string(30) -- 담당자 이름
+      contNum: string(8) -- 계약 번호
+      contYN: Indicator -- 계약 여부
+      mgtCnt: int @len(4) @precision(10) -- 관리 수량
+      feeCnt: int @len(4) @precision(10) -- 수수료 수량
+      companyFaxNo: string(14) -- 회사 팩스 번호
+      startCnt: int @len(4) @precision(10) -- 시작 수량
+      endCnt: int @len(4) @precision(10) -- 종료 수량
+      pensionAdjustRate: float! -- 연금 조정 비율
+      protectionAdjustRate: float! -- 보호 조정 비율
+      adjustRate: float! -- 조정 비율
+
+  InsProductCode:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 수수료_상품코드 | GA 시스템에서 수수료와 관련된 상품 코드를 관리하는 테이블
+    fields:
+      insCpCode: string(6)! @id -- 보험사 코드
+      productCode: string(20)! @id -- 상품 코드
+      prodNm: string(500)! -- 상품명
+      prodTypeCd: string(3)! -- 상품 유형 코드
+      prodGrpCd: string(5)! -- 상품 그룹 코드
+      insProdCd: string(20)! -- 보험 상품 코드
+      saleStartDate: string(8)! -- 판매 시작일 (YYYYMMDD)
+      saleEndDate: string(8) -- 판매 종료일 (YYYYMMDD)
+      saleYN: Indicator @default(Indicator.NO) -- 판매 여부
+      mgtCnt: int @len(4) @precision(10)! -- 관리 수량
+      adjustRate: int! @default(1) -- 조정 비율
+      newAdjustRate: float! @default(100F) -- 새로운 조정 비율
+
+  CommissionMaster:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 수수료_마감마스터 | GA 시스템에서 수수료 마감 정보를 관리하는 테이블
+    fields:
+      closYm: string(6)! @id-- 마감 년월 (YYYYMM)
+      insCpCode: string(6)! @id -- 보험사 코드
+      policyNo: string(30)! @id -- 계약 번호
+      endPayCnt: int! @id -- 종료 납입 횟수
+      policStateCd: string(2)! @id -- 계약상태 코드
+      empNo: string(15)! -- 직원 번호
+      empName: string(50) -- 직원 이름
+      orgEmpNo: string(15) -- 조직 직원 번호
+      insProdCd: string(8) -- 보험 상품 코드
+      productCode: string(20) -- 상품 코드
+      polHolderNm: string(10) -- 계약자 이름
+      contYmd: string(8) -- 계약일 (YYYYMMDD)
+      payCyclCd: string(6) -- 납입 주기 코드
+      pmtyCd: string(4) -- 납입 방식 코드
+      payMethodCd: string(3) -- 납입 방법 코드
+      payYmd: string(15) -- 납입일
+      inPrem: long -- 보험료
+      distrCnt: int -- 배분 횟수
+      cnvnFre: long -- 계약 수수료
+      cnvrtCnt: int -- 계약 전환 횟수
+      efficAchi: int -- 실적 달성 비율
+      payYMM: string(6) -- 납입 년월
+      cmiFeeAmt: long -- 수수료 금액
+      payBackFeeAmt: long -- 환급 수수료 금액
+      incentiveFee: long -- 인센티브 수수료
+
+  CommissionContractDetails:
+    meta: entity @dto @pageable @extend(AuditEntity) -- 수수료_마감계약별수수료내역 | GA 시스템에서 수수료 마감 시 계약별 수수료 내역을 관리하는 테이블
+    fields:
+      closYm: string(6)! @id -- 마감 년월 (YYYYMM)
+      insCpCode: string(6)! @id  -- 보험사 코드
+      policyNo: string(30)! @id -- 계약 번호
+      endPayCnt: int! @id -- 종료 납입 횟수
+      commiTypeCd: string(2)! @id -- 수수료 유형 코드
+      cmiFeeCd: string(2)! @id -- 수수료 코드
+      feeStateCd: string(2)! @id -- 수수료 상태 코드
+      cnvFre: long! -- 계약 수수료
+      cmiFeeRate: int! -- 수수료율
+      payBackFeeAmt: long! -- 환급 수수료 금액
+      cmiFeeAmt: long! -- 수수료 금액
+      empNo: string(15)! -- 직원 번호
+      payPtrnCode: string(6) -- 납입 패턴 코드
+      prodGrpCd: string(6) -- 상품 그룹 코드
+
+  CommissionDetails:
+    meta: entity @dto @pageable -- 수수료_마감계약별수수료내역 | GA 시스템에서 마감 시 각 계약의 수수료 내역을 관리하는 테이블
+    fields:
+      closYm: string(6)! @id -- 정산 년월 (YYYYMM)
+      insCpCode: string(6)! @id -- 보험사 코드
+      policyNo: string(30)! @id -- 증권 번호
+      endPayCnt: int! @id -- 회차
+      commiTypeCd: string(2)! @id -- 수수료 유형 코드
+      cmiFeeCd: string(6)! @id -- 수수료 코드
+      feeStateCd: string(2)! @id -- 마감 상태 코드
+      cnvrFe: long -- 환산 보험료
+      cmiFeeRate: float -- 수수료율
+      payBackFeeAmt: long -- 환수 대상 금액
+      cmiFeeAmt: long -- 수수료
+      policStateCd: string(2) -- 계약 상태 코드
+      sysInputDate: datetime -- 전산 처리 일자
+      sysInputUser: string(20) -- 전산 처리자
+      sysInputIP: string(20) -- 사용자 IP
+      payPtrnCode: string(6) -- 수수료 패턴 코드
+
+
+
+enumeration:
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+
+  GenderCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+      label: string
+    enum:
+      MALE: 1,남
+      FEMALE: 2,여
+
+  MemorialCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+      label: string
+    enum:
+      BIRTH: BT,생일
+      WEDDING: WD,결홈기념일
+
+
+

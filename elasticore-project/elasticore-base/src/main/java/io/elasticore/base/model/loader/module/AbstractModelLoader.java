@@ -374,6 +374,13 @@ public class AbstractModelLoader implements ConstanParam {
             type="string";
             fieldLine = "@text "+fieldLine;
         }
+        else if("HashMap".equals(type)) {
+            type="java.util.HashMap";
+        }
+        else if("Object".equals(type)) {
+            type="java.lang.Object";
+        }
+
 
 
 

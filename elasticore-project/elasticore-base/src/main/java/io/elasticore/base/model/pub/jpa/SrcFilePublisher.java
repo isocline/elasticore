@@ -6,6 +6,7 @@ import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.AbstractDataModel;
+import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.EntityAnnotation;
@@ -573,8 +574,10 @@ public class SrcFilePublisher {
                 // Cross-referencing can lead to an infinite loop, so it has been excluded.
                 RelationshipManager instance = RelationshipManager.getInstance(identity.getDomainId());
                 List<ModelRelationship> byToName = instance.findByToNameAndType(targetNm ,RelationType.MANY_TO_ONE);
-                if(byToName!=null && byToName.size()>0)
+                if(byToName!=null && byToName.size()>0) {
+                    ConsoleLog.printWarn("Cross-referencing can lead to an infinite loop. typeName: "+typeName);
                     return false;
+                }
             }
 
             return true;
@@ -599,4 +602,22 @@ public class SrcFilePublisher {
         return false;
     }
 
+
+    /**
+     * Retrieves the full class name if the given className includes a domain prefix.
+     * If the className contains a colon (`:`), it attempts to find the corresponding
+     * DataModelComponent and return its full name. Otherwise, it returns the input className.
+     *
+     * @param className the class name, which may include a domain prefix (e.g., "domain:ClassName")
+     * @return the full class name if a corresponding DataModelComponent is found; otherwise, the input className
+     */
+    protected String getClassName(String className) {
+        if(className.indexOf(":")>0) {
+            DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(className);
+            if(modelComponent!=null) {
+                return modelComponent.getFullName();
+            }
+        }
+        return className;
+    }
 }

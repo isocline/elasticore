@@ -1,0 +1,11 @@
+entity:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: string
+
+  Company:
+    meta: entity @extend(AuditEntity)  @dto
+    fields:
+      id: string @id
+      name: string(12)

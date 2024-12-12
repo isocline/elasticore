@@ -28,6 +28,7 @@ import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
+import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
@@ -106,14 +107,13 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         Annotation annotation = entity.getMetaInfo().getMetaAnnotation(EntityAnnotation.META_EXTEND);
         if (annotation != null)
-            return "extends " + annotation.getValue();
+            return "extends " + getClassName(annotation.getValue());
         else {
             String rollupTarget = entity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
             if(rollupTarget!=null)  {
-                return "extends " + rollupTarget;
+                return "extends " + getClassName(rollupTarget);
             }
         }
-
         return "";
     }
 
@@ -389,6 +389,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("");
         }
         */
+
+
+        String parentName = entity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_EXTEND);
+        SourceShadowModel shadowModel = new SourceShadowModel(entity.getIdentity().getName() ,parentName);
+
+
         while (fields.hasNext()) {
             Field f = fields.next();
 
@@ -429,6 +435,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
              */
 
+            shadowModel.addField(f);
 
             p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
             p.add("");
@@ -450,11 +457,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     p.add("}");
                     p.add("");
                     p.add("");
-
                 }
             }
-
         }
+
+        this.model.setShadowModel(shadowModel);
 
         Annotation templateAnt = entity.getMetaInfo().getMetaAnnotation("template");
         if(templateAnt!=null) {
@@ -469,7 +476,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                         loadFieldInfo(templateEntity, p);
                 }
             }
-
         }
     }
 
@@ -723,13 +729,21 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list.add("name = \"" + dbColumnName + "\"");
 
 
+        String columnDefinition = field.getAnnotationValue("columndefinition", "def");
 
-        if (field.hasAnnotation("text")) {
+        if (field.getColumnDefinition() != null) {
+            list.add("columnDefinition=\"" + field.getColumnDefinition() + "\"");
+        }
+        else if(columnDefinition!=null) {
+            list.add("columnDefinition = \""+columnDefinition+"\"");
+        }
+        else if (field.hasAnnotation("text")) {
             list.add("columnDefinition = \"TEXT\"");
         }
         else if (field.hasAnnotation("longtext")) {
             list.add("columnDefinition = \"LONGTEXT\"");
         }
+
         if (field.hasAnnotation("notnull")) {
             list.add("nullable = false");
         }
@@ -772,9 +786,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             }
         }
 
-        if (field.getColumnDefinition() != null) {
-            list.add("columnDefinition=\"" + field.getColumnDefinition() + "\"");
-        }
+
 
         Annotation uniqAnnot = field.getAnnotation("unique");
         if (uniqAnnot != null && !"false".equals(uniqAnnot.getValue()))

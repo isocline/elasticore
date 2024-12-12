@@ -68,26 +68,28 @@ public class SqlQueryInfo {
 
     private boolean pageable;
 
+    private boolean isReturnTypeSet = false;
     private String returnType;
     private String returnParamtype;
 
     private int selectColumnCount = 0;
 
     private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable
-            , MapWrapper repositoryContext, String returnType) {
+            , MapWrapper repositoryContext, String returnType, boolean isReturnTypeSet) {
         this.domainId = domainId;
         this.sqlTxt = sqlTxt;
         this.isNativeQuery = isNativeQuery;
         this.pageable = pageable;
         this.repositoryContext = repositoryContext;
         this.returnType = returnType;
+        this.isReturnTypeSet = isReturnTypeSet;
         this.returnParamtype = StringUtils.findParameterType(returnType);
 
 
     }
 
-    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper mapWrapper, String returnType) {
-        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, pageable, mapWrapper, returnType);
+    public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper mapWrapper, String returnType, boolean isReturnTypeSet) {
+        return new SqlQueryInfo(domainId, sqlTxt, isNativeQuery, pageable, mapWrapper, returnType ,isReturnTypeSet);
     }
 
     public static boolean containsIfComment(String input) {
@@ -410,7 +412,8 @@ public class SqlQueryInfo {
 
     public void setRepositoryMethodName() {
 
-        if (this.isNativeQuery || this.returnType !=null ) {
+        //if (this.isNativeQuery || this.returnType !=null ) {
+        if (this.isNativeQuery || this.isReturnTypeSet) {
             this.jpaMethodName = this.repositoryContext.getString("id");
             return;
         }

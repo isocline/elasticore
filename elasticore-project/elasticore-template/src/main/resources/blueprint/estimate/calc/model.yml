@@ -1,0 +1,59 @@
+dto:
+
+  RentalCalcSrchDTO:
+    meta: dto
+    fields:
+      trimCode: string @notnull @notblank -- 차량 디테일 트림코드 (5자리)
+      prodType: string -- 상품타입, L:리스 / R:렌트
+      fee: int -- 수수료, 0~10, 1단위 입력
+      period: int -- 이용기간, 36,48,60
+      deposit: int -- 보증금, 0,10,20,30,40, 표기단위 %
+      prepaid: int -- 선납금, 0,10,20,30,40, 표기단위 %
+      optionPrice: int -- 옵션가격, 0~9999999, 옵션값의 합
+      discount: int -- 할인, 할인금액 (수입차)/할인→only대리점
+      distance: string -- 약정거리, 1만km,2만km,3만km,4만km,5만km,무제한
+      tintFrontYN: InclusionType -- 썬팅전면, 포함(Y),미포함(N)
+      tintSideYN: InclusionType -- 썬팅측후면, 포함(Y),미포함(N)
+      blackboxYN: InclusionType -- 블랙박스, 포함(Y),미포함(N)
+      factorTransFee: int -- 탁송료, 0~9999999, 기본값 0
+      release: string -- 출고방법, 특판,대리점, 기본값=특판/특판->only렌트/수입차->only대리점
+      carTaxYN: InclusionTexType -- 자동차세, 포함(Y),제외(N)
+      bond: int -- 공채, 0~99, 표기단위 % (5~8 설정 추천)
+      transArea: string -- 탁송지역, 지역코드
+      insAge: int -- 보험연령(세), 21세,26세
+      insAdd: string -- 보험대물, 1억,2억,3억
+      maintenanceType: MaintenanceType -- 정비유무, 정비제외(01),순회정비(02)
+      em: string -- 면책금, 30만,50만
+      companyCode: string -- 업체코드
+
+
+
+
+
+enumeration:
+  InclusionType:
+    meta: enum @json(code) @db(code) -- 포함 여부
+    fields:
+      msg: string
+      code: string @length(2)
+    enum:
+      INCLUDED: 포함,Y
+      NOT_INCLUDED: 미포함,N
+
+  InclusionTexType:
+    meta: enum @json(code) @db(code) -- 포함 여부
+    fields:
+      msg: string
+      code: string @length(1)
+    enum:
+      INCLUDED: 포함,Y
+      EXCLUDED: 제외,N
+
+  MaintenanceType:
+    meta: enum @json(code) @db(code) -- 정비 유형
+    fields:
+      msg: string
+      code: string @length(2)
+    enum:
+      MAINTENANCE_EXCLUDED: 정비제외,01
+      ROUTINE_MAINTENANCE: 순회정비,02

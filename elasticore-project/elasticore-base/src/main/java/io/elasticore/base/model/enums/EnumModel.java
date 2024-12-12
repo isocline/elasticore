@@ -1,17 +1,13 @@
 package io.elasticore.base.model.enums;
 
-import io.elasticore.base.model.ComponentIdentity;
-import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.MetaInfo;
-import io.elasticore.base.model.core.AbstractReplaceableModel;
-import io.elasticore.base.model.core.BaseComponentIdentity;
-import io.elasticore.base.model.core.Items;
+import io.elasticore.base.model.*;
+import io.elasticore.base.model.core.*;
 import io.elasticore.base.model.entity.Field;
 import lombok.Getter;
 
 
 @Getter
-public class EnumModel extends AbstractReplaceableModel {
+public class EnumModel extends AbstractReplaceableModel implements DataModelComponent {
 
     private final MetaInfo metaInfo;
     private final Items<Field> fieldItems;
@@ -35,4 +31,47 @@ public class EnumModel extends AbstractReplaceableModel {
         return new EnumModel(identity, meta, items, enumConstantItems);
     }
 
+    /**
+     *
+     * @return
+     */
+    private ECoreModel getEcoreModel() {
+        ECoreModel eCoreModel = null;
+        try {
+            eCoreModel = BaseModelDomain.getModelDomain(getIdentity().getDomainId())
+                    .getModel();
+        }catch (RuntimeException re) {
+
+        }
+        if(eCoreModel ==null)
+            eCoreModel = BaseModelDomain.getCurrentModel();
+
+        return eCoreModel;
+    }
+
+    @Override
+    public ModelComponentItems<Field> getItems() {
+        return new BaseModelComponentItem(fieldItems);
+    }
+
+    @Override
+    public ListMap<String, Field> getAllFieldListMap() {
+        ListMap<String, Field> fieldListMap = new ListMap<>();
+        ModelComponentItems<Field> list = getItems();
+        while(list.hasNext()) {
+            Field next = list.next();
+            fieldListMap.put(next.getName(), next);
+        }
+
+        return fieldListMap;
+    }
+
+    @Override
+    public String getFullName() {
+        ComponentType componentType = this.getIdentity().getComponentType();
+
+        String ns = getEcoreModel().getNamespace(componentType.getName());
+
+        return ns+"."+this.getIdentity().getName();
+    }
 }

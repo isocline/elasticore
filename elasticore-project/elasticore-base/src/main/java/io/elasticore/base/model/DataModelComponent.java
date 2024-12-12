@@ -17,4 +17,11 @@ public interface DataModelComponent extends ModelComponent {
      */
     ListMap<String,Field> getAllFieldListMap();
 
+
+    /**
+     *
+     * @return
+     */
+    String getFullName();
+
 }

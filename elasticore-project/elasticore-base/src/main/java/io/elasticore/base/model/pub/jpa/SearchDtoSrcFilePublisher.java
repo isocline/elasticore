@@ -29,6 +29,8 @@ import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
 
 import java.util.HashSet;
@@ -158,6 +160,12 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
 
         String pageSize = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_SEARCHABLE_PAGESIZE);
+        if(pageSize==null) {
+            String pageable = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_SEARCHABLE_PAGEABLE);
+            if("true".equals(pageable)) {
+                pageSize = "100";
+            }
+        }
 
         pr.add("");
         pr.add("private String sortCode;");
@@ -226,6 +234,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
         Set<String> fieldNmSet = new HashSet<>();
 
+        SourceShadowModel shadowModel = new SourceShadowModel(dto.getIdentity().getName());
+
         for (Field f : fieldList) {
 
             if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
@@ -237,8 +247,19 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             boolean enableSearch = f.hasAnnotation(EntityAnnotation.SEARCH);
 
+            if(f.getTypeInfo().isList() && enableSearch) {
+                String coreTypeNm = f.getTypeInfo().getCoreItemType();
+                EnumModel byName = this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(coreTypeNm);
+                if(byName==null)
+                    continue;
+
+            }
+
+            /*
             if(f.getTypeInfo().isList() && enableSearch)
                 continue;
+
+             */
 
             boolean isForceDefineField = false;
             if(dataTransfer!=null && dataTransfer.findFieldName(f.getName())!=null) {
@@ -317,7 +338,11 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             setFunctionInfo(f, p);
 
+            shadowModel.addField(f);
+
         }
+
+        this.publisher.getECoreModelContext().getDomain().getModel().setShadowModel(shadowModel);
     }
 
     private String getDefaultValueSetup(Field f) {

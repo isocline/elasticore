@@ -134,13 +134,16 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         String query = mapWrapper.getString("query");
         String returnType = mapWrapper.getString("return");
 
+        boolean isReturnTypeSet = true;
         if(returnType==null) {
-            returnType = "List<"+rootObjName+">";
+            isReturnTypeSet = false;
+            if(isNativeQuery)
+                returnType = "List<"+rootObjName+">";
         }
 
         SqlQueryInfo queryInfo = null;
         if(query !=null && query.length()>0) {
-            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , pageable, mapWrapper ,returnType);
+            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , pageable, mapWrapper ,returnType ,isReturnTypeSet);
             this.sqlQueryInfoList.add(queryInfo);
         }
 

@@ -9,19 +9,50 @@ repository:
         return: int
         query: UPDATE LoanCar e SET e.faxCompleteYN = :faxCompleteYN, e.faxStatusType= :faxStatusType  WHERE e.id = :loanCarId
 
+      - id: updateFaxRetryStatus
+        params:
+          loanCarId: String
+          faxReceiptNo: string
+          faxReceiptOrgNo: string
+          faxRetryCount: int
+        return: int
+        query: UPDATE LoanCar e SET e.faxReceiptNo = :faxReceiptNo, e.faxReceiptOrgNo = :faxReceiptOrgNo, e.faxRetryCount= :faxRetryCount  WHERE e.id = :loanCarId
+
   LoanCarProcess:
     methods:
+      - id: listUniqueRentCarName
+        params:
+          companyId: string
+          custNm: string
+          rentCarCode: string
+        return: List<RentCarName>
+
+        pageable: true
+        nativeQuery: true
+        query: |
+            SELECT max(lc.rent_car_nm) as rent_car_nm , lc.rent_car_code ,  max(lc.create_date) as create_date
+            FROM Loan_Car lc
+            where lc.rent_company_id  = :companyId
+              and lc.rent_car_code like concat('%' , :rentCarCode, '%')
+              and lc.rent_car_code  is not null
+              and lc.cust_nm like concat('%' , :custNm ,'%')  /* if:custNm */
+            group by lc.rent_car_code
+            order by create_date DESC
+
+
       - id: selectLoanCarProcessByCompanyId
         params:
           companyId: string
           custNm: string
           custTel: string
+          loanCarMasterId: string
+          processType: string
         return: List<CompanyLoanCarProcessDTO>
         pageable: true
         nativeQuery: true
         query: |
           SELECT
-            lc.id, lcp.create_date, lc.cust_nm , lc.cust_tel, lc.rent_car_nm , lcp.process_type
+            lcp.lcp_code, lc.id as loan_Master_Id, lcp.create_date, lc.cust_nm , lc.cust_tel, lc.cust_Car_Code , lc.cust_Car_Nm,  lcp.process_type
             ,lcp.memo,lcp.apply_date ,lcp.apply_time ,lcp.cust_req_memo ,lcp.insureyn
           FROM Loan_Car_Process lcp
           JOIN Loan_Car lc ON lcp.loan_car_master_id = lc.id
@@ -29,19 +60,30 @@ repository:
             lcp.rent_company_id  =  :companyId
             and lc.cust_nm like concat('%' , :custNm ,'%')  /* if:custNm */
           and lc.cust_tel like concat('%' , :custTel ,'%')  /* if:custTel */
+          and lc.id = :loanCarMasterId  /* if:loanCarMasterId */
+          and lcp.process_type = :processType  /* if:processType */
           order by lcp.create_date  desc
 
-
+ 
 
 dto:
+  RentCarName:
+    meta: dto
+    fields:
+      rentCarNm: string -- 렌트카 이름
+      rentCarCode: string -- 렌트카 번호
+      createDate: string -- 최근 접수일
+
   CompanyLoanCarProcessDTO:
     meta: dto
     fields:
-      id: string -- 대차 마스터 코드
+      lcpCode: Long -- 대차 히스토리 id
+      loanMasterId: string -- 대차 마스터 코드
       createDate: string -- 기록일시
       custNm: string --고객명
       custTel: string --연락처
-      rentCarNm: string  --대차차량명
+      custCarCode: string --고객차량코드
+      custCarNm: string --고객차량명
       processType: string  -- 상태 프로세스
       memo: string -- 메모
       applyDate: string -- 적용일

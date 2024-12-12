@@ -6,7 +6,26 @@ dto:
     fields:
       rentComId: string @ref(rentCompany.id)  -- 파트너사 코드
       rentComName: string @ref(rentCompany.comName)  -- 파트너사 코드
+      #07/09 이후 추가건==============
+      requestComName: string @ref(requestCompany.comName) -- 요청 고객사 이름
+      requestComId: string @ref(requestCompany.id) -- 요청 고객사 코드
+      rentTel: string @ref(rentCompany.respTel) -- 렌트카 담당자 전화번호
+      rentCompany: CompanyDTO @ref(rentCompany) -- 렌트카 업체
+      repairCompany: CompanyDTO @ref(repairCompany) -- 공업사 업체
+      repairComEmpList: List<CustUserDTO> -- 공업사 보험 담당자 목록
+      firstDriver: RentDriverDTO @ref(firstDriver) -- 렌트카 운전자
+      secondDriver: RentDriverDTO @ref(secondDriver) -- 제2 운전자
+
+      loanCarProcess: LoanCarProcessDTO -- 히스토리 객체
+      #===============================
       processHistory: List<LoanCarProcessDTO> @ref(processHistory)
+      isRentNeedCreate: boolean -- 렌트카 업체 생성 분류
+      isRepairNeedCreate: boolean -- 공업사 업체 생성 분류
+
+      uploadFiles: List<UploadFileDTO> -- 파일 업로드 목록
+      faxResult: FaxResultDTO -- fax 처리결과
+
+
 
 
 
@@ -15,28 +34,91 @@ dto:
     fields:
       rentComId: string @ref(rentCompany.id) @s(eq) -- 파트너사 코드
       partCustCd: string @ref(partnerCust.codeId) @s(eq) -- 파트너사 코드
-      createDate: date @s(~) -- 접수일자 비교
-      rentCompanyName: string @ref(rentCompany.comName) @s(%%) -- 렌트카 업체명
+      requestComName: string @ref(requestCompany.comName) -- 요청 고객사 이름
+      requestComId: string @ref(requestCompany.id) @s(%%) -- 요청 고객사 코드
+      superficialCreateDate: date @s(~) -- 접수일자 비교
+      rentComName: string @ref(rentCompany.comName) @s(%%) -- 렌트카 업체명
+      statusTypeList: List<StatusType> @s(in) @ref(statusType) -- 상태 구분 검색
+      keyword: string -- 공통 검색어 (차량명,차량번호,고객명)
+      lcCode: string @ref(lcCode).toLowerCase() @s(%%) -- 대차접수번호
 
   LoanCarSearchResultDTO:
     meta: dto @searchResult(LoanCar)
     fields:
       rentComId: string @ref(rentCompany.id)  -- 파트너사 코드
-      rentCompanyName: string @ref(rentCompany.comName)  -- 렌트카 업체명
+      rentComName: string @ref(rentCompany.comName)  -- 렌트카 업체명
+      #07/09 이후 추가건==============
+      requestComName: string @ref(requestCompany.comName) -- 요청 고객사 이름
+      requestComId: string @ref(requestCompany.id) -- 요청 고객사 코드
+      rentTel: string @ref(rentCompany.respTel) -- 렌트카 담당자 전화번호
+      repairComId: string @ref(repairCompany.id) -- 공업사 코드
+      repairComName: string @ref(repairCompany.comName) -- 공업사 이름
+      centerName: string @ref(repairCompany.centerName) -- 공업사 센터명
+      respTel: string @ref(repairCompany.respTel) -- 공업사 담당자 전화번호
+      respZone: string @ref(repairCompany.respZone) -- 공업사 주소
+      insureEmpId: string @ref(repairCompany.insureEmpId) -- 공업사 보험 담당자 id
+      rentCompany: CompanyDTO @ref(rentCompany) -- 담당 렌트카 업체
+      repairCompany: CompanyDTO @ref(repairCompany) -- 담당 공업사
+      firstDriver: RentDriverDTO @ref(firstDriver) -- 렌트카 운전자
+      secondDriver: RentDriverDTO @ref(secondDriver) -- 제2 운전자
+      #==============================
       partCustCd: string @ref(partnerCust.codeId)  -- 파트너사 코드
       processHistory: List<LoanCarProcessDTO> @ref(processHistory) -- 처리 이력
-      rentalDate: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getRentalDate(this) )
-      returnDate: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getReturnDate(this) )
-      lcReason: --
-      content: --
 
+      overdueDays: long  @function( get=com.mobillug.linkone.biz.util.DTOUtils.calcDaysSince(rentalDate) )
+      faxInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getFaxInfo(this) )
 
+  LoanCarStatisticsSearchDTO:
+    meta: dto @searchable(entity=LoanCar, pageSize=1800)
+    fields:
+      superficialCreateDate: date @s(~)
+      statusType: List<StatusType> @s(in)
+      requestComId: string @ref(requestCompany.id) @s(%%)
+
+  LoanCarStatisticsSearchResultDTO:
+    meta: dto @searchResult
+    fields:
+      receiptCnt: long
+      requestCnt: long
+      confirmCnt: long
+      deliveryCnt: long
+      returnCnt: long
+      changeCnt: long
+      failCnt: long
+      capitalClaim: long
+      insureClaim: long
+
+  LoanCarEtcCompanyUpdateDTO:
+    meta: dto
+    fields:
+      loanCarId: string -- 렌트접수건 코드
+      rentComId: string -- 파트너사 코드
+      comName: string -- 렌트카 업체명
+      respTel: string -- 담당자 전화번호
+      comGrpCode: CompanyGroupCode -- 업체그룹코드
+      processType: RentCarProcessType -- 상태 프로세스
+      memo: string -- 기타메모(담당자처리내용)
 
   LoanCarProcessDTO:
     meta: dto @template(LoanCarProcess)
     fields:
       rentComId: string @ref(rentCompany.id)  -- 렌트카업체코드
       callHistory: CallHistoryDTO @ref(callHistory)  -- 통화내역
+      custCarCode: string -- 고객 차량 번호
+      custCarNm: string -- 고객 차종
+      isRequestDocument: boolean -- 서류요청건 여부
+
+  LoanCarSmsInputDTO:
+    meta: dto -- SMS 문자내용 입력
+    fields:
+      smsText: string -- SMS 문자내용
+      accidentType: AccidentType @s(=) -- 사고 유형
+      rentKind: RentKindType  -- 사고유형
+      rentCompany: CompanyDTO -- 렌트카 회사 정보
+      requestCompany: CompanyDTO -- 요청사 정보
+      isRentNeedCreate: boolean -- 기타 렌트카업체 생성 여부
+      loanCarProcess: LoanCarProcessDTO -- 처리내역
+      superficialCreateDate: LocalDateTime -- 표면적 접수일시 yyyy/MM/dd HH:mm
 
 
   LoanCarPrsSrchDTO:
@@ -47,5 +129,21 @@ dto:
   CallHistoryDTO:
     meta: dto @template(CallHistory)
 
+  RentDriverDTO:
+    meta: dto @template(RentDriver)
 
 
+  UploadFileDTO:
+    meta: dto @template(UploadFile)
+
+  UploadFileSrchDTO:
+    meta: dto @searchable(entity=UploadFile)
+    fields:
+
+
+
+  FaxResultDTO:
+    meta: dto @template(FaxResult)
+
+  FaxResultSrchDTO:
+    meta: dto @searchable(entity=FaxResult, pageSize=50)

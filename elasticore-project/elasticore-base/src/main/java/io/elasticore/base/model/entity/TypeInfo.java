@@ -1,7 +1,10 @@
 package io.elasticore.base.model.entity;
 
 
+import io.elasticore.base.ECoreModelContext;
+import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.core.Annotation;
+import io.elasticore.base.model.core.BaseECoreModelContext;
 
 import java.util.Map;
 
@@ -82,6 +85,17 @@ public class TypeInfo {
             }
 
             return this.baseFieldType.getWrapperClassName();
+        }
+
+        if(this.initTypeInfo.indexOf(":")>0) {
+            // external domain type
+            ECoreModelContext context = BaseECoreModelContext.getContext();
+            if(context!=null) {
+                DataModelComponent modelComponent = context.findModelComponent(this.initTypeInfo);
+                if(modelComponent!=null) {
+                    return modelComponent.getFullName();
+                }
+            }
         }
 
         return this.initTypeInfo;

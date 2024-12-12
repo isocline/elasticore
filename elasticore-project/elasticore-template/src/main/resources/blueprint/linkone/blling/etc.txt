@@ -1,0 +1,37 @@
+enumeration:
+
+
+  CostMgrCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(6)
+      startDate: string(8) -- 유효일
+      endDate: string(8) -- 종료일
+    enum:
+      MASTER: 마스타,MASTER,20240701,99991231
+
+
+
+  VehicleGroupCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      PASSENGER: 승용,PG
+      RV: 레저,RV
+      ELECTRIC: 전기,ET
+
+
+  VehicleClassCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      COMPACT: 경차, CPT
+      SUBCOMPACT: 소형,SUB
+      MIDSIZE: MIDSIZE,MID
+      FULLSIZE: 준대형,FUL
+      LARGE: 대형,LRG

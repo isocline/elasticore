@@ -1,0 +1,11 @@
+
+
+entity:
+  Person:
+    meta: entity @extend(A1:AuditEntity) @dto
+    fields:
+      id: string @id
+      name: string(12)
+      age: int
+      company: A1:Company
+

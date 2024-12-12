@@ -21,6 +21,9 @@ public interface DataTransferAnnotation extends EntityAnnotation {
 
     String META_SEARCHABLE_PAGESIZE = "searchable.pageSize";
 
+
+    String META_SEARCHABLE_PAGEABLE = "searchable.pageable";
+
     String META_EXTEND = "extend";
 
     String META_TEMPLATE = "template";

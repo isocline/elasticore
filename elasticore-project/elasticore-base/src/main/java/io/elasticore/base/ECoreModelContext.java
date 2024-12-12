@@ -1,6 +1,7 @@
 package io.elasticore.base;
 
 import io.elasticore.base.exeption.ProcessException;
+import io.elasticore.base.model.DataModelComponent;
 
 /**
  * Represents the context of an ECore model, providing access to model domains
@@ -33,5 +34,11 @@ public interface ECoreModelContext {
      */
     ModelDomain getDomain(String name);
 
+
+
+    DataModelComponent findModelComponent(String domainId, String modelName);
+
+
+    DataModelComponent findModelComponent(String modelName);
 
 }

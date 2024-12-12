@@ -111,10 +111,31 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         Field lastField = null;
         List<Field> pkFieldList = new ArrayList<>();
         int pkSize = pkFields.getItemList().size();
+        if(pkSize<1)
+            return;
+
+
+
+
+
+        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
+        String fromName = getIdentity().getName();
+
+
+
+        int keySize=0;
         for(Field f: pkFields.getItemList()) {
             if(lastField!=null) {
+                keySize++;
                 pkFieldList.add(lastField);
                 sb.append(getKeyInfo(lastField));
+
+                if(keySize>=2) {
+                    String keyInfo = sb.toString();
+                    rm.addRelationship(ModelRelationship.create(keyInfo, fromName, RelationType.ONE_TO_MANY, "FK1"));
+                    rm.addRelationship(ModelRelationship.create(fromName, keyInfo, RelationType.MANY_TO_ONE, "FK2"));
+                }
+
 
             }else {
                 firstKeyInfo = f.getName();
@@ -122,30 +143,34 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             }
             lastField = f;
         }
-
-
-
-        if(pkSize<1)
-            return;
-
         String parentKeyNames = sb.toString();
+
         String thisKeyNames = parentKeyNames+getKeyInfo(lastField);
 
-        RelationshipManager rm = RelationshipManager.getInstance(this.getIdentity().getDomainId());
-        String fromName = getIdentity().getName();
+        if(pkSize!=1 || !"id".equals(lastField.getName())) {
+            rm.setRefTargetInfo(thisKeyNames, fromName);
+        }
 
-        rm.setRefTargetInfo(thisKeyNames, fromName);
+
+
+
+
+
+
 
 
         if(pkSize>1) {
+            /*
             if(pkSize>2) {
                 rm.addRelationship(ModelRelationship.create(fromName, parentKeyNames, RelationType.MANY_TO_ONE, "FK"));
                 rm.addRelationship(ModelRelationship.create(parentKeyNames, fromName, RelationType.ONE_TO_MANY, "FK"));
             }
 
+             */
+
             for(Field f: pkFields.getItemList()) {
                 String keyInfo= "PK:"+getKeyInfo(f);
-                rm.addRelationship(ModelRelationship.create(fromName, keyInfo, RelationType.MANY_TO_ONE, "FK"));
+                rm.addRelationship(ModelRelationship.create(fromName, keyInfo, RelationType.AOSSOCIATION, "FK"));
             }
         }
 
@@ -153,6 +178,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             rm.addRelationship(ModelRelationship.create(fromName, refEntityIfno, RelationType.MANY_TO_ONE, firstKeyInfo));
             rm.addRelationship(ModelRelationship.create(refEntityIfno, fromName, RelationType.ONE_TO_MANY, firstKeyInfo));
         }
+
     }
 
     private String getKeyInfo(Field lastField) {
@@ -261,10 +287,18 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         return sb.toString();
     }
 
+    /**
+     *
+     * @return
+     */
     protected String findDomainId() {
         return getIdentity().getDomainId();
     }
 
+    /**
+     *
+     * @return
+     */
     private ECoreModel getEcoreModel() {
         ECoreModel eCoreModel = null;
         try {
@@ -277,6 +311,19 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             eCoreModel = BaseModelDomain.getCurrentModel();
 
         return eCoreModel;
+    }
+
+
+    /**
+     *
+     * @return
+     */
+    public String getFullName() {
+        ComponentType componentType = this.getIdentity().getComponentType();
+
+        String ns = getEcoreModel().getNamespace(componentType.getName());
+
+        return ns+"."+this.getIdentity().getName();
     }
 
 
