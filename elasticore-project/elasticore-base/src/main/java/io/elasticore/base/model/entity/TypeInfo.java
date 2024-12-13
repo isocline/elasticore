@@ -87,7 +87,8 @@ public class TypeInfo {
             return this.baseFieldType.getWrapperClassName();
         }
 
-        if(this.initTypeInfo.indexOf(":")>0) {
+        //if(this.initTypeInfo.indexOf(":")>0)
+        {
             // external domain type
             ECoreModelContext context = BaseECoreModelContext.getContext();
             if(context!=null) {

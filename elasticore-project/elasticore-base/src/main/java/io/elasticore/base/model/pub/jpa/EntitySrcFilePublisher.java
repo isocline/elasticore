@@ -107,11 +107,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         Annotation annotation = entity.getMetaInfo().getMetaAnnotation(EntityAnnotation.META_EXTEND);
         if (annotation != null)
-            return "extends " + getClassName(annotation.getValue());
+            return "extends " + getClassName(entity, annotation.getValue());
         else {
             String rollupTarget = entity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
             if(rollupTarget!=null)  {
-                return "extends " + getClassName(rollupTarget);
+                return "extends " + getClassName(entity, rollupTarget);
             }
         }
         return "";

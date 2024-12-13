@@ -1,4 +1,4 @@
-//ecd:1532732151H20241212190121_V1.0
+//ecd:1532732151H20241213011350_V1.0
 package com.test.A2.repository;
 
 import io.elasticore.base.util.ModelTransList;

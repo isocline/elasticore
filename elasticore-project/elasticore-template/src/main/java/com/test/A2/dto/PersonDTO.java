@@ -1,4 +1,4 @@
-//ecd:1054427266H20241212190121_V1.0
+//ecd:-2138733218H20241213011350_V1.0
 package com.test.A2.dto;
 
 
@@ -36,6 +36,9 @@ public  class PersonDTO  implements java.io.Serializable  {
 	
 	@Schema(description = "age"  )
 	private Integer age;
+	
+	@Schema(description = "createDate"  )
+	private String createDate;
 	
 
 }

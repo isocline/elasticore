@@ -1,18 +1,18 @@
 package io.elasticore.base.model.core;
 
-import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.ModelLoader;
-import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.ShadowModel;
 import io.elasticore.base.model.listener.ModelObjectListener;
-import io.elasticore.base.util.ConsoleLog;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BaseECoreModelContext implements ECoreModelContext {
 
@@ -73,8 +73,12 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
 
     @Override
-    public String[] getDomanNames() {
+    public String[] getInternalDomainNames() {
         return modelDomainMap.keySet().toArray(new String[0]);
+    }
+
+    public String[] getAllDomainNames() {
+        return STATIC_DOMAIN_MAP.keySet().toArray(new String[0]);
     }
 
     @Override
@@ -102,6 +106,42 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
 
+    @Override
+    public DataModelComponent findModelComponent(String domainId, String modelName, boolean isSearchOtherDdomain) {
+        if(isSearchOtherDdomain) {
+            ECoreModelContext context = BaseECoreModelContext.getContext();
+
+            String[] allDomainNames = context.getAllDomainNames();
+
+            List<String> sortedDomainNames = Arrays.stream(allDomainNames)
+                    .sorted((d1, d2) -> {
+                        if (d1.equals(domainId)) return -1; // domainId comes first
+                        if (d2.equals(domainId)) return 1;
+                        return 0;
+                    }).collect(Collectors.toList());
+
+            for(String domainName: sortedDomainNames) {
+                DataModelComponent modelComponent = findModelComponent(domainName, modelName);
+                if(modelComponent!=null)
+                    return modelComponent;
+            }
+
+        }else {
+            return  findModelComponent(domainId, modelName);
+        }
+        return null;
+    }
+
+    public static ShadowModel findShadowModelByName(String modelName) {
+        for(String domainNm : getContext().getAllDomainNames()) {
+            ShadowModel shadowModel = getContext().getDomain(domainNm).getModel().getShadowModel(modelName);
+            if(shadowModel!=null) {
+                return shadowModel;
+            }
+        }
+        return null;
+    }
+
     /**
      *
      * @param modelName
@@ -114,7 +154,27 @@ public class BaseECoreModelContext implements ECoreModelContext {
             return findModelComponent(items[0], items[1]);
         }
         else if(items.length==1) {
-            return getDomain().getModel().findModelByName(modelName);
+            try {
+                DataModelComponent modelByName = null;
+                try {
+                    ModelDomain domain = getDomain();
+                    ECoreModel model = domain.getModel();
+                    modelByName = model.findModelByName(modelName);
+                }catch (NullPointerException npe) {
+                    npe.printStackTrace();
+                }
+
+                if (modelByName == null) {
+                    String[] domainNames = getAllDomainNames();
+                    for (String domainName : domainNames) {
+                        DataModelComponent modelByName1 = getDomain(domainName).getModel().findModelByName(modelName);
+                        if (modelByName1 != null)
+                            return modelByName1;
+                    }
+                }
+            }catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
         }
         return null;
     }

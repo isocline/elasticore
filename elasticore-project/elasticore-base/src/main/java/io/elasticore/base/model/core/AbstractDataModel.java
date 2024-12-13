@@ -1,9 +1,8 @@
 package io.elasticore.base.model.core;
 
+import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.model.*;
-import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
-import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
@@ -12,7 +11,7 @@ import lombok.Getter;
 import java.util.*;
 
 @Getter
-public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> extends AbstractReplaceableModel<T> {
+public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> extends AbstractReplaceableModel<T> implements DataModelComponent {
 
 
 
@@ -231,7 +230,7 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
 
 
-    private void loadFieldInfo(AbstractDataModel model,ListMap<String, Field> list) {
+    private void loadFieldInfo(DataModelComponent model,ListMap<String, Field> list) {
 
         if(model == this) {
             ModelComponentItems<Field> fields = model.getItems();
@@ -326,6 +325,48 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
         return ns+"."+this.getIdentity().getName();
     }
 
+    protected DataModelComponent findModelFromAllDomain_OLD(String name) {
+        String[] items = name.split(":");
+        String domainId = getIdentity().getDomainId();
+        String modelCoreName = name;
+        if(items.length==2) {
+            domainId = items[0];
+            modelCoreName = items[1];
+        }
+        try {
+            return BaseECoreModelContext.getContext().getDomain(domainId).getModel().findModelByName(modelCoreName);
+        }catch (RuntimeException re){}
+        return null;
+    }
+
+    protected DataModelComponent findModelFromAllDomain(String name) {
+
+        ECoreModelContext context = BaseECoreModelContext.getContext();
+
+        String[] domainNames = context.getAllDomainNames();
+
+        String[] items = name.split(":");
+        String domainId = null;
+        String modelCoreName = name;
+        if(items.length==2) {
+            domainId = items[0];
+            modelCoreName = items[1];
+        }
+
+
+        for(String domainName: domainNames) {
+            if(domainId!=null && !domainName.equals(domainId))
+                continue;
+            DataModelComponent modelByName = context.getDomain(domainName).getModel().findModelByName(modelCoreName);
+            if (modelByName != null) {
+
+                return modelByName;
+            }
+        }
+
+        return null;
+    }
+
 
     public ListMap<String, Field> getAllFieldListMap() {
 
@@ -340,7 +381,13 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
             if (templates != null && templates.length() > 0) {
                 String[] templateNmArray = templates.split(",");
 
+                for (String templateNm : templateNmArray) {
+                    DataModelComponent model = findModelFromAllDomain(templateNm);
+                    if(model!=null)
+                        loadFieldInfo(model, fieldListMap);
+                }
 
+                /*
                 DataTransferModels models = eCoreModel.getDataTransferModels();
                 for (String templateNm : templateNmArray) {
                     DataTransfer templateEntity = models.findByName(templateNm);
@@ -355,6 +402,8 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
                     if (templateEntity != null)
                         loadFieldInfo(templateEntity, fieldListMap);
                 }
+
+                 */
             }
 
         }

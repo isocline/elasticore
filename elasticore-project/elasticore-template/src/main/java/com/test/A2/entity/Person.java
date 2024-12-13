@@ -1,4 +1,4 @@
-//ecd:2059579590H20241212185913_V1.0
+//ecd:-72692054H20241213093040_V1.0
 package com.test.A2.entity;
 
 
@@ -42,7 +42,7 @@ public  class Person extends com.test.A1.entity.AuditEntity implements java.io.S
 	private Integer age;
 	
 	
-	private com.test.A1.entity.Company company;
+	private Company company;
 	
 	
 }

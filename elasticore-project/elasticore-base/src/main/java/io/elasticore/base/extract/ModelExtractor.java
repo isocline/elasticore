@@ -44,9 +44,10 @@ public class ModelExtractor {
             specDomainName = null;
         } else {
             log("elasticore.domain = " + specDomainName);
+            specDomainName = ","+specDomainName+",";
         }
 
-        specDomainName = ","+specDomainName+",";
+
 
 
         String checkDir = this.modelResourcePath;

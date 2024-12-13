@@ -1,4 +1,4 @@
-//ecd:-853179532H20241212190436_V1.0
+//ecd:-853179532H20241213011350_V1.0
 package com.test.A1.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;

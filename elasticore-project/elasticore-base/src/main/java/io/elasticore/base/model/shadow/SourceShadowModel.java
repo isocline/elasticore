@@ -2,6 +2,7 @@ package io.elasticore.base.model.shadow;
 
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ShadowModel;
+import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.entity.Field;
 
 import java.util.ArrayList;
@@ -41,11 +42,26 @@ public class SourceShadowModel implements ShadowModel {
         return hasField(f.getName());
     }
 
+    private ShadowModel findShadowModelFromAllDoamin(String modelName) {
+        String[] items = modelName.split(":");
+        if(items.length==2) {
+            String domainId = items[0];
+            String coreName = items[1];
+            return BaseECoreModelContext.getContext().getDomain(domainId).getModel().getShadowModel(coreName);
+        }else {
+            ShadowModel shadowModel = BaseECoreModelContext.findShadowModelByName(modelName);
+            if(shadowModel!=null) {
+                return shadowModel;
+            }
+            return eCoreModel.getShadowModel(modelName);
+        }
+    }
+
     @Override
     public boolean hasField(String fieldName) {
         if( getField(fieldName) ==null) {
             if(this.parentName!=null) {
-                ShadowModel shadowModel = eCoreModel.getShadowModel(this.parentName);
+                ShadowModel shadowModel = findShadowModelFromAllDoamin(this.parentName);
                 if(shadowModel!=null) {
                     return shadowModel.hasField(fieldName);
                 }

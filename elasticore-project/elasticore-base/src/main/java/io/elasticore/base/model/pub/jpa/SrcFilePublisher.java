@@ -611,12 +611,27 @@ public class SrcFilePublisher {
      * @param className the class name, which may include a domain prefix (e.g., "domain:ClassName")
      * @return the full class name if a corresponding DataModelComponent is found; otherwise, the input className
      */
-    protected String getClassName(String className) {
+    protected String getClassName(Entity entity, String className) {
         if(className.indexOf(":")>0) {
             DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(className);
             if(modelComponent!=null) {
                 return modelComponent.getFullName();
             }
+        }else {
+            String domainId = entity.getIdentity().getDomainId();
+
+            String[] allDomainNames = BaseECoreModelContext.getContext().getAllDomainNames();
+            for(String domainNm: allDomainNames) {
+                DataModelComponent modelByName = BaseECoreModelContext.getContext().getDomain(domainNm).getModel().findModelByName(className);
+                if(modelByName!=null) {
+                    if(domainId.equals(domainNm)) {
+                        return modelByName.getIdentity().getName();
+                    }else {
+                        return modelByName.getFullName();
+                    }
+                }
+            }
+
         }
         return className;
     }

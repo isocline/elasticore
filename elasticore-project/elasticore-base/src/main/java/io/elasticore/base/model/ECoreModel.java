@@ -1,8 +1,14 @@
 package io.elasticore.base.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import io.elasticore.base.ECoreModelContext;
+import io.elasticore.base.ModelDomain;
+import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferModels;
 import io.elasticore.base.model.entity.Entity;
@@ -51,6 +57,8 @@ public class ECoreModel {
     }
 
 
+
+
     public String getConfig(String key) {
         if (configMap == null) {
             return null;
@@ -82,27 +90,37 @@ public class ECoreModel {
     }
 
 
+
     /**
      *
      *
      * @param name
      * @return
      */
-    public DataModelComponent findModelByName(String name) {
-        Entity entity = this.getEntityModels().findByName(name);
-        if(entity!=null)
-            return entity;
+    public DataModelComponent findModelByName(String modelName) {
 
-        DataTransfer dataTransfer = this.getDataTransferModels().findByName(name);
-        if(dataTransfer!=null)
-            return dataTransfer;
+        String[] items = modelName.split(":");
+        String targetDomainName = null;
+        if(items.length==2) {
+            targetDomainName = getConfig(items[0]);
+            modelName = modelName;
+        }else {
+            targetDomainName = getConfig("domainName");
+        }
 
-        EnumModel enumModel = this.getEnumModels().findByName(name);
-        if(enumModel !=null)
-            return enumModel;
 
-        return null;
+        return findModelByName(targetDomainName ,modelName);
+    }
 
+
+    /**
+     *
+     * @param domainId
+     * @param name
+     * @return
+     */
+    protected DataModelComponent findModelByName(String domainId, String name) {
+        return BaseECoreModelContext.getContext().findModelComponent(domainId, name, true);
     }
 
 

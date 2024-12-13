@@ -4,6 +4,7 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
+import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
@@ -22,7 +23,10 @@ import io.elasticore.base.util.ConsoleLog;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class MermaidCodePublisher implements CodePublisher {
@@ -78,12 +82,29 @@ public class MermaidCodePublisher implements CodePublisher {
 
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         cb.line("classDiagram").block("");
+
+        Set<String> anotherDomainModelSet = new HashSet<>();
+        for (int i = 0; i < items.size(); i++) {
+            Entity entity = items.get(i);
+            precheckRelationship(entity, anotherDomainModelSet );
+        }
+
+        for(String entityName: anotherDomainModelSet) {
+
+            System.err.println(entityName);
+            DataModelComponent modelComponent = this.ctx.findModelComponent(entityName);
+            if(modelComponent!=null) {
+                makeClassInfoScript((Entity) modelComponent, cb );
+
+            }
+        }
+
         // entity
         for (int i = 0; i < items.size(); i++) {
             Entity entity = items.get(i);
             String entityNm = entity.getIdentity().getName();
 
-            makeClassInfoScript(entity, cb);
+            makeClassInfoScript(entity, cb );
         }
         cb.end("");
 
@@ -122,14 +143,47 @@ public class MermaidCodePublisher implements CodePublisher {
 
     private void makeUMLFile(String umlTxt) {
 
+    }
 
+    private void precheckRelationship(Entity entity , Set<String> anotherDomainModelSet) {
+        String classNm = entity.getIdentity().getName();
+
+
+        List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(classNm);
+
+        ECoreModel model = ctx.getDomain().getModel();
+
+        EntityModels entityModels = model.getEntityModels();
+        EnumModels enumModels = model.getEnumModels();
+
+
+        for (ModelRelationship r : list) {
+
+            if (enumModels != null && enumModels.findByName(r.getToName()) != null)
+                continue;
+
+            if (r.getToName().indexOf("PK:") >= 0)
+                continue;
+
+            if (r.getFromName().indexOf("PK:") >= 0)
+                continue;
+
+            if (r.getFromName().indexOf(":") > 0) {
+                anotherDomainModelSet.add(r.getFromName());
+            }
+            if (r.getToName().indexOf(":") > 0) {
+                anotherDomainModelSet.add(r.getToName());
+            }
+        }
     }
 
     private void makeClassInfoScript(Entity entity, CodeStringBuilder cb) {
+
+
+
         StringBuilder sb = new StringBuilder();
 
         String classNm = entity.getIdentity().getName();
-
 
 
         if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT) ) {
@@ -180,27 +234,42 @@ public class MermaidCodePublisher implements CodePublisher {
             if( enumModels !=null && enumModels.findByName(r.getToName()) !=null)
                 continue;
 
-            if(r.getToName().indexOf("PK:")>=0)
+            String toName = r.getToName();
+            String fromName = r.getFromName();
+
+            if(toName.indexOf("PK:")>=0)
                 continue;
 
-            if(r.getFromName().indexOf("PK:")>=0)
+            if(fromName.indexOf("PK:")>=0)
                 continue;
+
+            String[] toItems = toName.split(":");
+            String[] fromItems = fromName.split(":");
+
+            if(toItems.length==2)
+                toName = toItems[1];
+            if(fromItems.length==2)
+                fromName = fromItems[1];
 
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
-                cb.line("%s --o \"0..*\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
+                cb.line("%s --o \"0..*\" %s : %s", fromName, toName, r.getRelationName());
 
             else if (r.getRelationType() == RelationType.ONE_TO_ONE)
-                cb.line("%s --o \"0..1\" %s : %s", r.getFromName(), r.getToName(), r.getRelationName());
+                cb.line("%s --o \"0..1\" %s : %s", fromName, toName, r.getRelationName());
 
             else if (r.getRelationType() == RelationType.SUPER)
-                cb.line("%s <|-- %s : %s",  r.getToName(),r.getFromName(), "extend");
+                cb.line("%s <|-- %s : %s",  toName, fromName, "extend");
+
             else if (r.getRelationType() == RelationType.ROLLUP)
-                cb.line("%s <|-- %s : %s", r.getToName(), r.getFromName(),  r.getRelationType().getName());
+                cb.line("%s <|-- %s : %s", toName, fromName,  r.getRelationType().getName());
+
             else if (r.getRelationType() == RelationType.EMBEDDED)
-                cb.line("%s --* %s : %s",  r.getFromName(), r.getToName(),  r.getRelationName()+"(embedded)");
+                cb.line("%s --* %s : %s",  fromName, toName,  r.getRelationName()+"(embedded)");
 
             else if (r.getRelationType() == RelationType.AOSSOCIATION)
-                cb.line("%s --> \"0..*\" %s : %s", r.getToName(), r.getFromName(), r.getRelationName());
+                cb.line("%s --> \"0..*\" %s : %s", toName, fromName, r.getRelationName());
         }
+
+
     }
 }

@@ -1,4 +1,4 @@
-//ecd:1823304370H20241212190121_V1.0
+//ecd:-1444952668H20241213011350_V1.0
 package com.test.A2.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -51,6 +51,8 @@ public class A2Mapper {
         setVal(from.getId(), to::setId, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
         setVal(from.getAge(), to::setAge, isSkipNull);
+        if(isSkip("Person","AuditEntity")) return;
+        setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
     }
     
     
@@ -93,6 +95,7 @@ public class A2Mapper {
         setVal(from.getId(), to::setId, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
         setVal(from.getAge(), to::setAge, isSkipNull);
+        setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
     }
     
     

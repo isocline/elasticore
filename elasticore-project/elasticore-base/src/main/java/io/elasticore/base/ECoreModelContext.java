@@ -1,6 +1,5 @@
 package io.elasticore.base;
 
-import io.elasticore.base.exeption.ProcessException;
 import io.elasticore.base.model.DataModelComponent;
 
 /**
@@ -16,7 +15,11 @@ public interface ECoreModelContext {
      *
      * @return An array of domain names.
      */
-    String[] getDomanNames();
+    String[] getInternalDomainNames();
+
+
+    String[] getAllDomainNames();
+
 
     /**
      * Retrieves the default model domain associated with this context.
@@ -35,8 +38,9 @@ public interface ECoreModelContext {
     ModelDomain getDomain(String name);
 
 
-
     DataModelComponent findModelComponent(String domainId, String modelName);
+
+    DataModelComponent findModelComponent(String domainId, String modelName, boolean isSearchOtherDdomain);
 
 
     DataModelComponent findModelComponent(String modelName);

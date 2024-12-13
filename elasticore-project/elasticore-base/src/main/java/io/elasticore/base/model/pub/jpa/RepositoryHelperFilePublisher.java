@@ -86,6 +86,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph methodP = CodeTemplate.newParagraph();
         loadRepositoryInfo(repositoryModels, fieldP, methodP);
 
+        if(fieldP.size()==0)
+            return;
+
         params.set("repositoryList", fieldP);
         params.set("methodList", methodP);
 

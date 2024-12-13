@@ -36,7 +36,7 @@ public class CodePublishManager {
 
     public boolean deleteGenSource(ECoreModelContext ctx, String baseDir) throws ProcessException {
 
-        String[] domainNames = ctx.getDomanNames();
+        String[] domainNames = ctx.getInternalDomainNames();
 
         for (String domainName : domainNames) {
             ModelDomain domain = ctx.getDomain(domainName);
@@ -53,7 +53,7 @@ public class CodePublishManager {
 
     public boolean publish(ECoreModelContext ctx) throws ProcessException {
 
-        String[] domainNames = ctx.getDomanNames();
+        String[] domainNames = ctx.getInternalDomainNames();
 
         for (String domainName : domainNames) {
             ModelDomain domain = ctx.getDomain(domainName);
