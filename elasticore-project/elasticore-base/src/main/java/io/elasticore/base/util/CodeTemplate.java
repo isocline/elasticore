@@ -333,6 +333,16 @@ public class CodeTemplate {
             return false;
         }
 
+        public Paragraph add(Paragraph p) {
+            if(p!=null) {
+                int size = p.size();
+                for(int i=0; i<size; i++) {
+                    add(p.toString(i));
+                }
+            }
+
+            return this;
+        }
 
         public Paragraph add(Object val) {
 

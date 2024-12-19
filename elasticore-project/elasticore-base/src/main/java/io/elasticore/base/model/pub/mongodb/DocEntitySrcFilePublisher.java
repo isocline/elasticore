@@ -382,7 +382,7 @@ public class DocEntitySrcFilePublisher extends SrcFilePublisher {
                 String[] templateNmArray = templates.split(",");
                 EntityModels models = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels();
                 for(String templateNm : templateNmArray) {
-                    Entity templateEntity = models.findByName(templateNm);
+                    Entity templateEntity = this.publisher.getECoreModelContext().findModelComponent(templateNm, Entity.class);
                     if(templateEntity!=null)
                         loadFieldInfo(templateEntity, p);
                 }

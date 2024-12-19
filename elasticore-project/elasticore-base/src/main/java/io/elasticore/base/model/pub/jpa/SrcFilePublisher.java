@@ -6,8 +6,10 @@ import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.AbstractDataModel;
+import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.core.RelationshipManager;
+import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.BaseFieldType;
@@ -25,7 +27,9 @@ import io.elasticore.base.util.StringUtils;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SrcFilePublisher {
 
@@ -162,9 +166,14 @@ public class SrcFilePublisher {
             if (f.getTypeInfo().isGenericType())
                 parameterType = f.getTypeInfo().getTypeParameterName();
 
-            if (eCoreModel.getEntityModels().findByName(parameterType) != null) {
-                // skip
-                return true;
+            //if (eCoreModel.getEntityModels().findByName(parameterType) != null) {
+
+            Entity entityModel = this.publisher.getECoreModelContext().findModelComponent(parameterType, Entity.class);
+            if (entityModel!= null) {
+                if(!entityModel.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
+                    // skip
+                    return true;
+                }
             }
         }
 
@@ -413,11 +422,11 @@ public class SrcFilePublisher {
 
     protected Entity findEntityByField(Field f) {
         String typeName = f.getTypeInfo().getCoreItemType();
-        return findEntityByField(typeName);
+        return findEntityByName(typeName);
     }
 
-    protected Entity findEntityByField(String typeName) {
-        return this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels().findByName(typeName);
+    protected Entity findEntityByName(String typeName) {
+        return this.publisher.getECoreModelContext().findModelComponent(typeName ,Entity.class);
     }
 
     protected boolean isEntityType(Field f) {
@@ -489,7 +498,7 @@ public class SrcFilePublisher {
             return targetEntity.getIdentity().getName();
         }
 
-        Entity rollupEntity = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels().findByName(rollupTargetNm);
+        Entity rollupEntity = findEntityByName(rollupTargetNm);
         if(rollupEntity==null)
             return null;
 
@@ -505,10 +514,11 @@ public class SrcFilePublisher {
      * @return
      */
     protected boolean isModel(ECoreModel eCoreModel, String typeName) {
-        boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
+        boolean isEntity = findEntityByName(typeName)!=null;
         if(isEntity)
             return true;
-        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        //boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class)!=null;
         if(isDTO)
             return true;
 
@@ -518,7 +528,7 @@ public class SrcFilePublisher {
 
 
     protected boolean isEntityModel(ECoreModel eCoreModel, String typeName) {
-        boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
+        boolean isEntity = this.findEntityByName(typeName)!=null;
         if(isEntity)
             return true;
 
@@ -546,7 +556,7 @@ public class SrcFilePublisher {
 
 
     protected boolean isExist(ECoreModel eCoreModel, String typeName) {
-        boolean isEntity = eCoreModel.getEntityModels().findByName(typeName)!=null;
+        boolean isEntity = this.findEntityByName(typeName)!=null;
         if(isEntity)
             return true;
         boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
@@ -561,7 +571,9 @@ public class SrcFilePublisher {
 
     protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName ,ComponentIdentity identity) {
 
-        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        //////boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
+        boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class)!=null;
+
         if(isDTO) {
             String type =metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_TYPE);
             boolean isSearchResult = metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCH_RESULT);
@@ -582,7 +594,8 @@ public class SrcFilePublisher {
 
             return true;
         }
-        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
+        //////boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
+        boolean isEnum = this.publisher.getECoreModelContext().findModelComponent(typeName, EnumModel.class)!=null;
         if(isEnum)
             return true;
 
@@ -634,5 +647,94 @@ public class SrcFilePublisher {
 
         }
         return className;
+    }
+
+
+
+    protected void processDeferredField(DataTransfer dto, Field f) {
+
+
+        if(f.hasAnnotation(DataTransferAnnotation.META_DEFERRED)) {
+
+            String baseFieldNm = f.getName();
+
+            String typeName = f.getTypeInfo().getDefaultTypeName();
+            Entity entity = this.publisher.getECoreModelContext().findModelComponent(typeName, Entity.class);
+
+            if(entity==null) {
+                //f.removeAnnotation(DataTransferAnnotation.META_DEFERRED);
+                return;
+            }
+
+            //if(entity !=null)
+            {
+
+                Map<String,Annotation> antMp = new HashMap<>();
+
+                boolean isEmbeddable = false;
+
+                if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
+                    isEmbeddable = true;
+                }
+
+                Annotation att = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE_BYPASS );
+                antMp.put(att.getName(), att);
+
+
+                if(!dto.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) {
+                    Field dtoField = Field.builder()
+                            .name(f.getName())
+                            .parentMetaInfo(dto.getMetaInfo())
+                            .type(typeName+"DTO")
+                            .annotationMap(antMp)
+                            .build();
+
+                    dto.addField(dtoField);
+                }
+
+
+                ModelComponentItems<Field> entityFields = entity.getItems();
+                while (entityFields.hasNext()) {
+                    Field entityField = entityFields.next();
+                    if(entityField.hasAnnotation(EntityAnnotation.META_ID)) {
+
+                        String refFieldNm = baseFieldNm+"."+ entityField.getName();
+                        String newFieldNm = baseFieldNm+StringUtils.capitalize(entityField.getName());
+
+                        // for search
+                        Annotation srchAnt = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE, "eq");
+                        Annotation annotation = Annotation.create(  "ref", refFieldNm);
+                        Map<String,Annotation> antMap = new HashMap<>();
+                        antMap.put(annotation.getName(), annotation);
+                        antMap.put(srchAnt.getName(), srchAnt);
+
+
+                        Annotation.create(  "s", "eq");
+                        antMap.put(annotation.getName(), annotation);
+
+
+                        Field newRefField = Field.builder()
+                                .name(newFieldNm)
+                                .parentMetaInfo(dto.getMetaInfo())
+                                .type(entityField.getTypeInfo().getDefaultTypeName())
+                                .annotationMap(antMap)
+                                .build();
+
+                        dto.addField(newRefField);
+
+                    }
+                }
+            }
+
+        }
+    }
+
+    protected boolean isDisableField(Field f) {
+        if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE)) {
+            if( this.isEntityType(f)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -52,8 +52,12 @@ classDiagram
     class Company{
         id: String[PK] 
         name: String 
+        married: Indicator 
+        person: Person2 
     }
     AuditEntity <|-- Company : extend
+    Company --o "0..1" Indicator : married
+    Company --o "0..1" Person2 : person
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

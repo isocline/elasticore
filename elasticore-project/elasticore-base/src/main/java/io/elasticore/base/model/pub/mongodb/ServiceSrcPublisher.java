@@ -154,7 +154,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             if(f.hasAnnotation(EntityAnnotation.META_DISABLE))
                 continue;
             String coreItemType = f.getTypeInfo().getCoreItemType();
-            if(this.findEntity(coreItemType)!=null) continue;
+            if(this.findEntityByName(coreItemType)!=null) continue;
 
             if(sb.length()>0) sb.append("\n ,");
             sb.append("root.get(");
@@ -288,9 +288,9 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
             String getTypeNm = targetField.getTypeInfo().getDefaultTypeName();
 
-            Entity targetEntity = findEntity(getTypeNm);
+            Entity targetEntity = this.findEntityByName(getTypeNm);
             if (targetEntity == null) continue;
-            ;
+
 
             String refClassPkNm2 = targetEntity.getPkField().getName();
 
@@ -326,10 +326,6 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         cb.end("");
         cb.end("");
-    }
-
-    private Entity findEntity(String entityName) {
-        return this.model.getEntityModels().findByName(entityName);
     }
 
 

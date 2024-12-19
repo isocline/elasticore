@@ -39,84 +39,6 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
             loadModel(ctx, ctx.getDataTransferItems(), entityMap);
         }
 
-        if(ctx.getDataTransferItems().size()>0) {
-            List<DataTransfer> itemList = ctx.getDataTransferItems().getItemList();
-            for(DataTransfer dto : itemList) {
-
-                ModelComponentItems<Field> items = dto.getItems();
-                while(items.hasNext()) {
-                    Field f = items.next();
-                    //if(f==null) break;
-
-                    String baseFieldNm = f.getName();
-
-                    if(f.hasAnnotation(DataTransferAnnotation.META_DEFERRED)) {
-
-                        String typeName = f.getTypeInfo().getDefaultTypeName();
-                        Entity entity = ctx.getEntityItems().findByName(typeName);
-
-                        if(entity !=null) {
-
-                            Annotation att = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE_BYPASS );
-                            Map<String,Annotation> antMp = new HashMap<>();
-                            antMp.put(att.getName(), att);
-
-                            if(!dto.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) {
-                                Field dtoField = Field.builder()
-                                        .name(f.getName())
-                                        .parentMetaInfo(dto.getMetaInfo())
-                                        .type(typeName+"DTO")
-                                        .annotationMap(antMp)
-                                        .build();
-
-                                dto.addField(dtoField);
-                            }
-
-
-                            ModelComponentItems<Field> entityFields = entity.getItems();
-                            while (entityFields.hasNext()) {
-                                Field entityField = entityFields.next();
-                                if(entityField.hasAnnotation(EntityAnnotation.META_ID)) {
-
-                                    String refFieldNm = baseFieldNm+"."+ entityField.getName();
-                                    String newFieldNm = baseFieldNm+StringUtils.capitalize(entityField.getName());
-
-                                    // for search
-                                    Annotation srchAnt = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE, "eq");
-                                    Annotation annotation = Annotation.create(  "ref", refFieldNm);
-                                    Map<String,Annotation> antMap = new HashMap<>();
-                                    antMap.put(annotation.getName(), annotation);
-                                    antMap.put(srchAnt.getName(), srchAnt);
-
-
-                                    Annotation.create(  "s", "eq");
-                                    antMap.put(annotation.getName(), annotation);
-
-
-                                    Field newRefField = Field.builder()
-                                            .name(newFieldNm)
-                                            .parentMetaInfo(dto.getMetaInfo())
-                                            .type(entityField.getTypeInfo().getDefaultTypeName())
-                                            .annotationMap(antMap)
-                                            .build();
-
-                                    dto.addField(newRefField);
-
-
-
-                                }
-                            }
-                        }
-
-                    }
-
-
-                }
-
-            }
-
-            return true;
-        }
 
         return false;
     }
@@ -170,16 +92,21 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                             boolean isProcess = true;
 
                             if(!fieldTypeInfo.isList()) {
-                                if(ctx.getEnumModelItems().findByName(fieldTypeInfo.getInitTypeInfo())!=null) {
+                                // 20241213 Enum 을 선별할기 전까지
+                                //if(ctx.getEnumModelItems().findByName(fieldTypeInfo.getInitTypeInfo())!=null)
+                                {
                                     isProcess = false;
                                 }
+
+                                isProcess = true;
                             }else {
                                 isProcess = false;
                             }
 
                             if(isProcess) {
+
                                 Annotation annotation = Annotation.create(EntityAnnotation.META_DEFERRED);
-                                Map<String, Annotation> annotationMap = new HashMap<>();
+                                Map<String, Annotation> annotationMap = field.getAnnotationMap();
                                 annotationMap.put(annotation.getName(), annotation);
 
                                 items.addItem(

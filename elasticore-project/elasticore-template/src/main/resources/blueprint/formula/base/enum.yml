@@ -1,0 +1,238 @@
+enumeration:
+
+  ResidualType:
+    meta: enum @json(code) @db(code) -- 잔가분류
+    fields:
+      code: string(2)
+      msg: string(10)
+    enum:
+      NORMAL: NM,일반잔가
+      PREMIUM: PR, 고잔가
+      MONTHLY: MT, 할부
+
+  EstimateType:
+    meta: enum @json(code) @db(code) -- 견적분류
+    fields:
+      code: string(2)
+      msg: string(10)
+    enum:
+      LOW_RENT: LR, 무심사렌트
+      LOW_LEASE: LL, 무심사리스
+      RENT: RT, 일반렌트
+      LEASE: LS, 일반리스
+
+  DeliveryArea:
+    meta: enum @json(code) @db(code) -- 배송지
+    fields:
+      code: string(2)
+      msg: string(10)
+    enum:
+      SEOUL: SU, 서울/경기/인천
+      GANGWON_WEST: GW, 강원(영서)
+      GANGWON_EASE: GE, 강원(영동)
+      CHUNGNAM: CN, 충남
+      CHUNGBUK: CB, 충북
+      JEONNAM: JN, 전남
+      JEONBUT: JB, 전북
+      KYUNGNAM: KN, 경남
+      KYUNGBUK: KB, 경북
+      JEJU: JJ, 제주
+
+  ReleaseArea:
+    meta: enum @json(code) @db(code) -- 출고지
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      ASAN: AS, 아산
+      ULSAN: US, 울산
+      SEOSAN: SS, 서산
+      SOHARI: SH, 소하리
+      HWASUNG: HS, 화성
+      INCHEON: IC, 인천
+      PYEONGTAEK: PT, 평택
+      GWANGJU: GJ, 광주
+      SONGDO: SD, 송도
+      BUSAN: BS, 부산
+      CHILGOK: CG, 칠곡
+      CHANGWON: CW, 창원
+      GUNSAN: GS, 군산
+      DUCKPYUNG: DP, 덕평
+      SINGAL: SG, 신갈
+      OKCHEON: OC, 옥천
+      SINTAEIN: ST, 신태인
+      SEONGBUK: SB, 성북
+      HEAD_OFFICE: HO, 본사
+
+  PromotionType:
+    meta: enum @json(code) @db(code) -- 할인 종속범위
+    fields:
+      code: string(2)
+      className: string(20)
+    enum:
+      CAR: CR,BaseFormulaInfo
+      BRAND: BR, BrandInfo
+      REGULATIONS: RL,CommonCode
+
+  DriverAge:
+    meta: enum @json(code) @db(code) -- 운전자 연령
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      TWENTY_ONE: TO,만 21세 이상
+      TWENTY_SIX: TS,만 26세 이상
+
+  RentPeriod:
+    meta: enum @json(code) @db(code) -- 렌트 기간
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      THIRTY_SIX: TT,36개월
+      FORTY_EIGHT: FE,48개월
+      SIXTY: ST,60개월
+
+  PromiseDistance:
+    meta: enum @json(code) @db(code) -- 약정 거리
+    fields:
+      code: string(2)
+      distance: int
+    enum:
+      TEN_T: TE,10000
+      TWENTY_T: TW,20000
+      THIRTY_T: TH,30000
+      FORTY_T: FR,40000
+      FIFTY_T: FF,50000
+      UNLIMITED: UL,0
+
+  CustomerType:
+    meta: enum @json(code) @db(code)  -- 고객 타입
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      PRIVATE: PR,개인
+      BUSINESS: BS,개인 사업자
+      CORPORATION: CP,법인
+
+  FormulaFuelType:
+    meta: enum  @json(code) @db(code) -- 연료 타입
+    fields:
+      code: string(2)
+      msg: string(10)
+    enum:
+      GASOLINE: GA, 보통휘발유
+      LPG: LP, LPG
+      DIESEL: DS,경유
+      CNG: CN, 천연가스
+      PREMIUM_GASOLINE: PG, 고급휘발유
+      ELECTRIC: EL,전기
+      HYDROGEN: HD,수소
+      LPG_GASOLINE: LG, LPG_휘발유 혼합
+      HYBRID: HY, 하이브리드
+      PLUGIN_HYBRID: PH, 플러그인 하이브리드
+
+  InsureProperty:
+    meta: enum @json(code) @db(code) -- 대물 조건
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      ONE_HUNDRED_MILLION: ON,1억
+      TWO_HUNDRED_MILLION: TW,2억
+      THREE_HUNDRED_MILLION: TH,3억
+
+  InsureSelf:
+    meta: enum @json(code) @db(code) -- 자손
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      THREE_THOUSAND: TT,3천
+      FIVE_THOUSAND: FT,5천
+      TEN_THOUSAND: TE,1억
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: Y
+      NO: N
+
+  RegisterNameType:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      FINANCE_CORP: FC,금융사
+      USER: US, 사용자
+
+  ExpireType:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      CHOICE: CH, 선택
+      TAKE_OVER: TO, 인수
+      RETURN: RT, 반납
+      MONTHLY: MT, 할부
+
+  ReleaseType:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      CAPITAL: CT, 본사출고
+      AGENCY: AG, 대리점출고
+
+
+  RegulationCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: string(50)
+    enum:
+      INSURE_CAR_GRADE: insureCarGrade
+      TAX_FREE_STANDARD: taxFreeStandard
+      EDUCATIONAL_TAX: educationalTax
+      CONSUMPTION_TAX: consumptionTax
+      ACQUISITION_TAX: acquisitionTax
+      STANDARD_DISCOUNT: standardDiscount
+      SURTAX: surtax
+      MONTHLY_RESIDUAL: monthlyResidual
+      CAR_TAX: carTax
+
+  CapitalCompanyType:
+    meta: enum @json(code)
+    fields:
+      code: string
+      beanType: Class
+    enum:
+      MOBILLUG: Mobillug, MobillugFormulaSyncService.class
+
+  InsureCarGrade:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      SEDAN: SD,승용차
+      RV_1: R1, 다인승1
+      RV_2: R2, 다인승2
+      VAN: VN, 승합차
+      TRUCK: TR, 화물차
+
+  RegulationCarGrade:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      LIGHT: LT,경형
+      SMALL: SM,소형
+      MIDDLE: MD,중형
+      HEAVY: HV, 대형

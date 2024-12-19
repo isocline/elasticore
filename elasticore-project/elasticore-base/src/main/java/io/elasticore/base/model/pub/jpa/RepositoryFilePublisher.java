@@ -58,7 +58,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
     public void publish(ModelDomain domain, Repository repo) {
 
         String targetModelName = repo.getIdentity().getName();
-        Entity entity = domain.getModel().getEntityModels().findByName(targetModelName);
+        Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetModelName, Entity.class);
 
         if(entity==null)
             return;

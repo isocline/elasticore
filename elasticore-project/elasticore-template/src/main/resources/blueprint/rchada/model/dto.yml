@@ -1,0 +1,147 @@
+
+
+dto:
+  BrandDTO:
+    fields:
+      idx: int -- 아이디
+      name: string
+      nation: string
+
+  ModelDTO:
+    fields:
+      idx: int
+      name: string
+      minimumPrice: long
+      lineupCount: int
+
+
+  LineupDTO:
+    fields:
+      idx: int
+      name: string
+
+
+  TrimDTO:
+    fields:
+      idx: int
+      pretaxprice: long
+      price: long
+      name: string
+
+
+  CarDTO:
+    fields:
+      info: CarInfoDTO
+      options: List<OptionDTO>
+      colors: List<ColorDTO>
+      innerColors: List<ColorDTO>
+
+
+  OptionDTO:
+    fields:
+      pretaxPrice: long -- 세전 가격
+      price: long -- 가격
+      restriction: string -- 제약 사항
+      status: int -- 상태
+      idx: string -- 인덱스
+      name: string -- 옵션 이름
+      description: string -- 옵션 설명
+
+  CarInfoDTO:
+    meta: dto -- 차량 정보
+    fields:
+      brandIdx: int -- 브랜드 인덱스
+      modelIdx: int -- 모델 인덱스
+      lineupIdx: int -- 라인업 인덱스
+      trimIdx: int -- 트림 인덱스
+
+      trimName: string -- 트림 이름
+      pretaxprice: long -- 세전 가격
+      price: long -- 가격
+      displace: int -- 배기량
+      efficiency: float -- 연비
+      brandName: string -- 브랜드 이름
+      modelName: string -- 모델 이름
+      lineupName: string -- 라인업 이름
+      classifyName: string -- 분류 이름
+      tmName: string -- 변속기 이름
+
+      fuelName: string -- 연료타입
+
+      overallLength: int -- 전장
+      overallWidth: int -- 전폭
+      overallHeight: int -- 전고
+      wheelbase: int -- 휠베이스
+      treadFront: int -- 전륜 윤거
+      treadRear: int -- 후륜 윤거
+      curbWeight: int -- 공차중량
+      highOutput: int -- 최고출력
+      maxTorque: float -- 최대토크
+
+
+
+  ColorDTO:
+    meta: dto -- 차량 색상 정보
+    fields:
+      idx: string -- 색상 인덱스
+      name: string -- 색상 이름
+      price: long -- 색상 가격
+      rgbCode: string -- 색상 RGB 코드
+      status: int -- 상태
+
+  CityDTO:
+    fields:
+      idx: string -- 아이디
+      name: string -- 지역명
+
+
+  AreaDTO:
+    fields:
+      areaIdx: string -- 아이디
+      name: string -- 지역명
+      code: string
+
+
+
+
+  RentalCalcInputDTO:
+    meta: dto
+    fields:
+      trimCode: string @notnull @notblank -- 차량 디테일 트림코드 (5자리), 개별소비세 5% , 3.5% 인 경우 3.5% 코드만 이용
+      prodType: string -- 상품타입, L:리스 / R:렌트
+      fee: int -- 수수료, 0~10, 1단위 입력
+      period: int -- 이용기간, 36,48,60
+      deposit: int -- 보증금, 0,10,20,30,40, 표기단위 %
+      prepaid: int -- 선납금, 0,10,20,30,40, 표기단위 %
+      optionPrice: int -- 옵션가격, 0~9999999, 옵션값의 합
+      discount: int -- 할인, 할인금액 (수입차)/할인→only대리점
+      distance: string -- 약정거리, 1만km,2만km,3만km,4만km,5만km,무제한
+      tint_f: string -- 썬팅전면, 포함,미포함
+      tint_s: string -- 썬팅측후면, 포함,미포함
+      blackbox: string -- 블랙박스, 포함,미포함
+      factory_trans_fee: int -- 탁송료, 0~9999999, 기본값 0
+      release: string -- 출고방법, 특판,대리점, 기본값=특판/특판->only렌트/수입차->only대리점
+      cartax: string -- 자동차세, 포함,제외
+      bond: int -- 공채, 0~99, 표기단위 % (5~8 설정 추천)
+      trans_arr: string -- 탁송지역, *탁송지역시트 참조, 특판/대리점 둘다 기입
+      ins_age: string -- 보험연령, 21세,26세
+      ins_add: string -- 보험대물, 1억,2억,3억
+      maintenance: string -- 정비유무, 정비제외,순회정비
+      em: string -- 면책금, 30만,50만
+      companyCode: string -- 업체코드, *업체코드시트 참조
+
+
+  RentalCalcOutputDTO:
+    meta: dto -- 리스렌트 api 응답
+    fields:
+      name: string -- 업체명
+      code: string -- 업체코드
+      payment: long -- 월 대여료
+      takeover: long -- 만기인수가
+      totalAmount: long -- 총비용
+      distance: string -- 약정거리
+      won: long -- 취득원가
+      deposit: long -- 보증금
+      pre_exp: long -- 선납금
+
+

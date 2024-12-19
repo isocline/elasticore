@@ -4,10 +4,7 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
-import io.elasticore.base.model.DataModelComponent;
-import io.elasticore.base.model.ECoreModel;
-import io.elasticore.base.model.ModelComponent;
-import io.elasticore.base.model.ModelComponentItems;
+import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
@@ -83,16 +80,20 @@ public class MermaidCodePublisher implements CodePublisher {
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         cb.line("classDiagram").block("");
 
-        Set<String> anotherDomainModelSet = new HashSet<>();
+        Set<String> relationModelNames = new HashSet<>();
+        Set<String> entityModelNames = new HashSet<>();
+
         for (int i = 0; i < items.size(); i++) {
             Entity entity = items.get(i);
-            precheckRelationship(entity, anotherDomainModelSet );
+            precheckRelationship(entity, relationModelNames ,entityModelNames);
         }
 
-        for(String entityName: anotherDomainModelSet) {
+        for(String entityName: relationModelNames) {
 
-            System.err.println(entityName);
-            DataModelComponent modelComponent = this.ctx.findModelComponent(entityName);
+            if(entityModelNames.contains(entityName)) {
+                continue;
+            }
+            DataModelComponent modelComponent = this.ctx.findModelComponent(entityName, Entity.class);
             if(modelComponent!=null) {
                 makeClassInfoScript((Entity) modelComponent, cb );
 
@@ -145,8 +146,9 @@ public class MermaidCodePublisher implements CodePublisher {
 
     }
 
-    private void precheckRelationship(Entity entity , Set<String> anotherDomainModelSet) {
+    private void precheckRelationship(Entity entity , Set<String> relationModelSet, Set<String> entityModelNames) {
         String classNm = entity.getIdentity().getName();
+        entityModelNames.add(classNm);
 
 
         List<ModelRelationship> list = RelationshipManager.getInstance(entity.getIdentity().getDomainId()).findByFromName(classNm);
@@ -168,35 +170,45 @@ public class MermaidCodePublisher implements CodePublisher {
             if (r.getFromName().indexOf("PK:") >= 0)
                 continue;
 
-            if (r.getFromName().indexOf(":") > 0) {
-                anotherDomainModelSet.add(r.getFromName());
-            }
-            if (r.getToName().indexOf(":") > 0) {
-                anotherDomainModelSet.add(r.getToName());
-            }
+            if(this.ctx.findModelComponent(r.getToName(), Entity.class) ==null)
+                continue;
+
+            if(this.ctx.findModelComponent(r.getFromName(), Entity.class) ==null)
+                continue;
+
+            relationModelSet.add(r.getFromName());
+            relationModelSet.add(r.getToName());
         }
     }
 
     private void makeClassInfoScript(Entity entity, CodeStringBuilder cb) {
 
-
-
         StringBuilder sb = new StringBuilder();
 
         String classNm = entity.getIdentity().getName();
 
-
-        if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT) ) {
+        if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE) ) {
+            cb.line("class %s:::embeddable", classNm).block();
+            cb.line("&lt;&lt;embeddable &gt;&gt;");
+        }
+        else if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT) ) {
             cb.line("class %s:::abstract", classNm).block();
             cb.line("&lt;&lt;Abstract &gt;&gt;");
         }else{
             cb.line("class %s", classNm).block();
         }
 
+        ShadowModel shadowModel = this.getECoreModelContext().getDomain(entity.getIdentity().getDomainId()).getModel()
+                .getShadowModel(classNm);
+
+        List<Field> fieldList = shadowModel.listFields();
+
 
         ModelComponentItems<Field> fields = entity.getItems();
-        while (fields.hasNext()) {
-            Field f = fields.next();
+        //while (fields.hasNext()) {
+        //Field f = fields.next();
+
+        for(Field f:fieldList) {
 
             String type = f.getTypeInfo().getDefaultTypeName();
             if(f.getTypeInfo().isList()) {
@@ -250,6 +262,12 @@ public class MermaidCodePublisher implements CodePublisher {
                 toName = toItems[1];
             if(fromItems.length==2)
                 fromName = fromItems[1];
+
+            if(this.ctx.findModelComponent(toName, Entity.class) ==null)
+                continue;
+
+            if(this.ctx.findModelComponent(fromName, Entity.class) ==null)
+                continue;
 
             if (r.getRelationType() == RelationType.MANY_TO_ONE)
                 cb.line("%s --o \"0..*\" %s : %s", fromName, toName, r.getRelationName());

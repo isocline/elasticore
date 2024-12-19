@@ -32,10 +32,7 @@ import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -239,6 +236,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return p;
     }
 
+    private SourceShadowModel shadowModel;
 
     /**
      * Generates and publishes Java source code for the specified entity.
@@ -265,10 +263,19 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         setNativeAnnotation(entity, this.paragraphForEntity);
 
+        shadowModel = new SourceShadowModel(entity.getIdentity().getName());
+        this.model.setShadowModel(shadowModel);
+
         // must call 'getFieldInfo' first
         CodeTemplate.Paragraph pr = getFieldInfo(entity);
 
         CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+
+        Set<String> namespaceSet = shadowModel.getNamespaceSet();
+
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
 
 
         if(this.paragraphForEntity.contains("@Entity")) {
@@ -392,11 +399,19 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
         String parentName = entity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_EXTEND);
-        SourceShadowModel shadowModel = new SourceShadowModel(entity.getIdentity().getName() ,parentName);
+
+        String entityName = entity.getIdentity().getName();
+
+        // for prePersist
+        boolean isMultiplePK = entity.getPkField()!=null && entity.getPkField().isMultiple();
+        CodeTemplate.Paragraph prePersist = CodeTemplate.newParagraph();
 
 
         while (fields.hasNext()) {
             Field f = fields.next();
+
+            if(shadowModel.getField(f.getName())!=null)
+                continue;
 
             if (isExtendIdentity) {
                 if (f.isPrimaryKey())
@@ -450,18 +465,33 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 }
 
                 if(idGenerator!=null) {
-                    p.add("@PrePersist");
-                    p.add("public void prePersist() {");
-                    p.add("  if (%s == null)", f.getName());
-                    p.add("        %s = %s();",f.getName(), idGenerator);
-                    p.add("}");
-                    p.add("");
-                    p.add("");
+
+                    if(!isMultiplePK) {
+                        p.add("@PrePersist");
+                        p.add("public void prePersist() {");
+                        p.add("  if (%s == null)", f.getName());
+                        p.add("        %s = %s();",f.getName(), idGenerator);
+                        p.add("}");
+                        p.add("");
+                        p.add("");
+                    }else {
+
+                        prePersist.add("  if (%s == null)", f.getName());
+                        prePersist.add("        %s = %s();",f.getName(), idGenerator);
+                    }
+
                 }
             }
         }
 
-        this.model.setShadowModel(shadowModel);
+        if(isMultiplePK && prePersist.size()>0) {
+            p.add("@PrePersist");
+            p.add("public void prePersist() {");
+            p.add(prePersist);
+            p.add("}");
+            p.add("");
+            p.add("");
+        }
 
         Annotation templateAnt = entity.getMetaInfo().getMetaAnnotation("template");
         if(templateAnt!=null) {
@@ -469,9 +499,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             if(templates!=null && templates.length()>0) {
                 String[] templateNmArray = templates.split(",");
-                EntityModels models = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels();
+
                 for(String templateNm : templateNmArray) {
-                    Entity templateEntity = models.findByName(templateNm);
+                    Entity templateEntity = this.publisher.getECoreModelContext().findModelComponent(templateNm, Entity.class);
                     if(templateEntity!=null)
                         loadFieldInfo(templateEntity, p);
                 }
@@ -534,7 +564,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         if( field.getTypeInfo().isList()) {
             String fieldCoreType = field.getTypeInfo().getCoreItemType();
 
-            Entity byName = this.model.getEntityModels().findByName(fieldCoreType);
+            Entity byName = this.publisher.getECoreModelContext().findModelComponent(fieldCoreType, Entity.class);
             ModelComponentItems<Field> items = byName.getItems();
             String entityClassName = entity.getIdentity().getName();
             while(items.hasNext()) {
@@ -560,7 +590,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         boolean isEntityType = false;
 
-        Entity typeEntity = this.model.getEntityModels().findByName(typeInfo.getCoreItemType());
+        if(typeInfo.isBaseType())
+            return false;
+
+        Entity typeEntity = this.publisher.getECoreModelContext().findModelComponent(typeInfo.getCoreItemType(), Entity.class);
 
 
         if(typeEntity!=null)
@@ -631,8 +664,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
             String targetEntityName = typeInfo.getDefaultTypeName();
-            Entity entity = this.publisher.getECoreModelContext().getDomain().getModel().getEntityModels()
-                    .findByName(targetEntityName);
+            Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetEntityName, Entity.class);
 
             if (entity != null) {
                 if(fetchType !=null) {

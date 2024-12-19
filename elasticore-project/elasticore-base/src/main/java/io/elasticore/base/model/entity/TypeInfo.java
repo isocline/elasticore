@@ -6,7 +6,11 @@ import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -26,13 +30,36 @@ public class TypeInfo {
 
     private Map<String, Annotation> annotationMap;
 
+    private Set<String> types;
+
     TypeInfo(String typeInfo, Map<String, Annotation> annotationMap) {
         this.annotationMap = annotationMap;
         if (typeInfo == null || typeInfo.length() < 2)
             throw new IllegalArgumentException("type info is not normal. [" + typeInfo + "]");
 
         this.initTypeInfo = typeInfo;
+        this.types = extractTypes(typeInfo);
         loadInfo();
+
+    }
+
+    public Set<String> getTypes() {
+        return this.types;
+    }
+
+    private static Set<String> extractTypes(String input) {
+        Set<String> result = new HashSet<>();
+
+        // Regular expression to match fully qualified class names and generic types
+        String regex = "\\b[a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\b";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            result.add(matcher.group());
+        }
+
+        return result;
     }
 
     /**
@@ -88,6 +115,7 @@ public class TypeInfo {
         }
 
         //if(this.initTypeInfo.indexOf(":")>0)
+        /*
         {
             // external domain type
             ECoreModelContext context = BaseECoreModelContext.getContext();
@@ -97,7 +125,7 @@ public class TypeInfo {
                     return modelComponent.getFullName();
                 }
             }
-        }
+        }*/
 
         return this.initTypeInfo;
     }

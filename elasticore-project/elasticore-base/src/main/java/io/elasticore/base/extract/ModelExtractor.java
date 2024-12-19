@@ -128,7 +128,14 @@ public class ModelExtractor {
             return;
         }
 
+
+        if (sourceFileAccessFactory == null) {
+            sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir + "/" + ConstanParam.PROPERTY_JAVA_SRC_HOME);
+        }
+
         CodePublishManager codePublishManager = CodePublishManager.getInstance();
+
+        List<ECoreModelContext> contextList = new ArrayList<>();
 
         for (String path : dirList) {
             FileBasedModelLoader loader = FileBasedModelLoader.newInstance();
@@ -136,16 +143,18 @@ public class ModelExtractor {
 
 
             ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
+            contextList.add(ctx);
+        }
+
+        // publish
+        for(ECoreModelContext ctx: contextList) {
             ModelDomain defaultDomain = ctx.getDomain();
 
             //ECoreModel model = defaultDomain.getModel();
 
-            if (sourceFileAccessFactory == null) {
-                sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir + "/" + ConstanParam.PROPERTY_JAVA_SRC_HOME);
-            }
+
             codePublishManager.setSrcCodeWriterFactory(sourceFileAccessFactory);
             codePublishManager.publish(ctx);
-
         }
 
     }

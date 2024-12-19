@@ -15,6 +15,7 @@ import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
+import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.ConsoleLog;
@@ -24,6 +25,7 @@ import static io.elasticore.base.util.StringUtils.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class MapperSrcPublisher extends SrcFilePublisher {
 
@@ -39,6 +41,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
     private String dtoPackageName;
 
     private RelationshipManager relationshipManager;
+
+    private SourceShadowModel shadowModel;
 
 
     public MapperSrcPublisher(CodePublisher publisher) {
@@ -85,6 +89,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         this.className = StringUtils.capitalize(name) + "Mapper";
 
+        this.shadowModel = new SourceShadowModel(className);
+
 
         String enumPackageName =null;
         if(model.getEnumModels().getItems().size()>0)
@@ -106,6 +112,16 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         params.set("methodList", methodP);
 
+
+
+        Set<String> namespaceSet = shadowModel.getNamespaceSet();
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
+
+        params.set("importList", importList);
+
         String code = baseCodeTmpl.toString(params);
         String qualifiedClassName = packageName + "." + this.className;
 
@@ -120,8 +136,18 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             String searchDtoNm = mrs.getFromName();
             String targetEntityNm = mrs.getToName();
 
-            Entity entity = domain.getModel().getEntityModels().findByName(targetEntityNm);
-            DataTransfer dto = domain.getModel().getDataTransferModels().findByName(searchDtoNm);
+            Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetEntityNm, Entity.class);
+            DataTransfer dto = this.publisher.getECoreModelContext().findModelComponent(searchDtoNm, DataTransfer.class);
+
+            if(entity==null) {
+                ConsoleLog.printWarn(targetEntityNm+" not found in SEARCHABLE relation as 'toName'. domain:"+domain.getName());
+                continue;
+            }
+
+            if(dto==null) {
+                ConsoleLog.printWarn(searchDtoNm+" not found in SEARCHABLE relation as 'fromName'. domain:"+domain.getName());
+                continue;
+            }
 
             makeSpecificationCode(dto, entity, methodP);
         }
@@ -451,6 +477,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
     private boolean makeModelRefMappingCode(String fromModelName, String toModelName, Field fieldWithRefInfo, AbstractDataModel fromModel, CodeStringBuilder cb, boolean isDtoSet) {
 
+
+        this.shadowModel.addField(fieldWithRefInfo);
+
         String fieldName = fieldWithRefInfo.getName();
         String setFieldNm = StringUtils.capitalize(fieldName);
 
@@ -662,6 +691,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             String fldNm = StringUtils.capitalize(fieldName);
 
+            this.shadowModel.addField(f);
+
             if (!makeModelRefMappingCode(fromName, toName, f, fromModel, cb ,true)) {
 
                 String mappingfunc =null;
@@ -686,13 +717,14 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
                         postfix = ")";
                     }
+                    /////else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {
                     else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {
                         continue;
                     }
                 }
 
                 if (fromField == null) continue;
-                if (fromField.hasAnnotation(DataTransferAnnotation.META_DISABLE)) continue;
+                if (this.isDisableField(fromField)) continue;
 
                 if("toDTO".equals(toMethodName))
                     if (fromField.hasAnnotation("password")) continue;
@@ -755,6 +787,20 @@ public class MapperSrcPublisher extends SrcFilePublisher {
          *         return toList;
          */
 
+        boolean isEnableList = true;
+
+        Entity entity = this.publisher.getECoreModelContext().findModelComponent(toClassNm, Entity.class);
+        if(entity==null) {
+            entity = this.publisher.getECoreModelContext().findModelComponent(fromClassNm, Entity.class);
+        }
+        if(entity!=null) {
+            if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE))
+                isEnableList = false;
+        }
+
+        if(!isEnableList) {
+            return;
+        }
         CodeStringBuilder cb3 = new CodeStringBuilder("{", "}");
         cb3.line("public static List<%s> to%sList(List<%s> fromList)", toClassNm, toClassNm, fromClassNm).block();
 
@@ -817,12 +863,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
     }
 
     private AbstractDataModel getDataModel(ECoreModel model, String name) {
-        AbstractDataModel dataModel = model.getEntityModels().findByName(name);
-        if (dataModel == null)
-            dataModel = model.getDataTransferModels().findByName(name);
-
-
-        return dataModel;
+        return this.publisher.getECoreModelContext().findModelComponent(name, AbstractDataModel.class);
     }
 
 

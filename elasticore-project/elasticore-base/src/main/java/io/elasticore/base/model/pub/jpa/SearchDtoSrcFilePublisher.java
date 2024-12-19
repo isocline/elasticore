@@ -186,12 +186,21 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             pr.add("private int pageSize=%s;", defaultPageSize);
         }
 
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+
+        ShadowModel shadowModel = domain.getModel().getShadowModel(classNm);
+        Set<String> namespaceSet = shadowModel.getNamespaceSet();
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
+
         boolean isSearchDTO = true;
 
         p
                 .set("isSearchDTO",isSearchDTO)
                 .set("packageName", packageName)
                 .set("j2eePkgName",getPersistentPackageName(domain))
+                .set("importList", importList)
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(dtoModel))
                 .set("classAnnotationList", this.paragraphForEntity)
@@ -228,6 +237,12 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             dataTransfer = (DataTransfer) dto;
         }
 
+        ModelComponentItems<Field> items = dto.getItems();
+        while(items.hasNext()) {
+            Field f = items.next();
+            processDeferredField((DataTransfer) dto, f);
+        }
+
         ListMap<String, Field> fields = dto.getAllFieldListMap();
         List<Field> fieldList = fields.getList();
 
@@ -238,7 +253,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
         for (Field f : fieldList) {
 
-            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
+            if(isDisableField(f))
                 continue;
 
 
@@ -249,7 +264,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             if(f.getTypeInfo().isList() && enableSearch) {
                 String coreTypeNm = f.getTypeInfo().getCoreItemType();
-                EnumModel byName = this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(coreTypeNm);
+                EnumModel byName = this.publisher.getECoreModelContext().findModelComponent(coreTypeNm, EnumModel.class);
                 if(byName==null)
                     continue;
 

@@ -313,7 +313,7 @@ entity:
       txType: TxType @notnull
       podName: string(200) -- podName
       txStatus: TxStatus @notnull
-      title: string(2000) -- 주요 작업명
+      title: string(2000) @s(%__%)-- 주요 작업명
       logTxt: text
       startDate: datetime -- 작업 시작시간  @notnull
       endDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate -- 생성일시

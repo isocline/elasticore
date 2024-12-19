@@ -1,12 +1,15 @@
 package io.elasticore.base.model.shadow;
 
+import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ShadowModel;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.entity.Field;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SourceShadowModel implements ShadowModel {
 
@@ -14,6 +17,8 @@ public class SourceShadowModel implements ShadowModel {
     private String parentName;
     private String name;
     private List<Field> fieldList = new ArrayList<>();
+
+    private Set<String> namespaceSet = new HashSet<>();
 
 
     public SourceShadowModel(String name) {
@@ -96,5 +101,32 @@ public class SourceShadowModel implements ShadowModel {
 
     public void addField(Field f) {
         this.fieldList.add(f);
+        this.setNamespaceInfo(f);
+    }
+
+    public Set<String> getNamespaceSet() {
+        return this.namespaceSet;
+    }
+
+
+    private void setNamespaceInfo(Field f) {
+
+        if(!f.getTypeInfo().isBaseType()) {
+
+            Set<String> typeSet = f.getTypeInfo().getTypes();
+            for(String coreType: typeSet) {
+                DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(coreType);
+                if(modelComponent!=null) {
+
+                    String domainId = modelComponent.getIdentity().getDomainId();
+
+                    String ns = BaseECoreModelContext.getContext().getDomain(domainId).getModel()
+                            .getNamespace(modelComponent.getIdentity().getComponentType().getName());
+
+                    namespaceSet.add(ns+".*");
+                }
+            }
+
+        }
     }
 }

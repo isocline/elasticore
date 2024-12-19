@@ -53,6 +53,11 @@ classDiagram
     }
     AuditEntity <|-- Person : extend
     Person --o "0..1" Company : company
+    class Person2{
+        id: String[PK] 
+        name: String 
+    }
+    AuditEntity <|-- Person2 : extend
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

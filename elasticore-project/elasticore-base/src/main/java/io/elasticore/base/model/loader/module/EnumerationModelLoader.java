@@ -34,12 +34,18 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
 
 
     public void loadModel(ModelLoaderContext ctx,Items<EnumModel> items, Map<String, LinkedHashMap> enumMap) {
+
+        this.setModelLoaderContext(ctx);
+
         enumMap.forEach((enumNm, value) -> {
 
             //System.err.println(enumNm + " parsed");
 
             if(value!=null) {
                 EnumModel enumModel = loadEnumModel(ctx, enumNm, value);
+
+                ctx.getEnumModelItems().addItem(enumModel);
+
                 items.addItem(enumModel);
             }
         });

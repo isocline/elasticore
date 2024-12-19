@@ -33,9 +33,7 @@ import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Handles the publishing of source files for entities.
@@ -153,12 +151,25 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         boolean isSearchDTO = false;
 
+
+
         // must call 'getFieldInfo' first
         CodeTemplate.Paragraph pr = getFieldInfo(dto);
+
+
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+
+        ShadowModel shadowModel = domain.getModel().getShadowModel(classNm);
+        Set<String> namespaceSet = shadowModel.getNamespaceSet();
+
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
 
         p
                 .set("packageName", packageName)
                 .set("j2eePkgName",getPersistentPackageName(domain))
+                .set("importList", importList)
                 .set("enumPackageName", enumPackageName)
                 .set("abstract", getAbstractInfo(dto))
                 .set("classAnnotationList", this.paragraphForEntity)
@@ -223,9 +234,17 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         // if the dto is a convert from entity, we do not need to generate any field annotation
         boolean isConvertFromEntity = dto.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_DTO);
 
+        ModelComponentItems<Field> items = dto.getItems();
+        while(items.hasNext()) {
+            Field f = items.next();
+            processDeferredField((DataTransfer) dto, f);
+        }
+
+
         ListMap<String, Field> fields = dto.getAllFieldListMap();
 
         List<Field> fieldList = fields.getList();
+
 
         RelationshipManager relMgr = RelationshipManager.getInstance(dto.getIdentity().getDomainId());
 
@@ -235,7 +254,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         for(Field f: fieldList) {
 
 
-            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
+            if(this.isDisableField(f))
                 continue;
 
 
@@ -267,12 +286,15 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 if(!isConvertFromEntity)
                     continue;
 
-                List<ModelRelationship> byFromNameAndType = relMgr.findByFromNameAndType(typeName, RelationType.TEMPLATE_TO);
-                if(byFromNameAndType!=null && byFromNameAndType.size()==1) {
-                    typeName = byFromNameAndType.get(0).getToName();
-                }
-                else {
-                    continue;
+                try {
+                    List<ModelRelationship> byFromNameAndType = relMgr.findByFromNameAndType(typeName, RelationType.TEMPLATE_TO);
+                    if (byFromNameAndType != null && byFromNameAndType.size() == 1) {
+                        typeName = byFromNameAndType.get(0).getToName();
+                    } else {
+                        continue;
+                    }
+                }catch (Throwable e){
+                    e.printStackTrace();
                 }
 
 
@@ -382,4 +404,6 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         }
     }
+
+
 }

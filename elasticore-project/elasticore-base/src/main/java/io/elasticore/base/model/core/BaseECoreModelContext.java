@@ -78,7 +78,23 @@ public class BaseECoreModelContext implements ECoreModelContext {
     }
 
     public String[] getAllDomainNames() {
-        return STATIC_DOMAIN_MAP.keySet().toArray(new String[0]);
+        String[] allDomainNames  = STATIC_DOMAIN_MAP.keySet().toArray(new String[0]);
+        String domainId = null;
+        ModelDomain modelDomain = getDomain();
+        if(modelDomain!=null)
+            domainId = modelDomain.getName();
+
+        String domainName = domainId;
+
+        String[] sortedDomainNames = Arrays.stream(allDomainNames)
+                .sorted((d1, d2) -> {
+                    if (d1.equals(domainName)) return -1;
+                    if (d2.equals(domainName)) return 1;
+                    return 0;
+                })
+                .toArray(String[]::new);
+
+        return sortedDomainNames;
     }
 
     @Override
@@ -147,10 +163,21 @@ public class BaseECoreModelContext implements ECoreModelContext {
      * @param modelName
      * @return
      */
+    public ShadowModel findShadowModel(String modelName) {
+        DataModelComponent component= findModelComponent(modelName);
+        return this.getDomain(component.getIdentity().getDomainId()).getModel().getShadowModel(modelName);
+    }
+
+    /**
+     *
+     * @param modelName
+     * @return
+     */
     public DataModelComponent findModelComponent(String modelName) {
         // ex)  common:Autye
         String[] items = modelName.split(":");
         if(items.length==2) {
+
             return findModelComponent(items[0], items[1]);
         }
         else if(items.length==1) {
@@ -165,6 +192,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
                 }
 
                 if (modelByName == null) {
+
                     String[] domainNames = getAllDomainNames();
                     for (String domainName : domainNames) {
                         DataModelComponent modelByName1 = getDomain(domainName).getModel().findModelByName(modelName);
@@ -172,9 +200,32 @@ public class BaseECoreModelContext implements ECoreModelContext {
                             return modelByName1;
                     }
                 }
+                else
+                    return modelByName;
             }catch (NullPointerException npe) {
                 npe.printStackTrace();
             }
+        }
+        return null;
+    }
+
+
+    /**
+     * Finds and returns a DataModelComponent by model name and type.
+     * If the type is provided, the result is cast to the specified type.
+     * Returns null if the model is not found or the cast is not valid.
+     *
+     * @param modelName the name of the model to find
+     * @param type the class type to cast the result to
+     * @param <T> the generic type
+     * @return the casted DataModelComponent if found and type matches; otherwise, null
+     */
+    public <T> T findModelComponent(String modelName, Class<T> type) {
+        DataModelComponent modelComponent = findModelComponent(modelName);
+
+        // Validate and cast the result
+        if (modelComponent != null && type.isInstance(modelComponent)) {
+            return type.cast(modelComponent);
         }
         return null;
     }

@@ -102,9 +102,7 @@ public class Entity extends AbstractDataModel implements MetaInfoModel, DataMode
         if (extendAnnotation != null) {
             String parentNm = extendAnnotation.getValue();
             try {
-                ECoreModel eCoreModel = domain.getModel();
-                EntityModels entityModels = eCoreModel.getEntityModels();
-                return entityModels.findByName(parentNm);
+                return BaseECoreModelContext.getContext().findModelComponent(parentNm, Entity.class);
             } catch (NullPointerException npe) {
                 npe.printStackTrace();
             }

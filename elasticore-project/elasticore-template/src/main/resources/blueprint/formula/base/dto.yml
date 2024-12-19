@@ -1,0 +1,385 @@
+dto:
+
+  ResidualInfoDTO:
+    meta: dto @template(ResidualInfo)
+    fields:
+
+  ResidualInfoSrchDTO:
+    meta: dto @searchable(entity=ResidualInfo)
+    fields:
+      rentPeriod: RentPeriod @s(eq) @ref(rentPeriod)
+      residualType: ResidualType @s(eq) @ref(residualType)
+      estimateType: EstimateType @s(eq) @ref(estimateType)
+
+  ResidualInfoSrchResultDTO:
+    meta: dto @searchResult(ResidualInfo)
+    fields:
+
+  CapitalCompanyDTO:
+    meta: dto @template(CapitalCompany)
+    fields:
+
+  CapitalCompanySrchDTO:
+    meta: dto @searchable(entity=CapitalCompany)
+    fields:
+
+  CapitalCompanySrchResultDTO:
+    meta: dto @searchResult(CapitalCompany)
+    fields:
+
+  BaseFormulaInfoDTO:
+    meta: dto @template(BaseFormulaInfo)
+    fields:
+#      estimateType: string @ref(estimateType.code)
+      capitalCompanyId: string @ref(capitalCompany.id) -- 캐피탈사 정보
+      consignCompanyId: string @ref(consignCompany.id) -- 탁송사 정보
+      insureCompanyId: string @ref(insureCompany.id) -- 보험사 정보
+      internalRateGroupId: string @ref(internalRateGroup.id) -- 내부수익률 정보
+      brandName: string -- 브랜드명
+
+  BaseFormulaInfoSrchDTO:
+    meta: dto @searchable(entity=BaseFormulaInfo)
+    fields:
+
+  BaseFormulaInfoSrchResultDTO:
+    meta: dto @searchResult(BaseFormulaInfo)
+    fields:
+
+  ConsignmentFeeDTO:
+    meta: dto @template(ConsignmentFee)
+    fields:
+
+  ConsignmentFeeSrchDTO:
+    meta: dto @searchable(entity=ConsignmentFee)
+    fields:
+      consignmentCompanyId: string @s(eq) @ref(consignmentCompany.id)
+
+  ConsignmentFeeSrchResultDTO:
+    meta: dto @searchResult(ConsignmentFee)
+    fields:
+
+  ConsignmentCompanyDTO:
+    meta: dto @template(ConsignmentCompany)
+    fields:
+
+  ConsignmentCompanySrchDTO:
+    meta: dto @searchable(entity=ConsignmentCompany)
+    fields:
+      estimateType: EstimateType @ref(estimateType)
+
+  ConsignmentCompanySrchResultDTO:
+    meta: dto @searchResult(ConsignmentCompany)
+    fields:
+
+  ConsignmentAccessoryDTO:
+    meta: dto @template(ConsignmentAccessory)
+    fields:
+      extraConditions1: ExtraConditionsDTO @ref(extraConditions1)
+      extraConditions2: ExtraConditionsDTO @ref(extraConditions2)
+
+  ConsignmentAccessorySrchDTO:
+    meta: dto @searchable(entity=ConsignmentAccessory)
+    fields:
+      consignmentCompanyId: string @s(eq) @ref(consignmentCompany.id)
+
+  ConsignmentAccessorySrchResultDTO:
+    meta: dto @searchResult(ConsignmentAccessory)
+    fields:
+
+  InternalRateGroupDTO:
+    meta: dto @template(InternalRateGroup)
+    fields:
+
+  InternalRateGroupSrchDTO:
+    meta: dto @searchable(entity=InternalRateGroup)
+    fields:
+
+  InternalRateGroupSrchResultDTO:
+    meta: dto @searchResult(InternalRateGroup)
+    fields:
+
+  InsurePropertySelfDTO:
+    meta: dto @template(InsurePropertySelf)
+    fields:
+      insureCompanyId: string(12) @ref(insureCompany.id)
+
+
+  InsurePropertySelfSrchDTO:
+    meta: dto @searchable(entity=InsurePropertySelf)
+    fields:
+      insureCompanyId: string(12) @s(eq) @ref(insureCompany.id)
+      releaseType: ReleaseType
+      customerType: CustomerType
+      empDiscount: Indicator
+      driverAge: DriverAge
+
+  InsurePropertySelfSrchResultDTO:
+    meta: dto @searchResult(InsurePropertySelf)
+    fields:
+
+  InsureCompanyDTO:
+    meta: dto @template(InsureCompany)
+    fields:
+
+  InsureCompanySrchDTO:
+    meta: dto @searchable(entity=InsureCompany)
+    fields:
+
+  InsureCompanySrchResultDTO:
+    meta: dto @searchResult(InsureCompany)
+    fields:
+
+  InternalRateAdditionSrchResultDTO:
+    meta: dto @searchResult(InternalRateAddition)
+    fields:
+
+  InternalRateAdditionDTO:
+    meta: dto @template(InternalRateAddition)
+    fields:
+      extraConditions1: ExtraConditionsDTO @ref(extraConditions1)
+
+  InternalRateAdditionSrchDTO:
+    meta: dto @searchable(entity=InternalRateAddition)
+    fields:
+      capitalCompanyId: string(12) @s(eq) @ref(capitalCompany.id)
+
+
+  InsureInfoDTO:
+    meta: dto @template(InsureInfo)
+    fields:
+      extraConditions1: ExtraConditionsDTO @ref(extraConditions1)
+      extraConditions2: ExtraConditionsDTO @ref(extraConditions2)
+
+
+  InsureInfoSrchDTO:
+    meta: dto @searchable(entity=InsureInfo)
+    fields:
+      insureCompanyId: string(12) @s(eq) @ref(insureCompany.id)
+      releaseType: ReleaseType
+      customerType: CustomerType
+      empDiscount: Indicator
+      driverAge: DriverAge
+
+  InsureInfoSrchResultDTO:
+    meta: dto @searchResult(InsureInfo)
+    fields:
+
+  MaintenanceInfoDTO:
+    meta: dto @template(MaintenanceInfo)
+    fields:
+
+  MaintenanceInfoSrchDTO:
+    meta: dto @searchable(entity=MaintenanceInfo)
+    fields:
+
+  MaintenanceInfoSrchResultDTO:
+    meta: dto @searchResult(MaintenanceInfo)
+    fields:
+
+  PromotionRateDTO:
+    meta: dto @template(PromotionRate)
+    fields:
+
+  PromotionRateSrchDTO:
+    meta: dto @searchable(entity=PromotionRate)
+    fields:
+
+  PromotionRateSrchResultDTO:
+    meta: dto @searchResult(PromotionRate)
+    fields:
+
+  CommonCodeDTO:
+    meta: dto @template(CommonCode)
+    fields:
+
+  CommonCodeSrchDTO:
+    meta: dto @searchable(entity=CommonCode)
+    fields:
+
+  CommonCodeSrchResultDTO:
+    meta: dto @searchResult(CommonCode)
+    fields:
+
+  RollupBaseDTO:
+    meta: dto
+    fields:
+      capitalCompany: CapitalCompanyDTO
+      consignMap: HashMap<String, String>
+      insureMap: HashMap<String, String>
+      irrGroup: List<InternalRateGroupDTO>
+
+  RollupMatchDataDTO:
+    meta: dto
+    fields:
+      failList: List<java.util.Map<String,Object>> @default(new ArrayList<>())
+      successList: List<com.mobillug.leaserent.estimator.formula.entity.BaseFormulaInfo> @default(new ArrayList<>())
+      baseCarNewList:  List<com.mobillug.leaserent.estimator.biz.entity.BaseCarInfo> @default(new ArrayList<>())
+      brandMap: java.util.HashMap<String,com.mobillug.leaserent.estimator.biz.dto.BrandInfoDTO> @default(new HashMap<>())
+      seriesMap: java.util.HashMap<String,List<com.mobillug.leaserent.estimator.biz.dto.SeriesInfoDTO>> @default(new HashMap<>())
+      carModelMap: java.util.HashMap<String,List<CarModelDTO>> @default(new HashMap<>())
+
+  CalculationMatchDataDTO:
+    meta: dto
+    fields:
+      insureFee: long -- 보험료
+      residualRate: double -- 잔가율
+      incidentalFee: long -- 부대비용
+      consumptionTax: long -- 개별소비세
+      internalRate: double -- 내부수익율
+      contributionFee: long -- 공헌 이익
+
+  EstimateConditionDTO:
+    meta: dto -- 견적조건
+    fields:
+      totalPrice: int -- 최종가격
+      carId: string -- 차량 트림정보
+      estimateType: EstimateType -- 견적분류
+      prepaid: double -- 선납금(인입값)
+      deposit: double -- 보증금(인입값)
+      prepaidRate: double @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.convertDecimalToPercent(prepaid) ) -- 선납금
+      depositRate: double @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.convertDecimalToPercent(deposit) ) -- 보증금
+      customerType: CustomerType -- 계약 명의
+      rentPeriod: RentPeriod -- 렌트 기간
+      promiseDistance: PromiseDistance -- 약정 거리
+      registerNameType: RegisterNameType -- 등록명의
+      driverAge: DriverAge -- 운전자 연령 구분
+      releaseType: ReleaseType -- 출고지 구분
+      agentDiscount: int -- 대리점 할인금액
+      empDiscount: Indicator -- 임직원 할인여부
+      insureProperty: InsureProperty -- 대물 한도
+      expireType: ExpireType -- 만기유형
+      cityIdx: string -- 탁송지역코드
+      instanceConsignFee: int @default(0) -- 탁송비 임의입력
+      cmCharge: double -- CM 수수료
+      agCharge: double -- AG 수수료
+      cmChargeRate: double @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.convertDecimalToPercent(cmCharge) ) -- CM 수수료
+      agChargeRate: double @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.convertDecimalToPercent(agCharge) ) -- AG 수수료
+      maintenanceProductName: string -- 정비상품 Id
+
+      bond: int -- 공채할인
+
+  CarDetailDTO:
+    meta: dto -- 차량 정보
+    fields:
+      carId: string -- 트림 Id
+      displacement: int -- 배기량
+      efficiency: double -- 연비
+      seater: int -- 인승
+      carFullName: string -- 차량명
+      carClassType: com.mobillug.leaserent.estimator.biz.enums.CarClassType -- 차량분류
+      fuelType: com.mobillug.leaserent.estimator.biz.enums.FuelType -- 유종
+
+  RefineTaxDTO:
+    meta: dto -- 세금관련 정제값
+    fields:
+      taxRate: double -- 면세율
+      acquisitionTaxRate: double -- 취득세율
+      consumptionTaxRate: double -- 개소세율
+      isConsumptionFree: boolean -- 개소세 면제여부
+      consumptionBenefit: double -- 개소세 할인금액
+      acquisitionBenefit: double -- 취득세 할인금액
+      insureCarGrade: InsureCarGrade -- 보험차종구분
+      surtax: double -- 부가세율
+      carTax: double -- 차세기준
+
+  RefineFeeDTO:
+    meta: dto -- 계산 상수 정제값
+    fields:
+      irrDTO: InternalRateGroupDTO -- 내부수익률 DTO
+      insureDTO: InsureInfoDTO -- 보험상품 DTO
+      insureSelfDTOList: List<InsurePropertySelfDTO> -- 보험 자차상품 DTO
+      consignComDTO: ConsignmentCompanyDTO -- 탁송사 DTO
+      consignDTO: ConsignmentFeeDTO -- 탁송상품 DTO
+      accessoryDTO: ConsignmentAccessoryDTO -- 탁송 부대비용 DTO
+      internalRateAddition: InternalRateAdditionDTO -- IRR 가감률 DTO
+      normalResidualRate: double -- 일반잔가율
+      premiumResidualRate: double -- 고잔가율
+      premiumResidualCommission: double -- 고잔가수수료
+      maintenanceFee: int -- 정비요금
+
+  EstimateResultDTO:
+    meta: dto -- 견적 결과
+    fields:
+      estimateType: EstimateType -- 견적 분류
+      name: string -- 캐피탈 업체명
+      payment: int -- 월 대여료
+      takeover: int -- 만기 인수가
+      totalAmount: int -- 총 비용
+      distance: PromiseDistance -- 약정거리
+      won: int -- 취득원가
+      deposit: int -- 보증금
+      pre_exp: int -- 선납금
+
+  EstimateClustersDTO:
+    meta: dto -- 견적 세부내용
+    fields:
+      totalCarPrice: int -- 총 차량가
+      prepaidRate: double -- 선납률
+      depositRate: double -- 보증금 비율
+      taxRate: double -- 종합세율((개소세+교육세) * 과세표준할인율)
+      irrRate: double -- 내부수익률
+      agentDiscount: int -- 대리점 할인금액
+      acquisitionRate: double -- 취득세율
+      consumptionRate: double -- 개소세율
+      acquisitionBenefit: double -- 취득세 혜택
+      consumptionBenefit: double -- 개소세 혜택
+      acquisitionPrimeCost: int @default(0) -- 취득원가
+      carTax: double -- 차세
+      residualRate: double -- 잔가율
+      residualFee: int -- 잔가금액
+      cmChargeRate: double -- CM수수료율
+      agChargeRate: double -- AG수수료율
+      specialDCRate: double -- 특판할인율
+      registerFee: int -- 등록비용
+      consignmentFee: int -- 탁송비용
+      extraMonthlyFee: int @default(0) -- 기타 세금, 부대비용
+      brandName: string -- 브랜드명
+      brandType: string -- 생산지 구분
+      isRateCalc: boolean @default(true) -- Rate계산 여부
+      ceilUnit: double @default(10.0) -- 올림단위
+
+  CarModelDTO:
+    meta: dto
+    fields:
+      brandId: string
+      seriesId: string
+      lineupId: string
+      carId: string
+      modelName: string
+      brandType: string
+      brandName: string
+      fullName: string
+      fuelType: string
+      fuelName: string
+      displacement: int
+      efficiency: double
+      carClassType: string
+
+    methods:
+      - id: selectCarModelList
+        params:
+          id: string
+        query: |
+          SELECT 
+            a.ID AS brand_id
+            ,b.ID AS series_id
+            ,c.id AS lineup_id
+            ,d.CAR_ID as car_id
+            ,c.MODEL_NAME as model_name
+            ,a.BRAND_TYPE as brand_type
+            ,a.BRAND_NAME as brand_name
+            ,(c.NAME || ' ' || d.CAR_FULL_NAME) AS full_name 
+            ,d.FUEL_TYPE as fuel_type
+            ,d.FUEL_NAME as fuel_name
+            ,d.DISPLACEMENT as displacement
+            ,d.EFFICIENCY as efficiency
+            ,d.CAR_CLASS_TYPE as car_class_type
+          FROM BRAND_INFO a
+          INNER JOIN SERIES_INFO b
+          ON a.ID = b.BRAND_INFO_ID
+          INNER JOIN CAR_LINEUP_INFO c
+          ON b.id = c.SERIES_INFO_ID
+          INNER JOIN BASE_CAR_INFO d
+          ON c.ID = d.LINEUP_INFO_ID
+          WHERE b.ID = :id
+          ORDER BY LENGTH(c.NAME || ' ' || d.CAR_FULL_NAME) desc

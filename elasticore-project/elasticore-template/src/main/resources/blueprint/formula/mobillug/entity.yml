@@ -1,0 +1,5 @@
+entity:
+  FormulaMobillug:
+    meta: entity @rollup(entity=BaseFormulaInfo, type=Mobillug) -- 모빌러그 수식
+    fields:
+

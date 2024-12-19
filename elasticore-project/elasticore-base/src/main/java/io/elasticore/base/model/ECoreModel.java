@@ -35,7 +35,7 @@ public class ECoreModel {
 
     private Map<String, String> namespaceMap;
 
-    private Map<String, ShadowModel> shadowModelMap = null;
+    private static Map<String, ShadowModel> shadowModelMap = null;
 
     public String getConfig(String key, String defualtValue) {
         String val = getConfig(key);
@@ -120,7 +120,21 @@ public class ECoreModel {
      * @return
      */
     protected DataModelComponent findModelByName(String domainId, String name) {
-        return BaseECoreModelContext.getContext().findModelComponent(domainId, name, true);
+        ECoreModel model = BaseECoreModelContext.getContext().getDomain(domainId).getModel();
+
+        Entity entity = model.getEntityModels().findByName(name);
+        if(entity!=null)
+            return entity;
+
+        DataTransfer dataTransfer = model.getDataTransferModels().findByName(name);
+        if(dataTransfer!=null)
+            return dataTransfer;
+
+        EnumModel enumModel = model.getEnumModels().findByName(name);
+        if(enumModel!=null)
+            return enumModel;
+
+        return null;
     }
 
 

@@ -125,6 +125,9 @@ public class Field implements ModelComponent {
         return null;
     }
 
+    public Annotation removeAnnotation(String name) {
+        return annotationMap.remove(name);
+    }
 
 
     public boolean hasAnnotation(String... names) {

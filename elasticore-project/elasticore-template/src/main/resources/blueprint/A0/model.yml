@@ -1,0 +1,31 @@
+entity:
+  TestEmb:
+    meta: entity @embeddable @dto -- 추가조건 및 계산
+    fields:
+      condition: string -- 조건
+      value: double -- 값
+      content: string -- 설명
+
+  BaseEntity:
+    meta: entity @dto
+    fields:
+      id: string @id
+      name: string
+      emb: TestEmb
+
+
+dto:
+  BaseEntitySrchDTO:
+    meta: dto @searchable(BaseEntity)
+    fields:
+      content: string @s(eq) @ref(emb.content)
+
+  RollupMatchDataDTO:
+    meta: dto
+    fields:
+      failList: List<java.util.Map<String,Object>> @default(new ArrayList<>())
+      successList: List<com.mobillug.leaserent.estimator.formula.entity.BaseFormulaInfo> @default(new ArrayList<>())
+      baseCarNewList: List<com.mobillug.leaserent.estimator.biz.entity.BaseCarInfo> @default(new ArrayList<>())
+      brandMap: java.util.HashMap<String,com.mobillug.leaserent.estimator.biz.dto.BrandInfoDTO> @default(new HashMap<>())
+      seriesMap: java.util.HashMap<String,List<com.mobillug.leaserent.estimator.biz.dto.SeriesInfoDTO>> @default(new HashMap<>())
+      carModelMap: java.util.HashMap<String,List<CarModelDTO>> @default(new HashMap<>())

@@ -243,7 +243,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
         for(Field f: fieldList) {
 
-            if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE))
+            if(this.isDisableField(f))
                 continue;
 
 

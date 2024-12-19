@@ -45,4 +45,7 @@ public interface ECoreModelContext {
 
     DataModelComponent findModelComponent(String modelName);
 
+
+    <T> T findModelComponent(String modelName, Class<T> type);
+
 }

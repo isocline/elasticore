@@ -102,7 +102,8 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         String targetModelName = repo.getIdentity().getName();
         ModelDomain modelDomain =BaseModelDomain.getModelDomain(repo.getIdentity().getDomainId());
 
-        Entity entity = modelDomain.getModel().getEntityModels().findByName(targetModelName);
+        //Entity entity = modelDomain.getModel().getEntityModels().findByName(targetModelName);
+        Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetModelName, Entity.class);
         if(entity==null)
             return true;
 
@@ -131,7 +132,8 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
             String repoName = repo.getIdentity().getName();
 
-            Entity entity = model.getEntityModels().findByName(repoName);
+            //Entity entity = model.getEntityModels().findByName(repoName);
+            Entity entity = this.publisher.getECoreModelContext().findModelComponent(repoName, Entity.class);
 
             String fieldNm = null;
             if(entity!=null) {
