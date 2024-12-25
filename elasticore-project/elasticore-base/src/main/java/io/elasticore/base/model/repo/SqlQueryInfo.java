@@ -85,7 +85,17 @@ public class SqlQueryInfo {
         this.isReturnTypeSet = isReturnTypeSet;
         this.returnParamtype = StringUtils.findParameterType(returnType);
 
+        parseSqlQueryText(this.sqlTxt);
 
+        if(!this.isSelectQuery && !this.isReturnTypeSet) {
+            this.returnType="int";
+        }
+
+
+    }
+
+    public String getReturnType() {
+        return this.returnType;
     }
 
     public static SqlQueryInfo creat(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable, MapWrapper mapWrapper, String returnType, boolean isReturnTypeSet) {
@@ -106,7 +116,6 @@ public class SqlQueryInfo {
 
     public void initialize(ModelLoaderContext ctx) {
 
-        parseSqlQueryText(this.sqlTxt);
 
         if (containsIfComment(this.sqlTxt))
             this.isDynamicQuery = true;

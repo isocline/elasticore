@@ -1,4 +1,4 @@
-//ecd:-831377405H20241219162527_V1.0
+//ecd:-946888296H20241224183121_V1.0
 package com.test.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -18,8 +18,7 @@ import com.test.entity.*;
 import com.test.dto.*;
 
 
-import com.test.entity.*;
-import com.test.dto.*;
+
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
@@ -46,61 +45,38 @@ public class A0Mapper {
     }
 
     
-    public static void mapping(TestEmb from, TestEmbDTO to, boolean isSkipNull){
+    public static void mapping(Article from, ArticleDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getCondition(), to::setCondition, isSkipNull);
-        setVal(from.getValue(), to::setValue, isSkipNull);
-        setVal(from.getContent(), to::setContent, isSkipNull);
-    }
-    
-    
-    public static void mapping(TestEmb from, TestEmbDTO to){
-        mapping(from,to,false);
-    }
-    
-    
-    public static TestEmbDTO toDTO(TestEmb from){
-        if(from==null) return null;
-        TestEmbDTO to = new TestEmbDTO();
-        mapping(from, to);
-        return to;
-    }
-    
-    
-    public static void mapping(BaseEntity from, BaseEntityDTO to, boolean isSkipNull){
-        checkPermission(from, to);
-        if(from ==null || to ==null) return;
-        setVal(from.getEmb(), to::setEmb, isSkipNull, A0Mapper::toDTO);
         setVal(from.getId(), to::setId, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
     }
     
     
-    public static void mapping(BaseEntity from, BaseEntityDTO to){
+    public static void mapping(Article from, ArticleDTO to){
         mapping(from,to,false);
     }
     
     
-    public static BaseEntityDTO toDTO(BaseEntity from){
+    public static ArticleDTO toDTO(Article from){
         if(from==null) return null;
-        BaseEntityDTO to = new BaseEntityDTO();
+        ArticleDTO to = new ArticleDTO();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<BaseEntityDTO> toBaseEntityDTOList(List<BaseEntity> fromList){
+    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList){
         if(fromList==null) return null;
         return fromList.stream().map(A0Mapper::toDTO).collect(Collectors.toList());
     }
     
     
-    public static List<BaseEntityDTO> toBaseEntityDTOList(List<BaseEntity> fromList, BiFunction<BaseEntity, BaseEntityDTO, BaseEntityDTO> modifier){
+    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, BiFunction<Article, ArticleDTO, ArticleDTO> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                BaseEntityDTO to = toDTO(from);
+                ArticleDTO to = toDTO(from);
                 return modifier.apply(from, to);
             }
             )
@@ -110,29 +86,7 @@ public class A0Mapper {
     }
     
     
-    public static void mapping(TestEmbDTO from, TestEmb to, boolean isSkipNull){
-        checkPermission(from, to);
-        if(from ==null || to ==null) return;
-        setVal(from.getCondition(), to::setCondition, isSkipNull);
-        setVal(from.getValue(), to::setValue, isSkipNull);
-        setVal(from.getContent(), to::setContent, isSkipNull);
-    }
-    
-    
-    public static void mapping(TestEmbDTO from, TestEmb to){
-        mapping(from,to,false);
-    }
-    
-    
-    public static TestEmb toEntity(TestEmbDTO from){
-        if(from==null) return null;
-        TestEmb to = new TestEmb();
-        mapping(from, to);
-        return to;
-    }
-    
-    
-    public static void mapping(BaseEntityDTO from, BaseEntity to, boolean isSkipNull){
+    public static void mapping(ArticleDTO from, Article to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
         setVal(from.getId(), to::setId, isSkipNull);
@@ -140,30 +94,30 @@ public class A0Mapper {
     }
     
     
-    public static void mapping(BaseEntityDTO from, BaseEntity to){
+    public static void mapping(ArticleDTO from, Article to){
         mapping(from,to,false);
     }
     
     
-    public static BaseEntity toEntity(BaseEntityDTO from){
+    public static Article toEntity(ArticleDTO from){
         if(from==null) return null;
-        BaseEntity to = new BaseEntity();
+        Article to = new Article();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<BaseEntity> toBaseEntityList(List<BaseEntityDTO> fromList){
+    public static List<Article> toArticleList(List<ArticleDTO> fromList){
         if(fromList==null) return null;
         return fromList.stream().map(A0Mapper::toEntity).collect(Collectors.toList());
     }
     
     
-    public static List<BaseEntity> toBaseEntityList(List<BaseEntityDTO> fromList, BiFunction<BaseEntityDTO, BaseEntity, BaseEntity> modifier){
+    public static List<Article> toArticleList(List<ArticleDTO> fromList, BiFunction<ArticleDTO, Article, Article> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                BaseEntity to = toEntity(from);
+                Article to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )
@@ -173,32 +127,14 @@ public class A0Mapper {
     }
     
     
-    public static Specification<BaseEntity> toSpec(BaseEntitySrchDTO searchDTO){
+    public static Specification<Article> toSpec(ArticleSrchDTO searchDTO){
         return toSpec(searchDTO, Specification.where(null));
     }
     
     
-    public static Specification<BaseEntity> toSpec(BaseEntitySrchDTO searchDTO, Specification<BaseEntity> sp){
-        String content = searchDTO.getContent();
-        if(hasValue(content)){
-            sp = sp.and((r,q,c) -> c.equal(r.get("emb").get("content"),content));
-        }
-        return sp;
-    }
-    
-    
-    public static Specification<TestEmb> toSpec(TestEmbSrchDTO searchDTO){
-        return toSpec(searchDTO, Specification.where(null));
-    }
-    
-    
-    public static Specification<TestEmb> toSpec(TestEmbSrchDTO searchDTO, Specification<TestEmb> sp){
-        sp=setSpec(sp, "condition", searchDTO.getCondition());
-        Double value = searchDTO.getValue();
-        if(hasValue(value)){
-            sp = sp.and((r,q,c) -> c.equal(r.get("value"),value));
-        }
-        sp=setSpec(sp, "content", searchDTO.getContent());
+    public static Specification<Article> toSpec(ArticleSrchDTO searchDTO, Specification<Article> sp){
+        sp=setSpec(sp, "id", searchDTO.getId());
+        sp=setSpec(sp, "name", searchDTO.getName());
         return sp;
     }
     

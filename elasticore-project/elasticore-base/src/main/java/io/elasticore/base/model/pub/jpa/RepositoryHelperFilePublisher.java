@@ -9,10 +9,7 @@ import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.entity.Entity;
-import io.elasticore.base.model.entity.EntityAnnotation;
-import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.entity.PkField;
+import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
@@ -270,6 +267,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         String params = getParametersForMethod(method.getParams(), true);
         String fieldNames = null;
 
+        boolean isSingleResult = false;
+        TypeInfo typeInfo = null;
+
         String outputClassNm = extractContentBetweenBrackets(method.getReturnType());
         if (queryInfo.isNativeQuery()) {
             if (queryInfo.isOwnOutputDTO()) {
@@ -284,15 +284,27 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
 
 
-            } else
-                outputClassNm = "Object[]";
+            } else {
+                typeInfo = new TypeInfo(method.getReturnType());
+                if(typeInfo.isBaseType()) {
+                    isSingleResult = true;
+                    outputClassNm = typeInfo.getDefaultTypeName();
+                }
+                else {
+                    outputClassNm = "Object[]";
+                }
+
+
+            }
 
         }
         String methodName = method.getName();
 
         //boolean isPageable = method.isPageable() && !queryInfo.isNativeQuery();
         boolean isPageable = method.isPageable();
-        if(isPageable)
+        if(isSingleResult)
+            p.add("public %s %s(%s) {", outputClassNm, methodName, params);
+        else if(isPageable)
             p.add("public Page<%s> %s(%s ,Pageable pageable) {", outputClassNm, methodName, params);
         else
             p.add("public List<%s> %s(%s) {", outputClassNm, methodName, params);
@@ -401,7 +413,10 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
             p.add("    long totalRows = ((Number) countQuery.getSingleResult()).longValue();");
 
-            if (fieldNames != null) {
+            if(isSingleResult) {
+                p.add("    return query.getSingleResult();");
+            }
+            else if (fieldNames != null) {
                 p.add("    ModelTransList<%s> list = ", outputClassNm);
                 p.add("       new ModelTransList<%s>(query.getResultList(), %s.class, fieldNames);", outputClassNm, outputClassNm);
                 p.add("    return new PageImpl<%s>(list, pageable, totalRows);",outputClassNm);
@@ -413,7 +428,28 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         }
         else
         {
-            if (fieldNames != null) {
+            if (isSingleResult) {
+                p.add("    Object result = query.getSingleResult();");
+
+                if(typeInfo.getBaseFieldType() == BaseFieldType.STRING) {
+                    p.add("    return result != null ? result.toString() : null;");
+                }
+                else if(typeInfo.getBaseFieldType() == BaseFieldType.LONG) {
+                    p.add("    return result != null ? ((Number) result).longValue() : null;");
+                }
+                else if(typeInfo.getBaseFieldType() == BaseFieldType.DOUBLE) {
+                    p.add("    return result != null ? ((Number) result).doubleValue() : null;");
+                }
+                else if(typeInfo.getBaseFieldType() == BaseFieldType.INTEGER) {
+                    p.add("    return result != null ? ((Number) result).intValue() : null;");
+                }
+                else if(typeInfo.getBaseFieldType() == BaseFieldType.FLOAT) {
+                    p.add("    return result != null ? ((Number) result).floatValue() : null;");
+                }
+                else
+                    p.add("    return result");
+            }
+            else if (fieldNames != null) {
                 p.add("    return new ModelTransList<%s>(query.getResultList(), %s.class, fieldNames);", outputClassNm, outputClassNm);
             } else {
                 p.add("    return query.getResultList();");

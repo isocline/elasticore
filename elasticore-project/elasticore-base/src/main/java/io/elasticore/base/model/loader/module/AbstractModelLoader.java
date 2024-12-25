@@ -303,7 +303,13 @@ public class AbstractModelLoader implements ConstanParam {
                 annotation = Annotation.create(annotationName);
 
             }
-            annotationMap.put(annotation.getName(), annotation);
+            Annotation preAnnot = annotationMap.get(annotation.getName());
+            if(preAnnot!=null) {
+                preAnnot.getSiblings().add(annotation);
+            }else {
+                annotationMap.put(annotation.getName(), annotation);
+            }
+
         }
         return annotationMap;
     }

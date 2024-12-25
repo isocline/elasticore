@@ -169,11 +169,59 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         if(isEntityClass) {
 
+            CodeTemplate.Paragraph idxPara = CodeTemplate.newParagraph();
+            Annotation idxAnnot = metaInfo.getMetaAnnotation(EntityAnnotation.META_INDEX);
+            if(idxAnnot!=null) {
+                for(Annotation ant:idxAnnot.getSiblings()) {
+                    Properties properties = ant.getProperties();
+                    String name = properties.getProperty("name");
+                    String comlumnList = properties.getProperty("columnList");
+                    String unique = properties.getProperty("unique");
+                    StringBuilder sb = new StringBuilder();
+                    if(name!=null && !name.isEmpty()) {
+                        sb.append("name="+StringUtils.quoteString(name));
+                    }
+                    if(comlumnList!=null && !comlumnList.isEmpty()) {
+                        if(sb.length()>0)
+                            sb.append(", ");
+                        sb.append("comlumnList="+StringUtils.quoteString(comlumnList));
+                    }
+                    if(unique!=null && !unique.isEmpty()) {
+                        if(sb.length()>0)
+                            sb.append(", ");
+                        sb.append("unique="+unique);
+                    }
+                    String commaTxt = " ";
+                    if(idxPara.size()>0)
+                        commaTxt=",";
+                    idxPara.add("  %s@%s.persistence.Index(%s)",commaTxt, j2eePkgNm, sb.toString());
+
+                }
+            }
+
+            String tblNameInfo = null;
             Annotation tblAnnotation = metaInfo.getMetaAnnotation(EntityAnnotation.META_TABLE);
             if (tblAnnotation != null) {
                 String dbTblNm = tblAnnotation.getValue();
-                p.add("@"+j2eePkgNm+".persistence.Table(name=\"" + dbTblNm + "\")");
+                tblNameInfo = "name=\""+dbTblNm+"\"";
+
+
             }
+
+            if(idxPara.size()>0 || tblNameInfo!=null) {
+                if(idxPara.size()>0 ) {
+                    if(tblNameInfo==null)
+                        tblNameInfo = "";
+                    p.add("@"+j2eePkgNm+".persistence.Table(%s",tblNameInfo);
+                    p.add(idxPara);
+                    p.add("  )");
+
+                }else {
+                    p.add("@"+j2eePkgNm+".persistence.Table(%s)",tblNameInfo);
+                }
+
+            }
+
 
             if(metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE)) {
                 p.add("@org.hibernate.annotations.Immutable");

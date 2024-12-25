@@ -79,7 +79,8 @@ public class SrcFilePublisher {
 
                 if(checkModified && !response.hasCustomizedScopeContent()) {
                     //ConsoleLog.printInfo("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
-                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName));
+                    //ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) +" "+response.getErrMsg());
+                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) );
                     return;
                 }
                 //ConsoleLog.printInfo("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
@@ -92,7 +93,7 @@ public class SrcFilePublisher {
             e.printStackTrace();
         }
 
-        if (response != null && content.equals(response.getContent()) && !response.hasCustomizedScopeContent()) {
+        if (response != null && content.equals(response.getPreSourceContent()) && !response.hasCustomizedScopeContent()) {
             //ConsoleLog.printInfo("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
             ConsoleLog.storeLog("NO_MODIFIED", getFilePathInfo(qualifiedClassName) );
 
@@ -104,16 +105,47 @@ public class SrcFilePublisher {
         try (Writer writer = fileAccessFactory.getWriter(qualifiedClassName)) {
 
 
-            if(response!=null && response.hasCustomizedScopeContent()) {
+            if(response!=null) {
                 String oldEcdLine = response.getOldEcdLine();
-                if(oldEcdLine!=null) {
+                if(oldEcdLine!=null && content.equals(response.getPreSourceContent())) {
                     writer.write(oldEcdLine+"\n");
                 }else {
-                    writer.write(HashUtils.makeEcdCode(content));
+                    String hCode = HashUtils.makeEcdCode(content);
+                    writer.write(hCode);
                 }
-                writer.write(content.substring(0, content.length()-2));
-                writer.write(response.getCustomizedScopeContent());
-                writer.write(content.substring(content.length()-2));
+
+
+                if(!response.hasCustomizedScopeContent()) {
+                    writer.write(content);
+                }else {
+                    // content를 라인별로 분리
+                    String[] lines = content.split("\n");
+                    StringBuilder modifiedContent = new StringBuilder();
+
+
+                    for (int i = 0; i < lines.length; i++) {
+
+                        if(i == lines.length-1) {
+                            if(response.getCustomizedScopeContent()!=null) {
+                                writer.write(response.getCustomizedScopeContent());
+                                writer.write("\n");
+                            }
+                        }
+
+                        writer.write(lines[i]);
+                        writer.write("\n");
+
+                        if (i == 1) {
+                            if(response.getCustomizedScopeContent4Header()!=null) {
+                                writer.write(response.getCustomizedScopeContent4Header());
+                                writer.write("\n");
+                            }
+                        }
+                    }
+                }
+
+
+
             }else{
                 writer.write(HashUtils.makeEcdCode(content));
                 writer.write(content);

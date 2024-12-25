@@ -32,6 +32,15 @@ public class TypeInfo {
 
     private Set<String> types;
 
+    public TypeInfo(String typeInfo) {
+        if (typeInfo == null || typeInfo.length() < 2)
+            throw new IllegalArgumentException("type info is not normal. [" + typeInfo + "]");
+
+        this.initTypeInfo = typeInfo;
+        this.types = extractTypes(typeInfo);
+        loadInfo();
+    }
+
     TypeInfo(String typeInfo, Map<String, Annotation> annotationMap) {
         this.annotationMap = annotationMap;
         if (typeInfo == null || typeInfo.length() < 2)

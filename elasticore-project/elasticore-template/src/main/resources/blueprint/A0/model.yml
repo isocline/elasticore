@@ -1,31 +1,51 @@
 entity:
-  TestEmb:
-    meta: entity @embeddable @dto -- 추가조건 및 계산
-    fields:
-      condition: string -- 조건
-      value: double -- 값
-      content: string -- 설명
-
-  BaseEntity:
+  Article:
     meta: entity @dto
     fields:
       id: string @id
       name: string
-      emb: TestEmb
+
+  CommonCode:
+    meta: entity  @idx(name="test",columnList ="1") @idx(name="test2", columnList ="2", unique=true) -- 공통 코드 | 업무관련 주요 공통 코드 정보를 관리
+    fields:
+      codeSn: long  @sequence -- 코드 sequence
+      codeId: string(50)! @id  @s(eq) -- 코드 아이디
+      codePntId: string(50) @s(-%) -- 상위 코드 아이디
+      codeNm: string(50)! @s(%%) -- 코드명
+      codeValue: string(100)! @s(eq) -- 코드값
+
+      codeOptn1: String(50) -- 코드옵션1
+      codeOptn2: String(50) -- 코드옵션2
+      codeOptn3: String(50) -- 코드옵션3
+      numberOptn1: double -- 숫자옵션1
+      numberOptn2: double -- 숫자옵션2
+      numberOptn3: double -- 숫자옵션3
+
+      codeDepth: int @s(eq) -- 코드 depth
+      codeOrder: int @default(10) -- 순서 정보
+
+    methods:
+      - id: updateCodeValueWithCheckTime
+        params:
+          codeNm: string
+          codeVal: string
+        nativeQuery: true
+        query: update common_code set last_modified_date=NOW() ,code_value =:codeValue where code_id =:codeNm AND NOW() - last_modified_date > INTERVAL '5 seconds'
 
 
 dto:
-  BaseEntitySrchDTO:
-    meta: dto @searchable(BaseEntity)
-    fields:
-      content: string @s(eq) @ref(emb.content)
-
-  RollupMatchDataDTO:
+  TrimIdMaxDTO:
     meta: dto
     fields:
-      failList: List<java.util.Map<String,Object>> @default(new ArrayList<>())
-      successList: List<com.mobillug.leaserent.estimator.formula.entity.BaseFormulaInfo> @default(new ArrayList<>())
-      baseCarNewList: List<com.mobillug.leaserent.estimator.biz.entity.BaseCarInfo> @default(new ArrayList<>())
-      brandMap: java.util.HashMap<String,com.mobillug.leaserent.estimator.biz.dto.BrandInfoDTO> @default(new HashMap<>())
-      seriesMap: java.util.HashMap<String,List<com.mobillug.leaserent.estimator.biz.dto.SeriesInfoDTO>> @default(new HashMap<>())
-      carModelMap: java.util.HashMap<String,List<CarModelDTO>> @default(new HashMap<>())
+      id: string
+
+    methods:
+      - id: selectTrimMax
+        params:
+          param: string
+        return: string
+
+        query: |
+          SELECT max(a.car_id) as id
+          FROM base_car_info a
+          WHERE a.car_id LIKE :param

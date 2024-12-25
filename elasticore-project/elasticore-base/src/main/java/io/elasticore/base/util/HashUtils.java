@@ -14,6 +14,8 @@ public class HashUtils {
     private static final String STX = "// !----------";
     private static final String ETX = "------------!";
 
+
+
     private static final boolean SKIP_BLANK_LINE = true;
 
 
@@ -51,6 +53,28 @@ public class HashUtils {
             return false;
 
         return true;
+    }
+
+
+    public static String checkHashCodeErrMsg(String content, String hashcode, String version) {
+        if (content == null || hashcode == null)
+            return "NULL";
+
+        int sp = hashcode.indexOf("H");
+        int hashCode = Integer.valueOf(hashcode.substring(0, sp));
+
+        int cntHashCode =0;
+        if(version.indexOf("0.")>=0 ) {
+            // for old version
+            cntHashCode = generateHashCode(content , false);
+        }else {
+            cntHashCode = generateHashCode(content , SKIP_BLANK_LINE);
+        }
+
+        if (hashCode != cntHashCode)
+            return hashCode+ " != "+cntHashCode;
+
+        return null;
     }
 
     public static int generateHashCode(String input, boolean skipBlankline) {
@@ -110,11 +134,12 @@ public class HashUtils {
         String originalEcdCode = null;
         String content = null;
         String customizedScope = null;
+        String customizedHeaderScope = null;
         try (BufferedReader reader = new BufferedReader(fileReader)) {
 
             String firstLine = reader.readLine();
             if (firstLine == null) {
-                return new Response(null, NO_CONTENT, null ,customizedScope);
+                return new Response(null, NO_CONTENT, null ,customizedScope, customizedHeaderScope);
             }
 
 
@@ -126,43 +151,65 @@ public class HashUtils {
             // 나머지 파일 내용을 읽어서 문자열로 결합
             StringBuilder contentBuilder = new StringBuilder();
             StringBuilder customizedScopeContent = new StringBuilder();
+            StringBuilder customizedScopeContent4Header = null; // for header area (ex import )
             String line;
+
+            boolean hasImportCodeLine = false;
             boolean isCustomizedScope = false;
             while ((line = reader.readLine()) != null) {
-                if(line.indexOf(STX)>0){
+                if(line.indexOf(STX)>=0){
                     isCustomizedScope = true;
+                    hasImportCodeLine = false;
                 }
-                else if(isCustomizedScope && line.indexOf(ETX)>0){
-                    isCustomizedScope = false;
+                else if(isCustomizedScope && line.indexOf(ETX)>=0 && line.indexOf("//")>=0){
+
                     customizedScopeContent.append(line).append("\n");
+
+                    if(hasImportCodeLine) {
+                        customizedScopeContent4Header = customizedScopeContent;
+                        customizedScopeContent = new StringBuilder();
+                    }
+                    isCustomizedScope = false;
+                    hasImportCodeLine = false;
+
                     continue;
                 }
 
 
-                if(isCustomizedScope)
+                if(isCustomizedScope) {
+                    if(line !=null && line.indexOf("import ")==0)
+                        hasImportCodeLine = true;
+
                     customizedScopeContent.append(line).append("\n");
+                }
                 else
                     contentBuilder.append(line).append("\n");
             }
             content = contentBuilder.toString();
 
             customizedScope = customizedScopeContent.toString();
+            if(customizedScopeContent4Header !=null)
+                customizedHeaderScope = customizedScopeContent4Header.toString();
+
 
 
             if(originalEcdCode==null) {
-                return new Response(content, NO_ECD, null ,customizedScope);
+                return new Response(content, NO_ECD, null ,null, customizedScope ,customizedHeaderScope);
             }
 
             if( checkHashCode(content, originalEcdCode ,version)) {
-                return new Response(content, NO_MODIFIED, originalEcdCode, customizedScope ,firstLine);
+                return new Response(content, NO_MODIFIED, originalEcdCode, customizedScope ,customizedHeaderScope ,firstLine);
             }else {
-                return new Response(content, MODIFIED, originalEcdCode ,customizedScope);
+                String errMSg = checkHashCodeErrMsg(content, originalEcdCode ,version);
+                Response re =  new Response(content, MODIFIED, originalEcdCode ,customizedScope ,customizedHeaderScope);
+                re.setErrMsg(errMSg);
+                return re;
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new Response(content, ERROR, originalEcdCode ,customizedScope);
+        return new Response(content, ERROR, originalEcdCode ,customizedScope ,customizedHeaderScope);
     }
 
     public final static int ERROR = -99;
@@ -178,27 +225,44 @@ public class HashUtils {
 
 
     public final static class Response {
-        private final String content;
+        private final String preSourceContent;
         private final int status;
         private final String ecd;
 
         private final String customizedScopeContent;
+        private final String customizedScopeContent4Header;
 
         private String oldEcdLine;
 
-        public Response(String content, int status, String ecd ,String customizedScopeContent) {
-            this.content = content;
-            this.status = status;
-            this.ecd = ecd;
-            this.customizedScopeContent = customizedScopeContent;
+        private String errMSg;
+
+        public Response(String preSourceContent, int status, String ecd , String customizedScopeContent, String customizedScopeContent4Header) {
+            this(preSourceContent,status,ecd,customizedScopeContent,customizedScopeContent4Header,null);
         }
 
-        public Response(String content, int status, String ecd ,String customizedScopeContent, String oldEcdLine) {
-            this.content = content;
+        public Response(String preSourceContent, int status, String ecd , String customizedScopeContent, String customizedScopeContent4Header, String oldEcdLine) {
+            this.preSourceContent = preSourceContent;
             this.status = status;
             this.ecd = ecd;
-            this.customizedScopeContent = customizedScopeContent;
+            if(customizedScopeContent!=null && !customizedScopeContent.isEmpty())
+                this.customizedScopeContent = customizedScopeContent;
+            else
+                this.customizedScopeContent = null;
+
+            if(customizedScopeContent4Header!=null && !customizedScopeContent4Header.isEmpty())
+                this.customizedScopeContent4Header = customizedScopeContent4Header;
+            else
+                this.customizedScopeContent4Header = null;
+
             this.oldEcdLine = oldEcdLine;
+        }
+
+        public void setErrMsg(String errMsg) {
+            this.errMSg = errMsg;
+        }
+
+        public String getErrMsg() {
+            return this.errMSg;
         }
 
         public void setOldEcdLine(String oldEcdLine) {
@@ -209,8 +273,8 @@ public class HashUtils {
             return this.oldEcdLine;
         }
 
-        public String getContent() {
-            return this.content;
+        public String getPreSourceContent() {
+            return this.preSourceContent;
         }
 
         public String getEcd() {
@@ -225,8 +289,15 @@ public class HashUtils {
             return this.customizedScopeContent;
         }
 
+        public String getCustomizedScopeContent4Header() {
+            return this.customizedScopeContent4Header;
+        }
+
         public boolean hasCustomizedScopeContent() {
-            return this.customizedScopeContent != null && !this.customizedScopeContent.isEmpty();
+            boolean hasCustomizedContent = this.customizedScopeContent != null && !this.customizedScopeContent.isEmpty();
+            boolean hasCustomizedScopeContent4Header = this.customizedScopeContent4Header != null && !this.customizedScopeContent4Header.isEmpty();
+
+            return hasCustomizedContent || hasCustomizedScopeContent4Header;
         }
 
 

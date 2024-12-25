@@ -2,6 +2,8 @@ package io.elasticore.base.model.core;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 @Getter
@@ -20,21 +22,26 @@ public class Annotation {
 
     private Properties properties;
 
+    private List<Annotation> siblings = new ArrayList<>();
+
     private Annotation(String name) {
         this.name = name.toLowerCase();
         this.type = TYPE_NO_VALUE;
+        this.siblings.add(this);
     }
 
     private Annotation(String name, String value) {
         this.name = name.toLowerCase();
         this.value = value;
         this.type = TYPE_SINGLE_VALUE;
+        this.siblings.add(this);
     }
 
     private Annotation(String name, Properties properties) {
         this.name = name.toLowerCase();
         this.properties = properties;
         this.type = TYPE_KEY_VALUE;
+        this.siblings.add(this);
     }
 
     public static Annotation create(String name) {
@@ -78,5 +85,10 @@ public class Annotation {
     public String toString() {
         // do not change this.
         return value;
+    }
+
+
+    public List<Annotation> getSiblings() {
+        return siblings;
     }
 }

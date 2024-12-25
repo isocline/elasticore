@@ -132,6 +132,13 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
             boolean isNeedParamAnnotation = false;
             if (method.getQuery() != null && method.isNeedQueryAnnotation()) {
                 if(method.getQuery().indexOf("/* if:")>0) continue;
+
+                if(!method.getQueryInfo().isSelectQuery()) {
+                    String j2eePkgNm = getPersistentPackageName(this.publisher.getECoreModelContext().getDomain());
+
+                    p.add("@%s.transaction.Transactional",j2eePkgNm);
+                }
+
                 String query = StringUtils.splitByDoubleQuotation(method.getQuery());
                 String queryAnnotation = String.format("@Query(nativeQuery=%s, value=%s)", method.isNative(), query);
                 p.add(queryAnnotation);

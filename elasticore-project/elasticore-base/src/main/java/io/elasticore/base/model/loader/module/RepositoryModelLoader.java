@@ -145,6 +145,12 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         if(query !=null && query.length()>0) {
             queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , pageable, mapWrapper ,returnType ,isReturnTypeSet);
             this.sqlQueryInfoList.add(queryInfo);
+
+            if(!queryInfo.isSelectQuery()) {
+                returnType = queryInfo.getReturnType();
+            }
+
+
         }
 
 

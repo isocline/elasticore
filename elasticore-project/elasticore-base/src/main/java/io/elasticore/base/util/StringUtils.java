@@ -28,6 +28,12 @@ public class StringUtils {
     }
 
     public static String quoteString(String input) {
+        if(input==null)
+            return null;
+
+        if(input.indexOf("\"")==0 && input.lastIndexOf("\"")==input.length()-1) {
+            return input;
+        }
         return "\"" + input + "\"";
     }
 

@@ -80,12 +80,17 @@ public class MetaInfo {
         return metaAnnotationMap;
     }
 
-    public Annotation getMetaAnnotation(String name) {
-        if (metaAnnotationMap == null || name ==null) {
+    public Annotation getMetaAnnotation(String... names) {
+        if (metaAnnotationMap == null || names ==null) {
             return null;
         }
-        String key = name.toLowerCase(Locale.ROOT);
-        return metaAnnotationMap.get(key);
+        for(String name: names) {
+            String key = name.toLowerCase(Locale.ROOT);
+            Annotation annotation = metaAnnotationMap.get(key);
+            if(annotation!=null)
+                return annotation;
+        }
+        return null;
     }
 
     public boolean hasMetaAnnotation(String... names) {

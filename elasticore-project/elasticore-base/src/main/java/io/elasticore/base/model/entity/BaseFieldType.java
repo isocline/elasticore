@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 public enum BaseFieldType {
 
 
+    OBJECT("Object", null, "Object"),
     STRING("String", null, "String"),
     STRINGARRAY("String[]", null, "String[]"),
     P_INT("int", "int", "Integer"),

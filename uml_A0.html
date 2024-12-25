@@ -45,18 +45,25 @@ init: {
 }%%
 
 classDiagram
-    class TestEmb:::embeddable{
-        &lt;&lt;embeddable &gt;&gt;
-        condition: String //조건
-        value: Double //값
-        content: String //설명
-    }
-    class BaseEntity{
+    class Article{
         id: String[PK] 
         name: String 
-        emb: TestEmb 
     }
-    BaseEntity --o "0..1" TestEmb : emb
+    class CommonCode{
+        codeSn: Long //코드 sequence
+        codeId: String[PK] 
+        codePntId: String //상위 코드 아이디
+        codeNm: String 
+        codeValue: String 
+        codeOptn1: String //코드옵션1
+        codeOptn2: String //코드옵션2
+        codeOptn3: String //코드옵션3
+        numberOptn1: Double //숫자옵션1
+        numberOptn2: Double //숫자옵션2
+        numberOptn3: Double //숫자옵션3
+        codeDepth: Integer //코드 depth
+        codeOrder: Integer //순서 정보
+    }
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

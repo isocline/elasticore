@@ -6,7 +6,11 @@ package io.elasticore.base.model.entity;
 public interface EntityAnnotation {
 
 
-    String META_TABLE = "table";
+
+    String[] META_TABLE =  new String[]{"table", "tbl"};
+
+
+    String[] META_INDEX =  new String[]{"index", "idx"};
 
 
     String[] META_DISABLE =  new String[]{"disable", "deferred"};
