@@ -69,20 +69,6 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
     }
 
-    private DataTransfer findDTO(Entity entity) {
-        String entityNm = entity.getIdentity().getName();
-        List<ModelRelationship> relationshipList = relationshipManager
-                .findByToNameAndType(entityNm, RelationType.TEMPLATE);
-
-        for (ModelRelationship r : relationshipList) {
-            String dtoName = r.getFromName();
-
-            return this.model.getDataTransferModels().findByName(dtoName);
-        }
-
-        return null;
-    }
-
 
     private boolean isPageable(DataTransfer searchDTO) {
         Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE);
@@ -163,6 +149,8 @@ public class ControlSrcPublisher extends SrcFilePublisher {
         String entityName = StringUtils.uncapitalize(entityClassName);
         String serviceClassName = entityClassName+ ConstanParam.POSTFIX_SERVICE;
 
+        String keyDtoClassName = entityClassName+"Key"+"DTO";
+
         String domainName = domain.getName();
         String dtoClassName = dto.getIdentity().getName();
         String mapperName = findMapperClassName(dto);
@@ -238,6 +226,7 @@ public class ControlSrcPublisher extends SrcFilePublisher {
                 .set("serviceClassName",serviceClassName)
                 .set("entityClassName",entityClassName)
                 .set("dtoClassName",dtoClassName)
+                .set("keyDtoClassName",keyDtoClassName)
                 .set("mapperName",mapperName)
                 .set("searchDTOClassName", searchDTOClassName)
                 .set("pkType", pkType)

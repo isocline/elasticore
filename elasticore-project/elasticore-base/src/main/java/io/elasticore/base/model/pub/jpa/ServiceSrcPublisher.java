@@ -68,19 +68,6 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
     }
 
-    private DataTransfer findDTO(Entity entity) {
-        String entityNm = entity.getIdentity().getName();
-        List<ModelRelationship> relationshipList = relationshipManager
-                .findByToNameAndType(entityNm, RelationType.TEMPLATE);
-
-        for (ModelRelationship r : relationshipList) {
-            String dtoName = r.getFromName();
-
-            return this.model.getDataTransferModels().findByName(dtoName);
-        }
-
-        return null;
-    }
 
 
     private boolean isPageable(DataTransfer searchDTO) {
@@ -194,6 +181,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                     varName,varName,orgEntityClassName,varName,orgEntityClassName,varName);
         }
 
+        String keyDtoClassName = orgEntityClassName+"Key"+"DTO";
+
         String className = orgEntityClassName + ConstanParam.POSTFIX_SERVICE;
 
         String dtoClassName = dto.getIdentity().getName();
@@ -286,6 +275,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("orgEntityConvert", orgEntityConvert)
 
 
+                .set("keyDtoClassName", keyDtoClassName)
                 .set("dtoClassName", dtoClassName)
                 .set("mappingCode", mappingCode)
 

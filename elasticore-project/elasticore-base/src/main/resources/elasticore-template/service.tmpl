@@ -4,6 +4,7 @@ import ${entityPackageName}.*;
 import ${dtoPackageName}.*;
 import ${repositoryPackageName}.*;
 
+import ${j2eePkgName}.persistence.EntityNotFoundException;
 import ${j2eePkgName}.persistence.TypedQuery;
 import ${j2eePkgName}.persistence.criteria.*;
 import ${j2eePkgName}.persistence.EntityManager;
@@ -151,7 +152,7 @@ public class ${className} {
     public ${dtoClassName} update(${dtoClassName} dto) {
         ${orgEntityClassName} entity = ${orgEntityConvert}helper.get${entityClassName}().findById(${pkDtoInfo}).orElse(null);
         if(entity==null)
-            throw new IllegalArgumentException("Invalid ${dtoClassName} ID");
+            throw new EntityNotFoundException("Invalid ${dtoClassName} ID");
         ${mapperName}.mapping(dto, entity, ${isSkipNull});
         ${childRefInfo}
 
@@ -167,9 +168,9 @@ public class ${className} {
      * @return a list of boolean values where each value represents the deletion success (true) or failure (false)
      *         for the corresponding ContractRelated entity
      */
-    public List<Boolean> delete(List<${dtoClassName}> dtoList) {
+    public List<Boolean> delete(List<${keyDtoClassName}> dtoList) {
         List<Boolean> result = new ArrayList<>();
-        for (${dtoClassName} dto : dtoList) {
+        for (${keyDtoClassName} dto : dtoList) {
             result.add(this.deleteById(${pkDtoParamInfo}));
         }
         return result;
@@ -184,7 +185,7 @@ public class ${className} {
      */
     public boolean deleteById(${pkDtoDefine}) {
         helper.get${entityClassName}().deleteById(${pkDtoInfo2});
-        return helper.get${entityClassName}().existsById(${pkDtoInfo2});
+        return !helper.get${entityClassName}().existsById(${pkDtoInfo2});
     }
 
 /*-- print-if:${isCustomPageOutput} isCustomPageOutput--*/

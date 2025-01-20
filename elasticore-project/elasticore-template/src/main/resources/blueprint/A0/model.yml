@@ -1,12 +1,153 @@
 entity:
+
+  Product:
+    meta: entity @dto @searchable @extend(LifecycleEntity) - 상품
+    fields:
+      pid: string(30) @id @genid -- PK
+      name: string -- 상품명
+      engName: string -- 상품 영문명
+      desc: text -- 상품개요
+      price: long -- 상품가격
+      weight: double -- 상품 무게
+
+    methods:
+
+      - id: selectByCustom
+        query: select a from Product where a.engName = :engName or desc like concat('%' , :desc, '%')
+
+      - id: selectByCustom2
+        query: select a from Product where a.name = :name or desc like concat('%' , :desc, '%')
+
+
+
+
+
+
+entityxx:
+  User:
+    meta: entity @dto-- 사용자 정보
+    fields:
+      userId: long @id @sequence -- 사용자 ID
+      userName: string @length(50) -- 사용자 이름
+      email: string @length(100) -- 이메일 주소
+
+
+
+entity223:
+
+
+  BaseEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+
+  AuditEntity:
+    meta: entity @abstract @extend(BaseEntity)
+    fields:
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+      createIP: string(20) -- 시스템 입력 IP
+      lastModifiedIP: string(20) -- 시스템 수정 IP
+
+  LifecycleEntity:
+    meta: entity @abstract @extend(AuditEntity)
+    fields:
+      effectiveDate: string(8) @search(<=) -- 적용 시작일시 예)20240701
+      endDate: string(8) @search(>) @default(99991231) -- 정보 종료일시,null 또 공백시 설정 안됨. 예)20251201
+
+  TxLifecycleEntity:
+    meta: entity @abstract @extend(LifecycleEntity)
+    fields:
+      txId: string(12) -- 트랜잭션 아이디
+
+
+
+  FeeCalcContract:
+    meta: entity @dto @extend(TxLifecycleEntity) -- 계산결과
+    fields:
+      id: long @id @sequence
+      processMonth: string -- 마감월
+
+entity33:
+  ContractBase:
+    meta: entity @abstract
+    fields:
+
+      txId: string
+      age: int
+
+  Contract:
+    meta: entity @dto @extend(ContractBase)
+    fields:
+      policyNo: string! @id @genid -- 계약번호
+      name: string
+
+
+
+
+entity32:
+
+
+  Contract:
+    meta: entity @dto
+    fields:
+      policyNo: string! @id @genid -- 계약번호
+
+  Contract2:
+    meta: entity @dto @template(Contract)
+    fields:
+      policyNo2: string! @id @genid -- 계약번호
+
+dto32:
+  TestDTO:
+    meta: template
+    fields:
+      id: string
+      name: string
+      age: int
+
+  TestDTO2:
+    meta: template
+    fields:
+      addr: string
+
+  TestInputDTO:
+    meta: dto
+    fields:
+      name: string
+      age: int
+
+
+  TestImplDTO:
+    meta: dto @template(TestDTO,TestDTO2)
+
+    methods:
+      - id: selectTestQuery
+
+        params: TestInputDTO
+
+        query:
+          select id,name,age from Test where name = :name and age = :age
+
+
+entity2:
   Article:
     meta: entity @dto
     fields:
       id: string @id
       name: string
 
+  TestUser:
+    meta: entity @dto
+    fields:
+      seq: long @id
+      name: string
+
+
   CommonCode:
-    meta: entity  @idx(name="test",columnList ="1") @idx(name="test2", columnList ="2", unique=true) -- 공통 코드 | 업무관련 주요 공통 코드 정보를 관리
+    meta: entity  @dto @idx(name="test",columnList ="1") @idx(name="test2", columnList ="2", unique=true) -- 공통 코드 | 업무관련 주요 공통 코드 정보를 관리
     fields:
       codeSn: long  @sequence -- 코드 sequence
       codeId: string(50)! @id  @s(eq) -- 코드 아이디
@@ -33,7 +174,7 @@ entity:
         query: update common_code set last_modified_date=NOW() ,code_value =:codeValue where code_id =:codeNm AND NOW() - last_modified_date > INTERVAL '5 seconds'
 
 
-dto:
+dto2:
   TrimIdMaxDTO:
     meta: dto
     fields:

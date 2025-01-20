@@ -640,10 +640,21 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         for (Field f : list) {
 
             if(!f.hasAnnotation(EntityAnnotation.REFERENCE)) {
+                /*
                 if( fromShadowModel !=null && !fromShadowModel.hasField(f))
                     continue;
+
                 if(toShadowModel !=null &&  !toShadowModel.hasField(f) )
                     continue;
+                */
+                if(!fromListMap.containsKey(f.getName())) {
+                    continue;
+                }
+
+                if(!toListMap.containsKey(f.getName())) {
+                    continue;
+                }
+
             }
 
 

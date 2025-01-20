@@ -1,9 +1,7 @@
 package io.elasticore.base.model.repo;
 
 import io.elasticore.base.model.ComponentIdentity;
-import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ModelComponent;
-import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
 import lombok.Builder;
@@ -26,6 +24,8 @@ public class Method implements ModelComponent {
     private String query;
 
     public Items<Field> params;
+
+    public String inputType;
 
     public String returnType;
 
@@ -81,6 +81,10 @@ public class Method implements ModelComponent {
             return this.queryInfo.getSetVarFieldItems();
 
         return null;
+    }
+
+    public String getInputType() {
+        return inputType;
     }
 
 

@@ -53,18 +53,18 @@ public class ModelTransList<E> extends AbstractList<E>
 
 
 
-    public ModelTransList(List<Object[]> inputList, Class itemClass) {
+    public ModelTransList(List<?> inputParamList, Class itemClass) {
         this.itemClass = itemClass;
-        this.inputList = inputList;
+        this.inputList = toListOfObjectArray(inputParamList);;
         this.newList = new ArrayList<>();
     }
 
 
 
     @SneakyThrows
-    public ModelTransList(List<Object[]> inputList, Class itemClass, String[] fieldNames) {
+    public ModelTransList(List<?> inputParamList, Class itemClass, String[] fieldNames) {
         this.itemClass = itemClass;
-        this.inputList = inputList;
+        this.inputList = toListOfObjectArray(inputParamList);
         this.newList = new ArrayList<>();
 
         this.fieldList = new ArrayList<>();
@@ -80,6 +80,23 @@ public class ModelTransList<E> extends AbstractList<E>
                 propertyEditors.add(editor);
             }catch (NoSuchFieldException nsfe) {}
         }
+    }
+
+    private static List<Object[]> toListOfObjectArray(List<?> source) {
+        List<Object[]> result = new ArrayList<>();
+
+        for (Object element : source) {
+            if (element instanceof Object[]) {
+                // 이미 Object[] 형태이면 그대로 사용
+                result.add((Object[]) element);
+            } else {
+                // 일반 객체라면 하나짜리 Object[] 로 감싸서 사용
+                // (element가 null일 수도 있으므로 그냥 new Object[] { element } 로 처리)
+                result.add(new Object[] { element });
+            }
+        }
+
+        return result;
     }
 
     @SneakyThrows

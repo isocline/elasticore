@@ -45,24 +45,13 @@ init: {
 }%%
 
 classDiagram
-    class Article{
-        id: String[PK] 
-        name: String 
-    }
-    class CommonCode{
-        codeSn: Long //코드 sequence
-        codeId: String[PK] 
-        codePntId: String //상위 코드 아이디
-        codeNm: String 
-        codeValue: String 
-        codeOptn1: String //코드옵션1
-        codeOptn2: String //코드옵션2
-        codeOptn3: String //코드옵션3
-        numberOptn1: Double //숫자옵션1
-        numberOptn2: Double //숫자옵션2
-        numberOptn3: Double //숫자옵션3
-        codeDepth: Integer //코드 depth
-        codeOrder: Integer //순서 정보
+    class Product{
+        pid: String[PK] //PK
+        name: String //상품명
+        engName: String //상품 영문명
+        desc: String //상품개요
+        price: Long //상품가격
+        weight: Double //상품 무게
     }
 
 

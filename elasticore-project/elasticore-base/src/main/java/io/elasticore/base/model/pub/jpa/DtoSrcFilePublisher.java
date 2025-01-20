@@ -34,6 +34,7 @@ import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Handles the publishing of source files for entities.
@@ -185,6 +186,26 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         String code = javaClassTmpl.toString(p);
 
         this.writeSrcCode(this.publisher, dto, qualifiedClassName, code);
+
+        String templateName = dto.getMeta().getMetaAnnotationValue(DataTransferAnnotation.META_TEMPLATE);
+        if(templateName!=null && !templateName.isEmpty()) {
+
+            // generate DTO which has key fields
+            CodeTemplate.Paragraph pkFields = getPkFieldInfo(dto);
+            if(pkFields.size()>0) {
+                classNm = templateName + "Key" + "DTO";
+                qualifiedClassName = packageName + "." + classNm;
+                p.set("fieldList", pkFields);
+                p.set("className", classNm);
+
+                String pkDtoCode = javaClassTmpl.toString(p);
+
+                this.writeSrcCode(this.publisher, dto, qualifiedClassName, pkDtoCode);
+            }
+        }
+
+
+
     }
 
 
@@ -223,13 +244,26 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
     private CodeTemplate.Paragraph getFieldInfo(DataModelComponent dto) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
-        loadFieldInfo(dto, p);
+        SourceShadowModel shadowModel = new SourceShadowModel(dto.getIdentity().getName());
+        loadFieldInfo(dto, p,null, shadowModel);
+        this.eCoreModel.setShadowModel(shadowModel);
+
+        return p;
+
+    }
+
+    private CodeTemplate.Paragraph getPkFieldInfo(DataModelComponent dto) {
+        CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
+
+        Predicate<Field> condition = f-> f.isPrimaryKey();
+        loadFieldInfo(dto, p,condition,null);
+
         return p;
     }
 
 
 
-    private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p) {
+    private void loadFieldInfo(DataModelComponent dto, CodeTemplate.Paragraph p, Predicate<Field> condition, SourceShadowModel shadowModel ) {
 
         // if the dto is a convert from entity, we do not need to generate any field annotation
         boolean isConvertFromEntity = dto.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_DTO);
@@ -249,10 +283,12 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         RelationshipManager relMgr = RelationshipManager.getInstance(dto.getIdentity().getDomainId());
 
         String parentName = dto.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_EXTEND);
-        SourceShadowModel shadowModel = new SourceShadowModel(dto.getIdentity().getName());
+
 
         for(Field f: fieldList) {
 
+            if(condition!=null && !condition.test(f))
+                continue;
 
             if(this.isDisableField(f))
                 continue;
@@ -334,10 +370,11 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             setFunctionInfo(f, p);
 
 
-            shadowModel.addField(f);
+            if(shadowModel!=null)
+                shadowModel.addField(f);
         }
 
-        this.eCoreModel.setShadowModel(shadowModel);
+
     }
 
 

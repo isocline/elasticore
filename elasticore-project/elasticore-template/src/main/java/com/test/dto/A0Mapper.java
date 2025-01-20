@@ -1,4 +1,4 @@
-//ecd:-946888296H20241224183121_V1.0
+//ecd:-38284293H20250117173851_V1.0
 package com.test.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -45,38 +45,42 @@ public class A0Mapper {
     }
 
     
-    public static void mapping(Article from, ArticleDTO to, boolean isSkipNull){
+    public static void mapping(Product from, ProductDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getPid(), to::setPid, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getEngName(), to::setEngName, isSkipNull);
+        setVal(from.getDesc(), to::setDesc, isSkipNull);
+        setVal(from.getPrice(), to::setPrice, isSkipNull);
+        setVal(from.getWeight(), to::setWeight, isSkipNull);
     }
     
     
-    public static void mapping(Article from, ArticleDTO to){
+    public static void mapping(Product from, ProductDTO to){
         mapping(from,to,false);
     }
     
     
-    public static ArticleDTO toDTO(Article from){
+    public static ProductDTO toDTO(Product from){
         if(from==null) return null;
-        ArticleDTO to = new ArticleDTO();
+        ProductDTO to = new ProductDTO();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList){
+    public static List<ProductDTO> toProductDTOList(List<Product> fromList){
         if(fromList==null) return null;
         return fromList.stream().map(A0Mapper::toDTO).collect(Collectors.toList());
     }
     
     
-    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, BiFunction<Article, ArticleDTO, ArticleDTO> modifier){
+    public static List<ProductDTO> toProductDTOList(List<Product> fromList, BiFunction<Product, ProductDTO, ProductDTO> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                ArticleDTO to = toDTO(from);
+                ProductDTO to = toDTO(from);
                 return modifier.apply(from, to);
             }
             )
@@ -86,38 +90,42 @@ public class A0Mapper {
     }
     
     
-    public static void mapping(ArticleDTO from, Article to, boolean isSkipNull){
+    public static void mapping(ProductDTO from, Product to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getPid(), to::setPid, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getEngName(), to::setEngName, isSkipNull);
+        setVal(from.getDesc(), to::setDesc, isSkipNull);
+        setVal(from.getPrice(), to::setPrice, isSkipNull);
+        setVal(from.getWeight(), to::setWeight, isSkipNull);
     }
     
     
-    public static void mapping(ArticleDTO from, Article to){
+    public static void mapping(ProductDTO from, Product to){
         mapping(from,to,false);
     }
     
     
-    public static Article toEntity(ArticleDTO from){
+    public static Product toEntity(ProductDTO from){
         if(from==null) return null;
-        Article to = new Article();
+        Product to = new Product();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<Article> toArticleList(List<ArticleDTO> fromList){
+    public static List<Product> toProductList(List<ProductDTO> fromList){
         if(fromList==null) return null;
         return fromList.stream().map(A0Mapper::toEntity).collect(Collectors.toList());
     }
     
     
-    public static List<Article> toArticleList(List<ArticleDTO> fromList, BiFunction<ArticleDTO, Article, Article> modifier){
+    public static List<Product> toProductList(List<ProductDTO> fromList, BiFunction<ProductDTO, Product, Product> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                Article to = toEntity(from);
+                Product to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )
@@ -127,14 +135,24 @@ public class A0Mapper {
     }
     
     
-    public static Specification<Article> toSpec(ArticleSrchDTO searchDTO){
+    public static Specification<Product> toSpec(ProductSrchDTO searchDTO){
         return toSpec(searchDTO, Specification.where(null));
     }
     
     
-    public static Specification<Article> toSpec(ArticleSrchDTO searchDTO, Specification<Article> sp){
-        sp=setSpec(sp, "id", searchDTO.getId());
+    public static Specification<Product> toSpec(ProductSrchDTO searchDTO, Specification<Product> sp){
+        sp=setSpec(sp, "pid", searchDTO.getPid());
         sp=setSpec(sp, "name", searchDTO.getName());
+        sp=setSpec(sp, "engName", searchDTO.getEngName());
+        sp=setSpec(sp, "desc", searchDTO.getDesc());
+        Long price = searchDTO.getPrice();
+        if(hasValue(price)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("price"),price));
+        }
+        Double weight = searchDTO.getWeight();
+        if(hasValue(weight)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("weight"),weight));
+        }
         return sp;
     }
     

@@ -63,7 +63,7 @@ public class ${className} {
             @ApiResponse(responseCode = "404", description = "${entityClassName} not found", content = @Content)
     })
     @PutMapping
-    public ResponseEntity<${dtoClassName}> update(@Valid @RequestBody ${dtoClassName} updateDto) {
+    public ResponseEntity<${dtoClassName}> update(@RequestBody ${dtoClassName} updateDto) {
         ${dtoClassName} resultDto = ${entityName}Service.update(updateDto);
         return ResponseEntity.ok(resultDto);
     }
@@ -74,7 +74,7 @@ public class ${className} {
             @ApiResponse(responseCode = "404", description = "One or more ${entityClassName} entities not found", content = @Content)
     })
     @PostMapping("/delete")
-    public ResponseEntity<List<Boolean>> delete(@RequestBody List<${dtoClassName}> delDtoList) {
+    public ResponseEntity<List<Boolean>> delete(@RequestBody List<${keyDtoClassName}> delDtoList) {
         List<Boolean> result = ${entityName}Service.delete(delDtoList);
         return ResponseEntity.ok(result);
     }

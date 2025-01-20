@@ -253,4 +253,35 @@ public class StringUtils {
         }
     }
 
+
+    public static boolean equalsWithPureChars(String str1, String str2) {
+        // Normalize the strings by trimming, removing newlines, and concatenating
+        String normalizedStr1 = normalizeString(str1);
+        String normalizedStr2 = normalizeString(str2);
+
+
+
+        // Compare the normalized strings
+        boolean result =  normalizedStr1.equals(normalizedStr2);
+
+        return result;
+    }
+
+    private static String normalizeString(String input) {
+        if(input==null)
+            return "";
+        // Split the string into lines
+        String[] lines = input.split("\\r?\\n");
+
+        // Use StringBuilder to efficiently concatenate strings
+        StringBuilder normalized = new StringBuilder();
+
+        for (String line : lines) {
+            // Trim each line and append it to the result
+            normalized.append(line.trim());
+        }
+
+        return normalized.toString();
+    }
+
 }

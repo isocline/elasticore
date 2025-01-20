@@ -34,8 +34,6 @@ import java.util.Map;
 public class SrcFilePublisher {
 
 
-
-
     private CodePublisher publisher;
 
     protected SrcFilePublisher(CodePublisher publisher) {
@@ -47,8 +45,9 @@ public class SrcFilePublisher {
     }
 
     private static String userHome = System.getProperty("user.dir");
+
     public String getFilePathInfo(String qualifiedClassName) {
-        String path =  publisher.getSrcFileAccessFactory().getFilePath(qualifiedClassName);
+        String path = publisher.getSrcFileAccessFactory().getFilePath(qualifiedClassName);
 
         Path input = Paths.get(path);
         Path home = Paths.get(userHome);
@@ -61,7 +60,7 @@ public class SrcFilePublisher {
     }
 
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content) {
-        writeSrcCode(publisher,modelComponent,qualifiedClassName,content,true);
+        writeSrcCode(publisher, modelComponent, qualifiedClassName, content, true);
     }
 
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content, boolean checkModified) {
@@ -76,15 +75,14 @@ public class SrcFilePublisher {
             if (response != null && response.getStatus() == HashUtils.MODIFIED) {
 
 
-
-                if(checkModified && !response.hasCustomizedScopeContent()) {
+                if (checkModified && !response.hasCustomizedScopeContent()) {
                     //ConsoleLog.printInfo("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
                     //ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) +" "+response.getErrMsg());
-                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) );
+                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName));
                     return;
                 }
                 //ConsoleLog.printInfo("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
-                ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) +" [INGORE]");
+                ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) + " [INGORE]");
 
             }
 
@@ -93,31 +91,39 @@ public class SrcFilePublisher {
             e.printStackTrace();
         }
 
-        if (response != null && content.equals(response.getPreSourceContent()) && !response.hasCustomizedScopeContent()) {
+        boolean isEqaulsWithPureChars = false;
+        if (response != null)
+            isEqaulsWithPureChars = StringUtils.equalsWithPureChars(content, response.getPreSourceContent());
+
+        //if (response != null && isEqaulsWithPureChars && !response.hasCustomizedScopeContent()) {
+        if (response != null && isEqaulsWithPureChars) {
             //ConsoleLog.printInfo("[INFO] PUB_SKIP: " + qualifiedClassName + " NO_MODIFIED");
-            ConsoleLog.storeLog("NO_MODIFIED", getFilePathInfo(qualifiedClassName) );
+            ConsoleLog.storeLog("NO_MODIFIED", getFilePathInfo(qualifiedClassName));
 
             return;
         }
 
 
-
         try (Writer writer = fileAccessFactory.getWriter(qualifiedClassName)) {
 
 
-            if(response!=null) {
+            if (response != null) {
+
                 String oldEcdLine = response.getOldEcdLine();
-                if(oldEcdLine!=null && content.equals(response.getPreSourceContent())) {
-                    writer.write(oldEcdLine+"\n");
-                }else {
+
+                if (oldEcdLine != null && isEqaulsWithPureChars) {
+                    writer.write(oldEcdLine + "\n");
+
+                } else {
+
                     String hCode = HashUtils.makeEcdCode(content);
                     writer.write(hCode);
                 }
 
 
-                if(!response.hasCustomizedScopeContent()) {
+                if (!response.hasCustomizedScopeContent()) {
                     writer.write(content);
-                }else {
+                } else {
                     // content를 라인별로 분리
                     String[] lines = content.split("\n");
                     StringBuilder modifiedContent = new StringBuilder();
@@ -125,8 +131,8 @@ public class SrcFilePublisher {
 
                     for (int i = 0; i < lines.length; i++) {
 
-                        if(i == lines.length-1) {
-                            if(response.getCustomizedScopeContent()!=null) {
+                        if (i == lines.length - 1) {
+                            if (response.getCustomizedScopeContent() != null) {
                                 writer.write(response.getCustomizedScopeContent());
                                 writer.write("\n");
                             }
@@ -136,7 +142,7 @@ public class SrcFilePublisher {
                         writer.write("\n");
 
                         if (i == 1) {
-                            if(response.getCustomizedScopeContent4Header()!=null) {
+                            if (response.getCustomizedScopeContent4Header() != null) {
                                 writer.write(response.getCustomizedScopeContent4Header());
                                 writer.write("\n");
                             }
@@ -145,12 +151,10 @@ public class SrcFilePublisher {
                 }
 
 
-
-            }else{
+            } else {
                 writer.write(HashUtils.makeEcdCode(content));
                 writer.write(content);
             }
-
 
 
             writer.flush();
@@ -201,8 +205,8 @@ public class SrcFilePublisher {
             //if (eCoreModel.getEntityModels().findByName(parameterType) != null) {
 
             Entity entityModel = this.publisher.getECoreModelContext().findModelComponent(parameterType, Entity.class);
-            if (entityModel!= null) {
-                if(!entityModel.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
+            if (entityModel != null) {
+                if (!entityModel.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
                     // skip
                     return true;
                 }
@@ -264,7 +268,7 @@ public class SrcFilePublisher {
 
 
         String required = field.getAnnotationValue(EntityAnnotation.CALCULATION_REQUIRED);
-        if("true".equals(required))
+        if ("true".equals(required))
             paragraph.add("// calcRequired:" + required);
 
     }
@@ -286,14 +290,14 @@ public class SrcFilePublisher {
         p.add("@Schema(description = \"%s\" %s %s)", desc, requireTxt, example);
     }
 
-    protected void setFieldDocumentation(Field f, CodeTemplate.Paragraph p, String[] conditions ,boolean enableSearch) {
+    protected void setFieldDocumentation(Field f, CodeTemplate.Paragraph p, String[] conditions, boolean enableSearch) {
 
         String conditionTxt = "";
-        if(enableSearch) {
-            if(conditions!=null && conditions.length>0) {
-                conditionTxt = StringUtils.getOperatorDescription(conditions[0]) +" field:"+f.getName();
-            }else {
-                conditionTxt = StringUtils.getOperatorDescription("") +" field:"+f.getName();
+        if (enableSearch) {
+            if (conditions != null && conditions.length > 0) {
+                conditionTxt = StringUtils.getOperatorDescription(conditions[0]) + " field:" + f.getName();
+            } else {
+                conditionTxt = StringUtils.getOperatorDescription("") + " field:" + f.getName();
             }
         }
 
@@ -301,8 +305,8 @@ public class SrcFilePublisher {
         String desc = f.getAnnotationValue(EntityAnnotation.DESCRIPTION);
         if (desc == null) {
             desc = conditionTxt;
-        }else {
-            desc = desc +" "+conditionTxt;
+        } else {
+            desc = desc + " " + conditionTxt;
         }
         boolean isNotNull = f.hasAnnotation(EntityAnnotation.NOT_NULL);
         String requireTxt = "";
@@ -366,18 +370,17 @@ public class SrcFilePublisher {
 
         }
 
-        if(example==null) {
+        if (example == null) {
             String format = f.getAnnotationValue(EntityAnnotation.FORMAT);
-            if(format==null) {
-                if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
-                        || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
-                    if(format==null)
+            if (format == null) {
+                if (f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
+                        || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate) {
+                    if (format == null)
                         format = "yyyy-MM-dd";
 
-                }
-                else if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
-                        || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime ) {
-                    if(format==null)
+                } else if (f.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
+                        || f.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime) {
+                    if (format == null)
                         format = "yyyy-MM-dd HH:mm:ss";
 
                 }
@@ -401,7 +404,7 @@ public class SrcFilePublisher {
         if (f.hasAnnotation("notnull"))
             p.add("@NotNull");
 
-        if(f.hasAnnotation("notblank"))
+        if (f.hasAnnotation("notblank"))
             p.add("@NotBlank");
 
         String minSize = f.getAnnotationValue(EntityAnnotation.MIN_SIZE);
@@ -458,11 +461,11 @@ public class SrcFilePublisher {
     }
 
     protected Entity findEntityByName(String typeName) {
-        return this.publisher.getECoreModelContext().findModelComponent(typeName ,Entity.class);
+        return this.publisher.getECoreModelContext().findModelComponent(typeName, Entity.class);
     }
 
     protected boolean isEntityType(Field f) {
-        if(findEntityByField(f) !=null)
+        if (findEntityByField(f) != null)
             return true;
         return false;
     }
@@ -482,8 +485,8 @@ public class SrcFilePublisher {
             if (!"null".equals(getFunc) && getFunc.indexOf("(") < 0) {
                 getFunc = getFunc + "(this)";
             }
-            if(getFunc.indexOf(";")<0)
-                getFunc = getFunc+";";
+            if (getFunc.indexOf(";") < 0)
+                getFunc = getFunc + ";";
             p.add("public %s get%s() {", type, cFldNm);
             p.add("    return %s", getFunc);
             p.add("}");
@@ -505,19 +508,18 @@ public class SrcFilePublisher {
     protected void setFormatAnnotation(Field field, CodeTemplate.Paragraph paragraph) {
 
         String format = field.getAnnotationValue(EntityAnnotation.FORMAT);
-        if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
-                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate ) {
-            if(format==null)
+        if (field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATE
+                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDate) {
+            if (format == null)
                 format = "yyyy-MM-dd";
-            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"%s\")",format);
-            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"%s\")",format);
-        }
-        else if(field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
-                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime ) {
-            if(format==null)
+            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"%s\")", format);
+            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"%s\")", format);
+        } else if (field.getTypeInfo().getBaseFieldType() == BaseFieldType.DATETIME
+                || field.getTypeInfo().getBaseFieldType() == BaseFieldType.LocalDateTime) {
+            if (format == null)
                 format = "yyyy-MM-dd HH:mm:ss";
-            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"%s\")",format);
-            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"%s\")",format);
+            paragraph.add("@org.springframework.format.annotation.DateTimeFormat(pattern = \"%s\")", format);
+            paragraph.add("@com.fasterxml.jackson.annotation.JsonFormat(pattern = \"%s\")", format);
         }
 
     }
@@ -526,12 +528,12 @@ public class SrcFilePublisher {
     protected String targetEntityName(Entity targetEntity) {
 
         String rollupTargetNm = targetEntity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
-        if(rollupTargetNm==null) {
+        if (rollupTargetNm == null) {
             return targetEntity.getIdentity().getName();
         }
 
         Entity rollupEntity = findEntityByName(rollupTargetNm);
-        if(rollupEntity==null)
+        if (rollupEntity == null)
             return null;
 
         return targetEntityName(rollupEntity);
@@ -546,12 +548,12 @@ public class SrcFilePublisher {
      * @return
      */
     protected boolean isModel(ECoreModel eCoreModel, String typeName) {
-        boolean isEntity = findEntityByName(typeName)!=null;
-        if(isEntity)
+        boolean isEntity = findEntityByName(typeName) != null;
+        if (isEntity)
             return true;
         //boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
-        boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class)!=null;
-        if(isDTO)
+        boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class) != null;
+        if (isDTO)
             return true;
 
 
@@ -560,8 +562,8 @@ public class SrcFilePublisher {
 
 
     protected boolean isEntityModel(ECoreModel eCoreModel, String typeName) {
-        boolean isEntity = this.findEntityByName(typeName)!=null;
-        if(isEntity)
+        boolean isEntity = this.findEntityByName(typeName) != null;
+        if (isEntity)
             return true;
 
         return false;
@@ -569,8 +571,8 @@ public class SrcFilePublisher {
 
     protected boolean isDTOModel(ECoreModel eCoreModel, String typeName) {
 
-        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
-        if(isDTO)
+        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName) != null;
+        if (isDTO)
             return true;
 
 
@@ -579,8 +581,8 @@ public class SrcFilePublisher {
 
     protected boolean isEnumModel(ECoreModel eCoreModel, String typeName) {
 
-        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
-        if(isEnum)
+        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName) != null;
+        if (isEnum)
             return true;
 
         return false;
@@ -588,38 +590,38 @@ public class SrcFilePublisher {
 
 
     protected boolean isExist(ECoreModel eCoreModel, String typeName) {
-        boolean isEntity = this.findEntityByName(typeName)!=null;
-        if(isEntity)
+        boolean isEntity = this.findEntityByName(typeName) != null;
+        if (isEntity)
             return true;
-        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
-        if(isDTO)
+        boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName) != null;
+        if (isDTO)
             return true;
-        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
-        if(isEnum)
+        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName) != null;
+        if (isEnum)
             return true;
 
         return false;
     }
 
-    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName ,ComponentIdentity identity) {
+    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName, ComponentIdentity identity) {
 
         //////boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
-        boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class)!=null;
+        boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class) != null;
 
-        if(isDTO) {
-            String type =metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_TYPE);
+        if (isDTO) {
+            String type = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_TYPE);
             boolean isSearchResult = metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCH_RESULT);
-            if("entity".equals(type) && isSearchResult) {
+            if ("entity".equals(type) && isSearchResult) {
                 return false;
             }
             String targetNm = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_TEMPLATE);
-            if(targetNm!=null) {
+            if (targetNm != null) {
 
                 // Cross-referencing can lead to an infinite loop, so it has been excluded.
                 RelationshipManager instance = RelationshipManager.getInstance(identity.getDomainId());
-                List<ModelRelationship> byToName = instance.findByToNameAndType(targetNm ,RelationType.MANY_TO_ONE);
-                if(byToName!=null && byToName.size()>0) {
-                    ConsoleLog.printWarn("Cross-referencing can lead to an infinite loop. typeName: "+typeName);
+                List<ModelRelationship> byToName = instance.findByToNameAndType(targetNm, RelationType.MANY_TO_ONE);
+                if (byToName != null && byToName.size() > 0) {
+                    ConsoleLog.printWarn("Cross-referencing can lead to an infinite loop. typeName: " + typeName);
                     return false;
                 }
             }
@@ -627,12 +629,9 @@ public class SrcFilePublisher {
             return true;
         }
         //////boolean isEnum = eCoreModel.getEnumModels().findByName(typeName)!=null;
-        boolean isEnum = this.publisher.getECoreModelContext().findModelComponent(typeName, EnumModel.class)!=null;
-        if(isEnum)
+        boolean isEnum = this.publisher.getECoreModelContext().findModelComponent(typeName, EnumModel.class) != null;
+        if (isEnum)
             return true;
-
-
-
 
 
         return false;
@@ -640,7 +639,7 @@ public class SrcFilePublisher {
 
 
     protected boolean isSkipSearchField(DataModelComponent dto, Field f) {
-        if(f.hasAnnotation(EntityAnnotation.AUTOSEARCH) && !dto.getMetaInfo().hasMetaAnnotation(EntityAnnotation.AUTOGENERATED)) {
+        if (f.hasAnnotation(EntityAnnotation.AUTOSEARCH) && !dto.getMetaInfo().hasMetaAnnotation(EntityAnnotation.AUTOGENERATED)) {
             return true;
         }
 
@@ -657,21 +656,21 @@ public class SrcFilePublisher {
      * @return the full class name if a corresponding DataModelComponent is found; otherwise, the input className
      */
     protected String getClassName(Entity entity, String className) {
-        if(className.indexOf(":")>0) {
+        if (className.indexOf(":") > 0) {
             DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(className);
-            if(modelComponent!=null) {
+            if (modelComponent != null) {
                 return modelComponent.getFullName();
             }
-        }else {
+        } else {
             String domainId = entity.getIdentity().getDomainId();
 
             String[] allDomainNames = BaseECoreModelContext.getContext().getAllDomainNames();
-            for(String domainNm: allDomainNames) {
+            for (String domainNm : allDomainNames) {
                 DataModelComponent modelByName = BaseECoreModelContext.getContext().getDomain(domainNm).getModel().findModelByName(className);
-                if(modelByName!=null) {
-                    if(domainId.equals(domainNm)) {
+                if (modelByName != null) {
+                    if (domainId.equals(domainNm)) {
                         return modelByName.getIdentity().getName();
-                    }else {
+                    } else {
                         return modelByName.getFullName();
                     }
                 }
@@ -682,18 +681,17 @@ public class SrcFilePublisher {
     }
 
 
-
     protected void processDeferredField(DataTransfer dto, Field f) {
 
 
-        if(f.hasAnnotation(DataTransferAnnotation.META_DEFERRED)) {
+        if (f.hasAnnotation(DataTransferAnnotation.META_DEFERRED)) {
 
             String baseFieldNm = f.getName();
 
             String typeName = f.getTypeInfo().getDefaultTypeName();
             Entity entity = this.publisher.getECoreModelContext().findModelComponent(typeName, Entity.class);
 
-            if(entity==null) {
+            if (entity == null) {
                 //f.removeAnnotation(DataTransferAnnotation.META_DEFERRED);
                 return;
             }
@@ -701,23 +699,23 @@ public class SrcFilePublisher {
             //if(entity !=null)
             {
 
-                Map<String,Annotation> antMp = new HashMap<>();
+                Map<String, Annotation> antMp = new HashMap<>();
 
                 boolean isEmbeddable = false;
 
-                if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
+                if (entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
                     isEmbeddable = true;
                 }
 
-                Annotation att = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE_BYPASS );
+                Annotation att = Annotation.create(DataTransferAnnotation.META_SEARCHABLE_BYPASS);
                 antMp.put(att.getName(), att);
 
 
-                if(!dto.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) {
+                if (!dto.getMetaInfo().hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) {
                     Field dtoField = Field.builder()
                             .name(f.getName())
                             .parentMetaInfo(dto.getMetaInfo())
-                            .type(typeName+"DTO")
+                            .type(typeName + "DTO")
                             .annotationMap(antMp)
                             .build();
 
@@ -728,20 +726,20 @@ public class SrcFilePublisher {
                 ModelComponentItems<Field> entityFields = entity.getItems();
                 while (entityFields.hasNext()) {
                     Field entityField = entityFields.next();
-                    if(entityField.hasAnnotation(EntityAnnotation.META_ID)) {
+                    if (entityField.hasAnnotation(EntityAnnotation.META_ID)) {
 
-                        String refFieldNm = baseFieldNm+"."+ entityField.getName();
-                        String newFieldNm = baseFieldNm+StringUtils.capitalize(entityField.getName());
+                        String refFieldNm = baseFieldNm + "." + entityField.getName();
+                        String newFieldNm = baseFieldNm + StringUtils.capitalize(entityField.getName());
 
                         // for search
-                        Annotation srchAnt = Annotation.create(  DataTransferAnnotation.META_SEARCHABLE, "eq");
-                        Annotation annotation = Annotation.create(  "ref", refFieldNm);
-                        Map<String,Annotation> antMap = new HashMap<>();
+                        Annotation srchAnt = Annotation.create(DataTransferAnnotation.META_SEARCHABLE, "eq");
+                        Annotation annotation = Annotation.create("ref", refFieldNm);
+                        Map<String, Annotation> antMap = new HashMap<>();
                         antMap.put(annotation.getName(), annotation);
                         antMap.put(srchAnt.getName(), srchAnt);
 
 
-                        Annotation.create(  "s", "eq");
+                        Annotation.create("s", "eq");
                         antMap.put(annotation.getName(), annotation);
 
 
@@ -762,11 +760,35 @@ public class SrcFilePublisher {
     }
 
     protected boolean isDisableField(Field f) {
-        if(f.hasAnnotation(DataTransferAnnotation.META_DISABLE)) {
-            if( this.isEntityType(f)) {
+        if (f.hasAnnotation(DataTransferAnnotation.META_DISABLE)) {
+            if (this.isEntityType(f)) {
                 return true;
             }
         }
         return false;
+    }
+
+
+    protected DataTransfer findDTO(Entity entity) {
+
+        ModelDomain domain = this.publisher.getECoreModelContext().getDomain();
+        ECoreModel model = domain.getModel();
+        RelationshipManager relationshipManager = RelationshipManager.getInstance(domain.getName());
+
+
+        String entityNm = entity.getIdentity().getName();
+        List<ModelRelationship> relationshipList = relationshipManager
+                .findByToNameAndType(entityNm, RelationType.TEMPLATE);
+
+        for (ModelRelationship r : relationshipList) {
+            String dtoName = r.getFromName();
+
+
+            DataTransfer byName = model.getDataTransferModels().findByName(dtoName);
+            if (byName != null)
+                return byName;
+        }
+
+        return null;
     }
 }

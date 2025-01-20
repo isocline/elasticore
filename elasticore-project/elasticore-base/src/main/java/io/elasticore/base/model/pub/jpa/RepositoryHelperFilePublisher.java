@@ -83,7 +83,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph methodP = CodeTemplate.newParagraph();
         loadRepositoryInfo(repositoryModels, fieldP, methodP);
 
-        if(fieldP.size()==0)
+        if(fieldP.size()==0 && methodP.size()==0)
             return;
 
         params.set("repositoryList", fieldP);
@@ -228,6 +228,12 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         return true;
     }
 
+    private String getParamInfo(String varName, String fieldName) {
+        if(varName==null || varName.isEmpty())
+            return fieldName;
+
+        return varName+".get"+StringUtils.capitalize(fieldName)+"()";
+    }
 
     /**
      * public List<ContractGroup> findAllConnectionGroups(String groupName, Integer grpSeq) {
@@ -261,10 +267,17 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         //if (sqlQuery == null || sqlQuery.indexOf("/* if:") < 0) return;
 
 
+        List<String> namedParamList = queryInfo.getNamedParamerList();
 
         DataTransfer outputDTO = queryInfo.getDataTransfer();
 
         String params = getParametersForMethod(method.getParams(), true);
+        String inputType = method.getInputType();
+        String inputTyprVarName = null;
+        if(inputType!=null) {
+            inputTyprVarName = "input";
+            params = inputType +" "+inputTyprVarName;
+        }
         String fieldNames = null;
 
         boolean isSingleResult = false;
@@ -365,7 +378,9 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
             p.add("      query.setParameter(\"" + var + "\" , " + var + ");");
         }
 
+        boolean hasCustomDefinedParam = false;
         for(Field f: method.getParams().getItemList()) {
+            hasCustomDefinedParam = true;
             String inputParamName = f.getIdentity().getName();
 
             if(hasReplaceFieldName(sqlQuery,inputParamName))
@@ -379,11 +394,25 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                 }
             }
             if(!isDynamicField) {
-                p.add("    query.setParameter(\"" + inputParamName + "\" , " + inputParamName + ");");
+                p.add("    query.setParameter(\"" + inputParamName + "\" , " + getParamInfo(inputTyprVarName,inputParamName) + ");");
             }
-
         }
 
+
+        if(!hasCustomDefinedParam && inputTyprVarName!=null) {
+            for(String fieldNm : namedParamList) {
+                boolean isDynamicField = false;
+                for (String var : varList) {
+                    if(var.equals(fieldNm)) {
+                        isDynamicField = true;
+                        break;
+                    }
+                }
+                if(!isDynamicField) {
+                    p.add("    query.setParameter(\"" + fieldNm + "\" , " + getParamInfo(inputTyprVarName,fieldNm) + ");");
+                }
+            }
+        }
 
         if(isPageable) {
             p.add("    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());");

@@ -14,14 +14,8 @@ import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.SqlQueryInfo;
 import io.elasticore.base.util.MapWrapper;
-import lombok.SneakyThrows;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -163,16 +157,24 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
 
          */
 
+        String requestType = mapWrapper.getString("input");
         Items<Field> fieldItems = null;
-        Map params = (Map) map.get("params");
-        if (params != null) {
-            fieldItems = this.parseField(params);
+        Object paramsObj = map.get("params");
+        if(paramsObj instanceof Map) {
+            Map params = (Map) paramsObj;
+            if (params != null) {
+                fieldItems = this.parseField(params);
+            }
+        }else if(paramsObj !=null) {
+            requestType = paramsObj.toString();
         }
+
 
         return Method.builder()
                 .identity(BaseComponentIdentity.create(ComponentType.METHOD,ctx.getDomainId(),id))
                 .name(methodName)
                 .query(query)
+                .inputType(requestType)
                 .returnType(returnType)
                 .params(fieldItems)
                 .queryInfo(queryInfo)

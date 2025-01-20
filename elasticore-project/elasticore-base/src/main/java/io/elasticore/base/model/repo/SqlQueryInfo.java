@@ -74,6 +74,9 @@ public class SqlQueryInfo {
 
     private int selectColumnCount = 0;
 
+
+    private List<String> namedParamList = new ArrayList<>();
+
     private SqlQueryInfo(String domainId, String sqlTxt, boolean isNativeQuery, boolean pageable
             , MapWrapper repositoryContext, String returnType, boolean isReturnTypeSet) {
         this.domainId = domainId;
@@ -92,6 +95,10 @@ public class SqlQueryInfo {
         }
 
 
+    }
+
+    public List<String> getNamedParamerList() {
+        return this.namedParamList;
     }
 
     public String getReturnType() {
@@ -289,10 +296,19 @@ public class SqlQueryInfo {
         return this.returnParamtype;
     }
 
+
     @SneakyThrows
     private void parseSqlQueryText(String sql) {
 
         try {
+
+            Pattern pattern = Pattern.compile(":(\\w+)");
+            Matcher matcher = pattern.matcher(sql);
+
+            while (matcher.find()) {
+                String nm = matcher.group(0);
+                this.namedParamList.add(nm.substring(1));
+            }
 
 
             Statement statement = CCJSqlParserUtil.parse(sql);
@@ -439,6 +455,11 @@ public class SqlQueryInfo {
             }
 
 
+            // TODO
+            // NOT SUPPORT named query not yet
+            isJpaQueryAnnotationNeed = true;
+            this.jpaMethodName = this.repositoryContext.getString("id");
+
 
 
             if (isUniqueSearch()) {
@@ -491,6 +512,10 @@ public class SqlQueryInfo {
 
 
             this.jpaMethodName = sb.toString();
+
+            // TODO
+            // NOT SUPPORT named query not yet
+            this.jpaMethodName = this.repositoryContext.getString("id");
 
 
             if (Arrays.stream(JPA_PREDEFIEND_METHODS).anyMatch(this.jpaMethodName::equals))

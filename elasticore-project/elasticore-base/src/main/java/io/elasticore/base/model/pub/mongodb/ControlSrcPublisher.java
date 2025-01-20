@@ -64,20 +64,6 @@ public class ControlSrcPublisher extends SrcFilePublisher {
 
     }
 
-    private DataTransfer findDTO(Entity entity) {
-        String entityNm = entity.getIdentity().getName();
-        List<ModelRelationship> relationshipList = relationshipManager
-                .findByToNameAndType(entityNm, RelationType.TEMPLATE);
-
-        for (ModelRelationship r : relationshipList) {
-            String dtoName = r.getFromName();
-
-            return this.model.getDataTransferModels().findByName(dtoName);
-        }
-
-        return null;
-    }
-
 
     private boolean isPageable(DataTransfer searchDTO) {
         Annotation annotation = searchDTO.getMetaInfo().getMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE);
