@@ -729,7 +729,8 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                         postfix = ")";
                     }
                     /////else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {
-                    else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {
+                    else if(this.findEnumModel(checkTypeName)==null) {
+                    //else if(! this.isEnumModel(this.publisher.getECoreModelContext().getDomain().getModel(), checkTypeName)) {
                         continue;
                     }
                 }

@@ -18,8 +18,7 @@ import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -271,12 +270,32 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         DataTransfer outputDTO = queryInfo.getDataTransfer();
 
-        String params = getParametersForMethod(method.getParams(), true);
+        Items<Field> methodParams = method.getParams();
+
+        Set<String> paramFieldNmSet = new HashSet<>();
+        for(Field f:methodParams.getItemList()) {
+            paramFieldNmSet.add(f.getName());
+        }
+        Pattern patternVars = Pattern.compile(":(\\w+)");
+        //Pattern patternVars = Pattern.compile(":(\\w+)(?=(?:(?!/\\*).)*?(?<!\\*/))");
+
+
+        String params = getParametersForMethod(methodParams, true);
         String inputType = method.getInputType();
         String inputTyprVarName = null;
         if(inputType!=null) {
             inputTyprVarName = "input";
             params = inputType +" "+inputTyprVarName;
+
+            if( methodParams.size() ==0) {
+                String cleanedInput = sqlQuery.replaceAll("/\\*.*?\\*/", "");
+                Matcher matcherVars = patternVars.matcher(cleanedInput);
+
+                while (matcherVars.find()) {
+                    String varName = matcherVars.group(1);
+                    paramFieldNmSet.add(varName);
+                }
+            }
         }
         String fieldNames = null;
 
@@ -329,22 +348,43 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
 
         String[] lines = sqlQuery.split("\n");
-        Pattern pattern = Pattern.compile("(/\\* if:(\\w+) \\*/)$");
+        //Pattern pattern = Pattern.compile("(/\\* if:(\\w+) \\*/)$");
+        Pattern pattern = Pattern.compile("/\\* if:(.*?) \\*/");
 
-        List<String> varList = new ArrayList<>();
+
+
+
+        List<String> varConditionList = new ArrayList<>();
+        Map<String, List<String>> varChildListMap = new HashMap<>();
 
         for (String line : lines) {
             Matcher matcher = pattern.matcher(line);
             if (matcher.find()) {
                 // Extracting variable name
-                String variableName = matcher.group(2);
+                String varConditionChk = matcher.group(1);
                 // Removing the pattern from the line
-                String modifiedLine = line.replaceAll("/\\* if:\\w+ \\*/", "").trim();
+                String modifiedLine = line.replaceAll("/\\* if:(.*?) \\*/", "").trim();
 
 
-                varList.add(variableName);
+                if(varConditionChk.indexOf(".") >0 || varConditionChk.indexOf(" ")>0 || varConditionChk.indexOf("!")>0 || varConditionChk.indexOf("=")>0) {
 
-                p.add("    if(" + variableName + "!=null)");
+                }
+                else {
+                    varConditionChk = getParamInfo(inputTyprVarName, varConditionChk)+" !=null";
+                }
+
+                varConditionList.add(varConditionChk );
+
+                Matcher matcherVars = patternVars.matcher(modifiedLine);
+                List<String> varNmList = new ArrayList<>();
+                while (matcherVars.find()) {
+                    String varName = matcherVars.group(1);
+                    varNmList.add(varName);
+                }
+                varChildListMap.put(varConditionChk, varNmList);
+
+
+                p.add("    if(" + varConditionChk + ")");
                 p.add("      sb.append(\"" + modifiedLine + " \");");
             } else {
                 p.add("    sb.append(\"" + line + " \");");
@@ -361,40 +401,60 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         p.add("    String sql = ModelTransList.replace(sb.toString(),  placeholders);");
 
+        String classNm = "null";
+        if (queryInfo.isNativeQuery()) classNm = outputClassNm+".class";
+
+        String pageableStr= "null";
+        if(isPageable)
+            pageableStr= "pageable";
 
 
-        if (queryInfo.isNativeQuery()) {
-            p.add("    Query query = entityManager.createNativeQuery(sql);");
-        } else {
-            p.add("    Query query = entityManager.createQuery(sql, %s.class);", outputClassNm);
-        }
+
+        p.add("    Query query = createQuery(sql, %s, %s, %s);", queryInfo.isNativeQuery(),classNm,pageableStr);
 
 
-        for (String var : varList) {
-            if(hasReplaceFieldName(sqlQuery,var))
+        Set<String> paramKeyNameSet = new HashSet<>();
+
+        for (String varCondition : varConditionList) {
+            if(hasReplaceFieldName(sqlQuery,varCondition))
                 continue;
 
-            p.add("    if(" + var + "!=null)");
-            p.add("      query.setParameter(\"" + var + "\" , " + var + ");");
+            p.add("    if(" + varCondition + ") {");
+
+            for(String varNm: varChildListMap.get(varCondition)) {
+                p.add("      query.setParameter(\"" + varNm + "\" , " + getParamInfo(inputTyprVarName,varNm) + ");");
+                paramKeyNameSet.add(varNm);
+            }
+
+            p.add("    }");
         }
 
         boolean hasCustomDefinedParam = false;
-        for(Field f: method.getParams().getItemList()) {
+        for(String inputParamName: paramFieldNmSet) {
             hasCustomDefinedParam = true;
-            String inputParamName = f.getIdentity().getName();
 
             if(hasReplaceFieldName(sqlQuery,inputParamName))
                 continue;
 
             boolean isDynamicField = false;
-            for (String var : varList) {
-                if(var.equals(inputParamName)) {
-                    isDynamicField = true;
-                    break;
+            for (String varCondition : varConditionList) {
+
+                for(String varNm: varChildListMap.get(varCondition)) {
+                    if(varNm.equals(inputParamName)) {
+                        isDynamicField = true;
+                        break;
+                    }
                 }
             }
+
             if(!isDynamicField) {
-                p.add("    query.setParameter(\"" + inputParamName + "\" , " + getParamInfo(inputTyprVarName,inputParamName) + ");");
+                boolean add = paramKeyNameSet.contains(inputParamName);
+                System.err.println(add);
+                if(!add) {
+                    p.add("    query.setParameter(\"" + inputParamName + "\" , " + getParamInfo(inputTyprVarName,inputParamName) + ");");
+                    paramKeyNameSet.add(inputParamName);
+                }
+
             }
         }
 
@@ -402,34 +462,48 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         if(!hasCustomDefinedParam && inputTyprVarName!=null) {
             for(String fieldNm : namedParamList) {
                 boolean isDynamicField = false;
-                for (String var : varList) {
-                    if(var.equals(fieldNm)) {
-                        isDynamicField = true;
-                        break;
+                for (String varCondition : varConditionList) {
+
+                    for(String varNm: varChildListMap.get(varCondition)) {
+                        if(varNm.equals(fieldNm)) {
+                            isDynamicField = true;
+                            break;
+                        }
                     }
+
                 }
                 if(!isDynamicField) {
-                    p.add("    query.setParameter(\"" + fieldNm + "\" , " + getParamInfo(inputTyprVarName,fieldNm) + ");");
+                    if(!paramKeyNameSet.contains(fieldNm)) {
+                        p.add("    query.setParameter(\"" + fieldNm + "\" , " + getParamInfo(inputTyprVarName,fieldNm) + ");");
+                        paramKeyNameSet.add(fieldNm);
+                    }
+
                 }
             }
         }
 
         if(isPageable) {
-            p.add("    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());");
-            p.add("    query.setMaxResults(pageable.getPageSize());");
+            //p.add("    query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());");
+            //p.add("    query.setMaxResults(pageable.getPageSize());");
             p.add("");
             p.add("    Query countQuery = entityManager.createNativeQuery(\"select count(*) from ( \"+sb+\" ) as X\");");
 
-            for (String var : varList) {
-                p.add("    if(" + var + "!=null)");
-                p.add("      countQuery.setParameter(\"" + var + "\" , " + var + ");");
+            for (String varCondition : varConditionList) {
+                p.add("    if(" + varCondition + ") {");
+
+                for(String varNm: varChildListMap.get(varCondition)) {
+
+                    p.add("      countQuery.setParameter(\"" + varNm + "\" , " + getParamInfo(inputTyprVarName,varNm) + ");");
+                }
+                p.add("    }");
+
             }
 
             for(Field f: method.getParams().getItemList()) {
                 String inputParamName = f.getIdentity().getName();
 
                 boolean isDynamicField = false;
-                for (String var : varList) {
+                for (String var : varConditionList) {
                     if (var.equals(inputParamName)) {
                         isDynamicField = true;
                         break;

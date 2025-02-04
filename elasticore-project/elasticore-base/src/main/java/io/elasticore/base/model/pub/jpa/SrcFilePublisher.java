@@ -425,14 +425,18 @@ public class SrcFilePublisher {
     }
 
 
-    protected void setJsonInfo(Field f, CodeTemplate.Paragraph p) {
+    protected boolean setJsonInfo(Field f, CodeTemplate.Paragraph p) {
+
+        boolean isApplied = false;
         String jsonName = f.getAnnotationValue(EntityAnnotation.JSON_NAME);
         if (jsonName != null) {
             p.add("@JsonProperty(\"%s\")", jsonName);
+            isApplied = true;
         }
 
         if (f.hasAnnotation("jsonignore") || f.hasAnnotation("ignore")) {
             p.add("@JsonIgnore");
+            isApplied = true;
         }
 
         String jsonSerialize = f.getAnnotationValue(EntityAnnotation.JSON_SERIALIZE_USE);
@@ -440,11 +444,15 @@ public class SrcFilePublisher {
 
         if (jsonSerialize != null) {
             p.add("@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = %s)", jsonSerialize);
+
         }
 
         if (jsonDeserialize != null) {
             p.add("@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = %s)", jsonDeserialize);
+
         }
+
+        return isApplied;
     }
 
     protected boolean isEnumerationType(Field f) {
@@ -463,6 +471,11 @@ public class SrcFilePublisher {
     protected Entity findEntityByName(String typeName) {
         return this.publisher.getECoreModelContext().findModelComponent(typeName, Entity.class);
     }
+
+    protected EnumModel findEnumModel(String enumName) {
+        return this.publisher.getECoreModelContext().findModelComponent(enumName, EnumModel.class);
+    }
+
 
     protected boolean isEntityType(Field f) {
         if (findEntityByField(f) != null)
@@ -579,13 +592,8 @@ public class SrcFilePublisher {
         return false;
     }
 
-    protected boolean isEnumModel(ECoreModel eCoreModel, String typeName) {
-
-        boolean isEnum = eCoreModel.getEnumModels().findByName(typeName) != null;
-        if (isEnum)
-            return true;
-
-        return false;
+    protected boolean isEnumModel(String typeName) {
+        return this.publisher.getECoreModelContext().findModelComponent(typeName, EnumModel.class) != null;
     }
 
 
@@ -622,7 +630,7 @@ public class SrcFilePublisher {
                 List<ModelRelationship> byToName = instance.findByToNameAndType(targetNm, RelationType.MANY_TO_ONE);
                 if (byToName != null && byToName.size() > 0) {
                     ConsoleLog.printWarn("Cross-referencing can lead to an infinite loop. typeName: " + typeName);
-                    return false;
+                    //return false;
                 }
             }
 
@@ -766,6 +774,11 @@ public class SrcFilePublisher {
             }
         }
         return false;
+    }
+
+    protected DataTransfer findDTO(String name) {
+        DataTransfer modelComponent = this.publisher.getECoreModelContext().findModelComponent(name, DataTransfer.class);
+        return modelComponent;
     }
 
 

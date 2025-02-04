@@ -1,9 +1,6 @@
 package io.elasticore.base.model;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import io.elasticore.base.ECoreModelContext;
@@ -16,6 +13,7 @@ import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.repo.RepositoryModels;
+import io.elasticore.base.util.ConsoleLog;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -53,7 +51,20 @@ public class ECoreModel {
     }
 
     public ShadowModel getShadowModel(String name) {
-        return shadowModelMap.get(name);
+        ShadowModel result =  shadowModelMap.get(name);
+
+        /*
+        if(result==null) {
+            Set<String> keys = shadowModelMap.keySet();
+            for(String key: keys) {
+                ConsoleLog.printWarn(">> "+key);
+            }
+
+        }
+         */
+
+        return result;
+
     }
 
 

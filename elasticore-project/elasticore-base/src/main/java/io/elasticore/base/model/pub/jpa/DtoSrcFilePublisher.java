@@ -31,7 +31,6 @@ import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
 import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
-import io.elasticore.base.util.StringUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -139,6 +138,13 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 return;
         }
 
+        String implementInfo = metaInfo.getMetaAnnotationValue(DataTransferAnnotation.META_IMPLEMENTS);
+        if(implementInfo!=null && implementInfo.length()>0)
+            implementInfo = ","+implementInfo;
+        else
+            implementInfo="";
+
+
         if(metaInfo.hasMetaAnnotation(DataTransferAnnotation.META_SEARCHABLE)) return;
 
 
@@ -149,9 +155,9 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         this.paragraphForEntity = CodeTemplate.newParagraph();
 
         setNativeAnnotation(dto, this.paragraphForEntity);
+        setDtoAnnotation(dto, this.paragraphForEntity);
 
         boolean isSearchDTO = false;
-
 
 
         // must call 'getFieldInfo' first
@@ -176,7 +182,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(dto))
                 .set("isSearchDTO", isSearchDTO)
-                .set("implementInfo", "implements java.io.Serializable")
+                .set("implementInfo", "implements java.io.Serializable"+implementInfo)
                 .set("className", classNm);
 
 
@@ -283,6 +289,17 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         RelationshipManager relMgr = RelationshipManager.getInstance(dto.getIdentity().getDomainId());
 
         String parentName = dto.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_EXTEND);
+        if(parentName!=null && !parentName.isEmpty()) {
+
+            shadowModel.setNamespaceInfo(parentName);
+
+            fieldList = new ArrayList<>();
+            ModelComponentItems<Field> items1 = dto.getItems();
+            while (items1.hasNext()) {
+                Field next = items1.next();
+                fieldList.add(next);
+            }
+        }
 
 
         for(Field f: fieldList) {
@@ -340,8 +357,12 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             setFieldDesc(f, p);
             setFieldDocumentation(f,p);
             setFieldValidation(f,p);
-            setJsonInfo(f, p);
+            if(setJsonInfo(f, p) && shadowModel!=null) {
+                shadowModel.setImportPackageName("com.fasterxml.jackson.annotation.*");
+            }
             setFormatAnnotation(f,p);
+
+
 
 
             setNativeAnnotation(f, p);
@@ -362,9 +383,13 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
              */
 
+            String printFieldType = typeName;
+            if(f.hasAnnotation(DataTransferAnnotation.PRIMITIVE)) {
+                printFieldType = f.getTypeInfo().getInitTypeInfo();
+            }
 
 
-            p.add("%s %s %s%s;", "private", typeName, f.getName(), defaultValDefined);
+            p.add("%s %s %s%s;", "private", printFieldType, f.getName(), defaultValDefined);
             p.add("");
 
             setFunctionInfo(f, p);
@@ -409,6 +434,13 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
 
 
 
+    private void setDtoAnnotation(MetaInfoModel entity, CodeTemplate.Paragraph paragraph) {
+
+        String val = entity.getMetaInfo().getMetaAnnotationValue( DataTransferAnnotation.META_JSON_INCLUDE);
+        if(val!=null) {
+            paragraph.add("@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.%s)", val.toUpperCase());
+        }
+    }
 
 
     private void setNativeAnnotation(MetaInfoModel entity, CodeTemplate.Paragraph paragraph) {

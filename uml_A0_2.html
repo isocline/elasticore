@@ -45,18 +45,6 @@ init: {
 }%%
 
 classDiagram
-    class Company{
-        cid: String[PK] //PK
-        name: String //회사명
-        emps: Employee[] //직원
-    }
-    Company --o "0..*" Employee : emps
-    class Employee{
-        id: String[PK] 
-        name: String //직원명
-        company: Company 
-    }
-    Employee --o "0..1" Company : company
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

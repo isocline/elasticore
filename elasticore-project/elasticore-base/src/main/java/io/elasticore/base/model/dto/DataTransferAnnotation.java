@@ -35,4 +35,7 @@ public interface DataTransferAnnotation extends EntityAnnotation {
     String[] META_SEARCH_RESULT_NAME = new String[]{"searchResult.entity", "searchResult"};
 
 
+    String[] META_JSON_INCLUDE = new String[]{"jsoninclude", "includejson"};
+
+
 }

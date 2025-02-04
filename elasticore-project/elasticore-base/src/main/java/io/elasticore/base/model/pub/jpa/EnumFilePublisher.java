@@ -274,6 +274,12 @@ public class EnumFilePublisher extends SrcFilePublisher {
 
 
         Items<EnumConstant> enumConstantItems = enumModel.getEnumConstantItems();
+
+        if(enumConstantItems==null) {
+            ConsoleLog.printWarn("No enumConstantItems found "+enumModel.getIdentity().getName());
+            return;
+        }
+
         Items<Field> fieldItem = enumModel.getFieldItems();
 
         StringList sbLine = StringList.create("\n    ,");

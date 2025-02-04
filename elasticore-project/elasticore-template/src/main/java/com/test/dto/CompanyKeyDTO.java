@@ -1,8 +1,9 @@
-//ecd:1699709662H20250117173850_V1.0
+//ecd:-107864592H20250204014448_V1.0
 package com.test.dto;
 
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,17 +23,17 @@ import java.time.*;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class ProductKeyDTO  implements java.io.Serializable  {
+public  class CompanyKeyDTO  implements java.io.Serializable  {
 
 	/*
 	  PK
 	*/
 	@Schema(description = "PK"  )
 	@Size(max=30)
-	private String pid;
+	private String cid;
 	
 
 }

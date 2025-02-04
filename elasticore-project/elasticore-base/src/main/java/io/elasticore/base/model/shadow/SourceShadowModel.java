@@ -115,18 +115,26 @@ public class SourceShadowModel implements ShadowModel {
 
             Set<String> typeSet = f.getTypeInfo().getTypes();
             for(String coreType: typeSet) {
-                DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(coreType);
-                if(modelComponent!=null) {
-
-                    String domainId = modelComponent.getIdentity().getDomainId();
-
-                    String ns = BaseECoreModelContext.getContext().getDomain(domainId).getModel()
-                            .getNamespace(modelComponent.getIdentity().getComponentType().getName());
-
-                    namespaceSet.add(ns+".*");
-                }
+                setNamespaceInfo(coreType);
             }
+        }
+    }
+    public void setImportPackageName(String packageName) {
+        namespaceSet.add(packageName);
+    }
 
+    public void setNamespaceInfo(String typeName) {
+        DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(typeName);
+
+        if(modelComponent!=null) {
+
+
+            String domainId = modelComponent.getIdentity().getDomainId();
+
+            String ns = BaseECoreModelContext.getContext().getDomain(domainId).getModel()
+                    .getNamespace(modelComponent.getIdentity().getComponentType().getName());
+
+            namespaceSet.add(ns+".*");
         }
     }
 }

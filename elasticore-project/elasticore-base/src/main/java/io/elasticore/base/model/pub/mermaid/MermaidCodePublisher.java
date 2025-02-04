@@ -10,6 +10,7 @@ import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.relation.ModelRelationship;
 import io.elasticore.base.model.relation.RelationType;
@@ -187,6 +188,24 @@ public class MermaidCodePublisher implements CodePublisher {
 
         String classNm = entity.getIdentity().getName();
 
+        Entity refEntity = this.getECoreModelContext().findModelComponent(classNm, Entity.class);
+        if(refEntity==null) {
+            //ConsoleLog.printWarn(" UML : NOT FOUND CLASS: ["+classNm+"]");
+            return;
+        }
+
+        /*
+        ShadowModel shadowModel = this.getECoreModelContext().getDomain(refEntity.getIdentity().getDomainId()).getModel()
+                .getShadowModel(classNm);
+
+        if(shadowModel==null) {
+            //ConsoleLog.printWarn(" UML : NOT FOUND CLASS: "+classNm+" from "+refEntity.getIdentity().getDomainId());
+            return;
+        }
+
+         */
+
+
         if( entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE) ) {
             cb.line("class %s:::embeddable", classNm).block();
             cb.line("&lt;&lt;embeddable &gt;&gt;");
@@ -198,10 +217,16 @@ public class MermaidCodePublisher implements CodePublisher {
             cb.line("class %s", classNm).block();
         }
 
-        ShadowModel shadowModel = this.getECoreModelContext().getDomain(entity.getIdentity().getDomainId()).getModel()
-                .getShadowModel(classNm);
 
-        List<Field> fieldList = shadowModel.listFields();
+
+        //List<Field> fieldList = shadowModel.listFields();
+        ModelComponentItems<Field> items = refEntity.getItems();
+        List<Field> fieldList = new ArrayList<>();
+        while (items.hasNext()) {
+            Field next = items.next();
+            fieldList.add(next);
+        }
+
 
 
         ModelComponentItems<Field> fields = entity.getItems();

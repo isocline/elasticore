@@ -147,12 +147,23 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
 
             p.add("%s %s(%s);"
-                    , method.getReturnType()
+                    , transReturnType(method.getReturnType())
                     , method.getName()
                     , getParametersForMethod(method, isNeedParamAnnotation));
             p.add("");
         }
         return p;
+    }
+
+    public String transReturnType(String returnType) {
+        String paramType = StringUtils.findParameterType(returnType);
+        if(paramType==null)
+            return returnType;
+
+        if(findDTO(paramType)!=null) {
+            return "List<Object[]>";
+        }
+        return returnType;
     }
 
     private String getParametersForMethod(Method method, boolean isNeedParamAnnotation) {

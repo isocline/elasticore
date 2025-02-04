@@ -832,7 +832,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list.add("updatable = false");
         }
 
-        EnumModel enumModel = this.getEnumModelFromType(entity.getIdentity().getDomainId(),field);
+        EnumModel enumModel = this.getEnumModelFromType(field);
 
         boolean isLengthDefine = false;
         String lengthVal = field.getAnnotationValue(EntityAnnotation.LENGTH);
@@ -926,24 +926,18 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
 
-    private EnumModel getEnumModelFromType(String domainId, Field field) {
+    private EnumModel getEnumModelFromType(Field field) {
         if(field.getTypeInfo().isBaseType()) return null;
 
         String typeName = field.getTypeInfo().getCoreItemType();
-        try {
-            ModelDomain domain = BaseModelDomain.getModelDomain(domainId);
-            EnumModel enumModel = domain.getModel()
-                    .getEnumModels().findByName(typeName);
 
-            return enumModel;
-        }catch (NullPointerException npe) {}
-        return null;
+        return this.findEnumModel(typeName);
     }
 
     private void setConvertAnnotation(String domainId, Field field, CodeTemplate.Paragraph paragraph) {
         String type=  field.getTypeInfo().getCoreItemType();
 
-        EnumModel enumModel = getEnumModelFromType(domainId, field);
+        EnumModel enumModel = getEnumModelFromType( field);
         if (enumModel != null) {
             if (enumModel.getMetaInfo().hasMetaAnnotation("db")) {
                 paragraph.add("@Convert(converter = %s.EntityConverter.class)", type);

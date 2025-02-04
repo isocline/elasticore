@@ -321,7 +321,9 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             setFieldDesc(f, p);
             setFieldDocumentation(f,p ,conditionItems ,enableSearch);
             setFieldValidation(f,p);
-            setJsonInfo(f, p);
+            if(setJsonInfo(f, p) ) {
+                shadowModel.setImportPackageName("com.fasterxml.jackson.annotation.*");
+            }
             setFormatAnnotation(f,p);
 
             setNativeAnnotation(f, p);

@@ -310,6 +310,9 @@ public class SqlQueryInfo {
                 this.namedParamList.add(nm.substring(1));
             }
 
+            String tmpSql = sql.trim().toLowerCase();
+            if(tmpSql.indexOf("update")==0 || tmpSql.indexOf("delete")==0)
+                return;
 
             Statement statement = CCJSqlParserUtil.parse(sql);
             if (statement instanceof Select) {
@@ -393,7 +396,10 @@ public class SqlQueryInfo {
             }
 
         } catch (Throwable e) {
-            e.printStackTrace();
+            ConsoleLog.printWarn("SQL ERROR: "+e.getMessage());
+            ConsoleLog.printWarn("SQL ------------");
+            ConsoleLog.printWarn(this.sqlTxt);
+            //e.printStackTrace();
         }
 
     }

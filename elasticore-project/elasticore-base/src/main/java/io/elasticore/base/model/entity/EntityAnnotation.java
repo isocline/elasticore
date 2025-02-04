@@ -28,6 +28,9 @@ public interface EntityAnnotation {
     String META_EXTEND = "extend";
 
 
+    String META_IMPLEMENTS = "implements";
+
+
     String META_IMMUTABLE = "immutable";
 
 
@@ -185,4 +188,6 @@ public interface EntityAnnotation {
     String[] EMBEDDED = new String[] {"embedded"};
 
     String[] EMBEDDED_PREFIX = new String[] {"embedded.prefix", "embedded"};
+
+    String[] PRIMITIVE = new String[]{"primitive", "prim"};
 }

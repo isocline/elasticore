@@ -2,6 +2,7 @@ package ${packageName};
 
 import ${enumPackageName}.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ${j2eePkgName}.validation.constraints.NotBlank;
 import ${j2eePkgName}.validation.constraints.NotNull;
@@ -21,7 +22,7 @@ import ${importList};
 ${classAnnotationList}
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {

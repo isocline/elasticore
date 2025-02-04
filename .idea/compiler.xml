@@ -6,19 +6,19 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.22/9c08ea24c6eb714e2d6170e8122c069a0ba9aacf/lombok-1.18.22.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar" />
         </processorPath>
-        <module name="gatehub.webtool.main" />
-        <module name="gatehub.webtool.test" />
+        <module name="io.elasticore.elasticore.elasticore-project.elasticore-base.main" />
+        <module name="io.elasticore.elasticore.elasticore-project.elasticore-base.test" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
+        <option name="generatedPath" value="src/main/java" />
+        <option name="projectPath" value="C:\workspace\Isocline\elasticore\elasticore-project\elasticore-template" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.22/9c08ea24c6eb714e2d6170e8122c069a0ba9aacf/lombok-1.18.22.jar" />
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.4.2.Final/e55bd90d51cddd638c07d5bd89fc7535d4e3d069/mapstruct-processor-1.4.2.Final.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar" />
         </processorPath>
-        <module name="gatehub.apiservice.main" />
-        <module name="gatehub.apiservice.test" />
+        <module name="elasticore-template.elasticore.elasticore-project.elasticore-template.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">

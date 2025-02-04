@@ -1,4 +1,4 @@
-//ecd:-859257541H20250117173851_V1.0
+//ecd:-954577362H20250204014854_V1.0
 package com.test.service;
 
 import com.test.entity.*;
@@ -26,18 +26,18 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ProductCoreService {
+public class CompanyCoreService {
 
     protected final A0RepositoryHelper helper;
 
 
     /**
-     * Retrieves all tProduct entities, converts them to ProductDTO objects, and returns them as a list.
+     * Retrieves all tCompany entities, converts them to CompanyDTO objects, and returns them as a list.
      *
-     * @return a list of ProductDTO objects
+     * @return a list of CompanyDTO objects
      */
-    public List<ProductDTO> findAll() {
-        return helper.getProduct().findAll().stream()
+    public List<CompanyDTO> findAll() {
+        return helper.getCompany().findAll().stream()
                  
                 .map(A0Mapper::toDTO)
                 .collect(Collectors.toList());
@@ -45,13 +45,13 @@ public class ProductCoreService {
 
 
     /**
-     * Retrieves all tProduct entities, converts them to ProductDTO objects, and returns them as a list.
+     * Retrieves all tCompany entities, converts them to CompanyDTO objects, and returns them as a list.
      *
      * @param sort the sort information
-     * @return a list of ProductDTO objects
+     * @return a list of CompanyDTO objects
      */
-    public List<ProductDTO> findAll(Sort sort) {
-        return helper.getProduct().findAll(sort).stream()
+    public List<CompanyDTO> findAll(Sort sort) {
+        return helper.getCompany().findAll(sort).stream()
                  
                 .map(A0Mapper::toDTO)
                 .collect(Collectors.toList());
@@ -59,28 +59,28 @@ public class ProductCoreService {
 
 
     /**
-     * Deletes Product entities that match the given search criteria.
+     * Deletes Company entities that match the given search criteria.
      *
      * @param searchDTO the search criteria
      * @return the number of entities deleted
      */
     @jakarta.transaction.Transactional
-    public long delete(ProductSrchDTO searchDTO) {
-        Specification<Product> specification = A0Mapper.toSpec(searchDTO);
-        return helper.getProduct().delete(specification);
+    public long delete(CompanySrchDTO searchDTO) {
+        Specification<Company> specification = A0Mapper.toSpec(searchDTO);
+        return helper.getCompany().delete(specification);
     }
 
     @Transactional
-    public List<ProductDTO> findBySearch(ProductSrchDTO searchDTO) {
-        Specification<Product> specification = A0Mapper.toSpec(searchDTO);
+    public List<CompanyDTO> findBySearch(CompanySrchDTO searchDTO) {
+        Specification<Company> specification = A0Mapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
         if(sort ==null) {
-            return helper.getProduct().findAll(specification).stream()
+            return helper.getCompany().findAll(specification).stream()
                         
                         .map(A0Mapper::toDTO)
                         .collect(Collectors.toList());
         }
-        return helper.getProduct().findAll(specification, sort).stream()
+        return helper.getCompany().findAll(specification, sort).stream()
                 
                 .map(A0Mapper::toDTO)
                 .collect(Collectors.toList());
@@ -89,92 +89,92 @@ public class ProductCoreService {
 
 
     /**
-     * Finds a Product entity by its ID and converts it to a ProductDTO.
+     * Finds a Company entity by its ID and converts it to a CompanyDTO.
      *
-     * @param pid the ID of the FaxResult entity
-     * @return an Optional containing the ProductDTO if found, or an empty Optional if not found
+     * @param cid the ID of the FaxResult entity
+     * @return an Optional containing the CompanyDTO if found, or an empty Optional if not found
      */
     @Transactional
-    public Optional<ProductDTO> findById(String pid) {
-        return helper.getProduct().findById(pid).map(A0Mapper::toDTO);
+    public Optional<CompanyDTO> findById(String cid) {
+        return helper.getCompany().findById(cid).map(A0Mapper::toDTO);
     }
 
 
     /**
-     * Saves a new Product entity based on the given DTO and returns the saved entity as a DTO.
+     * Saves a new Company entity based on the given DTO and returns the saved entity as a DTO.
      *
-     * @param dto the ProductDTO to save
-     * @return the saved ProductDTO
+     * @param dto the CompanyDTO to save
+     * @return the saved CompanyDTO
      */
-    public ProductDTO save(ProductDTO dto) {
-        Product entity = A0Mapper.toEntity(dto);
+    public CompanyDTO save(CompanyDTO dto) {
+        Company entity = A0Mapper.toEntity(dto);
         
     
 
-        Product result = helper.getProduct().save(entity);
+        Company result = helper.getCompany().save(entity);
         return A0Mapper.toDTO(result);
     }
 
 
     /**
-     * Updates an existing Product entity based on the given DTO and returns the updated entity as a DTO.
+     * Updates an existing Company entity based on the given DTO and returns the updated entity as a DTO.
      *
-     * @param dto the ProductDTO with updated information
-     * @return the updated ProductDTO
+     * @param dto the CompanyDTO with updated information
+     * @return the updated CompanyDTO
      */
-    public ProductDTO update(ProductDTO dto) {
-        Product entity = helper.getProduct().findById(dto.getPid()).orElse(null);
+    public CompanyDTO update(CompanyDTO dto) {
+        Company entity = helper.getCompany().findById(dto.getCid()).orElse(null);
         if(entity==null)
-            throw new EntityNotFoundException("Invalid ProductDTO ID");
+            throw new EntityNotFoundException("Invalid CompanyDTO ID");
         A0Mapper.mapping(dto, entity, true);
         
     
 
 
-        Product result = helper.getProduct().save(entity);
+        Company result = helper.getCompany().save(entity);
         return A0Mapper.toDTO(result);
     }
 
     /**
-     * Deletes a list of Product entities based on the given list of DTOs and returns a list of boolean results
+     * Deletes a list of Company entities based on the given list of DTOs and returns a list of boolean results
      * indicating the success or failure of each deletion.
      *
-     * @param dtoList the list of Product representing the entities to delete
+     * @param dtoList the list of Company representing the entities to delete
      * @return a list of boolean values where each value represents the deletion success (true) or failure (false)
      *         for the corresponding ContractRelated entity
      */
-    public List<Boolean> delete(List<ProductKeyDTO> dtoList) {
+    public List<Boolean> delete(List<CompanyKeyDTO> dtoList) {
         List<Boolean> result = new ArrayList<>();
-        for (ProductKeyDTO dto : dtoList) {
-            result.add(this.deleteById(dto.getPid()));
+        for (CompanyKeyDTO dto : dtoList) {
+            result.add(this.deleteById(dto.getCid()));
         }
         return result;
     }
 
 
     /**
-     * Deletes a Product entity by its ID.
+     * Deletes a Company entity by its ID.
      *
-     * @param pid the ID of the Product entity to delete
-     * @return true if the Product entity was successfully deleted, false if it still exists
+     * @param cid the ID of the Company entity to delete
+     * @return true if the Company entity was successfully deleted, false if it still exists
      */
-    public boolean deleteById(String pid) {
-        helper.getProduct().deleteById(pid);
-        return !helper.getProduct().existsById(pid);
+    public boolean deleteById(String cid) {
+        helper.getCompany().deleteById(cid);
+        return !helper.getCompany().existsById(cid);
     }
 
 
 
 
     /**
-     * Finds the greatest string value of the specified field in Product entities
+     * Finds the greatest string value of the specified field in Company entities
      * that match the given search criteria.
      *
      * @param dto        the search criteria
      * @param fieldName  the name of the field for which to find the maximum value
      * @return the greatest string value of the specified field, or null if no results are found
      */
-    public String findGreatest(ProductSrchDTO dto, String fieldName) {
+    public String findGreatest(CompanySrchDTO dto, String fieldName) {
         return findStringValue("greatest", fieldName, A0Mapper.toSpec(dto));
     }
 
@@ -205,7 +205,7 @@ public class ProductCoreService {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
-        Root<Product> root = cq.from(Product.class);
+        Root<Company> root = cq.from(Company.class);
 
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);
@@ -236,8 +236,8 @@ public class ProductCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,ProductSrchDTO dto) {
-        Specification<Product> spec = A0Mapper.toSpec(dto);
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass,CompanySrchDTO dto) {
+        Specification<Company> spec = A0Mapper.toSpec(dto);
         return findValue(funcName, fieldName, typeClass, spec);
     }
 
@@ -254,11 +254,11 @@ public class ProductCoreService {
      * @return the result of the function applied to the specified field, or null if no result is found
      * @throws IllegalArgumentException if the function name is not recognized
      */
-    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<Product> spec ) {
+    public <T extends Number> T findValue(String funcName, String fieldName, Class<T> typeClass, Specification<Company> spec ) {
         EntityManager em = helper.getEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(typeClass);
-        Root<Product> root = cq.from(Product.class);
+        Root<Company> root = cq.from(Company.class);
 
         Predicate predicate = spec.toPredicate(root, cq, cb);
         cq.where(predicate);
