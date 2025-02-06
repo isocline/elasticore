@@ -36,13 +36,14 @@ dto:
       companyCapital: long -- 회사 자본금
 
 repository:
-  Company:
+  DBMS:
     methods:
       - id: selectJoinData
         return: List<EmployeeCompanyDTO>
         params:
           minAge: int
           maxAge: int
+
         pageable: true
         nativeQuery: true
         query: |
