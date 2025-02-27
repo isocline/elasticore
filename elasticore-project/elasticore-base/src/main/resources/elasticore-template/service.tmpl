@@ -70,6 +70,15 @@ public class ${className} {
     }
 
 /*-- print-if:${isListOutput} --*/
+
+    /**
+     * Finds a list of ${entityClassName} entities that match the given search criteria
+     * and returns them as a list of ${searchResultDTOClassName} objects.
+     * If sorting information is provided in the search criteria, the results are sorted accordingly.
+     *
+     * @param searchDTO the search criteria
+     * @return a list of matching ${searchResultDTOClassName} objects
+     */
     @Transactional
     public List<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
         Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
@@ -84,6 +93,21 @@ public class ${className} {
                 ${mappingCode}
                 .map(${mapperName}::${toSearchListMappingName})
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Finds the first ${entityClassName} entity that matches the given search criteria
+     * and returns it as a ${searchResultDTOClassName} object.
+     * If no matching entity is found, this method returns {@code null}.
+     *
+     * @param searchDTO the search criteria
+     * @return the first matching ${searchResultDTOClassName} object, or {@code null} if no match is found
+     */
+    public ${searchResultDTOClassName} findFirstBySearch(${searchDTOClassName} searchDTO) {
+        List<${searchResultDTOClassName}> list=findBySearch(searchDTO);
+        if(list==null || list.size()==0)
+            return null;
+        return list.get(0);
     }
 /*-- print-if:end --*/
 
@@ -102,6 +126,21 @@ public class ${className} {
         Pageable pageable = searchDTO.getPageable();
         Page<${entityClassName}> result = helper.get${entityClassName}().findAll(specification, pageable);
         return result.map(${mapperName}::${toSearchListMappingName});
+    }
+
+    /**
+     * Finds the first ${entityClassName} entity that matches the given search criteria
+     * and returns it as a ${searchResultDTOClassName} object.
+     *
+     * @param searchDTO the search criteria
+     * @return the first matching ${searchResultDTOClassName} object, or {@code null} if no match is found
+     */
+    public ${searchResultDTOClassName} findFirstBySearch(${searchDTOClassName} searchDTO) {
+        Page<${searchResultDTOClassName}> pages= findBySearch(searchDTO);
+        List<${searchResultDTOClassName}> list=pages.getContent();
+        if(list==null || list.size()==0)
+            return null;
+        return list.get(0);
     }
 
 
