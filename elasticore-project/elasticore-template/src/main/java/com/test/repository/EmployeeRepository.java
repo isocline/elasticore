@@ -1,4 +1,4 @@
-//ecd:5056720H20250204110511_V1.0
+//ecd:-463350859H20250310225833_V1.0
 package com.test.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +20,7 @@ import com.test.dto.*;
 
  */
 
-public interface EmployeeRepository extends JpaRepository<Employee,String>, JpaSpecificationExecutor<Employee> {
+public interface EmployeeRepository extends JpaRepository<Employee,Integer>, JpaSpecificationExecutor<Employee> {
 
 
 

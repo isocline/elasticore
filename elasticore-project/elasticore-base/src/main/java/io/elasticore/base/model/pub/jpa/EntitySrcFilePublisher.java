@@ -705,7 +705,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 }
 
 
-                paragraph.add("@OneToMany(fetch = FetchType.%s %s)",fetchType,extPropsTxt);
+                if(!field.hasAnnotation("jpa:onetomany")) {
+                    paragraph.add("@OneToMany(fetch = FetchType.%s %s)", fetchType, extPropsTxt);
+                }
             }
 
         } else if (isEntityType) {
@@ -734,7 +736,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
                 String joinFieldName = field.getName() + "_id";
-                if (!field.hasAnnotation(EntityAnnotation.JOIN)) {
+                if (!field.hasAnnotation(EntityAnnotation.JOIN) && !field.hasAnnotation("jpa:joincolumn") ) {
                     String nullable = "true";
                     if(field.hasAnnotation(EntityAnnotation.NOT_NULL)) {
                         nullable = "false";
@@ -911,7 +913,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list.add("columnDefinition=\"" + fieldNm + "\"");
         }
 
-        if (list.size() > 0) {
+        if (list.size() > 0 && !field.hasAnnotation("jpa:joincolumn")) {
             String txt = "@JoinColumn(" + String.join(", ", list) + ")";
             paragraph.add(txt);
         }

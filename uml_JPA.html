@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid UML Diagram</title>
+    <!-- Mermaid CDN -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .mermaid {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Entity Class Diagram</h1>
+    <div class="mermaid">
+%%{
+init: {
+"theme": "base",
+
+"logLevel": "info",
+"flowchart": {
+  "htmlLabels": true,
+  "curve": "linear"
+},
+"sequence": {
+  "mirrorActors": true
+},
+ 'themeVariables': {
+      'primaryBorderColor': 'gray', 'background': 'white'
+},
+'class' : { 'layoutDirection':'LR' }
+}
+}%%
+
+classDiagram
+    class Address:::embeddable{
+        &lt;&lt;embeddable &gt;&gt;
+        postNo: String //우편번호
+        postNo2: String //우편번호 2
+        baseAddr: String //기본 주소
+        detailAddr: String //상세 주소
+    }
+    class Company{
+        cid: String[PK] //PK
+        name: String //회사명
+        emps: Employee[] 
+        regNo: String 
+    }
+    Company --o "0..*" Employee : emps
+    class Employee{
+        id: Integer[PK] 
+        name: String 
+        empNo: String //사원 번호 (자동 생성 및 유니크)
+    }
+
+
+    classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5
+    classDef embeddable fill:#ddd,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5
+    </div>
+</body>
+</html>

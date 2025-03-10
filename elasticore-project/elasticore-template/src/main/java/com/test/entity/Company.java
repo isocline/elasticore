@@ -1,4 +1,4 @@
-//ecd:1633440169H20250204004214_V1.0
+//ecd:-754387731H20250310230523_V1.0
 package com.test.entity;
 
 
@@ -28,7 +28,7 @@ import jakarta.persistence.Entity;
 @NoArgsConstructor
 
 @EntityListeners(AuditingEntityListener.class)
-public  class Company extends AuditEntity implements java.io.Serializable  {
+public  class Company  implements java.io.Serializable  {
 
 	/*
 	  PK
@@ -54,12 +54,14 @@ public  class Company extends AuditEntity implements java.io.Serializable  {
 	private String name;
 	
 	
-	/*
-	  직원
-	*/
-	@Comment("직원")
-	@OneToMany(fetch = FetchType.LAZY ,mappedBy="company")
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Employee> emps;
+	
+	
+	@Column(name = "reg_no")
+	@jakarta.validation.constraints.Pattern( regexp = "^\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])[1-4]\\d{6}$", message = "유효하지 않은 주민등록번호 형식입니다. (예. 9001011234567)" )
+	@jakarta.validation.constraints.NotNull
+	private String regNo;
 	
 	
 }

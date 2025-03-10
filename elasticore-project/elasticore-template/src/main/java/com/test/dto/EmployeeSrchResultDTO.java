@@ -1,4 +1,4 @@
-//ecd:-107864592H20250204014448_V1.0
+//ecd:-1785115882H20250311000811_V1.0
 package com.test.dto;
 
 
@@ -26,14 +26,20 @@ import java.time.*;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class CompanyKeyDTO  implements java.io.Serializable  {
+public  class EmployeeSrchResultDTO  implements java.io.Serializable  {
 
+	@Schema(description = "id"  )
+	private Integer id;
+	
+	@Schema(description = "name"  )
+	private String name;
+	
 	/*
-	  PK
+	  사원 번호 (자동 생성 및 유니크)
 	*/
-	@Schema(description = "PK"  )
-	@Size(max=30)
-	private String cid;
+	@Schema(description = "사원 번호 (자동 생성 및 유니크)"  )
+	@Size(max=15)
+	private String empNo;
 	
 
 }

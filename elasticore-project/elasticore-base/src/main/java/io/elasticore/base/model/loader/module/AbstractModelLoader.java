@@ -272,7 +272,18 @@ public class AbstractModelLoader implements ConstanParam {
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\('([^']*?)'\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(('([^']*?)'|[^()]*?)\\))?");
         //Pattern pattern = Pattern.compile("@(\\w+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
-        Pattern pattern = Pattern.compile("@([\\w:.]+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
+
+        //Pattern pattern = Pattern.compile("@([\\w:.]+(?::\\w+)?)(?:\\(([^()]*(?:\\([^)]*\\))?[^()]*)\\))?");
+        //Pattern pattern = Pattern.compile("@([\\w:.]+)\\s*\\((.*)\\)", Pattern.DOTALL);
+
+        //Pattern pattern = Pattern.compile("@([\\w:.]+(?:[:]\\w+)?)(?:\\((([^()]|\"[^\"]*\")*?)\\))?",Pattern.DOTALL);
+        Pattern pattern = Pattern.compile("@([\\w:.]+(?:[:]\\w+)?)(?:\\((([^()]*|\\([^()]*\\)|\"[^\"]*\")*?)\\))?", Pattern.DOTALL);
+
+
+
+
+
+
 
 
 
