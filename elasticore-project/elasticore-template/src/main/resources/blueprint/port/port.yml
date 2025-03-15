@@ -1,0 +1,65 @@
+## SPI , Driven Port
+
+Port:
+  VonageService:
+    meta: vonage @custom @interface(test)
+    methods:
+      callsms:
+        params:
+          param: SearchParamsDTO @querystring
+          srch: SearchCriteriaDTO @body
+        return: java.util.HashMap
+
+  SfaPortService:
+    meta: restapi @server("http://server.com")
+    methods:
+      listPlan:
+       meta: @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST")
+       params:
+         param: SearchParamsDTO @querystring
+         srch: SearchCriteriaDTO @body
+       return: java.util.HashMap
+
+
+  PurioPortService:
+    meta: restapi @server("http://server.com")
+
+    methods:
+      getToken:
+        meta: @HttpEndpoint(url="/test", method="POST")
+        params:
+          authProvider: AuthProvider
+        return: TokenOutput
+
+      sendMessage:
+        meta: @HttpEndpoint(url = "/v3/message", method = "POST")
+        params:
+          authProvider: AuthProvider
+          message: MsgInput @body
+        return: MsgOutput
+
+
+  DataQueryPortService:
+    meta: dbms @datasource("test")
+    methods:
+
+      countAllMessagesByMonths:
+        meta:
+        param: output
+        return: DataDTO
+        query: |
+          select
+             f.id,
+             f.item_code,
+             f.item_name
+             from
+             fee_item f
+             where
+             1=1
+             and f.item_name like CONCAT('%',:name,'%') /* if:input.name != null */
+          
+             /* if:code */
+             and f.item_code like CONCAT('%',:code,'%')
+        
+        
+        

@@ -1,0 +1,36 @@
+
+enumeration:
+  CustomerType:
+    meta: enum @json(code) @db(code)  -- 고객 타입
+    fields:
+      code: string(2)
+      msg: string
+    enum:
+      PRIVATE: PR,개인
+      BUSINESS: BS,개인 사업자
+      CORPORATION: CP,법인
+
+entity:
+  InsureInfo:
+    meta: entity  @jpa:EqualsAndHashCode -- 보험 정보 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      id2: long @id
+
+      name: string(12) @db(vae_test)
+
+      customerType: List<CustomerType> @s(in) -- 고객 분류 / 기준2
+
+
+dto:
+
+  InsureInfoDTO:
+    meta: dto @template(InsureInfo)
+    fields:
+
+
+  InsureInfoSrchDTO:
+    meta: dto @searchable(entity=InsureInfo)
+    fields:
+      insureCompanyId: string(12) @s(eq) @ref(insureCompany.id)
+      customerType: List<CustomerType> @s(in)

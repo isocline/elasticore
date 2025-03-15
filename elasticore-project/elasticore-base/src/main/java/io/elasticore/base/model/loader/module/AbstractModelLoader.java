@@ -103,6 +103,7 @@ public class AbstractModelLoader implements ConstanParam {
                     String key = kvMatcher.group(1);
                     String value = kvMatcher.group(2);
                     value = StringUtils.removeQuotes(value);
+                    value = StringUtils.removeDoubleQuotes(value);
                     properties.setProperty(key, value);
                 } else if (kvMatcher.group(3) != null) {
                     singleValue = kvMatcher.group(3);

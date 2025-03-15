@@ -10,18 +10,20 @@ entity:
 
 
   Company:
-    meta: entity -- 회사
+    meta: entity @dto -- 회사
     fields:
       cid: string(30) @id @genid -- PK
-      name: string -- 회사명
+      name: string @notnull(validation=true) -- 회사명
 
       emps: List<Employee> @jpa:OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)-- 직원
       regNo: string |
-        @jpa:jakarta.validation.constraints.NotNull
-        @jpa:jakarta.validation.constraints.Pattern(
-        regexp = "^\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])[1-4]\\d{6}$",
-        message = "유효하지 않은 주민등록번호 형식입니다. (예. 9001011234567)"
+        @notnull
+        @Pattern(
+          regexp = "^\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])[1-4]\\d{6}$",
+          message = "유효하지 않은 주민등록번호 형식입니다.2 (예. 9001011234567)"
         )
+        -- 주민번호
+
 
   Employee:
     meta: entity

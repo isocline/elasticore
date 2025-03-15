@@ -166,6 +166,17 @@ public class StringUtils {
     }
 
 
+    public static String removeDoubleQuotes(String str) {
+        if (str == null || str.length() < 2) {
+            return str;
+        }
+        String str2 = str.trim();
+        if (str2.charAt(0) == '\"' && str2.charAt(str2.length() - 1) == '\"') {
+            return str2.substring(1, str2.length() - 1);
+        }
+        return str;
+    }
+
     /**
      * List<Object[]>  -->  Object[]
      *

@@ -38,4 +38,14 @@ public interface DataTransferAnnotation extends EntityAnnotation {
     String[] META_JSON_INCLUDE = new String[]{"jsoninclude", "includejson"};
 
 
+    /**
+     * pattern annotaion for DTO
+     */
+    String PATTERN = "pattern";
+
+    String PATTERN_REGEX = "pattern.regexp";
+
+    String PATTERN_MSG = "pattern.message";
+
+
 }

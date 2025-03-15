@@ -369,6 +369,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             CodeTemplate.Paragraph p2 = CodeTemplate.newParagraph();
             p2.add("@Embeddable");
+            p2.add("@lombok.EqualsAndHashCode");
             p2.add("@AllArgsConstructor");
 
             CodeTemplate.Parameters param = CodeTemplate.newParameters();

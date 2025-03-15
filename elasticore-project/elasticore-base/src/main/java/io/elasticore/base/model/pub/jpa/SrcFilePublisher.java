@@ -174,6 +174,10 @@ public class SrcFilePublisher {
 
 
     public String getPersistentPackageName(ModelDomain domain) {
+        if(domain==null) {
+            domain = this.publisher.getECoreModelContext().getDomain();
+        }
+
         try {
             if ("jakarta".equals(domain.getModel().getConfig("j2ee")))
                 return "jakarta";
@@ -401,11 +405,28 @@ public class SrcFilePublisher {
 
     protected void setFieldValidation(Field f, CodeTemplate.Paragraph p) {
 
-        if (f.hasAnnotation("notnull"))
+        if (f.hasAnnotation("notnull") && !f.hasAnnotation("dto:jakarta.validation.constraints.NotNull"))
             p.add("@NotNull");
 
         if (f.hasAnnotation("notblank"))
             p.add("@NotBlank");
+
+        if (f.hasAnnotation(DataTransferAnnotation.PATTERN) && !f.hasAnnotation("dto:jakarta.validation.constraints.Pattern")) {
+            String regexp = f.getAnnotationValue(DataTransferAnnotation.PATTERN_REGEX);
+            if(regexp != null && regexp.length() > 0) {
+                String msg = f.getAnnotationValue(DataTransferAnnotation.PATTERN_MSG);
+                if(msg !=null && msg.length()>0) {
+                    String persistentPackageName = getPersistentPackageName(null);
+
+                    p.add("@"+persistentPackageName+".validation.constraints.Pattern(");
+                    p.add(" regexp=\""+regexp+"\",");
+                    p.add(" msg=\""+msg+"\"");
+                    p.add(")");
+                }
+            }
+
+        }
+
 
         String minSize = f.getAnnotationValue(EntityAnnotation.MIN_SIZE);
         String maxSize = f.getAnnotationValue(EntityAnnotation.LENGTH);

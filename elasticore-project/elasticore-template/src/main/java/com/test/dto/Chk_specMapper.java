@@ -1,4 +1,4 @@
-//ecd:1724754920H20250310231154_V1.0
+//ecd:614197490H20250313130133_V1.0
 package com.test.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -16,9 +16,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import com.test.entity.*;
 import com.test.dto.*;
+import com.test.enums.*;
 
-
-
+import com.test.enums.*;
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
@@ -27,7 +27,7 @@ import io.elasticore.runtime.security.TransformPermissionChecker;
  */
 
 
-public class JPAMapper {
+public class Chk_specMapper {
 
     private static TransformPermissionChecker permissionChecker;
 
@@ -45,62 +45,40 @@ public class JPAMapper {
     }
 
     
-    public static void mapping(Address from, AddressDTO to, boolean isSkipNull){
-        checkPermission(from, to);
-        if(from ==null || to ==null) return;
-        setVal(from.getPostNo(), to::setPostNo, isSkipNull);
-        setVal(from.getPostNo2(), to::setPostNo2, isSkipNull);
-        setVal(from.getBaseAddr(), to::setBaseAddr, isSkipNull);
-        setVal(from.getDetailAddr(), to::setDetailAddr, isSkipNull);
-    }
-    
-    
-    public static void mapping(Address from, AddressDTO to){
-        mapping(from,to,false);
-    }
-    
-    
-    public static AddressDTO toDTO(Address from){
-        if(from==null) return null;
-        AddressDTO to = new AddressDTO();
-        mapping(from, to);
-        return to;
-    }
-    
-    
-    public static void mapping(Employee from, EmployeeSrchResultDTO to, boolean isSkipNull){
+    public static void mapping(InsureInfo from, InsureInfoDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
         setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getId2(), to::setId2, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
-        setVal(from.getEmpNo(), to::setEmpNo, isSkipNull);
+        setVal(from.getCustomerType(), to::setCustomerType, isSkipNull);
     }
     
     
-    public static void mapping(Employee from, EmployeeSrchResultDTO to){
+    public static void mapping(InsureInfo from, InsureInfoDTO to){
         mapping(from,to,false);
     }
     
     
-    public static EmployeeSrchResultDTO toEmployeeSrchResultDTO(Employee from){
+    public static InsureInfoDTO toDTO(InsureInfo from){
         if(from==null) return null;
-        EmployeeSrchResultDTO to = new EmployeeSrchResultDTO();
+        InsureInfoDTO to = new InsureInfoDTO();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<EmployeeSrchResultDTO> toEmployeeSrchResultDTOList(List<Employee> fromList){
+    public static List<InsureInfoDTO> toInsureInfoDTOList(List<InsureInfo> fromList){
         if(fromList==null) return null;
-        return fromList.stream().map(JPAMapper::toEmployeeSrchResultDTO).collect(Collectors.toList());
+        return fromList.stream().map(Chk_specMapper::toDTO).collect(Collectors.toList());
     }
     
     
-    public static List<EmployeeSrchResultDTO> toEmployeeSrchResultDTOList(List<Employee> fromList, BiFunction<Employee, EmployeeSrchResultDTO, EmployeeSrchResultDTO> modifier){
+    public static List<InsureInfoDTO> toInsureInfoDTOList(List<InsureInfo> fromList, BiFunction<InsureInfo, InsureInfoDTO, InsureInfoDTO> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                EmployeeSrchResultDTO to = toEmployeeSrchResultDTO(from);
+                InsureInfoDTO to = toDTO(from);
                 return modifier.apply(from, to);
             }
             )
@@ -110,39 +88,66 @@ public class JPAMapper {
     }
     
     
-    public static void mapping(AddressDTO from, Address to, boolean isSkipNull){
+    public static void mapping(InsureInfoDTO from, InsureInfo to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getPostNo(), to::setPostNo, isSkipNull);
-        setVal(from.getPostNo2(), to::setPostNo2, isSkipNull);
-        setVal(from.getBaseAddr(), to::setBaseAddr, isSkipNull);
-        setVal(from.getDetailAddr(), to::setDetailAddr, isSkipNull);
+        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getId2(), to::setId2, isSkipNull);
+        setVal(from.getName(), to::setName, isSkipNull);
+        setVal(from.getCustomerType(), to::setCustomerType, isSkipNull);
     }
     
     
-    public static void mapping(AddressDTO from, Address to){
+    public static void mapping(InsureInfoDTO from, InsureInfo to){
         mapping(from,to,false);
     }
     
     
-    public static Address toEntity(AddressDTO from){
+    public static InsureInfo toEntity(InsureInfoDTO from){
         if(from==null) return null;
-        Address to = new Address();
+        InsureInfo to = new InsureInfo();
         mapping(from, to);
         return to;
     }
     
     
-    public static Specification<Address> toSpec(AddressSrchDTO searchDTO){
+    public static List<InsureInfo> toInsureInfoList(List<InsureInfoDTO> fromList){
+        if(fromList==null) return null;
+        return fromList.stream().map(Chk_specMapper::toEntity).collect(Collectors.toList());
+    }
+    
+    
+    public static List<InsureInfo> toInsureInfoList(List<InsureInfoDTO> fromList, BiFunction<InsureInfoDTO, InsureInfo, InsureInfo> modifier){
+        if(fromList==null) return null;
+        return fromList.stream()
+            .map(from -> {
+                InsureInfo to = toEntity(from);
+                return modifier.apply(from, to);
+            }
+            )
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+    }
+    
+    
+    public static Specification<InsureInfo> toSpec(InsureInfoSrchDTO searchDTO){
         return toSpec(searchDTO, Specification.where(null));
     }
     
     
-    public static Specification<Address> toSpec(AddressSrchDTO searchDTO, Specification<Address> sp){
-        sp=setSpec(sp, "postNo", searchDTO.getPostNo());
-        sp=setSpec(sp, "postNo2", searchDTO.getPostNo2());
-        sp=setSpec(sp, "baseAddr", searchDTO.getBaseAddr());
-        sp=setSpec(sp, "detailAddr", searchDTO.getDetailAddr());
+    public static Specification<InsureInfo> toSpec(InsureInfoSrchDTO searchDTO, Specification<InsureInfo> sp){
+        String insureCompanyId = searchDTO.getInsureCompanyId();
+        if(hasValue(insureCompanyId)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("insureCompany").get("id"),insureCompanyId));
+        }
+        List<CustomerType> customerType = searchDTO.getCustomerType();
+        if(hasValue(customerType)){
+            sp = sp.and((root, query, criteriaBuilder) -> {
+                Join<InsureInfo, CustomerType> join = root.join("customerType");
+                return join.in(customerType);
+            });
+        }
         return sp;
     }
     

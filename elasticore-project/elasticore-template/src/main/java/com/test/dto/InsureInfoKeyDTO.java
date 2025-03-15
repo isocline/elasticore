@@ -1,7 +1,7 @@
-//ecd:-1785115882H20250311000811_V1.0
+//ecd:-549355199H20250313130133_V1.0
 package com.test.dto;
 
-
+import com.test.enums.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
-
+import com.test.enums.*;
 
 
 /**
@@ -26,20 +26,17 @@ import java.time.*;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class EmployeeSrchResultDTO  implements java.io.Serializable  {
+public  class InsureInfoKeyDTO  implements java.io.Serializable  {
 
-	@Schema(description = "id"  )
-	private Integer id;
-	
-	@Schema(description = "name"  )
-	private String name;
-	
 	/*
-	  사원 번호 (자동 생성 및 유니크)
+	  아이디
 	*/
-	@Schema(description = "사원 번호 (자동 생성 및 유니크)"  )
-	@Size(max=15)
-	private String empNo;
+	@Schema(description = "아이디"  )
+	@Size(max=12)
+	private String id;
+	
+	@Schema(description = "id2"  )
+	private Long id2;
 	
 
 }

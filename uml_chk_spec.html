@@ -45,24 +45,11 @@ init: {
 }%%
 
 classDiagram
-    class Address:::embeddable{
-        &lt;&lt;embeddable &gt;&gt;
-        postNo: String //우편번호
-        postNo2: String //우편번호 2
-        baseAddr: String //기본 주소
-        detailAddr: String //상세 주소
-    }
-    class Company{
-        cid: String[PK] //PK
-        name: String //회사명
-        emps: Employee[] 
-        regNo: String //주민번호
-    }
-    Company --o "0..*" Employee : emps
-    class Employee{
-        id: Integer[PK] 
+    class InsureInfo{
+        id: String[PK] //아이디
+        id2: Long[PK] 
         name: String 
-        empNo: String //사원 번호 (자동 생성 및 유니크)
+        customerType: CustomerType[] //고객 분류 / 기준2
     }
 
 
