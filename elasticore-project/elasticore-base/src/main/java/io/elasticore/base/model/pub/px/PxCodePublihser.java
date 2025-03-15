@@ -13,7 +13,7 @@ import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.pub.jpa.EnumFilePublisher;
 import io.elasticore.base.model.pub.jpa.RepositoryFilePublisher;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
 
@@ -75,7 +75,7 @@ public class PxCodePublihser implements CodePublisher {
         RepositoryModels repositoryModels = model.getRepositoryModels();
 
         while (repositoryModels.getItems().hasNext()) {
-            Port repoModel = repositoryModels.getItems().next();
+            Repository repoModel = repositoryModels.getItems().next();
 
             repositoryCodePublisher.publish(domain, repoModel);
         }

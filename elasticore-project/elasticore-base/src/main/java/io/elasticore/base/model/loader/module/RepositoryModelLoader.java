@@ -11,7 +11,7 @@ import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.model.repo.Method;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.SqlQueryInfo;
 import io.elasticore.base.util.MapWrapper;
 import net.sf.jsqlparser.expression.Expression;
@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RepositoryModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Port> {
+public class RepositoryModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Repository> {
 
 
     private ModelLoaderContext ctx;
@@ -57,10 +57,10 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
     }
 
 
-    public void loadModel(Items<Port> items, Map<String, LinkedHashMap> entityMap) {
+    public void loadModel(Items<Repository> items, Map<String, LinkedHashMap> entityMap) {
         entityMap.forEach((repoName, value) -> {
 
-            Port repo = loadRepository(repoName, value);
+            Repository repo = loadRepository(repoName, value);
             if(repo!=null)
                 items.addItem(repo);
         });
@@ -74,7 +74,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
             BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, ctx.getDomainId(), entityNm);
             if (this.ctx.getRepositoryItems().find(identity) == null) {
 
-                Port repo = Port.create(ctx.getDomainId(), entityNm, null, null);
+                Repository repo = Repository.create(ctx.getDomainId(), entityNm, null, null);
                 this.ctx.getRepositoryItems().addItem(repo);
             }
         }
@@ -86,7 +86,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
 
     }
 
-    protected Port loadRepository(String entityNm, Map<String, Object> entityMap) {
+    protected Repository loadRepository(String entityNm, Map<String, Object> entityMap) {
 
         MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_REPOSITORY, entityNm);
 
@@ -106,7 +106,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
         }
 
         //return Repository.create(entityNm, methodItems, null);
-        return Port.create(ctx.getDomainId(), entityNm, methodItems, metaInfo);
+        return Repository.create(ctx.getDomainId(), entityNm, methodItems, metaInfo);
 
     }
 

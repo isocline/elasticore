@@ -11,7 +11,7 @@ import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.repo.Method;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.model.repo.SqlQueryInfo;
 import io.elasticore.base.util.CodeTemplate;
@@ -94,7 +94,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
     }
 
-    private boolean isEnable(Port repo) {
+    private boolean isEnable(Repository repo) {
         String targetModelName = repo.getIdentity().getName();
         ModelDomain modelDomain =BaseModelDomain.getModelDomain(repo.getIdentity().getDomainId());
 
@@ -117,12 +117,12 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
     private void loadRepositoryInfo(RepositoryModels repositoryModels, CodeTemplate.Paragraph fieldP, CodeTemplate.Paragraph methodP) {
         //private final ContactInfoRepository contactInfo;
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
-        ModelComponentItems<Port> repoItems = repositoryModels.getItems();
+        ModelComponentItems<Repository> repoItems = repositoryModels.getItems();
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
 
         while (repoItems.hasNext()) {
-            Port repo = repoItems.next();
+            Repository repo = repoItems.next();
             if(!isEnable(repo))
                 continue;
 

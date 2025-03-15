@@ -13,7 +13,7 @@ import io.elasticore.base.model.enums.EnumModels;
 
 
 import io.elasticore.base.model.pub.jpa.*;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 
 public class MongoDbCodePublisher extends JPACodePublisher {
@@ -79,9 +79,9 @@ public class MongoDbCodePublisher extends JPACodePublisher {
         RepositoryFilePublisher repositoryCodePublisher = new RepositoryFilePublisher(this);
         RepositoryModels repositoryModels = model.getRepositoryModels();
 
-        ModelComponentItems<Port> items1 = repositoryModels.getItems();
+        ModelComponentItems<Repository> items1 = repositoryModels.getItems();
         while (items1.hasNext()) {
-            Port repoModel = items1.next();
+            Repository repoModel = items1.next();
             repositoryCodePublisher.publish(domain, repoModel);
         }
 

@@ -17,11 +17,11 @@ public class RepositoryModels {
     private final MetaInfo meta;
 
 
-    private final Items<Port> orgItems;
+    private final Items<Repository> orgItems;
 
-    private ModelComponentItems<Port> items;
+    private ModelComponentItems<Repository> items;
 
-    private RepositoryModels(ComponentIdentity identity, MetaInfo meta, Items<Port> items) {
+    private RepositoryModels(ComponentIdentity identity, MetaInfo meta, Items<Repository> items) {
         this.identity = identity;
 
         this.meta = meta;
@@ -29,14 +29,14 @@ public class RepositoryModels {
 
     }
 
-    public ModelComponentItems<Port> getItems() {
+    public ModelComponentItems<Repository> getItems() {
         if(items ==null ||  !items.hasNext())
             this.items = new BaseModelComponentItem(orgItems);
         return this.items;
     }
 
 
-    public static RepositoryModels create(String domainId, String name, MetaInfo meta, Items<Port> items) {
+    public static RepositoryModels create(String domainId, String name, MetaInfo meta, Items<Repository> items) {
         ComponentIdentity identity = BaseComponentIdentity.create(ComponentType.ENTITY_GROUP, domainId, name);
         return new RepositoryModels(identity, meta, items);
 

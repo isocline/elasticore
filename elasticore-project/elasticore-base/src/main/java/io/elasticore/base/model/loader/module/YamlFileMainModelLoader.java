@@ -13,7 +13,7 @@ import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.MainModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
 
@@ -45,7 +45,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         io.elasticore.base.model.loader.ModelLoader<Entity> entityModelLoader = new EntityModelLoader();
         io.elasticore.base.model.loader.ModelLoader<EnumModel> enumerationModelLoader = new EnumerationModelLoader();
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new DataTransferModelLoader();
-        io.elasticore.base.model.loader.ModelLoader<Port> repositoryModelLoader = new RepositoryModelLoader();
+        io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
 
 
         for (FileSource fileSource : fileSources) {

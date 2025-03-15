@@ -11,7 +11,7 @@ import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.PkField;
 import io.elasticore.base.model.pub.jpa.SrcFilePublisher;
 import io.elasticore.base.model.repo.Method;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
@@ -53,7 +53,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
 
     }
 
-    public void publish(ModelDomain domain, Port repo) {
+    public void publish(ModelDomain domain, Repository repo) {
 
         String targetModelName = repo.getIdentity().getName();
         Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetModelName, Entity.class);
@@ -100,7 +100,7 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
             nativeQuery = true
     )
      */
-    private CodeTemplate.Paragraph getMethodInfo(Port repo) {
+    private CodeTemplate.Paragraph getMethodInfo(Repository repo) {
         ModelComponentItems<Method> methodItems = repo.getItems();
 
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.base.model.loader.javasrc.JavaSrcFileMainModelLoader;
 import io.elasticore.base.model.loader.module.*;
 import io.elasticore.base.model.loader.px.PxFileMainModelLoader;
-import io.elasticore.base.model.repo.Port;
+import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 
 
@@ -100,7 +100,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         io.elasticore.base.model.loader.ModelLoader<Entity> entityModelLoader = new EntityModelLoader();
         io.elasticore.base.model.loader.ModelLoader<EnumModel> enumerationModelLoader = new EnumerationModelLoader();
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new DataTransferModelLoader();
-        io.elasticore.base.model.loader.ModelLoader<Port> repositoryModelLoader = new RepositoryModelLoader();
+        io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
 
 
         for (FileSource fileSource : fileSources) {
