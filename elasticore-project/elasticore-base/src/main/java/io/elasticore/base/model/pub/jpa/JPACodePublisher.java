@@ -14,7 +14,7 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
-import io.elasticore.base.model.repo.Repository;
+import io.elasticore.base.model.repo.Port;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.HashUtils;
@@ -225,9 +225,9 @@ public class JPACodePublisher implements CodePublisher {
         RepositoryFilePublisher repositoryCodePublisher = new RepositoryFilePublisher(this);
         RepositoryModels repositoryModels = model.getRepositoryModels();
 
-        ModelComponentItems<Repository> items1 = repositoryModels.getItems();
+        ModelComponentItems<Port> items1 = repositoryModels.getItems();
         while (items1.hasNext()) {
-            Repository repoModel = items1.next();
+            Port repoModel = items1.next();
             repositoryCodePublisher.publish(domain, repoModel);
         }
 

@@ -16,6 +16,9 @@ public enum ComponentType {
     ENUM("enumeration"),
     ENUM_GROUP("enumGrp"),
 
+    PORT("port"),
+    PORT_GROUP("portGrp"),
+
 
     IO("io"), //dto
     SERVICE("service");

@@ -9,18 +9,17 @@ import io.elasticore.base.model.core.AbstractReplaceableModel;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.BaseModelComponentItem;
 import io.elasticore.base.model.core.Items;
-import io.elasticore.base.model.entity.Field;
 import lombok.Getter;
 
 @Getter
-public class Repository extends AbstractReplaceableModel {
+public class Port extends AbstractReplaceableModel {
 
     private final MetaInfo metaInfo;
     private ModelComponentItems<Method> items;
 
     private Items<Method> orgItems;
 
-    private Repository(ComponentIdentity id, Items<Method> items, MetaInfo metaInfo) {
+    private Port(ComponentIdentity id, Items<Method> items, MetaInfo metaInfo) {
         super(id);
 
         if(items==null)
@@ -35,9 +34,9 @@ public class Repository extends AbstractReplaceableModel {
 
     }
 
-    public static Repository create(String domainId, String name, Items<Method> items, MetaInfo metaInfo) {
+    public static Port create(String domainId, String name, Items<Method> items, MetaInfo metaInfo) {
         BaseComponentIdentity identity = BaseComponentIdentity.create(ComponentType.REPOSITORY, domainId, name);
-        return new Repository(identity, items, metaInfo);
+        return new Port(identity, items, metaInfo);
     }
 
     public ModelComponentItems<Method> getItems() {
