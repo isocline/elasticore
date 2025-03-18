@@ -16,6 +16,7 @@ import io.elasticore.base.model.loader.module.*;
 import io.elasticore.base.model.loader.px.PxFileMainModelLoader;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
+import io.elasticore.base.model.port.Port;
 
 
 import java.io.File;
@@ -102,6 +103,8 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new DataTransferModelLoader();
         io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
 
+        io.elasticore.base.model.loader.ModelLoader<Port> portModelLoader = new PortModelLoader();
+
 
         for (FileSource fileSource : fileSources) {
 
@@ -115,7 +118,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
             enumerationModelLoader.loadModel(context, fileSource);
             dataTransferModelLoader.loadModel(context, fileSource);
             repositoryModelLoader.loadModel(context, fileSource);
-
+            portModelLoader.loadModel(context, fileSource);
         }
 
         entityModelLoader.completeLoad();

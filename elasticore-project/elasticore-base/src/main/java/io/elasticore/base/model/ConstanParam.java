@@ -21,6 +21,10 @@ public interface ConstanParam {
 
     String KEYNAME_CONTROL = "control";
 
+    String KEYNAME_PORT = "port";
+
+    String KEYNAME_METHOD = "method";
+
 
 
 

@@ -1,0 +1,54 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish' // 필요시 원격 배포
+}
+
+group = 'io.elasticore.springboot3'
+version = '1.0.0'
+description = 'Spring Boot 3 Common Library'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17)) // 최소 Java 17 지원 (Spring Boot 3 요구사항)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.2.2')
+
+    implementation project(':elasticore-project:elasticore-base')
+
+    api 'org.springframework:spring-context:6.1.2' // Spring Boot 3.x
+    api 'org.springframework:spring-beans:6.1.2'
+    api 'org.springframework:spring-web:6.1.2'
+
+    implementation 'org.reflections:reflections:0.10.2'
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    implementation 'io.projectreactor:reactor-core:3.5.6'
+    implementation 'io.netty:netty-handler:4.1.94.Final'
+
+
+
+    // 테스트 관련
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+

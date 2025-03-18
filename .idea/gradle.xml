@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/elasticore-project" />
             <option value="$PROJECT_DIR$/elasticore-project/elasticore-base" />
+            <option value="$PROJECT_DIR$/elasticore-project/elasticore-springboot3" />
             <option value="$PROJECT_DIR$/elasticore-project/elasticore-template" />
           </set>
         </option>

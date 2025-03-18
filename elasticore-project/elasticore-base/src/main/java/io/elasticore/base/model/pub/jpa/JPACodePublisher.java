@@ -252,6 +252,10 @@ public class JPACodePublisher implements CodePublisher {
         ControlSrcPublisher controlSrcPublisher = new ControlSrcPublisher(this);
         controlSrcPublisher.publish(domain);
 
+        // Port service
+        PortSrcPublisher portSrcPublisher = new PortSrcPublisher(this);
+        portSrcPublisher.publish(domain);
+
 
         printInfo(ctx, domain);
     }

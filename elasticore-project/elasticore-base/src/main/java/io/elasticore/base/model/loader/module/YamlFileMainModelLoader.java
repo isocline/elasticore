@@ -13,6 +13,8 @@ import io.elasticore.base.model.enums.EnumModels;
 import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.MainModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
+import io.elasticore.base.model.port.Port;
+import io.elasticore.base.model.port.PortModels;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
@@ -46,6 +48,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         io.elasticore.base.model.loader.ModelLoader<EnumModel> enumerationModelLoader = new EnumerationModelLoader();
         io.elasticore.base.model.loader.ModelLoader<DataTransfer> dataTransferModelLoader = new DataTransferModelLoader();
         io.elasticore.base.model.loader.ModelLoader<Repository> repositoryModelLoader = new RepositoryModelLoader();
+        io.elasticore.base.model.loader.ModelLoader<Port> portModelLoader = new PortModelLoader();
 
 
         for (FileSource fileSource : fileSources) {
@@ -60,17 +63,19 @@ public class YamlFileMainModelLoader implements MainModelLoader {
             enumerationModelLoader.loadModel(context, fileSource);
             dataTransferModelLoader.loadModel(context, fileSource);
             repositoryModelLoader.loadModel(context, fileSource);
-
+            portModelLoader.loadModel(context, fileSource);
         }
 
         entityModelLoader.completeLoad();
         enumerationModelLoader.completeLoad();
         dataTransferModelLoader.completeLoad();
+        portModelLoader.completeLoad();
 
 
         EntityModels entityModels = EntityModels.create(context.getDomainId(), "entityGrp", null, context.getEntityItems());
         EnumModels enumModels = EnumModels.create(context.getDomainId(), "enumGroup", null, context.getEnumModelItems());
         DataTransferModels dataTransferModels = DataTransferModels.create(context.getDomainId(), "dto", null, context.getDataTransferItems());
+        PortModels portModels = PortModels.create(context.getDomainId(), "port", null, context.getPortItems());
 
 
         ECoreModel tmpModel = ECoreModel.builder()
@@ -92,6 +97,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
                 .enumModels(enumModels)
                 .dataTransferModels(dataTransferModels)
                 .repositoryModels(repositoryModels)
+                .portModels(portModels)
                 .configMap(context.getConfigMap())
                 .namespaceMap(context.getNsMap())
                 .build();

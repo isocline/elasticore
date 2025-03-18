@@ -4,6 +4,7 @@ import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.enums.EnumModel;
+import io.elasticore.base.model.port.Port;
 import io.elasticore.base.model.repo.Repository;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class ModelLoaderContext {
     private Items<DataTransfer> dtoItems = Items.create(DataTransfer.class);
 
     private Items<Repository> repositoryItems = Items.create(Repository.class);
+
+    private Items<Port> portItems = Items.create(Port.class);
 
 
     ModelLoaderContext(String domainId, Map<String, Object> configMap, Map<String, String> nsMap) {
@@ -110,6 +113,11 @@ public class ModelLoaderContext {
     public Items<Repository> getRepositoryItems() {
         return this.repositoryItems;
     }
+
+    public Items<Port> getPortItems() {
+        return this.portItems;
+    }
+
 
     public Map<String, Object> getConfigMap() {
         return configMap;

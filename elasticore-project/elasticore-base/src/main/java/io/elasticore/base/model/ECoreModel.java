@@ -12,6 +12,7 @@ import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityModels;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.enums.EnumModels;
+import io.elasticore.base.model.port.PortModels;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.util.ConsoleLog;
 import lombok.Builder;
@@ -28,6 +29,8 @@ public class ECoreModel {
     private DataTransferModels dataTransferModels;
 
     private RepositoryModels repositoryModels;
+
+    private PortModels portModels;
 
     private Map<String, Object> configMap;
 
