@@ -28,4 +28,12 @@ public @interface DbmsService {
      */
     String id();
 
+    /**
+     * Optional SQL source.
+     * If not provided, the default value is an empty string ("").
+     *
+     * @return the SQL source or default empty string
+     */
+    String sqlSource();
+
 }

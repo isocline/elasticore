@@ -1,42 +1,53 @@
 plugins {
     id 'java-library'
-    id 'maven-publish' // 필요시 원격 배포
+    id 'maven-publish'
 }
 
 group = 'io.elasticore.springboot3'
-version = '1.0.0'
+version = '3.0.0-SNAPSHOT'
 description = 'Spring Boot 3 Common Library'
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17)) // 최소 Java 17 지원 (Spring Boot 3 요구사항)
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
+    withSourcesJar()  // 소스 코드 포함
+    withJavadocJar()  // Javadoc 포함
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-
     implementation platform('org.springframework.boot:spring-boot-dependencies:3.2.2')
 
     implementation project(':elasticore-project:elasticore-base')
 
-    api 'org.springframework:spring-context:6.1.2' // Spring Boot 3.x
+    api 'org.springframework:spring-context:6.1.2'
     api 'org.springframework:spring-beans:6.1.2'
     api 'org.springframework:spring-web:6.1.2'
 
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
     implementation 'org.reflections:reflections:0.10.2'
-
-
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-
     implementation 'io.projectreactor:reactor-core:3.5.6'
     implementation 'io.netty:netty-handler:4.1.94.Final'
+
+    implementation 'org.apache.commons:commons-jexl3:3.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0'
 
 
 
@@ -52,3 +63,29 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // 🔹 from components.java 중복 추가 방지
+            if (components.findByName("java") != null) {
+                from components.java
+            } else {
+                throw new GradleException("components.java not found. Ensure 'java-library' plugin is applied correctly.")
+            }
+            artifactId = 'elasticore-springboot3'
+
+
+        }
+    }
+
+    repositories {
+        maven {
+            name = "Nexus"
+            url = uri("https://nexus.xsolcorp.co.kr/repository/maven-snapshots/")
+            credentials {
+                username = project.findProperty("nexusUsername") ?: "tech"
+                password = project.findProperty("nexusPassword") ?: "tech123"
+            }
+        }
+    }
+}

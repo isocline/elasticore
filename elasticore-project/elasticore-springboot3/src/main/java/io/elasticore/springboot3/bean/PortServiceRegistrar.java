@@ -13,11 +13,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.Set;
-import java.util.List;
 
 public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware, ApplicationContextAware {
 
@@ -32,16 +30,10 @@ public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, Envi
 
     @Override
     public void setEnvironment(Environment environment) {
-        this.environment = environment; // Environment 객체 저장
+        this.environment = environment;
     }
 
-    /**
-     * 주어진 패키지 경로에서 부모 패키지를 계산하는 유틸리티 메서드
-     *
-     * @param packageName 현재 패키지 이름
-     * @param levelsUp    상위로 이동할 레벨 수
-     * @return 계산된 상위 패키지 이름
-     */
+
     private String getParentPackage(String packageName, int levelsUp) {
         String[] parts = packageName.split("\\.");
         if (parts.length <= levelsUp) {
@@ -53,18 +45,17 @@ public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, Envi
 
 
     private String detectMainPackage() {
-        List<String> candidates = SpringFactoriesLoader.loadFactoryNames(SpringBootApplication.class, getClass().getClassLoader());
-
-        for (String className : candidates) {
+        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
             try {
-                Class<?> mainClass = Class.forName(className);
-                if (mainClass.isAnnotationPresent(SpringBootApplication.class)) {
-                    return mainClass.getPackage().getName();
+                Class<?> cls = Class.forName(element.getClassName());
+                if (cls.isAnnotationPresent(SpringBootApplication.class)) {
+                    return cls.getPackage().getName();
                 }
-            } catch (ClassNotFoundException ignored) {
-                // 클래스가 없으면 무시
+            } catch (ClassNotFoundException e) {
+
             }
         }
+
         throw new IllegalStateException("Could not detect main package");
     }
 
@@ -77,27 +68,26 @@ public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, Envi
         String basePackage = detectMainPackage();
         Reflections reflections = new Reflections(basePackage);
 
-        // @ExternalService 어노테이션이 붙은 클래스 검색
         Set<Class<?>> extPortServices = reflections.getTypesAnnotatedWith(ExternalService.class);
         // port
         for (Class<?> serviceClass : extPortServices) {
             GenericBeanDefinition definition = new GenericBeanDefinition();
-            definition.setBeanClass(serviceClass); // Bean 클래스 설정
-            definition.setInstanceSupplier(() -> createExternalPortProxy(serviceClass)); // 프록시 생성
+            definition.setBeanClass(serviceClass);
+            definition.setInstanceSupplier(() -> createExternalPortProxy(serviceClass));
             // definition.setInstanceSupplier(() ->
             // ServiceProxyFactory.createService(serviceClass));
-            registry.registerBeanDefinition(serviceClass.getSimpleName(), definition); // Bean 등록
+            registry.registerBeanDefinition(serviceClass.getSimpleName(), definition);
         }
 
         // dbms
         Set<Class<?>> dbmsServices = reflections.getTypesAnnotatedWith(DbmsService.class);
         for (Class<?> serviceClass : dbmsServices) {
             GenericBeanDefinition definition = new GenericBeanDefinition();
-            definition.setBeanClass(serviceClass); // Bean 클래스 설정
-            definition.setInstanceSupplier(() -> createDbmsPortProxy(serviceClass)); // 프록시 생성
+            definition.setBeanClass(serviceClass);
+            definition.setInstanceSupplier(() -> createDbmsPortProxy(serviceClass));
             // definition.setInstanceSupplier(() ->
             // ServiceProxyFactory.createService(serviceClass));
-            registry.registerBeanDefinition(serviceClass.getSimpleName(), definition); // Bean 등록
+            registry.registerBeanDefinition(serviceClass.getSimpleName(), definition);
         }
 
     }

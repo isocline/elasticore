@@ -5,11 +5,15 @@ plugins {
 
 allprojects {
     group = 'io.elasticore'
-    version = '0.2.3-SNAPSHOT'
+    version = '3.0.0-SNAPSHOT'
 
     repositories {
         mavenCentral()
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
 }
 
 subprojects {
@@ -17,7 +21,7 @@ subprojects {
     apply plugin: 'maven-publish'
 
     println  project.name
-    if (project.name != 'elasticore-template') {
+    if (project.name != 'elasticore-template'  && project.name != 'elasticore-springboot3') {
         apply plugin: 'maven-publish'
 
         publishing {

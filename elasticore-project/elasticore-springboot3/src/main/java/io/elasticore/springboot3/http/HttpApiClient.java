@@ -77,13 +77,23 @@ public class HttpApiClient {
 
 
     public static <V, T> Mono<T> exchange(HttpMethod httpMethod, String url, String path, V sendObj, ParameterizedTypeReference<T> responseType,
-                                          List<Map<String, String>> headerMapList, HttpAuthProvider provider) {
+                                          List<Map<String, String>> headerMapList, HttpAuthProvider provider, String contentType) {
+
+        Object inputObject = sendObj;
         if (provider != null) {
             if (headerMapList == null) {
                 headerMapList = new ArrayList<>();
             }
+            Object replaceInputObj = provider.process(sendObj, headerMapList);
+            if(replaceInputObj!=null) {
+                inputObject = replaceInputObj;
+            }
         }
-        return exchange(httpMethod, createWebClient(url), path, sendObj, responseType, headerMapList, MediaType.APPLICATION_JSON);
+        MediaType mediaType = MediaType.APPLICATION_JSON;
+        if(contentType!=null) {
+            mediaType = MediaType.parseMediaType(contentType);
+        }
+        return exchange(httpMethod, createWebClient(url), path, inputObject, responseType, headerMapList,mediaType);
     }
 
 
@@ -116,7 +126,7 @@ public class HttpApiClient {
 
             return configureRequest(
                     requestSpec.uri(uriBuilder -> {
-                        uriBuilder.path(basePath); // 기본 경로 설정
+                        uriBuilder.path(basePath);
                         if (queryStr != null) {
                             String[] queryParams = queryStr.split("&");
                             for (String param : queryParams) {
@@ -156,11 +166,9 @@ public class HttpApiClient {
             return configureRequest(requestSpec.uri(uriBuilder -> uriBuilder.path(path)
                     .queryParams(getQueryParamConvert(sendObj)).build()), sendObj, headerMapList, mediaType)
                     .exchangeToMono(response -> {
-                        // 🔹 응답 헤더 출력
                         response.headers().asHttpHeaders().forEach((key, value) ->
                                 log.info("Response Header: {} -> {}", key, value));
 
-                        // 🔹 ResponseEntity로 반환 (응답 본문 + 헤더 포함)
                         return response.toEntity(responseType);
                     });
         } else {
@@ -182,11 +190,10 @@ public class HttpApiClient {
                 return uriBuilder.build();
             }), sendObj, headerMapList, mediaType)
                     .exchangeToMono(response -> {
-                        // 🔹 응답 헤더 출력
+
                         response.headers().asHttpHeaders().forEach((key, value) ->
                                 log.info("Response Header: {} -> {}", key, value));
 
-                        // 🔹 ResponseEntity로 반환 (응답 본문 + 헤더 포함)
                         return response.toEntity(responseType);
                     });
         }
@@ -240,7 +247,7 @@ public class HttpApiClient {
             Map<String, String> paramMap = OBJECT_MAPPER.convertValue(sendObj, new TypeReference<Map<String, String>>() {
             });
             paramMap.entrySet().stream()
-                    .filter(entry -> entry.getValue() != null) // null 값을 제외
+                    .filter(entry -> entry.getValue() != null)
                     .forEach(entry -> multiValueMap.add(entry.getKey(), entry.getValue()));
         }
         return multiValueMap;

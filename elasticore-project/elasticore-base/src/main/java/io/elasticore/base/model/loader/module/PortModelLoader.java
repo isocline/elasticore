@@ -3,6 +3,7 @@ package io.elasticore.base.model.loader.module;
 import io.elasticore.base.model.ComponentType;
 import io.elasticore.base.model.ConstanParam;
 import io.elasticore.base.model.MetaInfo;
+import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
@@ -17,10 +18,9 @@ import io.elasticore.base.util.MapWrapper;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class PortModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Port> {
 
@@ -31,26 +31,57 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
 
 
     public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
-        return loadModel(ctx, source.getInfoMap());
+        return loadModel(ctx, source.getInfoMap(), source);
     }
 
-    public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
+    public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map, FileSource source) {
         this.ctx = ctx;
         boolean isProcess = false;
         if (map.containsKey(ConstanParam.KEYNAME_PORT)) {
-            loadModel(ctx.getPortItems(), map.get(ConstanParam.KEYNAME_PORT));
+            loadModel(ctx.getPortItems(), map.get(ConstanParam.KEYNAME_PORT), source);
             isProcess = true;
         }
 
         return isProcess;
     }
 
+    /**
+     * Extracts the relative path from an absolute file path based on "src/main/resources/blueprint".
+     * It ensures the output is a clean concatenation of folder and file names without any separators.
+     *
+     * @param absolutePath The absolute path to be converted.
+     * @return A clean, concatenated string without separators.
+     */
+    public static String getResourcePath(String absolutePath) {
+        if (absolutePath == null || absolutePath.isEmpty()) {
+            throw new IllegalArgumentException("Path cannot be null or empty.");
+        }
 
-    public void loadModel(Items<Port> items, Map<String, LinkedHashMap> entityMap) {
+        // Normalize the path by converting all separators to '/'
+        String normalizedPath = absolutePath.replace(File.separatorChar, '/');
+
+        // Key path to search for
+        String keyPath = "/resources/blueprint";
+        int index = normalizedPath.lastIndexOf(keyPath);
+        if (index == -1) {
+            throw new IllegalArgumentException("'src/main/resources/blueprint' not found in the given path.");
+        }
+
+        // Extract the relative path after "src/main/resources/blueprint"
+        String relativePath = normalizedPath.substring(index + 11);
+
+        // Remove all slashes to get a clean output
+        return relativePath.replace("\\", "/");
+    }
+
+    public void loadModel(Items<Port> items, Map<String, LinkedHashMap> entityMap, FileSource source) {
+
+        String sqlSource = getResourcePath(source.getFilepath());
+
         entityMap.forEach((repoName, value) -> {
 
-            Port repo = loadPort(repoName, value);
-            if(repo!=null)
+            Port repo = loadPort(repoName, value, sqlSource);
+            if (repo != null)
                 items.addItem(repo);
         });
     }
@@ -72,22 +103,59 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
             sqlQueryInfo.initialize(this.ctx);
         }
 
-
     }
 
-    protected Port loadPort(String portAdapterName, Map<String, Object> entityMap) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_PORT, portAdapterName);
+    /**
+     *
+     * @param entityMap
+     * @param type
+     * @param mainClassName
+     * @param sqlSource
+     * @return
+     */
+    private MetaInfo parseMetaInfoObject(Map<String, Object> entityMap, String type, String mainClassName, String sqlSource) {
+        if (entityMap == null)
+            entityMap = new HashMap<>();
+
+        Object infoObj = entityMap.get(PROPERTY_INFO);
+        Map<String, Annotation> infoAnnotation = getAnnotationObj(infoObj);
+
+
+        Object metaInfoObj = entityMap.get(PROPERTY_META);
+        Map<String, Annotation> metaAnnotation = null;
+        if (metaInfoObj == null) {
+            metaAnnotation = new HashMap<>();
+            if (type != null)
+                metaAnnotation.put("type", Annotation.create("type", type));
+        } else {
+            metaAnnotation = getAnnotationObj(metaInfoObj);
+        }
+
+        if (mainClassName != null) {
+            metaAnnotation.put("name", Annotation.create("name", mainClassName));
+        }
+
+        if (sqlSource != null) {
+            metaAnnotation.put("sqlsource", Annotation.create("sqlsource", sqlSource));
+        }
+        return MetaInfo.creat(infoAnnotation, metaAnnotation);
+    }
+
+
+    protected Port loadPort(String portAdapterName, Map<String, Object> entityMap, String sqlSource) {
+
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_PORT, portAdapterName, sqlSource);
 
         Map<String, LinkedHashMap> methods = (Map<String, LinkedHashMap>) entityMap.get(PROPERTY_METHODS);
 
-        if(methods==null)
+        if (methods == null)
             return null;
 
         Items<Method> methodItems = Items.create(Method.class);
 
         methods.forEach((methodName, value) -> {
-            Method methodInfo = loadMethodInfo(methodName,  value);
+            Method methodInfo = loadMethodInfo(methodName, value);
             methodItems.addItem(methodInfo);
         });
 
@@ -105,12 +173,12 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
 
         MapWrapper mapWrapper = new MapWrapper(map);
         String id = mapWrapper.getString("id");
-        if(id ==null || id.isEmpty())
+        if (id == null || id.isEmpty())
             id = rootObjName;
         String methodName = mapWrapper.getString("name");
 
         boolean isDefaultNativeQuery = false;
-        if(rootObjName.indexOf("DTO")>0)
+        if (rootObjName.indexOf("DTO") > 0)
             isDefaultNativeQuery = true;
 
         boolean isNativeQuery = mapWrapper.getBoolean("nativeQuery", isDefaultNativeQuery);
@@ -119,18 +187,18 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
         String returnType = mapWrapper.getString("return");
 
         boolean isReturnTypeSet = true;
-        if(returnType==null) {
+        if (returnType == null) {
             isReturnTypeSet = false;
-            if(isNativeQuery)
-                returnType = "List<"+rootObjName+">";
+            if (isNativeQuery)
+                returnType = "List<" + rootObjName + ">";
         }
 
         SqlQueryInfo queryInfo = null;
-        if(query !=null && query.length()>0) {
-            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery , pageable, mapWrapper ,returnType ,isReturnTypeSet);
+        if (query != null && query.length() > 0) {
+            queryInfo = SqlQueryInfo.creat(ctx.getDomainId(), query, isNativeQuery, pageable, mapWrapper, returnType, isReturnTypeSet);
             this.sqlQueryInfoList.add(queryInfo);
 
-            if(!queryInfo.isSelectQuery()) {
+            if (!queryInfo.isSelectQuery()) {
                 returnType = queryInfo.getReturnType();
             }
 
@@ -141,18 +209,18 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
         String requestType = mapWrapper.getString("input");
         Items<Field> fieldItems = null;
         Object paramsObj = map.get("params");
-        if(paramsObj instanceof Map) {
+        if (paramsObj instanceof Map) {
             Map params = (Map) paramsObj;
             if (params != null) {
                 fieldItems = this.parseField(params);
             }
-        }else if(paramsObj !=null) {
+        } else if (paramsObj != null) {
             requestType = paramsObj.toString();
         }
 
 
         return Method.builder()
-                .identity(BaseComponentIdentity.create(ComponentType.METHOD,ctx.getDomainId(),id))
+                .identity(BaseComponentIdentity.create(ComponentType.METHOD, ctx.getDomainId(), id))
                 .metaInfo(metaInfo)
                 .name(methodName)
                 .query(query)

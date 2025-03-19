@@ -16,6 +16,8 @@ import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
+import java.util.Properties;
+
 public class PortSrcPublisher extends SrcFilePublisher {
 
     private CodeTemplate baseCodeTmpl;
@@ -78,14 +80,18 @@ public class PortSrcPublisher extends SrcFilePublisher {
                 p.add("@ExternalService(protocol=\"http\", id=%s ,url=%s)",StringUtils.quoteString(id),StringUtils.quoteString(url));
             }
             else if("dbms".equals(type)) {
-                String datasource = portService.getMeta().getMetaAnnotationValue("datasource");
+                MetaInfo meta = portService.getMeta();
+                String datasource = meta.getMetaAnnotationValue("datasource");
+                String sqlSource = meta.getMetaAnnotationValue("sqlsource");
                 if(datasource!=null) {
-                    p.add("@DbmsService(datasource=%s, id=%s)",StringUtils.quoteString(datasource), StringUtils.quoteString(id));
+                    p.add("@DbmsService(id=%s ,datasource=%s ,sqlSource=%s)"
+                            ,StringUtils.quoteString(id)
+                            ,StringUtils.quoteString(datasource), StringUtils.quoteString(sqlSource));
                 }
                 else {
-                    p.add("@DbmsService");
+                    p.add("@DbmsService(id=%s ,sqlSource=%s)"
+                            ,StringUtils.quoteString(id),StringUtils.quoteString(sqlSource));
                 }
-
             }
         }
 
@@ -169,10 +175,18 @@ public class PortSrcPublisher extends SrcFilePublisher {
 
                 if (metaAnnotation != null) {
                     try {
-                        String url = metaAnnotation.getProperties().get("url").toString();
-                        String httpMethod = metaAnnotation.getProperties().get("method").toString().toUpperCase();
+                        Properties properties = metaAnnotation.getProperties();
+                        String url = properties.get("url").toString();
+                        String httpMethod = properties.get("method").toString().toUpperCase();
+                        String contentType = properties.get("contenttype").toString();
+                        if(contentType!=null && !contentType.isEmpty()) {
+                            methodP.add("@HttpEndpoint(url=%s, method=%s ,contentType=%s)"
+                                    , StringUtils.quoteString(url), StringUtils.quoteString(httpMethod), StringUtils.quoteString(contentType));
+                        }else{
+                            methodP.add("@HttpEndpoint(url=%s, method=%s)", StringUtils.quoteString(url), StringUtils.quoteString(httpMethod));
+                        }
 
-                        methodP.add("@HttpEndpoint(url=%s, method=%s)", StringUtils.quoteString(url), StringUtils.quoteString(httpMethod));
+
                     } catch (NullPointerException npe) {
                     }
                 }

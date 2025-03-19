@@ -126,7 +126,7 @@ public class HttpServiceProxyFactory {
                 } else
                     orgList.add(arg);
             }
-            if(authProvider==null) {
+            if(authProvider==null && applicationContext !=null) {
                 String authProviderBeanId = this.externalService.id()+".httpAuthProvider";
                 try {
                     authProvider = (HttpAuthProvider) applicationContext.getBean(authProviderBeanId);
@@ -154,9 +154,11 @@ public class HttpServiceProxyFactory {
                 mainReqObject = orgList.get(0);
             }
 
+            String contentType = endpoint.contentType();
+
 
             Object shoortenUrl = HttpApiClient.exchange(httpMethod, svrUrl, callUrl,
-                            mainReqObject, responseType, header, authProvider)
+                            mainReqObject, responseType, header, authProvider ,contentType)
 
                     .onErrorMap(WebClientResponseException.class, ex ->
                             new IllegalStateException("HTTP Error: " + ex.getStatusCode(), ex)
@@ -170,7 +172,7 @@ public class HttpServiceProxyFactory {
 
     public static String toQueryString(Object input) throws Exception {
         return Stream.of(input.getClass().getDeclaredFields())
-                .peek(field -> field.setAccessible(true)) // private 필드 접근 허용
+                .peek(field -> field.setAccessible(true))
                 .map(field -> {
                     try {
                         String name = field.getName();
