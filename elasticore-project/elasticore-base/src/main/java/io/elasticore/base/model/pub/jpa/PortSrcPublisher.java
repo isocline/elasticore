@@ -72,13 +72,15 @@ public class PortSrcPublisher extends SrcFilePublisher {
         String type = portService.getMeta().getMetaAnnotationValue("type");
         if(type!=null) {
             type = type.toLowerCase();
+            String id = portService.getIdentity().getDomainId() +"."+ portService.getIdentity().getName();
+            String url = portService.getMeta().getMetaAnnotationValue("url");
             if("http".equals(type)) {
-                p.add("@ExternalService(type=\"http\", id=%s)",StringUtils.quoteString(portService.getIdentity().getName()));
+                p.add("@ExternalService(protocol=\"http\", id=%s ,url=%s)",StringUtils.quoteString(id),StringUtils.quoteString(url));
             }
             else if("dbms".equals(type)) {
                 String datasource = portService.getMeta().getMetaAnnotationValue("datasource");
                 if(datasource!=null) {
-                    p.add("@DbmsService(datasource=%s)",StringUtils.quoteString(datasource));
+                    p.add("@DbmsService(datasource=%s, id=%s)",StringUtils.quoteString(datasource), StringUtils.quoteString(id));
                 }
                 else {
                     p.add("@DbmsService");

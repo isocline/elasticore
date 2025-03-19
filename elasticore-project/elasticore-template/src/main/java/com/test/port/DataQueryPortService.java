@@ -1,19 +1,17 @@
-//ecd:-124088364H20250318201732_V1.0
+//ecd:872585127H20250319092245_V1.0
 package com.test.port;
-
-import java.util.*;
 
 import com.test.dto.*;
 
 
-import io.elasticore.runtime.annotation.*;
+import io.elasticore.runtime.port.*;
 
 
 /**
 
 
  */
-@DbmsService(datasource="test")
+@DbmsService(datasource="test", id="port.DataQueryPortService")
 public interface DataQueryPortService   {
 
     MsgOutput countAllMessagesByMonths(MsgInput input);

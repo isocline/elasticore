@@ -2,14 +2,15 @@ package io.elasticore.springboot3.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.elasticore.runtime.port.HttpAuthProvider;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-
-
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -28,9 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpApiClient {
 
@@ -81,7 +79,7 @@ public class HttpApiClient {
     public static <V, T> Mono<T> exchange(HttpMethod httpMethod, String url, String path, V sendObj, ParameterizedTypeReference<T> responseType,
                                           List<Map<String, String>> headerMapList, HttpAuthProvider provider) {
         if (provider != null) {
-            if(headerMapList==null) {
+            if (headerMapList == null) {
                 headerMapList = new ArrayList<>();
             }
         }
@@ -286,5 +284,4 @@ public class HttpApiClient {
     }
 
 
- 
 }

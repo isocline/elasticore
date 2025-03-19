@@ -1,4 +1,4 @@
-package io.elasticore.runtime.annotation;
+package io.elasticore.runtime.port;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,11 +15,11 @@ import java.lang.annotation.Target;
 public @interface ExternalService {
 
     /**
-     * Specifies the type of the external service.
+     * Specifies the type of the external service protocol.
      *
-     * @return the service type
+     * @return the protocole
      */
-    String type();
+    String protocol();
 
     /**
      * Specifies the unique identifier for this external service.

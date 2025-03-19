@@ -1,19 +1,17 @@
-//ecd:-1880838032H20250318201341_V1.0
+//ecd:641366811H20250319092245_V1.0
 package com.test.port;
-
-import java.util.*;
 
 import com.test.dto.*;
 
 
-import io.elasticore.runtime.annotation.*;
+import io.elasticore.runtime.port.*;
 
 
 /**
 
 
  */
-@ExternalService(type="http", id="PurioPortService")
+@ExternalService(protocol="http", id="port.PurioPortService" ,url="http://server.com")
 public interface PurioPortService   {
 
     @HttpEndpoint(url="/test", method="POST")

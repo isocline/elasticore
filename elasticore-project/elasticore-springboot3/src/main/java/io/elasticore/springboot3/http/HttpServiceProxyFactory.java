@@ -1,7 +1,12 @@
 package io.elasticore.springboot3.http;
 
-import io.elasticore.runtime.annotation.ExternalService;
-import io.elasticore.runtime.annotation.HttpEndpoint;
+import io.elasticore.runtime.port.ExternalService;
+import io.elasticore.runtime.port.HttpAuthProvider;
+import io.elasticore.runtime.port.HttpEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
@@ -24,11 +29,13 @@ import java.util.stream.Stream;
 public class HttpServiceProxyFactory {
 
 
-    public static <T> T createService(Class<T> serviceInterface, ExternalService externalService, Environment environment) {
+    private final static Logger logger = LoggerFactory.getLogger(HttpServiceProxyFactory.class);
+
+    public static <T> T createService(Class<T> serviceInterface, ExternalService externalService, ApplicationContext applicationContext, Environment environment) {
         return (T) Proxy.newProxyInstance(
                 serviceInterface.getClassLoader(),
                 new Class<?>[]{serviceInterface},
-                new HttpInvocationHandler(serviceInterface, externalService, environment)
+                new HttpInvocationHandler(serviceInterface, externalService, applicationContext, environment)
         );
     }
 
@@ -38,11 +45,14 @@ public class HttpServiceProxyFactory {
 
         private final ExternalService externalService;
 
+        private final ApplicationContext applicationContext;
+
         private final Environment environment;
 
-        public HttpInvocationHandler(Class<?> serviceInterface, ExternalService externalService, Environment environment) {
+        public HttpInvocationHandler(Class<?> serviceInterface, ExternalService externalService, ApplicationContext applicationContext,  Environment environment) {
             this.serviceInterface = serviceInterface;
             this.externalService = externalService;
+            this.applicationContext = applicationContext;
             this.environment = environment;
         }
 
@@ -108,13 +118,23 @@ public class HttpServiceProxyFactory {
 
             String callUrl = endpoint.url();
 
-            HttpApiClient.AuthProvider authProvider = null;
+            HttpAuthProvider authProvider = null;
             List orgList = new ArrayList();
             for (Object arg : args) {
-                if (arg instanceof HttpApiClient.AuthProvider) {
-                    authProvider = (HttpApiClient.AuthProvider) arg;
+                if (arg instanceof HttpAuthProvider) {
+                    authProvider = (HttpAuthProvider) arg;
                 } else
                     orgList.add(arg);
+            }
+            if(authProvider==null) {
+                String authProviderBeanId = this.externalService.id()+".httpAuthProvider";
+                try {
+                    authProvider = (HttpAuthProvider) applicationContext.getBean(authProviderBeanId);
+                }catch (BeansException re) {
+
+                }catch (ClassCastException cce) {
+                    logger.warn(authProviderBeanId+ " is not HttpAuthProvider implements. [ClassCastException]");
+                }
             }
 
 
