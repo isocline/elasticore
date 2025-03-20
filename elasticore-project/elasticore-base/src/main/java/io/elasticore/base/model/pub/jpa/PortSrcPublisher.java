@@ -140,7 +140,7 @@ public class PortSrcPublisher extends SrcFilePublisher {
                 sb.append(",");
 
             sb.append(f.getTypeInfo()
-                            .getBaseTypeName())
+                            .getDefaultTypeName())
                     .append(" ")
                     .append(f.getName());
         }

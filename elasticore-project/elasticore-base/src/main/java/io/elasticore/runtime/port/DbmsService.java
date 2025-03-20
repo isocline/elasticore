@@ -19,7 +19,7 @@ public @interface DbmsService {
      *
      * @return the name of the data source
      */
-    String datasource();
+    String datasource() default "primary";
 
     /**
      * Specifies the unique identifier for this DBMS service.

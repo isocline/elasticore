@@ -1,9 +1,10 @@
-package io.elasticore.springboot3.dbms;
+package io.elasticore.springboot3.bean;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.runtime.port.DbmsService;
+import io.elasticore.springboot3.dbms.DbmsSqlExecutor;
 import io.elasticore.springboot3.dbms.meta.SqlQueryInfo;
 import jakarta.persistence.*;
 import org.apache.commons.jexl3.*;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
  * Transaction Gateway Service for executing dynamic queries with multiple data sources.
  */
 @Service
-public class TransactionGateway implements DbmsSqlExecutor {
+public class DbTransactionGateway implements DbmsSqlExecutor {
     private final EntityManagerFactory defaultEntityManagerFactory;
     private final Map<String, EntityManagerFactory> entityManagerFactories;
 
@@ -54,7 +55,7 @@ public class TransactionGateway implements DbmsSqlExecutor {
      *
      */
     @Autowired
-    public TransactionGateway(EntityManagerFactory defaultEntityManagerFactory) throws IOException {
+    public DbTransactionGateway(EntityManagerFactory defaultEntityManagerFactory) throws IOException {
         this.defaultEntityManagerFactory = defaultEntityManagerFactory;
         this.entityManagerFactories = new HashMap<>();
         this.entityManagerFactories.put("primary", defaultEntityManagerFactory);

@@ -1,6 +1,7 @@
 package io.elasticore.springboot3.dbms;
 
 import io.elasticore.runtime.port.DbmsService;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -13,12 +14,12 @@ import org.springframework.data.domain.Pageable;
 
 public class DbmsServiceProxyFactory {
 
-    public static <T> T createService(Class<T> serviceInterface, DbmsService dbmsPortService, ApplicationContext applicationContext, Environment environment) {
+    public static <T> T createService(Class<T> serviceInterface, DbmsService dbmsPortService, BeanFactory beanFactory, Environment environment) {
 
         return (T) Proxy.newProxyInstance(
                 serviceInterface.getClassLoader(),
                 new Class<?>[]{serviceInterface},
-                new DbmsInvocationHandler(serviceInterface, dbmsPortService, applicationContext, environment)
+                new DbmsInvocationHandler(serviceInterface, dbmsPortService, beanFactory, environment)
         );
 
     }
@@ -33,24 +34,45 @@ public class DbmsServiceProxyFactory {
 
         private final DbmsService externalService;
 
-        private final ApplicationContext applicationContext;
+        private final BeanFactory beanFactory;
 
         private final Environment environment;
 
-        public DbmsInvocationHandler(Class<?> serviceInterface, DbmsService externalService, ApplicationContext applicationContext, Environment environment) {
+        private ApplicationContext applicationContext;
+
+        public DbmsInvocationHandler(Class<?> serviceInterface, DbmsService externalService, BeanFactory beanFactory, Environment environment) {
             this.serviceInterface = serviceInterface;
             this.externalService = externalService;
-            this.applicationContext = applicationContext;
+            this.beanFactory = beanFactory;
             this.environment = environment;
         }
 
+        protected ApplicationContext getApplicationContext() {
+            if(applicationContext==null) {
+                try {
+                    applicationContext = beanFactory.getBean(ApplicationContext.class);
+                }catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return applicationContext;
+        }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            return null;
+        }
+
+
+        public Object invoke2(Object proxy, Method method, Object[] args) throws Throwable {
 
             //String processId, I input, Class<O> outputType, String dataSource)
 
-            DbmsSqlExecutor executor = applicationContext.getBean(DbmsSqlExecutor.class);
+            if(getApplicationContext()==null)
+                return null;
+
+            DbmsSqlExecutor executor = getApplicationContext().getBean(DbmsSqlExecutor.class);
 
             String processId = externalService.id() + "." + method.getName();
             String datasource = externalService.datasource();

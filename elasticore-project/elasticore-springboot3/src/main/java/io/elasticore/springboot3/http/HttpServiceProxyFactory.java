@@ -6,6 +6,7 @@ import io.elasticore.runtime.port.HttpEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
@@ -31,11 +32,11 @@ public class HttpServiceProxyFactory {
 
     private final static Logger logger = LoggerFactory.getLogger(HttpServiceProxyFactory.class);
 
-    public static <T> T createService(Class<T> serviceInterface, ExternalService externalService, ApplicationContext applicationContext, Environment environment) {
+    public static <T> T createService(Class<T> serviceInterface, ExternalService externalService, BeanFactory beanFactory, Environment environment) {
         return (T) Proxy.newProxyInstance(
                 serviceInterface.getClassLoader(),
                 new Class<?>[]{serviceInterface},
-                new HttpInvocationHandler(serviceInterface, externalService, applicationContext, environment)
+                new HttpInvocationHandler(serviceInterface, externalService, beanFactory, environment)
         );
     }
 
@@ -45,15 +46,25 @@ public class HttpServiceProxyFactory {
 
         private final ExternalService externalService;
 
-        private final ApplicationContext applicationContext;
+        private final BeanFactory beanFactory;
 
         private final Environment environment;
 
-        public HttpInvocationHandler(Class<?> serviceInterface, ExternalService externalService, ApplicationContext applicationContext,  Environment environment) {
+        private ApplicationContext applicationContext;
+
+        public HttpInvocationHandler(Class<?> serviceInterface, ExternalService externalService, BeanFactory beanFactory,  Environment environment) {
             this.serviceInterface = serviceInterface;
             this.externalService = externalService;
-            this.applicationContext = applicationContext;
+            this.beanFactory = beanFactory;
             this.environment = environment;
+        }
+
+        protected ApplicationContext getApplicationContext() {
+            if(applicationContext==null) {
+                applicationContext = beanFactory.getBean(ApplicationContext.class);
+            }
+
+            return applicationContext;
         }
 
         private Object presetMethod(Object proxy, Method method, Object[] args) {
@@ -126,10 +137,10 @@ public class HttpServiceProxyFactory {
                 } else
                     orgList.add(arg);
             }
-            if(authProvider==null && applicationContext !=null) {
+            if(authProvider==null && getApplicationContext() !=null) {
                 String authProviderBeanId = this.externalService.id()+".httpAuthProvider";
                 try {
-                    authProvider = (HttpAuthProvider) applicationContext.getBean(authProviderBeanId);
+                    authProvider = (HttpAuthProvider) getApplicationContext().getBean(authProviderBeanId);
                 }catch (BeansException re) {
 
                 }catch (ClassCastException cce) {

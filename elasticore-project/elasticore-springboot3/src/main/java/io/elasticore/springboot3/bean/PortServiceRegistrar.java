@@ -5,11 +5,11 @@ import io.elasticore.runtime.port.ExternalService;
 import io.elasticore.springboot3.dbms.DbmsServiceProxyFactory;
 import io.elasticore.springboot3.http.HttpServiceProxyFactory;
 import org.reflections.Reflections;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
@@ -17,16 +17,18 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.Set;
 
-public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware, ApplicationContextAware {
+public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware, BeanFactoryAware {
 
     private Environment environment;
 
-    private ApplicationContext applicationContext;
+    private static BeanFactory beanFactory;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext; // Store the ApplicationContext instance
+    public void setBeanFactory(BeanFactory beanFactory) {
+        PortServiceRegistrar.beanFactory = beanFactory;
     }
+
+
 
     @Override
     public void setEnvironment(Environment environment) {
@@ -60,10 +62,12 @@ public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, Envi
     }
 
 
+
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
         //String currentPackage = this.getClass().getPackage().getName();
         //String basePackage = getParentPackage(currentPackage, 2);
+
 
         String basePackage = detectMainPackage();
         Reflections reflections = new Reflections(basePackage);
@@ -94,12 +98,12 @@ public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, Envi
 
     private Object createExternalPortProxy(Class<?> serviceClass) {
         ExternalService externalService = serviceClass.getAnnotation(ExternalService.class);
-        return HttpServiceProxyFactory.createService(serviceClass, externalService, applicationContext, environment);
+        return HttpServiceProxyFactory.createService(serviceClass, externalService, beanFactory, environment);
     }
 
     private Object createDbmsPortProxy(Class<?> serviceClass) {
         DbmsService externalService = serviceClass.getAnnotation(DbmsService.class);
-        return DbmsServiceProxyFactory.createService(serviceClass, externalService, applicationContext, environment);
+        return DbmsServiceProxyFactory.createService(serviceClass, externalService, beanFactory, environment);
     }
 
 }
