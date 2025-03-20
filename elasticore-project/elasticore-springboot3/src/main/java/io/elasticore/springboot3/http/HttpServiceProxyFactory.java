@@ -3,6 +3,7 @@ package io.elasticore.springboot3.http;
 import io.elasticore.runtime.port.ExternalService;
 import io.elasticore.runtime.port.HttpAuthProvider;
 import io.elasticore.runtime.port.HttpEndpoint;
+import io.elasticore.springboot3.bean.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -61,7 +62,7 @@ public class HttpServiceProxyFactory {
 
         protected ApplicationContext getApplicationContext() {
             if(applicationContext==null) {
-                applicationContext = beanFactory.getBean(ApplicationContext.class);
+                applicationContext = ApplicationContextProvider.getApplicationContext();
             }
 
             return applicationContext;

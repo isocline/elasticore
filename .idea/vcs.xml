@@ -3,7 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../xsko/cbh_jps_bnd" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../xsko/elasticore_sample" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../xsko/gatehub" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../xsko/neo_jps" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../xsko/pfg_sft_bnd" vcs="Git" />

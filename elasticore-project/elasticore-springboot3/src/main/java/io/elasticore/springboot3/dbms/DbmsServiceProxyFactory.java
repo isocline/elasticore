@@ -1,6 +1,7 @@
 package io.elasticore.springboot3.dbms;
 
 import io.elasticore.runtime.port.DbmsService;
+import io.elasticore.springboot3.bean.ApplicationContextProvider;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -50,7 +51,7 @@ public class DbmsServiceProxyFactory {
         protected ApplicationContext getApplicationContext() {
             if(applicationContext==null) {
                 try {
-                    applicationContext = beanFactory.getBean(ApplicationContext.class);
+                    applicationContext = ApplicationContextProvider.getApplicationContext();
                 }catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -59,13 +60,25 @@ public class DbmsServiceProxyFactory {
             return applicationContext;
         }
 
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        private Object presetMethod(Object proxy, Method method,  Object[] args) {
+            if ("hashCode".equals(method.getName())) {
+                return System.identityHashCode(proxy);
+            } else if ("equals".equals(method.getName())) {
+                return proxy == args[0];
+            } else if ("toString".equals(method.getName())) {
+                return "Proxy for " + proxy.getClass().getName();
+            }
+
             return null;
         }
 
 
-        public Object invoke2(Object proxy, Method method, Object[] args) throws Throwable {
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+            Object preset = presetMethod(proxy, method, args);
+            if (preset != null)
+                return preset;
 
             //String processId, I input, Class<O> outputType, String dataSource)
 
@@ -89,7 +102,7 @@ public class DbmsServiceProxyFactory {
             if(parameters.length==1) {
                 Class<?> firstParamType = parameters[0].getType();
 
-                if (firstParamType.isPrimitive()) {
+                if (firstParamType.isPrimitive() || firstParamType == String.class) {
                     isSelfObj = false;
                 }
             }
@@ -122,7 +135,7 @@ public class DbmsServiceProxyFactory {
                         || lowerCaseMethodNm.indexOf("delete")>=0
                         || lowerCaseMethodNm.indexOf("insert")>=0
                 ) {
-                    return executor.executeUpdate(externalService, methodName, input );
+                    //return executor.executeUpdate(externalService, methodName, input );
                 }
 
             } else if (Page.class.isAssignableFrom(returnType)) {
@@ -130,7 +143,7 @@ public class DbmsServiceProxyFactory {
                 return executor.inqueryPage(externalService, methodName, input,qeuryReturnType, (Pageable) input);
             }
 
-            return executor.inqueryList(externalService, methodName, input,returnType );
+            return executor.inqueryFirst(externalService, methodName, input,returnType );
 
         }
 

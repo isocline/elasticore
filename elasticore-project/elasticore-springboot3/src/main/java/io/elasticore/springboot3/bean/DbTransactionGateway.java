@@ -96,9 +96,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
         Pageable pageable = PageRequest.of(0, 1);
         Page<O> page = executePagedQuery(dbmsSvcMeta, methodName, input, outputType, pageable, datasource, false);
 
-        if(page.getTotalElements()==0)
-            return null;
-        return page.getContent().get(0);
+        return page.stream().findFirst().orElse(null);
     }
 
 
@@ -391,6 +389,10 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
                 }
             } catch (ClassNotFoundException e) {
             }
+
+        }
+        if(classLoader==null) {
+            classLoader = getClass().getClassLoader();
         }
         return classLoader;
     }
@@ -447,7 +449,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
                 + "/src/main/resources/" + sqlSourcePath;
         File devSrcFile = new File(devSrcPath);
 
-        if (devSrcFile.exists() && devSrcFile.isDirectory()) {
+        if (devSrcFile.exists() && devSrcFile.isFile()) {
             sqlSourceFile = devSrcFile;
             isReloadable = true;
         } else {
