@@ -2,6 +2,7 @@ package io.elasticore.springboot3.dbms;
 
 import io.elasticore.runtime.port.DbmsService;
 import io.elasticore.springboot3.bean.ApplicationContextProvider;
+import io.elasticore.springboot3.util.ReflectionUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -80,6 +81,9 @@ public class DbmsServiceProxyFactory {
                 return (Pageable) input;
             }
 
+            int defaultPage = 0;
+            int defaultPageSize = 50;
+
             for (Method method : input.getClass().getMethods()) {
                 if ((method.getName().equals("getPageable") || method.getName().equals("pageable"))
                         && Pageable.class.isAssignableFrom(method.getReturnType())
@@ -94,8 +98,11 @@ public class DbmsServiceProxyFactory {
 
             if (input instanceof Map) {
                 Map<?, ?> map = (Map<?, ?>) input;
-                Object pageVal = map.get("page");
-                Object sizeVal = map.get("size");
+                Object pageVal = map.get("pageNumber");
+                if(pageVal==null) map.get("page");
+
+                Object sizeVal = map.get("sizeVal");
+                if(sizeVal==null) map.get("size");
 
                 if (pageVal instanceof Number && sizeVal instanceof Number) {
                     return PageRequest.of(((Number) pageVal).intValue(), ((Number) sizeVal).intValue());
@@ -103,25 +110,30 @@ public class DbmsServiceProxyFactory {
             }else {
                 try {
                     Class c = input.getClass();
-                    Field pageField = c.getDeclaredField("page");
-                    Field sizeField = c.getDeclaredField("size");
-
-                    pageField.setAccessible(true);
-                    sizeField.setAccessible(true);
+                    Field pageField = ReflectionUtils.getField(c,"pageNumber");
+                    if(pageField==null)
+                        pageField = ReflectionUtils.getField(c,"page");
 
                     Object pageVal = pageField.get(input);
+                    if (pageVal instanceof Integer)
+                        defaultPage= (Integer) pageVal;
+
+
+                    Field sizeField = ReflectionUtils.getField(c,"sizeVal");
+                    if(sizeField==null)
+                        sizeField = ReflectionUtils.getField(c,"size");
+
                     Object sizeVal = sizeField.get(input);
 
-                    if (pageVal instanceof Integer && sizeVal instanceof Integer) {
-                        return PageRequest.of((Integer) pageVal, (Integer) sizeVal);
+                    if (sizeVal instanceof Integer) {
+                        defaultPageSize= (Integer) sizeVal;
                     }
-                } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                } catch (NullPointerException | IllegalAccessException ignored) {
 
                 }
             }
 
-            return PageRequest.of(0, 50);
-
+            return PageRequest.of(defaultPage, defaultPageSize);
         }
 
         @Override

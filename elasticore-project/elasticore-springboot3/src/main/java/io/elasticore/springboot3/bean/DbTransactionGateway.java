@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.runtime.port.DbmsService;
 import io.elasticore.springboot3.dbms.DbmsSqlExecutor;
 import io.elasticore.springboot3.dbms.meta.SqlQueryInfo;
+import io.elasticore.springboot3.util.ReflectionUtils;
 import jakarta.persistence.*;
 import org.apache.commons.jexl3.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
 
     @Override
+    @Transactional(readOnly = true)
     public <I, O> List<O> inqueryList(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType) {
         String processId = dbmsSvcMeta.id() + "." + methodName;
         String datasource = dbmsSvcMeta.datasource();
@@ -96,6 +98,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
 
     @Override
+    @Transactional(readOnly = true)
     public <I, O> Page<O> inqueryPage(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, Pageable pageable) {
         String processId = dbmsSvcMeta.id() + "." + methodName;
         String datasource = dbmsSvcMeta.datasource();
@@ -104,6 +107,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
 
     @Override
+    @Transactional(readOnly = true)
     public <I, O> O inqueryFirst(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType) {
         String processId = dbmsSvcMeta.id() + "." + methodName;
         String datasource = dbmsSvcMeta.datasource();
@@ -350,17 +354,43 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             O dto = outputType.getDeclaredConstructor().newInstance();
             for (TupleElement<?> element : tuple.getElements()) {
                 String fieldName = toCamelCase(element.getAlias());
-                try {
-                    Field field = outputType.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-                    field.set(dto, tuple.get(element));
-                } catch (NoSuchFieldException nsfe) {
+                Field field = ReflectionUtils.getField(outputType, fieldName);
+                if (field != null) {
+                    Object value = tuple.get(element);
+                    Object convertedValue = convertValue(value, field.getType());
+                    field.set(dto, convertedValue);
                 }
             }
             return dto;
         } catch (Exception e) {
             throw new RuntimeException("Failed to map tuple to DTO: " + outputType.getSimpleName(), e);
         }
+    }
+
+
+    private Object convertValue(Object value, Class<?> targetType) {
+        if (value == null) return null;
+        Class<?> sourceType = value.getClass();
+
+        if (targetType.isAssignableFrom(sourceType)) {
+            return value;
+        }
+
+        if (value instanceof Number) {
+            Number num = (Number) value;
+            if (targetType == Long.class || targetType == long.class) return num.longValue();
+            if (targetType == Integer.class || targetType == int.class) return num.intValue();
+            if (targetType == Double.class || targetType == double.class) return num.doubleValue();
+            if (targetType == Float.class || targetType == float.class) return num.floatValue();
+            if (targetType == Short.class || targetType == short.class) return num.shortValue();
+            if (targetType == Byte.class || targetType == byte.class) return num.byteValue();
+        }
+
+        if (targetType == String.class) {
+            return value.toString();
+        }
+
+        throw new IllegalArgumentException("Cannot convert value of type " + sourceType.getName() + " to " + targetType.getName());
     }
 
     private void bindQueryParameters(Query query, String sql, Object input) throws Exception {
@@ -515,9 +545,9 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
     private String toCamelCase(String columnName) {
         String[] parts = columnName.split("_");
-        StringBuilder camelCaseString = new StringBuilder(parts[0]);
+        StringBuilder camelCaseString = new StringBuilder(parts[0].toLowerCase());
         for (int i = 1; i < parts.length; i++) {
-            camelCaseString.append(Character.toUpperCase(parts[i].charAt(0))).append(parts[i].substring(1));
+            camelCaseString.append(Character.toUpperCase(parts[i].charAt(0))).append(parts[i].substring(1).toLowerCase());
         }
         return camelCaseString.toString();
     }
