@@ -14,6 +14,7 @@ import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.port.Port;
 import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.util.CodeTemplate;
+import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
 import java.util.Properties;
@@ -174,11 +175,12 @@ public class PortSrcPublisher extends SrcFilePublisher {
                 Annotation metaAnnotation = metaInfo.getMetaAnnotation("httpendpoint");
 
                 if (metaAnnotation != null) {
+                    Properties properties = null;
                     try {
-                        Properties properties = metaAnnotation.getProperties();
-                        String url = properties.get("url").toString();
+                        properties = metaAnnotation.getProperties();
+                        String url = (String) properties.get("url");
                         String httpMethod = properties.get("method").toString().toUpperCase();
-                        String contentType = properties.get("contenttype").toString();
+                        String contentType = (String) properties.get("contenttype");
                         if(contentType!=null && !contentType.isEmpty()) {
                             methodP.add("@HttpEndpoint(url=%s, method=%s ,contentType=%s)"
                                     , StringUtils.quoteString(url), StringUtils.quoteString(httpMethod), StringUtils.quoteString(contentType));
@@ -188,6 +190,7 @@ public class PortSrcPublisher extends SrcFilePublisher {
 
 
                     } catch (NullPointerException npe) {
+                        ConsoleLog.printWarn(portService.getIdentity().getName()+ " : url, method is required attributes."+properties);
                     }
                 }
             }

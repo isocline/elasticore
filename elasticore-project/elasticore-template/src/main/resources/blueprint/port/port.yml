@@ -28,6 +28,15 @@ dto:
       name: string
 
 port:
+  HttpTestPortService:
+    meta: http @url("https://echo.free.beeceptor.com")
+    methods:
+      listPlan:
+        meta: method @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST")
+        params:
+          body: MsgInput2 @body
+        return: java.util.HashMap
+
   VonageService:
     meta: vonage @custom @interface(test)
     methods:

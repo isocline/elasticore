@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="elcore_sample@xsk-postgre-dev.postgres.database.azure.com" uuid="c247385a-aa27-425b-a09d-c673cb4c4691">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://xsk-postgre-dev.postgres.database.azure.com:5432/elcore_sample?ssl=true&amp;sslmode=require</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.host.port" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="AZURE_SQL_DB_SERVER" value="/subscriptions/e154f0c3-a074-42e5-a35d-43427886ac69/resourceGroups/kube/providers/Microsoft.DBforPostgreSQL/flexibleServers/xsk-postgre-dev" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>
