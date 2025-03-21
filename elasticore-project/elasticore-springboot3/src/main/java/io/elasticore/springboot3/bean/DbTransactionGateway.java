@@ -61,13 +61,27 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
         this.entityManagerFactories.put("primary", defaultEntityManagerFactory);
     }
 
+
+
     /**
-     *
+     * for multi datasource
      */
     @Autowired(required = false)
     public void setEntityManagerFactories(Map<String, EntityManagerFactory> entityManagerFactories) throws IOException {
         if (entityManagerFactories != null && !entityManagerFactories.isEmpty()) {
-            this.entityManagerFactories.putAll(entityManagerFactories);
+            for (Map.Entry<String, EntityManagerFactory> entry : entityManagerFactories.entrySet()) {
+                String key = entry.getKey();
+                EntityManagerFactory value = entry.getValue();
+
+                this.entityManagerFactories.put(key, value);
+
+                if (key.endsWith("EntityManagerFactory")) {
+                    String simplifiedKey = key.substring(0, key.length() - "EntityManagerFactory".length());
+                    if (!simplifiedKey.isEmpty()) {
+                        this.entityManagerFactories.put(simplifiedKey, value);
+                    }
+                }
+            }
         }
     }
 
@@ -411,13 +425,34 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
         return id;
     }
 
+    private String getBooleanStr(Object val, String defaultVal) {
+
+        if(val instanceof String) {
+            if("true".equals(val)) {
+                return "true";
+            }else if("false".equals(val)) {
+                return "false";
+            }
+        }
+        if(val instanceof Boolean) {
+            Boolean b = (Boolean) val;
+            if(Boolean.FALSE.equals(b)) {
+                return "false";
+            }else {
+                return "true";
+            }
+        }
+
+        return defaultVal;
+    }
+
     private void setSqlQueryInfo(String sqlSourcePath, String portSvcName, Map<String, Map> values,long lastModifiedTime) {
 
         Map<String, Map> methods =  values.get("methods");
         methods.forEach((methodName, value) -> {
 
             String sqlTxt = (String) value.get("query");
-            String nativeQuery = (String) value.get("nativeQuery");
+            String nativeQuery = getBooleanStr(value.get("nativeQuery") , "true");
 
             String id = getNativeSqlId(sqlSourcePath, portSvcName, methodName);
 

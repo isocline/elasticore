@@ -135,4 +135,9 @@ public class MetaInfo {
 
         return null;
     }
+
+
+    public String getDescription() {
+        return getMetaAnnotationValue("label");
+    }
 }

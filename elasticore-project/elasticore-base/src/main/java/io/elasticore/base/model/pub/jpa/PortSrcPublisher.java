@@ -33,6 +33,8 @@ public class PortSrcPublisher extends SrcFilePublisher {
 
     protected ECoreModel eCoreModel;
 
+    private boolean isEnable = false;
+
 
     public PortSrcPublisher(CodePublisher publisher) {
         super(publisher);
@@ -109,12 +111,15 @@ public class PortSrcPublisher extends SrcFilePublisher {
 
         String classNm = portService.getIdentity().getName();
 
+        String desc = portService.getMeta().getDescription();
+
         params
                 .set("packageName", packageName)
                 .set("j2eePkgName", getPersistentPackageName(domain))
                 .set("entityPackageName", entityPackageName)
                 .set("dtoPackageName", dtoPackageName)
                 .set("classAnnotationList", classAnnotationList)
+                .set("description", desc)
                 .set("className", classNm);
 
 
@@ -170,6 +175,12 @@ public class PortSrcPublisher extends SrcFilePublisher {
 
             MetaInfo metaInfo = method.getMetaInfo();
 
+            String desc = method.getDescription();
+            if(desc!=null && !desc.isEmpty()) {
+                methodP.add("/*");
+                methodP.add(desc);
+                methodP.add("*/");
+            }
 
             if (metaInfo != null) {
                 Annotation metaAnnotation = metaInfo.getMetaAnnotation("httpendpoint");
@@ -194,6 +205,7 @@ public class PortSrcPublisher extends SrcFilePublisher {
                     }
                 }
             }
+
 
             methodP.add("%s %s(%s);", returnType, methodName, paramInfos);
             methodP.add("");

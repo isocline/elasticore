@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public class DbmsServiceProxyFactory {
@@ -72,6 +73,56 @@ public class DbmsServiceProxyFactory {
             return null;
         }
 
+        protected Pageable getPageableObject(Object input) {
+            Pageable pageable = null;
+
+            if (input instanceof Pageable) {
+                return (Pageable) input;
+            }
+
+            for (Method method : input.getClass().getMethods()) {
+                if ((method.getName().equals("getPageable") || method.getName().equals("pageable"))
+                        && Pageable.class.isAssignableFrom(method.getReturnType())
+                        && method.getParameterCount() == 0) {
+                    try {
+                        return (Pageable) method.invoke(input);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+
+            if (input instanceof Map) {
+                Map<?, ?> map = (Map<?, ?>) input;
+                Object pageVal = map.get("page");
+                Object sizeVal = map.get("size");
+
+                if (pageVal instanceof Number && sizeVal instanceof Number) {
+                    return PageRequest.of(((Number) pageVal).intValue(), ((Number) sizeVal).intValue());
+                }
+            }else {
+                try {
+                    Class c = input.getClass();
+                    Field pageField = c.getDeclaredField("page");
+                    Field sizeField = c.getDeclaredField("size");
+
+                    pageField.setAccessible(true);
+                    sizeField.setAccessible(true);
+
+                    Object pageVal = pageField.get(input);
+                    Object sizeVal = sizeField.get(input);
+
+                    if (pageVal instanceof Integer && sizeVal instanceof Integer) {
+                        return PageRequest.of((Integer) pageVal, (Integer) sizeVal);
+                    }
+                } catch (NoSuchFieldException | IllegalAccessException ignored) {
+
+                }
+            }
+
+            return PageRequest.of(0, 50);
+
+        }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -140,7 +191,8 @@ public class DbmsServiceProxyFactory {
 
             } else if (Page.class.isAssignableFrom(returnType)) {
                 qeuryReturnType = extractGenericReturnType(method.getGenericReturnType());
-                return executor.inqueryPage(externalService, methodName, input,qeuryReturnType, (Pageable) input);
+                Pageable pageable = getPageableObject(input);
+                return executor.inqueryPage(externalService, methodName, input,qeuryReturnType, pageable);
             }
 
             return executor.inqueryFirst(externalService, methodName, input,returnType );

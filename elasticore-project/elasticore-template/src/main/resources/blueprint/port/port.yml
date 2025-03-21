@@ -26,7 +26,19 @@ dto:
     fields:
       id: int
       name: string
+port2:
+  HttpTestPortService:
+    meta: http @url("https://echo.free.beeceptor.com") -- 안녕
+    methods:
+      listPlan:
+        meta: method @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST") --|
+          안녕하세요
+          테스트입니다.
 
+        params:
+          body: MsgInput2 @body
+        return: java.util.HashMap
+        
 port:
   HttpTestPortService:
     meta: http @url("https://echo.free.beeceptor.com")

@@ -122,4 +122,11 @@ public class Method implements ModelComponent {
 
         return isNative;
     }
+
+    public String getDescription() {
+        if(description==null) {
+            description = getMetaInfo().getMetaAnnotationValue("label");
+        }
+        return description;
+    }
 }
