@@ -12,6 +12,8 @@ public class SqlQueryInfo {
 
     private long lastModifiedTime;
 
+    private String ref;
+
     public String getSql() {
         return sql;
     }
@@ -53,5 +55,13 @@ public class SqlQueryInfo {
 
     public void setNativeQuery(String nativeQuery) {
         this.nativeQuery = nativeQuery;
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
     }
 }

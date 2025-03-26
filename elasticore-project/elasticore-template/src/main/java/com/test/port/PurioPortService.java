@@ -1,4 +1,4 @@
-//ecd:201090989H20250321093916_V1.0
+//ecd:1396475085H20250324171551_V1.0
 package com.test.port;
 
 import java.util.*;
@@ -6,6 +6,7 @@ import java.util.*;
 import com.test.dto.*;
 
 
+import org.springframework.data.domain.Page;
 import io.elasticore.runtime.port.*;
 
 

@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,7 +91,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
     @Override
     @Transactional(readOnly = true)
-    public <I, O> List<O> inqueryList(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType) {
+    public <I, O> List<O> inqueryList(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         String processId = dbmsSvcMeta.id() + "." + methodName;
         String datasource = dbmsSvcMeta.datasource();
         return executeQuery(dbmsSvcMeta, methodName, input, outputType, datasource);
@@ -99,7 +100,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
     @Override
     @Transactional(readOnly = true)
-    public <I, O> Page<O> inqueryPage(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, Pageable pageable) {
+    public <I, O> Page<O> inqueryPage(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, Pageable pageable) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         String processId = dbmsSvcMeta.id() + "." + methodName;
         String datasource = dbmsSvcMeta.datasource();
         return executePagedQuery(dbmsSvcMeta, methodName, input, outputType, pageable, datasource, true);
@@ -108,7 +109,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
     @Override
     @Transactional(readOnly = true)
-    public <I, O> O inqueryFirst(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType) {
+    public <I, O> O inqueryFirst(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String processId = dbmsSvcMeta.id() + "." + methodName;
         String datasource = dbmsSvcMeta.datasource();
         Pageable pageable = PageRequest.of(0, 1);
@@ -119,9 +120,9 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
 
     @Transactional
-    public int executeUpdate(DbmsService dbmsSvcMeta, String methodName, Object input) {
+    public int executeUpdate(DbmsService dbmsSvcMeta, String methodName, Object input) throws IOException, InvocationTargetException, NoSuchMethodException {
         String dataSource = dbmsSvcMeta.datasource();
-        try {
+
             EntityManager entityManager = getEntityManager(dataSource);
             SqlQueryInfo entry = findSqlQueryInfo(dbmsSvcMeta,methodName);
             if (entry == null) {
@@ -132,16 +133,13 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             Query query = entityManager.createNativeQuery(processedQuery);
             bindQueryParameters(query, processedQuery, input);
             return query.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+
     }
 
 
     @Transactional(readOnly = true)
-    public <I, O> List<O> executeQuery(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, String dataSource) {
-        try {
+    public <I, O> List<O> executeQuery(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, String dataSource) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, IOException {
+
             EntityManager entityManager = getEntityManager(dataSource);
 
             //ProcessConfig config = loadProcessConfig("process");
@@ -173,10 +171,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
                         .map(tuple -> convertTupleToDto(tuple, outputType))
                         .collect(Collectors.toList());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
+
     }
 
 
@@ -194,8 +189,8 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
      * @param <O>
      */
     @Transactional(readOnly = true)
-    public <I, O> Page<O> executePagedQuery(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, Pageable pageable, String dataSource, boolean checkTotalCount) {
-        try {
+    public <I, O> Page<O> executePagedQuery(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, Pageable pageable, String dataSource, boolean checkTotalCount) throws IOException, RuntimeException, InvocationTargetException, NoSuchMethodException {
+
             EntityManager entityManager = getEntityManager(dataSource);
             SqlQueryInfo entry = findSqlQueryInfo(dbmsSvcMeta,methodName);
             if (entry == null) {
@@ -241,10 +236,6 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             }
 
             return new PageImpl<>(mappedResults, pageable, totalRows);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Page.empty();
-        }
     }
 
 
@@ -393,20 +384,22 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
         throw new IllegalArgumentException("Cannot convert value of type " + sourceType.getName() + " to " + targetType.getName());
     }
 
-    private void bindQueryParameters(Query query, String sql, Object input) throws Exception {
+    private void bindQueryParameters(Query query, String sql, Object input) throws NoSuchMethodException, InvocationTargetException {
         Pattern pattern = Pattern.compile(":(\\w+)");
         Matcher matcher = pattern.matcher(sql);
         while (matcher.find()) {
-            String paramName = matcher.group(1);
-            Object value;
-            if (input instanceof Map) {
-                value = ((Map<?, ?>) input).get(paramName);
-            } else {
-                String getterMethod = "get" + Character.toUpperCase(paramName.charAt(0)) + paramName.substring(1);
-                Method method = input.getClass().getMethod(getterMethod);
-                value = method.invoke(input);
-            }
-            query.setParameter(paramName, value);
+            try {
+                String paramName = matcher.group(1);
+                Object value;
+                if (input instanceof Map) {
+                    value = ((Map<?, ?>) input).get(paramName);
+                } else {
+                    String getterMethod = "get" + Character.toUpperCase(paramName.charAt(0)) + paramName.substring(1);
+                    Method method = input.getClass().getMethod(getterMethod);
+                    value = method.invoke(input);
+                }
+                query.setParameter(paramName, value);
+            }catch (IllegalAccessException iae) {}
         }
     }
 
@@ -485,6 +478,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             String nativeQuery = getBooleanStr(value.get("nativeQuery") , "true");
 
             String id = getNativeSqlId(sqlSourcePath, portSvcName, methodName);
+            String ref = (String) value.get("ref");
 
 
             SqlQueryInfo q = new SqlQueryInfo();
@@ -492,6 +486,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             q.setSql(sqlTxt);
             q.setNativeQuery(nativeQuery);
             q.setLastModifiedTime(lastModifiedTime);
+            q.setRef(ref);
 
             sqlQueryInfoMap.put(id,q);
         });
@@ -539,7 +534,15 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             setSqlQueryInfo(sqlSourcePath,portSvcName, value,lastModifiedTime);
         });
 
-        return sqlQueryInfoMap.get(sqlId);
+        SqlQueryInfo queryInfo = sqlQueryInfoMap.get(sqlId);
+        if(queryInfo!=null) {
+            String ref = queryInfo.getRef();
+            if(ref!=null && !ref.isEmpty()) {
+                queryInfo = findSqlQueryInfo(dbmsSvcMeta, ref);
+            }
+        }
+
+        return queryInfo;
     }
 
 

@@ -91,6 +91,17 @@ port:
     meta: dbms @datasource("test")
     methods:
 
+
+      countAllMessagesByMonths2:
+        meta:
+        params:
+          input: MsgInput
+        return: MsgOutput
+        ref: countAllMessagesByMonths
+
+
+
+
       countAllMessagesByMonths:
         meta:
         params:
