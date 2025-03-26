@@ -244,6 +244,22 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
     }
 
     private String processConditionalQuery(String query, Object input) {
+        int chk1 = query.indexOf("${");
+        int chk2 = query.indexOf("/* if");
+
+        if(chk1>0) {
+            try {
+                query = replaceQueryParameters(query, input);
+            }catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if(chk2<0) {
+            return query;
+        }
+
+
         String[] lines = query.split("\n");
         StringBuilder processedQuery = new StringBuilder();
 
@@ -361,14 +377,15 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null) return null;
+
         Class<?> sourceType = value.getClass();
 
         if (targetType.isAssignableFrom(sourceType)) {
             return value;
         }
 
-        if (value instanceof Number) {
-            Number num = (Number) value;
+        // Number
+        if (value instanceof Number num) {
             if (targetType == Long.class || targetType == long.class) return num.longValue();
             if (targetType == Integer.class || targetType == int.class) return num.intValue();
             if (targetType == Double.class || targetType == double.class) return num.doubleValue();
@@ -377,15 +394,79 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             if (targetType == Byte.class || targetType == byte.class) return num.byteValue();
         }
 
+        // Boolean
+        if (targetType == Boolean.class || targetType == boolean.class) {
+            if (value instanceof Boolean b) return b;
+            if (value instanceof String s) return Boolean.parseBoolean(s);
+            if (value instanceof Number n) return n.intValue() != 0;
+        }
+
+        // java.sql.Date -> java.time.LocalDate
+        if (value instanceof java.sql.Date sqlDate && targetType == java.time.LocalDate.class) {
+            return sqlDate.toLocalDate();
+        }
+
+        // java.sql.Timestamp -> LocalDateTime or Instant
+        if (value instanceof java.sql.Timestamp timestamp) {
+            if (targetType == java.time.LocalDateTime.class) {
+                return timestamp.toLocalDateTime();
+            } else if (targetType == java.time.Instant.class) {
+                return timestamp.toInstant();
+            }
+        }
+
+        // java.sql.Time -> LocalTime
+        if (value instanceof java.sql.Time sqlTime && targetType == java.time.LocalTime.class) {
+            return sqlTime.toLocalTime();
+        }
+
+
         if (targetType == String.class) {
             return value.toString();
         }
 
-        throw new IllegalArgumentException("Cannot convert value of type " + sourceType.getName() + " to " + targetType.getName());
+        throw new IllegalArgumentException(
+                "Cannot convert value of type " + sourceType.getName() + " to " + targetType.getName()
+        );
     }
 
+
+
+    private String replaceQueryParameters(String sql, Object input) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Pattern pattern = Pattern.compile("\\$\\{(\\w+)}");
+        Matcher matcher = pattern.matcher(sql);
+        StringBuffer result = new StringBuffer();
+
+        while (matcher.find()) {
+            String paramName = matcher.group(1);
+            Object value;
+
+            if (input instanceof Map) {
+                value = ((Map<?, ?>) input).get(paramName);
+            } else {
+                String getterMethod = "get" + Character.toUpperCase(paramName.charAt(0)) + paramName.substring(1);
+                Method method = input.getClass().getMethod(getterMethod);
+                value = method.invoke(input);
+            }
+
+            matcher.appendReplacement(result, Matcher.quoteReplacement(value != null ? value.toString() : ""));
+        }
+
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+
+    /**
+     *
+     * @param query
+     * @param sql
+     * @param input
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
     private void bindQueryParameters(Query query, String sql, Object input) throws NoSuchMethodException, InvocationTargetException {
-        Pattern pattern = Pattern.compile(":(\\w+)");
+        Pattern pattern = Pattern.compile("(?<!:):(\\w+)");
         Matcher matcher = pattern.matcher(sql);
         while (matcher.find()) {
             try {
