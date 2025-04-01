@@ -804,12 +804,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
         List<String> list = new ArrayList<>();
+        List<String> list4Enum = new ArrayList<>(); // for Enumeration
 
 
         String dbColumnName = field.getDbColumnName();
 
-        if (dbColumnName !=null)
+        if (dbColumnName !=null) {
             list.add("name = \"" + dbColumnName + "\"");
+            list4Enum.add("name = \"" + dbColumnName + "\"");
+        }
 
 
         String columnDefinition = field.getAnnotationValue("columndefinition", "def");
@@ -829,18 +832,22 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         if (field.hasAnnotation("notnull")) {
             list.add("nullable = false");
+            list4Enum.add("nullable = false");
         }
 
         if("false".equals(field.getAnnotationValue(EntityAnnotation.UPDATABLE))) {
             list.add("updatable = false");
+            list4Enum.add("updatable = false");
         }
 
         EnumModel enumModel = this.getEnumModelFromType(field);
+
 
         boolean isLengthDefine = false;
         String lengthVal = field.getAnnotationValue(EntityAnnotation.LENGTH);
         if (lengthVal != null) {
             list.add("length = " + lengthVal);
+            list4Enum.add("length = " + lengthVal);
             isLengthDefine = true;
         }else {
             if(enumModel!=null) {
@@ -852,7 +859,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                         if(enumField!=null) {
                             lengthVal = enumField.getAnnotationValue(EntityAnnotation.LENGTH);
                             if (lengthVal != null) {
-                                list.add("length = " + lengthVal);
+                                list4Enum.add("length = " + lengthVal);
                                 isLengthDefine = true;
                             }
                         }
@@ -882,8 +889,13 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
 
-        if (list.size() > 0 && !isEnumerationType(field)) {
+        //if (list.size() > 0 && !isEnumerationType(field)) {
+        if (list.size() > 0 ) {
             String txt = "@Column(" + String.join(", ", list) + ")";
+            paragraph.add(txt);
+        }
+        else if(list4Enum.size()>0) {
+            String txt = "@Column(" + String.join(", ", list4Enum) + ")";
             paragraph.add(txt);
         }
     }

@@ -478,7 +478,8 @@ public class SrcFilePublisher {
 
     protected boolean isEnumerationType(Field f) {
         String typeName = f.getTypeInfo().getCoreItemType();
-        if (this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(typeName) != null)
+        //if (this.publisher.getECoreModelContext().getDomain().getModel().getEnumModels().findByName(typeName) != null)
+        if (findEnumModel(typeName) != null)
             return true;
 
         return false;

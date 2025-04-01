@@ -1,0 +1,8 @@
+## model
+entity:
+
+  TestInChannel:
+    meta: entity @dto @extend(LifecycleEntity) -- 단가 | 메시지의 단가 정보를 관리
+    fields:
+      id: string(30) @id @env:genid
+      msgType: MessageType -- 메시지 타입

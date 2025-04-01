@@ -20,9 +20,7 @@ import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -136,6 +134,72 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
     }
 
+    protected String extractSortCode(Object input) {
+        if (input == null) return null;
+
+        String sortColumnNm= null;
+        boolean sortAscending = true;
+
+        if (input instanceof Map<?, ?> map) {
+            Object sortVal = map.get("sortCode");
+            if(sortVal != null)
+                return sortVal.toString();
+
+            sortVal = map.get("sortColumn");
+            if(sortVal!=null)
+                sortColumnNm = sortVal.toString();
+         }
+
+        Class c= input.getClass();
+        try {
+            Method method = c.getMethod("getSortCode");
+            Object result = method.invoke(input);
+            if(result!=null)
+                return result.toString();
+        } catch (Exception e) { }
+
+        try {
+            Method method = c.getMethod("getSortColumn");
+            Object result = method.invoke(input);
+            if(result!=null) {
+                sortColumnNm = result.toString();
+
+                Method method2 = c.getMethod("getSortAscending");
+                Object result2 = method2.invoke(input);
+                if (Boolean.FALSE == result2) {
+                    return sortColumnNm + "-";
+                }
+
+                return sortColumnNm + "+";
+            }
+
+        } catch (Exception e) { }
+
+        return null;
+    }
+
+
+    private String appendSortClause(String sql, Object input) {
+        String sortCode = extractSortCode(input);
+        if (sortCode == null || sortCode.isBlank()) return sql;
+
+        //   title+,name --> title ASC, name DESC
+        String orderByClause = Arrays.stream(sortCode.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(sort -> {
+                    String field = sort.substring(0, sort.length() - 1);
+                    char directionSymbol = sort.charAt(sort.length() - 1);
+                    String direction = (directionSymbol == '-') ? "DESC" : "ASC";
+                    return field + " " + direction;
+                })
+                .collect(Collectors.joining(", "));
+
+        if (orderByClause.isEmpty()) return sql;
+
+        return sql + " ORDER BY " + orderByClause;
+    }
+
 
     @Transactional(readOnly = true)
     public <I, O> List<O> executeQuery(DbmsService dbmsSvcMeta, String methodName, I input, Class<O> outputType, String dataSource) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, IOException {
@@ -152,6 +216,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             }
 
             String processedQuery = processConditionalQuery(entry.getSql(), input);
+
             Query query;
             if (entry.getNativeQuery()) {
                 query = entityManager.createNativeQuery(processedQuery, Tuple.class);
@@ -309,7 +374,11 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
                 processedQuery.append(line).append("\n");
             }
         }
-        return processedQuery.toString().trim();
+
+        //return processedQuery.toString().trim();
+        // apply sort
+        return appendSortClause(processedQuery.toString(), input);
+
     }
 
     private boolean evaluateCondition(String condition, Object input) {
@@ -580,50 +649,68 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
 
         String sqlId = getNativeSqlId(dbmsSvcMeta, methodName);
 
-        File sqlSourceFile;
+        File sqlSourceFile=null;
 
         boolean isReloadable = false;
+        InputStream is = null;
 
-        // dev mode
-        String devSrcPath = new File(getMainClassLoader().getResource(".").getFile())
-                .getParentFile().getParentFile().getParentFile().getParent()
-                + "/src/main/resources/" + sqlSourcePath;
-        File devSrcFile = new File(devSrcPath);
 
-        if (devSrcFile.exists() && devSrcFile.isFile()) {
-            sqlSourceFile = devSrcFile;
-            isReloadable = true;
-        } else {
-            sqlSourceFile = new File(Objects.requireNonNull(getMainClassLoader().getResource(sqlSourcePath)).getFile());
-        }
+        try {
+            // dev mode
+            String devSrcPath = new File(getMainClassLoader().getResource(".").getFile())
+                    .getParentFile().getParentFile().getParentFile().getParent()
+                    + "/src/main/resources/" + sqlSourcePath;
+            File devSrcFile = new File(devSrcPath);
 
-        if (!sqlSourceFile.exists() ) {
-            throw new FileNotFoundException("source file not found: " + sqlSourceFile.getAbsolutePath());
-        }
-
-        SqlQueryInfo sqlQueryInfo = sqlQueryInfoMap.get(sqlId);
-        long lastModifiedTime = sqlSourceFile.lastModified();
-        if(sqlQueryInfo!=null && (!isReloadable || sqlQueryInfo.getLastModifiedTime() == lastModifiedTime) ) {
-            return sqlQueryInfo;
-
-        }
-        Map<String, Map> map = mapper.readValue(sqlSourceFile, LinkedHashMap.class);
-        Map<String, Map> port = map.get("port");
-
-        port.forEach((portSvcName, value) -> {
-            //setSqlQueryInfo(String sqlSourcePath, String portSvcName, Map<String, Map> values,long lastModifiedTime)
-            setSqlQueryInfo(sqlSourcePath,portSvcName, value,lastModifiedTime);
-        });
-
-        SqlQueryInfo queryInfo = sqlQueryInfoMap.get(sqlId);
-        if(queryInfo!=null) {
-            String ref = queryInfo.getRef();
-            if(ref!=null && !ref.isEmpty()) {
-                queryInfo = findSqlQueryInfo(dbmsSvcMeta, ref);
+            if (devSrcFile.exists() && devSrcFile.isFile()) {
+                sqlSourceFile = devSrcFile;
+                isReloadable = true;
+                is = new FileInputStream(devSrcFile);
+            } else {
+                is = getMainClassLoader().getResourceAsStream(sqlSourcePath);
+                if (is == null) {
+                    throw new FileNotFoundException("resource not found in JAR: " + sqlSourcePath);
+                }
+                //sqlSourceFile = new File(Objects.requireNonNull(getMainClassLoader().getResource(sqlSourcePath)).getFile());
             }
-        }
 
-        return queryInfo;
+            if (sqlSourceFile != null && !sqlSourceFile.exists()) {
+                throw new FileNotFoundException("source file not found: " + sqlSourceFile.getAbsolutePath());
+            }
+
+            SqlQueryInfo sqlQueryInfo = sqlQueryInfoMap.get(sqlId);
+            long lastModifiedTime = -1;
+
+            if(sqlSourceFile!=null) {
+                lastModifiedTime = sqlSourceFile.lastModified();
+            }
+
+            if (sqlQueryInfo != null && (!isReloadable || sqlQueryInfo.getLastModifiedTime() == lastModifiedTime)) {
+                return sqlQueryInfo;
+
+            }
+            Map<String, Map> map = mapper.readValue(is, LinkedHashMap.class);
+            Map<String, Map> port = map.get("port");
+
+            long lastModifiedTime2 = lastModifiedTime;
+            port.forEach((portSvcName, value) -> {
+                //setSqlQueryInfo(String sqlSourcePath, String portSvcName, Map<String, Map> values,long lastModifiedTime)
+                setSqlQueryInfo(sqlSourcePath, portSvcName, value, lastModifiedTime2);
+            });
+
+            SqlQueryInfo queryInfo = sqlQueryInfoMap.get(sqlId);
+            if (queryInfo != null) {
+                String ref = queryInfo.getRef();
+                if (ref != null && !ref.isEmpty()) {
+                    queryInfo = findSqlQueryInfo(dbmsSvcMeta, ref);
+                }
+            }
+
+            return queryInfo;
+        }finally {
+            if(is!=null)
+                is.close();
+        }
     }
 
 

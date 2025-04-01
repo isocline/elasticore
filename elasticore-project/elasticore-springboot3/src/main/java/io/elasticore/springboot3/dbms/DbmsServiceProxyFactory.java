@@ -99,10 +99,12 @@ public class DbmsServiceProxyFactory {
             if (input instanceof Map) {
                 Map<?, ?> map = (Map<?, ?>) input;
                 Object pageVal = map.get("pageNumber");
-                if(pageVal==null) map.get("page");
+                if(pageVal==null)
+                    pageVal = map.get("page");
 
                 Object sizeVal = map.get("sizeVal");
-                if(sizeVal==null) map.get("size");
+                if(sizeVal==null)
+                    sizeVal = map.get("size");
 
                 if (pageVal instanceof Number && sizeVal instanceof Number) {
                     return PageRequest.of(((Number) pageVal).intValue(), ((Number) sizeVal).intValue());
