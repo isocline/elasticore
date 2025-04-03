@@ -1,4 +1,4 @@
-//ecd:1578820238H20250401183440_V1.0
+//ecd:847955478H20250403210036_V1.0
 package com.xyrokorea.xyroplug.domain.channel.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -45,38 +45,55 @@ public class ChannelMapper {
     }
 
     
-    public static void mapping(TestInChannel from, TestInChannelDTO to, boolean isSkipNull){
+    public static void mapping(Message from, MessageDTO to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        setVal(from.getStatus(), to::setStatus, isSkipNull);
         setVal(from.getMsgType(), to::setMsgType, isSkipNull);
-        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getMsgId(), to::setMsgId, isSkipNull);
+        setVal(from.getCcId(), to::setCcId, isSkipNull);
+        setVal(from.getSender(), to::setSender, isSkipNull);
+        setVal(from.getRecipient(), to::setRecipient, isSkipNull);
+        setVal(from.getUuid(), to::setUuid, isSkipNull);
+        setVal(from.getContent(), to::setContent, isSkipNull);
+        setVal(from.getErrMsg(), to::setErrMsg, isSkipNull);
+        setVal(from.getRecvDatetime(), to::setRecvDatetime, isSkipNull);
+        setVal(from.getRecvEndDatetime(), to::setRecvEndDatetime, isSkipNull);
+        if(isSkip("Message","AuditEntity")) return;
+        setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
+        if(isSkip("Message","BaseEntity")) return;
+        setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
     }
     
     
-    public static void mapping(TestInChannel from, TestInChannelDTO to){
+    public static void mapping(Message from, MessageDTO to){
         mapping(from,to,false);
     }
     
     
-    public static TestInChannelDTO toDTO(TestInChannel from){
+    public static MessageDTO toDTO(Message from){
         if(from==null) return null;
-        TestInChannelDTO to = new TestInChannelDTO();
+        MessageDTO to = new MessageDTO();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<TestInChannelDTO> toTestInChannelDTOList(List<TestInChannel> fromList){
+    public static List<MessageDTO> toMessageDTOList(List<Message> fromList){
         if(fromList==null) return null;
         return fromList.stream().map(ChannelMapper::toDTO).collect(Collectors.toList());
     }
     
     
-    public static List<TestInChannelDTO> toTestInChannelDTOList(List<TestInChannel> fromList, BiFunction<TestInChannel, TestInChannelDTO, TestInChannelDTO> modifier){
+    public static List<MessageDTO> toMessageDTOList(List<Message> fromList, BiFunction<Message, MessageDTO, MessageDTO> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                TestInChannelDTO to = toDTO(from);
+                MessageDTO to = toDTO(from);
                 return modifier.apply(from, to);
             }
             )
@@ -86,38 +103,53 @@ public class ChannelMapper {
     }
     
     
-    public static void mapping(TestInChannelDTO from, TestInChannel to, boolean isSkipNull){
+    public static void mapping(MessageDTO from, Message to, boolean isSkipNull){
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getId(), to::setId, isSkipNull);
+        setVal(from.getMsgId(), to::setMsgId, isSkipNull);
+        setVal(from.getCcId(), to::setCcId, isSkipNull);
+        setVal(from.getSender(), to::setSender, isSkipNull);
+        setVal(from.getRecipient(), to::setRecipient, isSkipNull);
+        setVal(from.getUuid(), to::setUuid, isSkipNull);
+        setVal(from.getContent(), to::setContent, isSkipNull);
+        setVal(from.getStatus(), to::setStatus, isSkipNull);
         setVal(from.getMsgType(), to::setMsgType, isSkipNull);
+        setVal(from.getErrMsg(), to::setErrMsg, isSkipNull);
+        setVal(from.getRecvDatetime(), to::setRecvDatetime, isSkipNull);
+        setVal(from.getRecvEndDatetime(), to::setRecvEndDatetime, isSkipNull);
+        setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
+        setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
     }
     
     
-    public static void mapping(TestInChannelDTO from, TestInChannel to){
+    public static void mapping(MessageDTO from, Message to){
         mapping(from,to,false);
     }
     
     
-    public static TestInChannel toEntity(TestInChannelDTO from){
+    public static Message toEntity(MessageDTO from){
         if(from==null) return null;
-        TestInChannel to = new TestInChannel();
+        Message to = new Message();
         mapping(from, to);
         return to;
     }
     
     
-    public static List<TestInChannel> toTestInChannelList(List<TestInChannelDTO> fromList){
+    public static List<Message> toMessageList(List<MessageDTO> fromList){
         if(fromList==null) return null;
         return fromList.stream().map(ChannelMapper::toEntity).collect(Collectors.toList());
     }
     
     
-    public static List<TestInChannel> toTestInChannelList(List<TestInChannelDTO> fromList, BiFunction<TestInChannelDTO, TestInChannel, TestInChannel> modifier){
+    public static List<Message> toMessageList(List<MessageDTO> fromList, BiFunction<MessageDTO, Message, Message> modifier){
         if(fromList==null) return null;
         return fromList.stream()
             .map(from -> {
-                TestInChannel to = toEntity(from);
+                Message to = toEntity(from);
                 return modifier.apply(from, to);
             }
             )
@@ -127,17 +159,78 @@ public class ChannelMapper {
     }
     
     
-    public static Specification<TestInChannel> toSpec(TestInChannelSrchDTO searchDTO){
+    public static Specification<Message> toSpec(MessageSrchDTO searchDTO){
         return toSpec(searchDTO, Specification.where(null));
     }
     
     
-    public static Specification<TestInChannel> toSpec(TestInChannelSrchDTO searchDTO, Specification<TestInChannel> sp){
+    public static Specification<Message> toSpec(MessageSrchDTO searchDTO, Specification<Message> sp){
+        MessageStatus status = searchDTO.getStatus();
+        if(hasValue(status)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("status"),status));
+        }
         MessageType msgType = searchDTO.getMsgType();
         if(hasValue(msgType)){
             sp = sp.and((r,q,c) -> c.equal(r.get("msgType"),msgType));
         }
-        sp=setSpec(sp, "id", searchDTO.getId());
+        Long msgId = searchDTO.getMsgId();
+        if(hasValue(msgId)){
+            sp = sp.and((r,q,c) -> c.equal(r.get("msgId"),msgId));
+        }
+        sp=setSpec(sp, "ccId", searchDTO.getCcId());
+        sp=setSpec(sp, "sender", searchDTO.getSender());
+        sp=setSpec(sp, "recipient", searchDTO.getRecipient());
+        sp=setSpec(sp, "uuid", searchDTO.getUuid());
+        sp=setSpec(sp, "content", searchDTO.getContent());
+        sp=setSpec(sp, "errMsg", searchDTO.getErrMsg());
+        java.time.LocalDateTime recvDatetimeFrom = searchDTO.getRecvDatetimeFrom();
+        java.time.LocalDateTime recvDatetimeTo = searchDTO.getRecvDatetimeTo();
+        if(hasValue(recvDatetimeFrom) && hasValue(recvDatetimeTo)){
+            sp = sp.and((r,q,c) -> c.between(r.get("recvDatetime"),recvDatetimeFrom,recvDatetimeTo));
+        }
+        else if(hasValue(recvDatetimeFrom)){
+            sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get("recvDatetime"),recvDatetimeFrom));
+        }
+        else if(hasValue(recvDatetimeTo)){
+            sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get("recvDatetime"),recvDatetimeTo));
+        }
+        java.time.LocalDateTime recvEndDatetimeFrom = searchDTO.getRecvEndDatetimeFrom();
+        java.time.LocalDateTime recvEndDatetimeTo = searchDTO.getRecvEndDatetimeTo();
+        if(hasValue(recvEndDatetimeFrom) && hasValue(recvEndDatetimeTo)){
+            sp = sp.and((r,q,c) -> c.between(r.get("recvEndDatetime"),recvEndDatetimeFrom,recvEndDatetimeTo));
+        }
+        else if(hasValue(recvEndDatetimeFrom)){
+            sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get("recvEndDatetime"),recvEndDatetimeFrom));
+        }
+        else if(hasValue(recvEndDatetimeTo)){
+            sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get("recvEndDatetime"),recvEndDatetimeTo));
+        }
+        sp=setSpec(sp, "lastModifiedBy", searchDTO.getLastModifiedBy());
+        java.time.LocalDateTime lastModifiedDateFrom = searchDTO.getLastModifiedDateFrom();
+        java.time.LocalDateTime lastModifiedDateTo = searchDTO.getLastModifiedDateTo();
+        if(hasValue(lastModifiedDateFrom) && hasValue(lastModifiedDateTo)){
+            sp = sp.and((r,q,c) -> c.between(r.get("lastModifiedDate"),lastModifiedDateFrom,lastModifiedDateTo));
+        }
+        else if(hasValue(lastModifiedDateFrom)){
+            sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get("lastModifiedDate"),lastModifiedDateFrom));
+        }
+        else if(hasValue(lastModifiedDateTo)){
+            sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get("lastModifiedDate"),lastModifiedDateTo));
+        }
+        sp=setSpec(sp, "createIP", searchDTO.getCreateIP());
+        sp=setSpec(sp, "lastModifiedIP", searchDTO.getLastModifiedIP());
+        java.time.LocalDateTime createDateFrom = searchDTO.getCreateDateFrom();
+        java.time.LocalDateTime createDateTo = searchDTO.getCreateDateTo();
+        if(hasValue(createDateFrom) && hasValue(createDateTo)){
+            sp = sp.and((r,q,c) -> c.between(r.get("createDate"),createDateFrom,createDateTo));
+        }
+        else if(hasValue(createDateFrom)){
+            sp = sp.and((r,q,c) -> c.greaterThanOrEqualTo(r.get("createDate"),createDateFrom));
+        }
+        else if(hasValue(createDateTo)){
+            sp = sp.and((r,q,c) -> c.lessThanOrEqualTo(r.get("createDate"),createDateTo));
+        }
+        sp=setSpec(sp, "createdBy", searchDTO.getCreatedBy());
         return sp;
     }
     

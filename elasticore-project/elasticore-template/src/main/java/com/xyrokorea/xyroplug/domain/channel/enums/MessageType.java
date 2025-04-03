@@ -1,4 +1,4 @@
-//ecd:-658314408H20250401183440_V1.0
+//ecd:-658314408H20250402000028_V1.0
 package com.xyrokorea.xyroplug.domain.channel.enums;
 
 import lombok.Getter;

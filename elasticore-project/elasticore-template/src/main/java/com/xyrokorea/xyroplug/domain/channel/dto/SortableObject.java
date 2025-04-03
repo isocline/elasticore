@@ -1,4 +1,4 @@
-//ecd:-133654767H20250401183440_V1.0
+//ecd:-133654767H20250402000028_V1.0
 package com.xyrokorea.xyroplug.domain.channel.dto;
 
 import org.springframework.data.domain.Sort;

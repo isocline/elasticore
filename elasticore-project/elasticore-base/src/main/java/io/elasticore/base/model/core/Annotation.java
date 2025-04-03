@@ -2,9 +2,7 @@ package io.elasticore.base.model.core;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Getter
 public class Annotation {
@@ -91,4 +89,13 @@ public class Annotation {
     public List<Annotation> getSiblings() {
         return siblings;
     }
+
+
+    public static Map<String,Annotation> createAnnotationMap(){
+        Map<String, Annotation> annotationMap = new HashMap<>();
+        annotationMap.put("uuid", Annotation.create("uuid",UUID.randomUUID().toString()));
+        return annotationMap;
+    }
+
+
 }

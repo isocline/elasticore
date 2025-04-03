@@ -23,6 +23,19 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Comprehensive service layer for managing ${entityClassName} entities.
+ *
+ * Provides full CRUD operations, dynamic search with specification support,
+ * pagination, sorting, and advanced query functions such as min/max/sum.
+ * Delegates repository operations via ${domainName}RepositoryHelper.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
+
 @Service
 @AllArgsConstructor
 public class ${className} {
@@ -31,7 +44,7 @@ public class ${className} {
 
 
     /**
-     * Retrieves all t${entityClassName} entities, converts them to ${dtoClassName} objects, and returns them as a list.
+     * Retrieves all ${entityClassName} entities, converts them to ${dtoClassName} objects, and returns them as a list.
      *
      * @return a list of ${dtoClassName} objects
      */
@@ -155,7 +168,74 @@ public class ${className} {
         return helper.get${entityClassName}().count(specification);
     }
 /*-- print-if:end --*/
+/*-- print-if:${isExposeOutput} --*/
 
+    /**
+     * Finds a list of ${entityClassName} entities that match the given search criteria
+     * and returns them as a list of ${searchResultDTOClassName} objects.
+     * If sorting information is provided in the search criteria, the results are sorted accordingly.
+     *
+     * @param searchDTO the search criteria
+     * @return a list of matching ${searchResultDTOClassName} objects
+     */
+    @Transactional
+    public List<${searchResultDTOClassName}> listBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+        Sort sort = searchDTO.getSort();
+        if(sort ==null) {
+            return helper.get${entityClassName}().findAll(specification).stream()
+                        ${mappingCode}
+                        .map(${mapperName}::${toSearchListMappingName})
+                        .collect(Collectors.toList());
+        }
+        return helper.get${entityClassName}().findAll(specification, sort).stream()
+                ${mappingCode}
+                .map(${mapperName}::${toSearchListMappingName})
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Finds ${entityClassName} entities that match the given search criteria and returns them as a paginated list of ${searchResultDTOClassName}.
+     *
+     * @param searchDTO the search criteria
+     * @return a paginated list of ${searchResultDTOClassName} objects
+     */
+    @Transactional
+    public Page<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+        Pageable pageable = searchDTO.getPageable();
+        Page<${entityClassName}> result = helper.get${entityClassName}().findAll(specification, pageable);
+        return result.map(${mapperName}::${toSearchListMappingName});
+    }
+
+    /**
+     * Finds the first ${entityClassName} entity that matches the given search criteria
+     * and returns it as a ${searchResultDTOClassName} object.
+     *
+     * @param searchDTO the search criteria
+     * @return the first matching ${searchResultDTOClassName} object, or {@code null} if no match is found
+     */
+    public ${searchResultDTOClassName} findFirstBySearch(${searchDTOClassName} searchDTO) {
+        searchDTO.setPageSize(1);
+        Page<${searchResultDTOClassName}> pages= findBySearch(searchDTO);
+        List<${searchResultDTOClassName}> list=pages.getContent();
+        if(list==null || list.size()==0)
+            return null;
+        return list.get(0);
+    }
+
+
+    /**
+     * Counts the number of ${entityClassName} entities that match the given search criteria.
+     *
+     * @param searchDTO the search criteria
+     * @return the number of entities that match the search criteria
+     */
+    public long countBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+        return helper.get${entityClassName}().count(specification);
+    }
+/*-- print-if:end --*/
     /**
      * Finds a ${entityClassName} entity by its ID and converts it to a ${dtoClassName}.
      *

@@ -45,10 +45,33 @@ init: {
 }%%
 
 classDiagram
-    class TestInChannel{
-        id: String[PK] 
-        msgType: MessageType //메시지 타입
+    class BaseEntity:::abstract{
+        &lt;&lt;Abstract &gt;&gt;
+        createDate: java.time.LocalDateTime 
+        createdBy: String 
     }
+    class AuditEntity:::abstract{
+        &lt;&lt;Abstract &gt;&gt;
+        lastModifiedBy: String 
+        lastModifiedDate: java.time.LocalDateTime 
+        createIP: String //시스템 입력 IP
+        lastModifiedIP: String //시스템 수정 IP
+    }
+    BaseEntity <|-- AuditEntity : extend
+    class Message{
+        msgId: Long[PK] //메세지 아이디
+        ccId: String //고객 채널 아이디
+        sender: String //발신자 정보(전화번호)
+        recipient: String 
+        uuid: String //발신 메시지 고유아이디
+        content: String //메시지 내용
+        status: MessageStatus //메시지 상태
+        msgType: MessageType //최종 전송 메세지 타입
+        errMsg: String //에러시 에러 메세지
+        recvDatetime: java.time.LocalDateTime //수신일시
+        recvEndDatetime: java.time.LocalDateTime //수신(통화) 종료일시
+    }
+    AuditEntity <|-- Message : extend
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

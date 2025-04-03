@@ -26,9 +26,7 @@ import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
 import io.elasticore.base.model.dto.DataTransferModels;
-import io.elasticore.base.model.entity.EntityAnnotation;
-import io.elasticore.base.model.entity.Entity;
-import io.elasticore.base.model.entity.Field;
+import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.shadow.SourceShadowModel;
 import io.elasticore.base.util.CodeTemplate;
@@ -251,6 +249,8 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
         SourceShadowModel shadowModel = new SourceShadowModel(dto.getIdentity().getName());
 
+        boolean isEnableSearchDTO = dto.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EXPOSE);
+
         for (Field f : fieldList) {
 
             if(isDisableField(f))
@@ -261,6 +261,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
                 continue;
 
             boolean enableSearch = f.hasAnnotation(EntityAnnotation.SEARCH);
+
 
             if(f.getTypeInfo().isList() && enableSearch) {
                 String coreTypeNm = f.getTypeInfo().getCoreItemType();
@@ -286,10 +287,37 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
             if(isSkipSearchField(dto, f))
                 continue;
 
+            if(!enableSearch ) {
+                // if @expose and string type
+                if(isEnableSearchDTO) {
+
+
+                    if(f.getTypeInfo().isStringType()) {
+                        enableSearch = true;
+                        f.getAnnotationMap().put("search", Annotation.create("search", "auto"));
+                    }
+                    else  if(f.getTypeInfo().getBaseFieldType()== BaseFieldType.LocalDateTime
+                            || f.getTypeInfo().getBaseFieldType()== BaseFieldType.LocalTime
+                            || f.getTypeInfo().getBaseFieldType()== BaseFieldType.LocalDate
+                            || f.getTypeInfo().getBaseFieldType()== BaseFieldType.DATETIME
+                            || f.getTypeInfo().getBaseFieldType()== BaseFieldType.DATE
+
+                    ) {
+                        // skip datetime type
+                        enableSearch = true;
+                        f.getAnnotationMap().put("search", Annotation.create("search", "between"));
+                    }
+                    else {
+                        enableSearch = true;
+                        f.getAnnotationMap().put("search", Annotation.create("search", "eq"));
+                    }
+                }
+            }
 
 
             if (!isForceDefineField
                     //&& !f.hasAnnotation("id")
+                    //&& !isEnableSearchDTO
                     && !enableSearch
                     &&  ( dto.getItems().findByName(f.getName()) == null )
 
@@ -320,7 +348,7 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
             setFieldDesc(f, p);
             setFieldDocumentation(f,p ,conditionItems ,enableSearch);
-            setFieldValidation(f,p);
+            //setFieldValidation(f,p);
             if(setJsonInfo(f, p) ) {
                 shadowModel.setImportPackageName("com.fasterxml.jackson.annotation.*");
             }

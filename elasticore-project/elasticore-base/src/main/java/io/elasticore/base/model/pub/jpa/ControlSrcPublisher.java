@@ -149,6 +149,10 @@ public class ControlSrcPublisher extends SrcFilePublisher {
         String entityName = StringUtils.uncapitalize(entityClassName);
         String serviceClassName = entityClassName+ ConstanParam.POSTFIX_SERVICE;
 
+        if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EXPOSE)) {
+            serviceClassName = entityClassName+ ConstanParam.POSTFIX_EXT_SERVICE;
+        }
+
         String keyDtoClassName = entityClassName+"Key"+"DTO";
 
         String domainName = domain.getName();

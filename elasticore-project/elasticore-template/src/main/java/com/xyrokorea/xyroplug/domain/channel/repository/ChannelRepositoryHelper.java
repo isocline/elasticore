@@ -1,4 +1,4 @@
-//ecd:142824687H20250401183440_V1.0
+//ecd:1615555385H20250403200008_V1.0
 package com.xyrokorea.xyroplug.domain.channel.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -28,7 +28,7 @@ public class ChannelRepositoryHelper {
 
     private final EntityManager entityManager;
 
-    private final TestInChannelRepository testInChannel;
+    private final MessageRepository message;
     
 
 

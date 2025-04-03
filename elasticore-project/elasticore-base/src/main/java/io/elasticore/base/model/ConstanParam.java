@@ -40,6 +40,8 @@ public interface ConstanParam {
 
     String POSTFIX_SERVICE = "CoreService";
 
+    String POSTFIX_EXT_SERVICE = "Service";
+
     String POSTFIX_CONTROL = "Controller";
 
 

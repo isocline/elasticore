@@ -72,17 +72,24 @@ public class SrcFilePublisher {
             response = HashUtils.checkContentModified(reader);
 
 
-            if (response != null && response.getStatus() == HashUtils.MODIFIED) {
+            if (response != null) {
 
-
-                if (checkModified && !response.hasCustomizedScopeContent()) {
-                    //ConsoleLog.printInfo("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
-                    //ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) +" "+response.getErrMsg());
-                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName));
+                if (response.getStatus() == HashUtils.UNTRACKED) {
+                    // skip checking code
                     return;
                 }
-                //ConsoleLog.printInfo("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
-                ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) + " [INGORE]");
+
+                else if (response.getStatus() == HashUtils.MODIFIED) {
+
+                    if (checkModified && !response.hasCustomizedScopeContent()) {
+                        //ConsoleLog.printInfo("[WARN] PUB_SKIP: " + qualifiedClassName + " ** USER_MODIFIED **");
+                        //ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) +" "+response.getErrMsg());
+                        ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName));
+                        return;
+                    }
+                    //ConsoleLog.printInfo("[WARN] IGNORE: " + qualifiedClassName + " ** USER_MODIFIED **");
+                    ConsoleLog.storeLog("USER_MODIFIED", getFilePathInfo(qualifiedClassName) + " [INGORE]");
+                }
 
             }
 
@@ -314,7 +321,7 @@ public class SrcFilePublisher {
         }
         boolean isNotNull = f.hasAnnotation(EntityAnnotation.NOT_NULL);
         String requireTxt = "";
-        if (isNotNull) {
+        if (isNotNull && !enableSearch) {
             requireTxt = ", requiredMode=Schema.RequiredMode.REQUIRED";
         }
 

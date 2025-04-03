@@ -10,10 +10,7 @@ import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,7 +134,7 @@ public class AbstractModelLoader implements ConstanParam {
         Object metaInfoObj = entityMap.get(PROPERTY_META);
         Map<String, Annotation> metaAnnotation = null;
         if(metaInfoObj==null) {
-            metaAnnotation = new HashMap<>();
+            metaAnnotation = Annotation.createAnnotationMap();
             if(type!=null)
                 metaAnnotation.put("type", Annotation.create("type",type) );
         }else{
@@ -290,7 +287,7 @@ public class AbstractModelLoader implements ConstanParam {
 
         Matcher matcher = pattern.matcher(fieldLine);
 
-        Map<String, Annotation> annotationMap = new HashMap<>();
+        Map<String, Annotation> annotationMap = Annotation.createAnnotationMap();
         while (matcher.find()) {
             String annotationName = matcher.group(1);
             String attributeParameters = matcher.group(2);
@@ -409,9 +406,16 @@ public class AbstractModelLoader implements ConstanParam {
         if(metaInfo!=null && metaInfo.hasMetaAnnotation(EntityAnnotation.META_DTO)) {
             if( !annotationMap.containsKey("s") && !annotationMap.containsKey("searchable")) {
                 annotationMap.put(EntityAnnotation.AUTOSEARCH, Annotation.create(EntityAnnotation.AUTOSEARCH));
-                if("string".equals(type.toLowerCase())) {
+                String typeNm = type.toLowerCase();
+                if("string".equals(typeNm)) {
                     annotationMap.put("searchable", Annotation.create("searchable"));
-                }else {
+                }
+                else if("localdate".equals(typeNm) || "localtime".equals(typeNm)  || "localdatetime".equals(typeNm)
+                        || "datetime".equals(typeNm)   || "date".equals(typeNm)
+                ) {
+                    annotationMap.put("searchable", Annotation.create("searchable","between"));
+                }
+                else {
                     annotationMap.put("searchable", Annotation.create("searchable", "eq"));
                 }
             }

@@ -33,7 +33,21 @@ public class HttpAuthProviderFactory {
         HttpAuthProvider authProvider = (inputObj, headers) -> {
             // Adds the authentication header to the request headers
             headers.add(Map.of(headerKey, type + " " + token));
-            return headers;
+            return null;
+        };
+        return authProvider;
+    }
+
+    /**
+     *
+     * @param headerKey
+     * @param value
+     * @return
+     */
+    public static HttpAuthProvider create(String headerKey, String value) {
+        HttpAuthProvider authProvider = (inputObj, headers) -> {
+            headers.add(Map.of(headerKey, value));
+            return null;
         };
         return authProvider;
     }

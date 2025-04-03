@@ -191,7 +191,9 @@ public class PortSrcPublisher extends SrcFilePublisher {
                         properties = metaAnnotation.getProperties();
                         String url = (String) properties.get("url");
                         String httpMethod = properties.get("method").toString().toUpperCase();
-                        String contentType = (String) properties.get("contenttype");
+                        String contentType = (String) properties.get("contentType");
+                        if(contentType==null)
+                            contentType = (String) properties.get("contenttype");
                         if(contentType!=null && !contentType.isEmpty()) {
                             methodP.add("@HttpEndpoint(url=%s, method=%s ,contentType=%s)"
                                     , StringUtils.quoteString(url), StringUtils.quoteString(httpMethod), StringUtils.quoteString(contentType));

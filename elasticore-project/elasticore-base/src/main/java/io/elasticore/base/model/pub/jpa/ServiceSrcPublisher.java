@@ -24,6 +24,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
     private CodeTemplate baseCodeTmpl;
 
+    private CodeTemplate extendSvcCodeTmpl;
+
 
     private CodePublisher publisher;
     private ECoreModel model;
@@ -63,6 +65,8 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         this.publisher = publisher;
 
         this.baseCodeTmpl = createCodeTemplate(publisher, "template.service", "service.tmpl");
+
+        this.extendSvcCodeTmpl = createCodeTemplate(publisher, "template.serviceExt", "service_extend.tmpl");
 
         //System.err.println(this.baseCodeTmpl);
 
@@ -196,6 +200,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         boolean isListOutput = false;
         boolean isPageOutput = false;
+        boolean isExposeOutput = false;
 
         if (isPageable(searchDto)) {
             isPageOutput = true;
@@ -266,6 +271,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             pkDtoInfo2 = sb2.toString();
         }
 
+        if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EXPOSE)) {
+            isExposeOutput = true;
+            isPageOutput = false;
+            isListOutput = false;
+        }
+
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
                 .set("className", className)
@@ -294,6 +305,9 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("childRefInfo", cb.toString())
                 .set("isListOutput",isListOutput)
                 .set("isPageOutput",isPageOutput)
+                .set("isExposeOutput",isExposeOutput)
+
+
                 .set("isCustomPageOutput",isCustomPageOutput)
                 .set("isCustomListOutput",isCustomListOutput)
                 .set("isSkipNull",isSkipNull)
@@ -316,6 +330,15 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         String qualifiedClassName = packageName + "." + className;
 
         this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
+
+        // for extended Service Code
+        if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EXPOSE)) {
+            String extCode = this.extendSvcCodeTmpl.toString(params);
+            String extQualifiedClassName = packageName + "." + orgEntityClassName + ConstanParam.POSTFIX_EXT_SERVICE;
+
+            this.writeSrcCode(this.publisher, null, extQualifiedClassName, extCode);
+
+        }
     }
 
     private void makeChildRefCode(DataTransfer dto, Entity entity, CodeStringBuilder cb) {

@@ -166,8 +166,10 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         for (Field f : listMap.getList()) {
             //if (!f.hasAnnotation(EntityAnnotation.SEARCH)) continue;
 
+
             if(shadowModel!=null && shadowModel.getField(f.getName())==null)
                 continue;
+
 
             if(!f.hasAnnotation(EntityAnnotation.SEARCH))
                 continue;
@@ -178,7 +180,6 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
             if(isSkipSearchField(searchDto, f))
                 continue;
-
 
 
             String type = f.getTypeInfo().getDefaultTypeName();

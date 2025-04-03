@@ -62,6 +62,13 @@ public interface EntityAnnotation {
 
     String META_ROLL_UP = "rollup";
 
+
+
+    String META_EXPOSE = "expose";
+
+
+
+
     String[] META_ROLL_UP_TARGET = new String[]{"rollup.target", "rollup.entity" ,"rollup"};
 
     String[] META_ROLL_UP_DISCRIMINATOR = new String[]{"rollup.discriminator", "rollup.value", "rollup.type"};

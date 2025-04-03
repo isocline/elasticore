@@ -1,4 +1,4 @@
-//ecd:-1530212674H20250401183440_V1.0
+//ecd:-1530212674H20250402000028_V1.0
 package com.xyrokorea.xyroplug.domain.channel.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;

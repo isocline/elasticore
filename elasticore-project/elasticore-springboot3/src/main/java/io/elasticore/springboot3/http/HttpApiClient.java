@@ -222,10 +222,24 @@ public class HttpApiClient {
             requestSpec.headers(httpHeaders -> httpHeaders.addAll(getHeaders(headerMapList)));
         }
 
+        /*
         if (ObjectUtils.isNotEmpty(sendObj)) {
             //String jsonBody = OBJECT_MAPPER.writeValueAsString(sendObj);
             //log.info("Request Body: {}", jsonBody);
             requestSpec.bodyValue(sendObj);
+        }
+         */
+
+        if (ObjectUtils.isNotEmpty(sendObj)) {
+            if (mediaType != null && MediaType.MULTIPART_FORM_DATA.equals(mediaType)) {
+                if (sendObj instanceof MultiValueMap) {
+                    requestSpec.body(BodyInserters.fromMultipartData((MultiValueMap<String, ?>) sendObj));
+                } else {
+                    throw new IllegalArgumentException("MULTIPART_FORM_DATA requires MultiValueMap as body");
+                }
+            } else {
+                requestSpec.bodyValue(sendObj);
+            }
         }
 
         return requestSpec;
