@@ -17,6 +17,7 @@ import io.elasticore.base.model.loader.px.PxFileMainModelLoader;
 import io.elasticore.base.model.repo.Repository;
 import io.elasticore.base.model.repo.RepositoryModels;
 import io.elasticore.base.model.port.Port;
+import io.elasticore.base.util.ConsoleLog;
 
 
 import java.io.File;
@@ -158,6 +159,17 @@ public class FileBasedModelLoader implements ModelLoader, ConstanParam {
 
         FileSource envFs = getLoadData(envFile);
         Map envMap = (Map) envFs.getInfoMap().get("env");
+        if(envMap==null)
+            envMap = (Map) envFs.getInfoMap().get("elasticore");
+
+        if(envMap==null)
+            throw new IllegalArgumentException("env.yaml does not have env information.");
+
+        if(Boolean.FALSE.equals(envMap.get("enable"))) {
+            ConsoleLog.printWarn("[WARN] Disabled domain: "+domainName);
+            return null;
+        }
+
 
         Map<String, Object> configMap = (Map) envMap.get("config");
         Map<String, String> nsMap = (Map) envMap.get("namespace");

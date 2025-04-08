@@ -1,4 +1,4 @@
-//ecd:1570561573H20250403200008_V1.0
+//ecd:1945271102H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.enums;
 
 import lombok.Getter;
@@ -22,8 +22,12 @@ import jakarta.persistence.Converter;
 import java.io.IOException;
 
 /**
-
-
+ * MessageStatus
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
  */
 
 

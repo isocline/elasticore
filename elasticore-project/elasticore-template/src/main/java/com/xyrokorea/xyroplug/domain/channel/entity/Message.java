@@ -1,4 +1,4 @@
-//ecd:-478393113H20250403200008_V1.0
+//ecd:2131313938H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.entity;
 
 import com.xyrokorea.xyroplug.domain.channel.enums.*;
@@ -17,9 +17,13 @@ import jakarta.persistence.Entity;
 
 
 /**
-
-
-*/
+ * Message
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 
 @Entity
 @org.hibernate.annotations.DynamicUpdate

@@ -1,4 +1,4 @@
-//ecd:1615555385H20250403200008_V1.0
+//ecd:-1713058391H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -20,6 +20,15 @@ import com.xyrokorea.xyroplug.domain.channel.entity.*;
 import com.xyrokorea.xyroplug.domain.channel.dto.*;
 
 
+/**
+ * Helper class for managing multiple JPA repositories and providing
+ * support functions such as paginated and sorted query creation.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 
 @Getter
 @Service

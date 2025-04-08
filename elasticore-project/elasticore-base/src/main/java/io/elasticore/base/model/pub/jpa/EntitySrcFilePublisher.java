@@ -172,6 +172,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             CodeTemplate.Paragraph idxPara = CodeTemplate.newParagraph();
             Annotation idxAnnot = metaInfo.getMetaAnnotation(EntityAnnotation.META_INDEX);
             if(idxAnnot!=null) {
+                idxPara.add("  indexes = {");
+
+                boolean isFirst = true;
                 for(Annotation ant:idxAnnot.getSiblings()) {
                     Properties properties = ant.getProperties();
                     String name = properties.getProperty("name");
@@ -184,7 +187,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     if(comlumnList!=null && !comlumnList.isEmpty()) {
                         if(sb.length()>0)
                             sb.append(", ");
-                        sb.append("comlumnList="+StringUtils.quoteString(comlumnList));
+                        sb.append("columnList="+StringUtils.quoteString(comlumnList));
                     }
                     if(unique!=null && !unique.isEmpty()) {
                         if(sb.length()>0)
@@ -192,11 +195,13 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                         sb.append("unique="+unique);
                     }
                     String commaTxt = " ";
-                    if(idxPara.size()>0)
+                    if(!isFirst)
                         commaTxt=",";
-                    idxPara.add("  %s@%s.persistence.Index(%s)",commaTxt, j2eePkgNm, sb.toString());
+                    idxPara.add("   %s@%s.persistence.Index(%s)",commaTxt, j2eePkgNm, sb.toString());
+                    isFirst = false;
 
                 }
+                idxPara.add("  }");
             }
 
             String tblNameInfo = null;
@@ -285,6 +290,75 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
     private SourceShadowModel shadowModel;
+
+
+    public void publish(ModelDomain domain, EntityModels entityModels) {
+
+        CodeTemplate.Parameters p = CodeTemplate.newParameters();
+        p
+                .set("packageName", packageName)
+                .set("enumPackageName", enumPackageName);
+
+        CodeTemplate.Paragraph pr = CodeTemplate.newParagraph();
+        ModelComponentItems<Entity> items = entityModels.getItems();
+        while(items.hasNext()) {
+            Entity entity = items.next();
+            pr.add(getEntityMeta(entity));
+        }
+        p.set("fieldList", pr);
+
+        CodeTemplate codeTemplate = CodeTemplate.newInstance("elasticore-template/Q.tmpl");
+        String qualifiedClassName = packageName + ".Q" ;
+        String code = codeTemplate.toString(p);
+
+        this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
+    }
+
+    private CodeTemplate.Paragraph getEntityMeta(Entity entity) {
+        CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
+
+        String entityClassNm = entity.getIdentity().getName();
+        p.add("public static Qx%s %s=new Qx%s();",entityClassNm,entityClassNm,entityClassNm);
+        p.add("public static class Qx%s {",entityClassNm);
+
+        ModelComponentItems<Field> items = entity.getItems();
+        while(items.hasNext()) {
+            Field field = items.next();
+            String fieldName = field.getIdentity().getName();
+
+            String baseType ="null";
+            if(field.getTypeInfo().isGenericType()) {
+                baseType = field.getTypeInfo().getBaseFieldType().getName();
+
+                if(baseType!=null && !baseType.isEmpty())
+                    baseType = baseType+".class";
+            }
+
+            p.add("    private final FieldInfo F_%s=new FieldInfo(%s,%s.class, %s);"
+                    ,fieldName
+                    ,StringUtils.quoteString(fieldName)
+                    ,field.getTypeInfo().getCoreItemType()
+                    ,baseType
+
+            );
+            p.add("    public final String %s=F_%s.getName();",fieldName,fieldName);
+            p.add("    public final FieldInfo get%s() {return F_%s;}"
+                    ,StringUtils.capitalize(fieldName),fieldName);
+
+            if(field.getTypeInfo().isBaseType()) {
+                p.add("    public Specification<%s> %s(Op op,Object value) {return F_%s.where(op,value);}"
+                        , entityClassNm
+                        , fieldName
+                        , fieldName
+                );
+            }
+
+        }
+        p.add("}");
+        p.add("");
+
+        return p;
+    }
 
     /**
      * Generates and publishes Java source code for the specified entity.

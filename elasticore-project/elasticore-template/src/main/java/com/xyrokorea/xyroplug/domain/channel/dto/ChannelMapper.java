@@ -1,4 +1,4 @@
-//ecd:847955478H20250403210036_V1.0
+//ecd:-499318775H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -22,8 +22,13 @@ import com.xyrokorea.xyroplug.domain.channel.enums.*;
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
-
-
+ * Provides transformation utilities between DTOs and entities,
+ * including conditional mapping, permission validation, and dynamic query support.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
  */
 
 

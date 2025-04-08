@@ -196,6 +196,8 @@ public class JPACodePublisher implements CodePublisher {
             entityCodePublisher.publish(domain, entity);
         }
 
+        entityCodePublisher.publish(domain, entityModels);
+
 
         EnumFilePublisher enumCodePublisher = new EnumFilePublisher(this);
         EnumModels enumModels = model.getEnumModels();

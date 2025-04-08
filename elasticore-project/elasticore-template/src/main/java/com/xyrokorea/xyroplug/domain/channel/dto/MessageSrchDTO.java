@@ -1,4 +1,4 @@
-//ecd:1344319666H20250403210246_V1.0
+//ecd:-102640178H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.dto;
 
 import com.xyrokorea.xyroplug.domain.channel.enums.*;
@@ -16,10 +16,13 @@ import com.xyrokorea.xyroplug.domain.channel.enums.*;
 
 
 /**
-
-
-*/
-
+ * MessageSrchDTO
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 
 @Getter
 @Setter

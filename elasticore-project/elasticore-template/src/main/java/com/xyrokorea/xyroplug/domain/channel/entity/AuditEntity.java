@@ -1,4 +1,4 @@
-//ecd:392518481H20250403194437_V1.0
+//ecd:1019531909H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.entity;
 
 import com.xyrokorea.xyroplug.domain.channel.enums.*;
@@ -16,9 +16,13 @@ import java.time.*;
 
 
 /**
-
-
-*/
+ * AuditEntity
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 
 @MappedSuperclass
 @Getter

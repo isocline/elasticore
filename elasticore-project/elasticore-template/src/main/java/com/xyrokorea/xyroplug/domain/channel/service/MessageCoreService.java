@@ -1,4 +1,4 @@
-//ecd:777230945H20250403194437_V1.0
+//ecd:1639384735H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.service;
 
 import com.xyrokorea.xyroplug.domain.channel.entity.*;
@@ -23,6 +23,20 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.lang.reflect.Field;
+
+/**
+ * Comprehensive service layer for managing Message entities.
+ *
+ * Provides full CRUD operations, dynamic search with specification support,
+ * pagination, sorting, and advanced query functions such as min/max/sum.
+ * Delegates repository operations via ChannelRepositoryHelper.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 
 @Service
 @AllArgsConstructor
@@ -331,5 +345,49 @@ public class MessageCoreService {
         TypedQuery<T> query = em.createQuery(cq);
         List<T> result = query.getResultList();
         return result.isEmpty() ? null : result.get(0);
+    }
+
+    /**
+     * Updates Message entities that match the given search criteria,
+     * using non-null fields from the update DTO.
+     *
+     * @param dto     DTO containing the fields to update (only non-null fields will be applied)
+     * @param srchDTO DTO containing search conditions for filtering target entities
+     * @return number of records updated
+     */
+    @Transactional
+    public int updateBySpecification(MessageDTO dto, MessageSrchDTO srchDTO) {
+        return updateBySpecification(dto, ChannelMapper.toSpec(srchDTO));
+    }
+
+    /**
+     * Performs a conditional update using the provided Specification and non-null fields from the DTO.
+     * Prevents full table updates by requiring at least one condition.
+     *
+     * @param dto  DTO containing the fields to update (only non-null fields will be applied)
+     * @param spec JPA Specification defining update conditions
+     * @return number of records updated
+     * @throws IllegalArgumentException if no condition is provided
+     */
+    @Transactional
+    public int updateBySpecification(MessageDTO dto, Specification<Message> spec) {
+        CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
+        CriteriaUpdate<Message> update = cb.createCriteriaUpdate(Message.class);
+        Root<Message> root = update.from(Message.class);
+
+        Field[] fields = dto.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(dto);
+                if (value != null)
+                    update.set(root.get(field.getName()), value);
+            } catch (IllegalAccessException e) { }
+        }
+        Predicate predicate = spec.toPredicate(root, cb.createQuery(Message.class), cb);
+        if (predicate == null)
+            throw new IllegalArgumentException("Update condition is missing. Full table update is not allowed.");
+        update.where(predicate);
+        return helper.getEntityManager().createQuery(update).executeUpdate();
     }
 }

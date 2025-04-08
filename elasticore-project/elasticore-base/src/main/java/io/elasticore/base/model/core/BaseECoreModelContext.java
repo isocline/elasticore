@@ -42,6 +42,8 @@ public class BaseECoreModelContext implements ECoreModelContext {
             ModelObjectListener.getInstance().clear();
 
             ECoreModel model = this.loader.load(domainNm);
+            if(model==null)
+                continue;
 
             ModelDomain modelDomain = BaseModelDomain.newInstance(domainNm, model);
             modelDomainMap.put(domainNm, modelDomain);

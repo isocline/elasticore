@@ -1,4 +1,4 @@
-//ecd:-312452449H20250403172325_V1.0
+//ecd:-196146574H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,9 +16,14 @@ import com.xyrokorea.xyroplug.domain.channel.enums.*;
 
 
 /**
-
-
+ * JPA repository interface for managing Message entities.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
  */
+
 
 public interface MessageRepository extends JpaRepository<Message,Long>, JpaSpecificationExecutor<Message> {
 

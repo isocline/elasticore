@@ -1,4 +1,4 @@
-//ecd:-133654767H20250402000028_V1.0
+//ecd:1178142135H20250405141628_V1.0
 package com.xyrokorea.xyroplug.domain.channel.dto;
 
 import org.springframework.data.domain.Sort;
@@ -6,6 +6,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines sorting behavior for request objects.
+ *
+ * Provides support for parsing a sort code (e.g., "name+,age-") into
+ * Spring Data's {@link Sort} object. Also supports backward-compatible
+ * sorting using legacy `sortColumn` and `sortAscending` values.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 public interface SortableObject {
 
     @Schema(description = "Field used to specify the sorting criteria. Use '+' for ascending and '-' for descending. Multiple fields can be specified, separated by commas.",
