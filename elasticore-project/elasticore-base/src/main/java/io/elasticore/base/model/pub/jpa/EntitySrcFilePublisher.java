@@ -294,18 +294,30 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     public void publish(ModelDomain domain, EntityModels entityModels) {
 
+        String id = domain.getName() +"_EntityMeta";
+
+        SourceShadowModel shadowModel = new SourceShadowModel(id);
+
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
         p
                 .set("packageName", packageName)
                 .set("enumPackageName", enumPackageName);
 
+
         CodeTemplate.Paragraph pr = CodeTemplate.newParagraph();
         ModelComponentItems<Entity> items = entityModels.getItems();
         while(items.hasNext()) {
             Entity entity = items.next();
-            pr.add(getEntityMeta(entity));
+            pr.add(getEntityMeta(entity ,shadowModel));
         }
         p.set("fieldList", pr);
+
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+        Set<String> namespaceSet = shadowModel.getNamespaceSet();
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
+        p.set("importList", importList);
 
         CodeTemplate codeTemplate = CodeTemplate.newInstance("elasticore-template/Q.tmpl");
         String qualifiedClassName = packageName + ".Q" ;
@@ -314,7 +326,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
     }
 
-    private CodeTemplate.Paragraph getEntityMeta(Entity entity) {
+    private CodeTemplate.Paragraph getEntityMeta(Entity entity , SourceShadowModel shadowModel ) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
         String entityClassNm = entity.getIdentity().getName();
@@ -333,9 +345,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 if(baseType!=null && !baseType.isEmpty())
                     baseType = baseType+".class";
             }
+            if(!field.getTypeInfo().isBaseType()) {
+                shadowModel.setNamespaceInfo(field.getTypeInfo().getCoreItemType());
+            }
 
-            p.add("    private final FieldInfo F_%s=new FieldInfo(%s,%s.class, %s);"
+            p.add("    private final FieldInfo F_%s=new FieldInfo<%s>(%s.class,%s,%s.class, %s);"
                     ,fieldName
+                    ,entityClassNm
+                    ,entityClassNm
                     ,StringUtils.quoteString(fieldName)
                     ,field.getTypeInfo().getCoreItemType()
                     ,baseType
@@ -347,6 +364,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             if(field.getTypeInfo().isBaseType()) {
                 p.add("    public Specification<%s> %s(Op op,Object value) {return F_%s.where(op,value);}"
+                        , entityClassNm
+                        , fieldName
+                        , fieldName
+                );
+                p.add("    public Specification<%s> %s(Op op,Object value,boolean chkEmpty) {return F_%s.where(op,value,chkEmpty);}"
                         , entityClassNm
                         , fieldName
                         , fieldName

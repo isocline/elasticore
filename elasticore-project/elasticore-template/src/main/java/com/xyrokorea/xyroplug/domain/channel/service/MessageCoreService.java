@@ -1,4 +1,4 @@
-//ecd:1639384735H20250405141628_V1.0
+//ecd:476771931H20250408175247_V1.0
 package com.xyrokorea.xyroplug.domain.channel.service;
 
 import com.xyrokorea.xyroplug.domain.channel.entity.*;
@@ -389,5 +389,22 @@ public class MessageCoreService {
             throw new IllegalArgumentException("Update condition is missing. Full table update is not allowed.");
         update.where(predicate);
         return helper.getEntityManager().createQuery(update).executeUpdate();
+    }
+
+    /**
+     * Fetches only a single field's values from an entity based on the given Specification condition.
+     *
+     * @param field       the field to be selected (as FieldInfo)
+     * @param spec        the JPA Specification used as a dynamic filter
+     * @return a list of values for the selected field
+     */
+    public <T> List<?> findSingleFieldBySpec(io.elasticore.springboot3.entity.FieldInfo<T> field, Specification<T> spec) {
+        CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<?> query = cb.createQuery(field.getType());
+        Root<T> root = query.from(field.getEntityType());
+        query.select(root.get(field.getName()));
+        Predicate predicate = spec.toPredicate(root, query, cb);
+        query.where(predicate);
+        return helper.getEntityManager().createQuery(query).getResultList();
     }
 }
