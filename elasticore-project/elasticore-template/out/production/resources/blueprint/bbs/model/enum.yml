@@ -1,0 +1,11 @@
+enumeration:
+  BoardType:
+    meta: enum @db(code) @json(code)  --  타입
+    fields:
+      code: string(2) @length(3) -- 타입코드
+      name: string(50) -- 이름
+    enum:
+      PUBLIC: PB,공개
+      PRIVATE: PV,개인
+      
+ 

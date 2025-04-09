@@ -1,0 +1,25 @@
+entity:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: string
+
+  Company:
+    meta: entity @extend(AuditEntity)  @dto
+    fields:
+      id: string @id
+      name: string(12)
+      married: Indicator @default(Indicator.YES)
+      person: Person2
+
+
+
+enumeration:
+
+  Indicator2:
+    meta: enum @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"

@@ -1,0 +1,20 @@
+enumeration:
+
+  RentKindType:
+    meta: enum @json(code) @db(code) -- 사고 유형
+    fields:
+      msg: string
+      code: string  @length(2)
+    enum:
+      ACCIDENT: 사고,01
+      REPAIR: 정비,02
+      ETC: 기타,09
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+

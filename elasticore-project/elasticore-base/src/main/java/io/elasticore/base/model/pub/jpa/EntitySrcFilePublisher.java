@@ -23,6 +23,7 @@ import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseModelDomain;
+import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.*;
 import io.elasticore.base.model.enums.EnumModel;
@@ -69,22 +70,22 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
         this.publisher = publisher;
-        this.model =  this.publisher.getECoreModelContext().getDomain().getModel();
+        this.model = this.publisher.getECoreModelContext().getDomain().getModel();
 
         this.publishMode = model.getConfig("mode");
 
         String templatePath = model.getConfig("template.entity");
-        if(templatePath==null)
+        if (templatePath == null)
             templatePath = "elasticore-template/entity.tmpl";
         else
-            templatePath = "resource://"+templatePath;
+            templatePath = "resource://" + templatePath;
 
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
         this.packageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
 
-        if(model.getEnumModels().getItems().size()>0)
+        if (model.getEnumModels().getItems().size() > 0)
             this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
         else
             this.enumPackageName = null;
@@ -107,7 +108,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             return "extends " + getClassName(entity, annotation.getValue());
         else {
             String rollupTarget = entity.getMetaInfo().getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
-            if(rollupTarget!=null)  {
+            if (rollupTarget != null) {
                 return "extends " + getClassName(entity, rollupTarget);
             }
         }
@@ -142,7 +143,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 p.add("@DiscriminatorColumn(name = \"" + dbColumnNm + "\", discriminatorType = DiscriminatorType." + type + ")");
 
                 String defaultDesciminatorValue = field.getAnnotationValue(EntityAnnotation.DISCRIMINATOR);
-                if(defaultDesciminatorValue!=null) {
+                if (defaultDesciminatorValue != null) {
                     p.add("@DiscriminatorValue(\"" + defaultDesciminatorValue + "\")");
                 }
             }
@@ -150,10 +151,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         boolean isEntityClass = true;
 
-        if(!isInheritance.get() && entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT)) {
+        if (!isInheritance.get() && entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT)) {
             isEntityClass = false;
             p.add("@MappedSuperclass");
-        }else if(!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
+        } else if (!entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
             p.add("@Entity");
         }
 
@@ -167,37 +168,37 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
          */
 
-        if(isEntityClass) {
+        if (isEntityClass) {
 
             CodeTemplate.Paragraph idxPara = CodeTemplate.newParagraph();
             Annotation idxAnnot = metaInfo.getMetaAnnotation(EntityAnnotation.META_INDEX);
-            if(idxAnnot!=null) {
+            if (idxAnnot != null) {
                 idxPara.add("  indexes = {");
 
                 boolean isFirst = true;
-                for(Annotation ant:idxAnnot.getSiblings()) {
+                for (Annotation ant : idxAnnot.getSiblings()) {
                     Properties properties = ant.getProperties();
                     String name = properties.getProperty("name");
                     String comlumnList = properties.getProperty("columnList");
                     String unique = properties.getProperty("unique");
                     StringBuilder sb = new StringBuilder();
-                    if(name!=null && !name.isEmpty()) {
-                        sb.append("name="+StringUtils.quoteString(name));
+                    if (name != null && !name.isEmpty()) {
+                        sb.append("name=" + StringUtils.quoteString(name));
                     }
-                    if(comlumnList!=null && !comlumnList.isEmpty()) {
-                        if(sb.length()>0)
+                    if (comlumnList != null && !comlumnList.isEmpty()) {
+                        if (sb.length() > 0)
                             sb.append(", ");
-                        sb.append("columnList="+StringUtils.quoteString(comlumnList));
+                        sb.append("columnList=" + StringUtils.quoteString(comlumnList));
                     }
-                    if(unique!=null && !unique.isEmpty()) {
-                        if(sb.length()>0)
+                    if (unique != null && !unique.isEmpty()) {
+                        if (sb.length() > 0)
                             sb.append(", ");
-                        sb.append("unique="+unique);
+                        sb.append("unique=" + unique);
                     }
                     String commaTxt = " ";
-                    if(!isFirst)
-                        commaTxt=",";
-                    idxPara.add("   %s@%s.persistence.Index(%s)",commaTxt, j2eePkgNm, sb.toString());
+                    if (!isFirst)
+                        commaTxt = ",";
+                    idxPara.add("   %s@%s.persistence.Index(%s)", commaTxt, j2eePkgNm, sb.toString());
                     isFirst = false;
 
                 }
@@ -208,59 +209,57 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             Annotation tblAnnotation = metaInfo.getMetaAnnotation(EntityAnnotation.META_TABLE);
             if (tblAnnotation != null) {
                 String dbTblNm = tblAnnotation.getValue();
-                tblNameInfo = "name=\""+dbTblNm+"\"";
+                tblNameInfo = "name=\"" + dbTblNm + "\"";
 
 
             }
 
-            if(idxPara.size()>0 || tblNameInfo!=null) {
-                if(idxPara.size()>0 ) {
-                    if(tblNameInfo==null)
+            if (idxPara.size() > 0 || tblNameInfo != null) {
+                if (idxPara.size() > 0) {
+                    if (tblNameInfo == null)
                         tblNameInfo = "";
-                    p.add("@"+j2eePkgNm+".persistence.Table(%s",tblNameInfo);
+                    p.add("@" + j2eePkgNm + ".persistence.Table(%s", tblNameInfo);
                     p.add(idxPara);
                     p.add("  )");
 
-                }else {
-                    p.add("@"+j2eePkgNm+".persistence.Table(%s)",tblNameInfo);
+                } else {
+                    p.add("@" + j2eePkgNm + ".persistence.Table(%s)", tblNameInfo);
                 }
 
             }
 
 
-            if(metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE)) {
+            if (metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE)) {
                 p.add("@org.hibernate.annotations.Immutable");
 
-                if(tblAnnotation==null) {
+                if (tblAnnotation == null) {
                     String viewName = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_IMMUTABLE);
-                    if(viewName !=null) {
-                        p.add("@"+j2eePkgNm+".persistence.Table(name=\"" + viewName + "\")");
+                    if (viewName != null) {
+                        p.add("@" + j2eePkgNm + ".persistence.Table(name=\"" + viewName + "\")");
                     }
                 }
             }
 
-            if(!"false".equals(metaInfo.getMetaAnnotationValue(EntityAnnotation.META_DYNAMIC_UPDATE))) {
-                if(!metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE))
+            if (!"false".equals(metaInfo.getMetaAnnotationValue(EntityAnnotation.META_DYNAMIC_UPDATE))) {
+                if (!metaInfo.hasMetaAnnotation(EntityAnnotation.META_IMMUTABLE))
                     p.add("@org.hibernate.annotations.DynamicUpdate");
             }
-            if(metaInfo.hasMetaAnnotation(EntityAnnotation.META_DYNAMIC_INSERT))
+            if (metaInfo.hasMetaAnnotation(EntityAnnotation.META_DYNAMIC_INSERT))
                 p.add("@org.hibernate.annotations.DynamicInsert");
 
 
         }
 
 
-
-
         //Entity = BaseModelDomain.getModelDomain(this.getIdentity().getDomainId()).getModel().getEntityModels().findByName(toName);
         if (metaInfo.hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) {
             p.add("@Embeddable");
-        }else {
+        } else {
             ComponentIdentity identity = entity.getIdentity();
 
             List<ModelRelationship> relationshipList = RelationshipManager.getInstance(identity.getDomainId()).findByToName(identity.getName());
-            for(ModelRelationship r : relationshipList){
-                if(r.getRelationType() == RelationType.EMBEDDED) {
+            for (ModelRelationship r : relationshipList) {
+                if (r.getRelationType() == RelationType.EMBEDDED) {
                     p.add("@Embeddable");
                     break;
                 }
@@ -268,11 +267,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
 
-
         if (metaInfo.hasMetaAnnotation(EntityAnnotation.META_ROLL_UP)) {
 
             String discriminatorVal = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_DISCRIMINATOR);
-            if(discriminatorVal==null) {
+            if (discriminatorVal == null) {
                 discriminatorVal = metaInfo.getMetaAnnotationValue(EntityAnnotation.META_ROLL_UP_TARGET);
             }
 
@@ -282,7 +280,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         if (entity.getPkField() != null && entity.getPkField().isMultiple()) {
             //@IdClass(PersonFamilyIdentity.class)
-            p.add("@IdClass(%s.class)",entity.getPkField().getType());
+            p.add("@IdClass(%s.class)", entity.getPkField().getType());
         }
 
 
@@ -294,7 +292,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     public void publish(ModelDomain domain, EntityModels entityModels) {
 
-        String id = domain.getName() +"_EntityMeta";
+        String id = domain.getName() + "_EntityMeta";
 
         SourceShadowModel shadowModel = new SourceShadowModel(id);
 
@@ -306,73 +304,100 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         CodeTemplate.Paragraph pr = CodeTemplate.newParagraph();
         ModelComponentItems<Entity> items = entityModels.getItems();
-        while(items.hasNext()) {
+        while (items.hasNext()) {
             Entity entity = items.next();
-            pr.add(getEntityMeta(entity ,shadowModel));
+            CodeTemplate.Paragraph entityMeta = getEntityMeta(entity, shadowModel);
+            if (entityMeta != null)
+                pr.add(entityMeta);
         }
         p.set("fieldList", pr);
 
         CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
         Set<String> namespaceSet = shadowModel.getNamespaceSet();
-        for(String ns: namespaceSet) {
+        for (String ns : namespaceSet) {
             importList.add(ns);
         }
         p.set("importList", importList);
 
         CodeTemplate codeTemplate = CodeTemplate.newInstance("elasticore-template/Q.tmpl");
-        String qualifiedClassName = packageName + ".Q" ;
+        String qualifiedClassName = packageName + ".Q";
         String code = codeTemplate.toString(p);
 
         this.writeSrcCode(this.publisher, null, qualifiedClassName, code);
     }
 
-    private CodeTemplate.Paragraph getEntityMeta(Entity entity , SourceShadowModel shadowModel ) {
+    private CodeTemplate.Paragraph getEntityMeta(Entity entity, SourceShadowModel shadowModel) {
+
+        if (entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_ABSTRACT))
+            return null;
+
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
         String entityClassNm = entity.getIdentity().getName();
-        p.add("public static Qx%s %s=new Qx%s();",entityClassNm,entityClassNm,entityClassNm);
-        p.add("public static class Qx%s {",entityClassNm);
+        p.add("public static Qx%s %s=new Qx%s();", entityClassNm, entityClassNm, entityClassNm);
+        p.add("public static class Qx%s {", entityClassNm);
+        p.add("");
+        p.add("    private FieldInfo p=null;");
+        p.add("    public Qx%s() {}", entityClassNm);
+        p.add("    public Qx%s(FieldInfo p) {this.p=p;}", entityClassNm);
 
-        ModelComponentItems<Field> items = entity.getItems();
-        while(items.hasNext()) {
-            Field field = items.next();
+        ListMap allFieldListMap = entity.getAllFieldListMap();
+        List<Field> fieldList = allFieldListMap.getList();
+
+        for (Field field : fieldList) {
             String fieldName = field.getIdentity().getName();
 
-            String baseType ="null";
-            if(field.getTypeInfo().isGenericType()) {
+            String baseType = "null";
+            if (field.getTypeInfo().isGenericType()) {
                 baseType = field.getTypeInfo().getBaseFieldType().getName();
 
-                if(baseType!=null && !baseType.isEmpty())
-                    baseType = baseType+".class";
+                if (baseType != null && !baseType.isEmpty())
+                    baseType = baseType + ".class";
             }
-            if(!field.getTypeInfo().isBaseType()) {
+            if (!field.getTypeInfo().isBaseType()) {
                 shadowModel.setNamespaceInfo(field.getTypeInfo().getCoreItemType());
             }
 
-            p.add("    private final FieldInfo F_%s=new FieldInfo<%s>(%s.class,%s,%s.class, %s);"
-                    ,fieldName
-                    ,entityClassNm
-                    ,entityClassNm
-                    ,StringUtils.quoteString(fieldName)
-                    ,field.getTypeInfo().getCoreItemType()
-                    ,baseType
+            p.add("");
+            p.add("    public final FieldInfo get%s() {return new FieldInfo<%s>(%s.class,%s,%s.class, %s,p);}"
+                    , StringUtils.capitalize(fieldName)
+                    , entityClassNm
+                    , entityClassNm
+                    , StringUtils.quoteString(fieldName)
+                    , field.getTypeInfo().getCoreItemType()
+                    , baseType
 
             );
-            p.add("    public final String %s=F_%s.getName();",fieldName,fieldName);
-            p.add("    public final FieldInfo get%s() {return F_%s;}"
-                    ,StringUtils.capitalize(fieldName),fieldName);
+            p.add("    public final String %s=%s;", fieldName, StringUtils.quoteString(fieldName));
+            //p.add("    public final FieldInfo get%s() {return F_%s;}" ,StringUtils.capitalize(fieldName),fieldName);
 
-            if(field.getTypeInfo().isBaseType()) {
-                p.add("    public Specification<%s> %s(Op op,Object value) {return F_%s.where(op,value);}"
+            String typeNm = field.getTypeInfo().getInitTypeInfo();
+            Entity refEntity = findEntityByName(typeNm);
+            EnumModel enumModel = findEnumModel(typeNm);
+
+            if (field.getTypeInfo().isBaseType() || enumModel != null) {
+                p.add("    public Specification<%s> %s(Op op,Object value) {return get%s().where(op,value);}"
                         , entityClassNm
                         , fieldName
-                        , fieldName
+                        , StringUtils.capitalize(fieldName)
                 );
-                p.add("    public Specification<%s> %s(Op op,Object value,boolean chkEmpty) {return F_%s.where(op,value,chkEmpty);}"
+                p.add("    public Specification<%s> %s(Op op,Object value,boolean chkEmpty) {return get%s().where(op,value,chkEmpty);}"
                         , entityClassNm
                         , fieldName
-                        , fieldName
+                        , StringUtils.capitalize(fieldName)
                 );
+            } else if (refEntity != null) {
+                // if entity
+
+                {
+                    String refEntityNm = refEntity.getIdentity().getName();
+                    p.add("    public final Qx%s %s() {return new Qx%s(get%s());}"
+                            , refEntityNm
+                            , fieldName
+                            , refEntityNm
+                            , StringUtils.capitalize(fieldName));
+
+                }
             }
 
         }
@@ -393,8 +418,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     public void publish(ModelDomain domain, Entity entity) {
 
         Annotation typeAnnotation = entity.getMetaInfo().getMetaAnnotation(EntityAnnotation.META_TYPE);
-        if(typeAnnotation!=null) {
-            if("template".equals(typeAnnotation.getValue()))
+        if (typeAnnotation != null) {
+            if ("template".equals(typeAnnotation.getValue()))
                 return;
         }
         String j2eePkgNm = getPersistentPackageName(domain);
@@ -403,7 +428,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
         String classNm = entity.getIdentity().getName();
 
-        this.paragraphForEntity = getEntityAnnotation(entity , j2eePkgNm);
+        this.paragraphForEntity = getEntityAnnotation(entity, j2eePkgNm);
 
         setNativeAnnotation(entity, this.paragraphForEntity);
 
@@ -417,16 +442,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         Set<String> namespaceSet = shadowModel.getNamespaceSet();
 
-        for(String ns: namespaceSet) {
+        for (String ns : namespaceSet) {
             importList.add(ns);
         }
 
 
-        if(this.paragraphForEntity.contains("@Entity")) {
-            importList.add(j2eePkgNm+".persistence.Entity");
+        if (this.paragraphForEntity.contains("@Entity")) {
+            importList.add(j2eePkgNm + ".persistence.Entity");
         }
 
-        if(pr.contains("@Convert(")) {
+        if (pr.contains("@Convert(")) {
             // TODO
             //importList.add(j2eePkgNm+".persistence.Convert");
         }
@@ -437,7 +462,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 .set("abstract", getAbstractInfo(entity, this.paragraphForEntity))
                 .set("classAnnotationList", this.paragraphForEntity)
                 .set("extendInfo", getExtendInfo(entity))
-                .set("j2eePkgName",j2eePkgNm)
+                .set("j2eePkgName", j2eePkgNm)
                 .set("importList", importList)
                 .set("implementInfo", "implements java.io.Serializable")
                 .set("className", classNm);
@@ -473,7 +498,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     .set("packageName", packageName)
                     .set("abstract", "")
                     .set("extendInfo", "")
-                    .set("j2eePkgName",j2eePkgNm)
+                    .set("j2eePkgName", j2eePkgNm)
                     .set("implementInfo", "implements java.io.Serializable")
                     .set("classAnnotationList", p2)
                     .set("className", classNm);
@@ -500,7 +525,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setFieldDesc(f, p);
             //setFieldPkInfo(f, p);
-            setFieldColumnAnnotation( entity, f, p);
+            setFieldColumnAnnotation(entity, f, p);
 
             /*
             BaseFieldType ft =f.getTypeInfo().getBaseFieldType();
@@ -548,14 +573,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         String entityName = entity.getIdentity().getName();
 
         // for prePersist
-        boolean isMultiplePK = entity.getPkField()!=null && entity.getPkField().isMultiple();
+        boolean isMultiplePK = entity.getPkField() != null && entity.getPkField().isMultiple();
         CodeTemplate.Paragraph prePersist = CodeTemplate.newParagraph();
 
 
         while (fields.hasNext()) {
             Field f = fields.next();
 
-            if(shadowModel.getField(f.getName())!=null)
+            if (shadowModel.getField(f.getName()) != null)
                 continue;
 
             if (isExtendIdentity) {
@@ -569,8 +594,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     setFieldPkInfo(entity, f, p);
 
             setFieldLabel(entity, f, p);
-            boolean hasColumnInfo = setRelationInfo(f, p , entity);
-            if(!hasColumnInfo)
+            boolean hasColumnInfo = setRelationInfo(f, p, entity);
+            if (!hasColumnInfo)
                 setFieldColumnAnnotation(entity, f, p);
 
             setEnumListAnnotation(entity, f, p);
@@ -578,8 +603,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
-            setConvertAnnotation(entity.getIdentity().getDomainId(), f,p);
-
+            setConvertAnnotation(entity.getIdentity().getDomainId(), f, p);
 
 
             String defaultValDefined = getDefaultValueSetup(f);
@@ -601,35 +625,35 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             p.add("");
             p.add("");
 
-            if(isIdField) {
+            if (isIdField) {
                 String idGenerator = f.getAnnotationValue("genid");
-                if(idGenerator==null && f.hasAnnotation("genid")) {
-                    if(f.getTypeInfo().getBaseFieldType() == BaseFieldType.STRING) {
+                if (idGenerator == null && f.hasAnnotation("genid")) {
+                    if (f.getTypeInfo().getBaseFieldType() == BaseFieldType.STRING) {
                         idGenerator = "java.util.UUID.randomUUID().toString";
                     }
                 }
 
-                if(idGenerator!=null) {
+                if (idGenerator != null) {
 
-                    if(!isMultiplePK) {
+                    if (!isMultiplePK) {
                         p.add("@PrePersist");
                         p.add("public void prePersist() {");
                         p.add("  if (%s == null)", f.getName());
-                        p.add("        %s = %s();",f.getName(), idGenerator);
+                        p.add("        %s = %s();", f.getName(), idGenerator);
                         p.add("}");
                         p.add("");
                         p.add("");
-                    }else {
+                    } else {
 
                         prePersist.add("  if (%s == null)", f.getName());
-                        prePersist.add("        %s = %s();",f.getName(), idGenerator);
+                        prePersist.add("        %s = %s();", f.getName(), idGenerator);
                     }
 
                 }
             }
         }
 
-        if(isMultiplePK && prePersist.size()>0) {
+        if (isMultiplePK && prePersist.size() > 0) {
             p.add("@PrePersist");
             p.add("public void prePersist() {");
             p.add(prePersist);
@@ -639,15 +663,15 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         }
 
         Annotation templateAnt = entity.getMetaInfo().getMetaAnnotation("template");
-        if(templateAnt!=null) {
+        if (templateAnt != null) {
             String templates = templateAnt.getValue();
 
-            if(templates!=null && templates.length()>0) {
+            if (templates != null && templates.length() > 0) {
                 String[] templateNmArray = templates.split(",");
 
-                for(String templateNm : templateNmArray) {
+                for (String templateNm : templateNmArray) {
                     Entity templateEntity = this.publisher.getECoreModelContext().findModelComponent(templateNm, Entity.class);
-                    if(templateEntity!=null)
+                    if (templateEntity != null)
                         loadFieldInfo(templateEntity, p);
                 }
             }
@@ -665,12 +689,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
 
-
     private boolean setFieldPkInfo(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
 
         boolean isIdField = false;
 
-        boolean isSequence =field.hasAnnotation("sequence");
+        boolean isSequence = field.hasAnnotation("sequence");
 
         if (field.hasAnnotation("id") || field.hasAnnotation("pk") || field.isPrimaryKey()) {
             paragraph.add("@Id");
@@ -680,16 +703,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 paragraph.add("@GeneratedValue(strategy = GenerationType.IDENTITY)");
             }
 
-        }else{
-            if(isSequence) {
-                String seqName = entity.getIdentity().getName()+"_"+field.getName()+"_seq";
+        } else {
+            if (isSequence) {
+                String seqName = entity.getIdentity().getName() + "_" + field.getName() + "_seq";
 
                 paragraph.add("@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = \"seq_gen\")");
                 paragraph.add("@GenericGenerator(");
                 paragraph.add("  name = \"seq_gen\",");
                 paragraph.add("  strategy = \"org.hibernate.id.enhanced.SequenceStyleGenerator\",");
                 paragraph.add("  parameters = {");
-                paragraph.add("    @Parameter(name = \"sequence_name\", value = \"%s\"),",seqName);
+                paragraph.add("    @Parameter(name = \"sequence_name\", value = \"%s\"),", seqName);
                 paragraph.add("    @Parameter(name = \"initial_value\", value = \"1\"),");
                 paragraph.add("    @Parameter(name = \"increment_size\", value = \"1\")");
                 paragraph.add("}");
@@ -705,16 +728,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return isIdField;
     }
 
-    private String getMappedByName(Field field ,Entity entity) {
-        if( field.getTypeInfo().isList()) {
+    private String getMappedByName(Field field, Entity entity) {
+        if (field.getTypeInfo().isList()) {
             String fieldCoreType = field.getTypeInfo().getCoreItemType();
 
             Entity byName = this.publisher.getECoreModelContext().findModelComponent(fieldCoreType, Entity.class);
             ModelComponentItems<Field> items = byName.getItems();
             String entityClassName = entity.getIdentity().getName();
-            while(items.hasNext()) {
+            while (items.hasNext()) {
                 Field f = items.next();
-                if(entityClassName.equals(f.getTypeInfo().getInitTypeInfo())) {
+                if (entityClassName.equals(f.getTypeInfo().getInitTypeInfo())) {
                     return f.getName();
                 }
             }
@@ -735,74 +758,72 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         boolean isEntityType = false;
 
-        if(typeInfo.isBaseType())
+        if (typeInfo.isBaseType())
             return false;
 
         Entity typeEntity = this.publisher.getECoreModelContext().findModelComponent(typeInfo.getCoreItemType(), Entity.class);
 
 
-        if(typeEntity!=null)
+        if (typeEntity != null)
             isEntityType = true;
 
         String fetchType = field.getAnnotationValue(EntityAnnotation.FETCH);
 
         if (isEntityType &&
                 (field.hasAnnotation(EntityAnnotation.EMBEDDED)
-                        || typeEntity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE)) ) {
+                        || typeEntity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EMBEDDABLE))) {
             paragraph.add("@Embedded");
 
             String embPrefix = field.getAnnotationValue(EntityAnnotation.EMBEDDED_PREFIX);
-            if(embPrefix!=null) {
+            if (embPrefix != null) {
                 paragraph.add("@AttributeOverrides({");
 
                 boolean isFirst = true;
                 ModelComponentItems<Field> items = typeEntity.getItems();
 
-                while(items.hasNext()) {
+                while (items.hasNext()) {
 
                     Field ef = items.next();
 
                     String commaTxt = "";
-                    if(!isFirst)
+                    if (!isFirst)
                         commaTxt = ",";
 
-                    String newName = embPrefix +"_"+  StringUtils.camelToSnake(ef.getName());
-                    paragraph.add(" %s @AttributeOverride(name = \"%s\", column = @Column(name = \"%s\"))",commaTxt,ef.getName(),newName);
+                    String newName = embPrefix + "_" + StringUtils.camelToSnake(ef.getName());
+                    paragraph.add(" %s @AttributeOverride(name = \"%s\", column = @Column(name = \"%s\"))", commaTxt, ef.getName(), newName);
 
                     isFirst = false;
                 }
                 paragraph.add("})");
             }
 
-        }
-
-        else if (typeInfo.isList()) {
-            if(isEntityType) {
+        } else if (typeInfo.isList()) {
+            if (isEntityType) {
 
 
-                if(fetchType==null)
+                if (fetchType == null)
                     fetchType = "LAZY";
                 else
                     fetchType = fetchType.toUpperCase();
 
                 String extPropsTxt = "";
-                if(field.hasAnnotation(EntityAnnotation.CASCADE)) {
+                if (field.hasAnnotation(EntityAnnotation.CASCADE)) {
                     String cascadeType = field.getAnnotationValue(EntityAnnotation.CASCADE);
-                    if(cascadeType==null)
+                    if (cascadeType == null)
                         cascadeType = "ALL, orphanRemoval = true";
                     else
                         cascadeType = cascadeType.toUpperCase(Locale.ROOT);
 
-                    extPropsTxt = ",cascade = CascadeType."+cascadeType;
+                    extPropsTxt = ",cascade = CascadeType." + cascadeType;
                 }
 
                 String mappedByName = getMappedByName(field, ety);
-                if(mappedByName!=null) {
-                    extPropsTxt = extPropsTxt+",mappedBy=\""+mappedByName+"\"";
+                if (mappedByName != null) {
+                    extPropsTxt = extPropsTxt + ",mappedBy=\"" + mappedByName + "\"";
                 }
 
 
-                if(!field.hasAnnotation("jpa:onetomany")) {
+                if (!field.hasAnnotation("jpa:onetomany")) {
                     paragraph.add("@OneToMany(fetch = FetchType.%s %s)", fetchType, extPropsTxt);
                 }
             }
@@ -814,14 +835,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetEntityName, Entity.class);
 
             if (entity != null) {
-                if(fetchType !=null) {
-                    fetchType=fetchType.toUpperCase();
+                if (fetchType != null) {
+                    fetchType = fetchType.toUpperCase();
                     if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
-                        paragraph.add("@OneToOne(fetch = FetchType.%s)",fetchType);
+                        paragraph.add("@OneToOne(fetch = FetchType.%s)", fetchType);
                     } else {
-                        paragraph.add("@ManyToOne(fetch = FetchType.%s)",fetchType);
+                        paragraph.add("@ManyToOne(fetch = FetchType.%s)", fetchType);
                     }
-                }else {
+                } else {
                     if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
                         paragraph.add("@OneToOne");
                     } else {
@@ -830,15 +851,13 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 }
 
 
-
-
                 String joinFieldName = field.getName() + "_id";
-                if (!field.hasAnnotation(EntityAnnotation.JOIN) && !field.hasAnnotation("jpa:joincolumn") ) {
+                if (!field.hasAnnotation(EntityAnnotation.JOIN) && !field.hasAnnotation("jpa:joincolumn")) {
                     String nullable = "true";
-                    if(field.hasAnnotation(EntityAnnotation.NOT_NULL)) {
+                    if (field.hasAnnotation(EntityAnnotation.NOT_NULL)) {
                         nullable = "false";
-                        paragraph.add(("@JoinColumn(columnDefinition = \"" + joinFieldName + "\", nullable = "+nullable+")"));
-                    }else{
+                        paragraph.add(("@JoinColumn(columnDefinition = \"" + joinFieldName + "\", nullable = " + nullable + ")"));
+                    } else {
                         paragraph.add(("@JoinColumn(columnDefinition = \"" + joinFieldName + "\")"));
                     }
 
@@ -852,32 +871,30 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
     private String makeLengthInfo(Field field) {
-        if(!field.getTypeInfo().isStringType())
+        if (!field.getTypeInfo().isStringType())
             return null;
 
         String fieldNm = field.getName();
 
-        if(fieldNm.contains("Addr")) {
+        if (fieldNm.contains("Addr")) {
             return "256";
-        }
-        else if(fieldNm.contains("Type")) {
+        } else if (fieldNm.contains("Type")) {
             return "10";
-        }
-        else if(fieldNm.contains("Name") || fieldNm.contains("Nm")) {
+        } else if (fieldNm.contains("Name") || fieldNm.contains("Nm")) {
             return "64";
-        }else if(fieldNm.contains("Code")) {
+        } else if (fieldNm.contains("Code")) {
             return "32";
-        }else if(fieldNm.contains("Status")) {
+        } else if (fieldNm.contains("Status")) {
             return "10";
-        }else if(fieldNm.contains("Date")) {
+        } else if (fieldNm.contains("Date")) {
             // yyyy-MM-dd
             return "10";
-        }else if(fieldNm.contains("Time")) {
+        } else if (fieldNm.contains("Time")) {
             // HH:mm:ss
             return "8";
-        }else if(fieldNm.contains("Zip")) {
+        } else if (fieldNm.contains("Zip")) {
             return "7";
-        }else if(fieldNm.contains("Tel")) {
+        } else if (fieldNm.contains("Tel")) {
             return "15";
         }
 
@@ -886,7 +903,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     protected void setFieldLabel(Entity entity, Field field, CodeTemplate.Paragraph paragraph) {
         String labelTxt = field.getAnnotationValue(EntityAnnotation.COMMENT);
-        if(labelTxt!=null && !labelTxt.isEmpty())
+        if (labelTxt != null && !labelTxt.isEmpty())
             paragraph.add("@Comment(\"%s\")", labelTxt);
     }
 
@@ -905,7 +922,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         String dbColumnName = field.getDbColumnName();
 
-        if (dbColumnName !=null) {
+        if (dbColumnName != null) {
             list.add("name = \"" + dbColumnName + "\"");
             list4Enum.add("name = \"" + dbColumnName + "\"");
         }
@@ -915,14 +932,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
         if (field.getColumnDefinition() != null) {
             list.add("columnDefinition=\"" + field.getColumnDefinition() + "\"");
-        }
-        else if(columnDefinition!=null) {
-            list.add("columnDefinition = \""+columnDefinition+"\"");
-        }
-        else if (field.hasAnnotation("text")) {
+        } else if (columnDefinition != null) {
+            list.add("columnDefinition = \"" + columnDefinition + "\"");
+        } else if (field.hasAnnotation("text")) {
             list.add("columnDefinition = \"TEXT\"");
-        }
-        else if (field.hasAnnotation("longtext")) {
+        } else if (field.hasAnnotation("longtext")) {
             list.add("columnDefinition = \"LONGTEXT\"");
         }
 
@@ -931,7 +945,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list4Enum.add("nullable = false");
         }
 
-        if("false".equals(field.getAnnotationValue(EntityAnnotation.UPDATABLE))) {
+        if ("false".equals(field.getAnnotationValue(EntityAnnotation.UPDATABLE))) {
             list.add("updatable = false");
             list4Enum.add("updatable = false");
         }
@@ -945,14 +959,14 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list.add("length = " + lengthVal);
             list4Enum.add("length = " + lengthVal);
             isLengthDefine = true;
-        }else {
-            if(enumModel!=null) {
+        } else {
+            if (enumModel != null) {
                 Annotation dbAnt = enumModel.getMetaInfo().getMetaAnnotation("db");
-                if(dbAnt!=null) {
+                if (dbAnt != null) {
                     String dbFieldNm = dbAnt.getValue();
-                    if(dbFieldNm!=null) {
+                    if (dbFieldNm != null) {
                         Field enumField = enumModel.getFieldItems().findByName(dbFieldNm);
-                        if(enumField!=null) {
+                        if (enumField != null) {
                             lengthVal = enumField.getAnnotationValue(EntityAnnotation.LENGTH);
                             if (lengthVal != null) {
                                 list4Enum.add("length = " + lengthVal);
@@ -965,13 +979,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             }
         }
 
-        if(!isLengthDefine) {
+        if (!isLengthDefine) {
             lengthVal = makeLengthInfo(field);
             if (lengthVal != null) {
                 list.add("length = " + lengthVal);
             }
         }
-
 
 
         Annotation uniqAnnot = field.getAnnotation("unique");
@@ -986,30 +999,29 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
         //if (list.size() > 0 && !isEnumerationType(field)) {
-        if (list.size() > 0 ) {
+        if (list.size() > 0) {
             String txt = "@Column(" + String.join(", ", list) + ")";
             paragraph.add(txt);
-        }
-        else if(list4Enum.size()>0) {
+        } else if (list4Enum.size() > 0) {
             String txt = "@Column(" + String.join(", ", list4Enum) + ")";
             paragraph.add(txt);
         }
     }
 
-    private void setEnumListAnnotation(Entity entity, Field field , CodeTemplate.Paragraph p) {
+    private void setEnumListAnnotation(Entity entity, Field field, CodeTemplate.Paragraph p) {
         TypeInfo typeInfo = field.getTypeInfo();
-        if(!typeInfo.isList()) return;
+        if (!typeInfo.isList()) return;
 
         String enumName = typeInfo.getCoreItemType();
         EnumModel enumModel = this.model.getEnumModels().findByName(enumName);
-        if(enumModel==null) return;
+        if (enumModel == null) return;
 
         String tblName = StringUtils.camelToSnake(entity.getIdentity().getName())
-                +"_"+StringUtils.camelToSnake(field.getName());
+                + "_" + StringUtils.camelToSnake(field.getName());
 
 
         p.add("@ElementCollection( fetch = FetchType.EAGER)");
-        p.add("@CollectionTable(name = \"%s\", joinColumns = @JoinColumn(name = \"map_seq\"))",tblName );
+        p.add("@CollectionTable(name = \"%s\", joinColumns = @JoinColumn(name = \"map_seq\"))", tblName);
         p.add("@Column(name = \"code\")");
     }
 
@@ -1038,7 +1050,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
 
     private EnumModel getEnumModelFromType(Field field) {
-        if(field.getTypeInfo().isBaseType()) return null;
+        if (field.getTypeInfo().isBaseType()) return null;
 
         String typeName = field.getTypeInfo().getCoreItemType();
 
@@ -1046,9 +1058,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
     private void setConvertAnnotation(String domainId, Field field, CodeTemplate.Paragraph paragraph) {
-        String type=  field.getTypeInfo().getCoreItemType();
+        String type = field.getTypeInfo().getCoreItemType();
 
-        EnumModel enumModel = getEnumModelFromType( field);
+        EnumModel enumModel = getEnumModelFromType(field);
         if (enumModel != null) {
             if (enumModel.getMetaInfo().hasMetaAnnotation("db")) {
                 paragraph.add("@Convert(converter = %s.EntityConverter.class)", type);
@@ -1058,8 +1070,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
     private void setNativeAnnotation(Map<String, Annotation> annotationMap, CodeTemplate.Paragraph paragraph) {
 
-        if(this.publishMode==null) return;
-        if(annotationMap ==null) return;
+        if (this.publishMode == null) return;
+        if (annotationMap == null) return;
 
         //String prefix = this.publishMode+":";
         String prefix = "jpa:";
@@ -1075,7 +1087,6 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 .map(Map.Entry::getValue)
                 .forEach(paragraph::add);
     }
-
 
 
     private void setSqlDeleteAnnotation(Field field, CodeTemplate.Paragraph paragraph) {

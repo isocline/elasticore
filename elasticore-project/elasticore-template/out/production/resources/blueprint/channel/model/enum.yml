@@ -1,0 +1,24 @@
+enumeration:
+  MessageType:
+    meta: enum @db(code) @json(code)  -- 메세지 타입
+    fields:
+      code: string(2) @length(3) -- 타입코드
+      name: string(50) -- 이름
+    enum:
+      SMS: SMS,단문문자
+      LMS: LMS,장문문자
+      CALL: CALL,전화발신
+      KAKAO: KAKAO,카카오톡
+      OUTBOUND_CALL: OBC,전화발신
+      FAX: FAX,팩스
+
+  MessageStatus:
+    meta: enum @db(code) @json(code)  -- 메시지 상태 | 메시지 처리 상태 관리
+    fields:
+      code: string(2) @length(2) -- 상태 코드
+      name: string(50) -- 이름
+    enum:
+      PENDING: PD,대기
+      SENT: OK,전송완료
+      FAILED: FL,전송실패
+

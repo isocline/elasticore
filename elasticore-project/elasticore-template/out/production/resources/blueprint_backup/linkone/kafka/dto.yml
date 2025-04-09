@@ -1,0 +1,104 @@
+enumeration:
+
+  UserActType:
+    meta: enum @json(code) @db(code) -- 사용자 이벤트 모드
+    fields:
+      msg: string
+      code: string @length(2)
+    enum:
+      CREATE: 등록,C
+      DELETE: 삭제,D
+      UPDATE: 변경,U
+
+
+dto:
+
+  EventItem:
+    meta: dto
+    fields:
+      packetId: string -- 이벤트 아이디(마스터의 packet 아이디와 동일,IF_RE120)
+      receptNo: string -- 대차접수번호
+      bodyData: Object -- 상세 데이터
+
+  UserEventItem:
+    meta: dto -- 사용자 관련 정보 (등록/삭제/변경/활동)
+    fields:
+      systemId: string -- 시스템아이디( OSR:대차시스템 / PDI:PDI )
+      userId: string -- 사용자 ID
+      actionType: UserActType -- 사용자 이벤트 타입 (C:등록 / D:삭제 / U:변경)
+      bodyData: Object -- 상세 데이터
+
+  PushEventItem:
+    meta: dto -- 사용자 Push(전송)용 메세지 websocket
+    fields:
+      systemId: string -- 시스템아이디( OSR:대차시스템 / PDI:PDI )
+      userId: string -- 이벤트 발생 사용자 ID
+      title: string -- 이벤트 제목
+      msg: string -- 내용
+      alarmType: string -- 알람여부 ('1' 알람표시, '0' 알람 표시 안함)
+      mainTypeInfo: string -- 주 타입정보
+      subTypeInfo: string -- 서브 타입정보
+      mainRefCode: string -- 주 코드 정보 (대차 ID)
+      subRefCode: string -- 서브 코드 정보 (대차 접수번호)
+      targetUrl: string -- target URL
+      requestComId: string -- 요청사 Id 정보
+      presentDateTime: string -- 표시 시간 
+      properties: HashMap -- 기타 속성들                                    
+
+  Re110:
+    meta: dto
+    fields:
+      rentCarFixCode : string -- 차량확정여부
+      rentCarFixNm : string -- 차량명
+      bigo : string -- 특이사항
+      consignPossYn: string -- 탁송여부	탁송가능여부 (Y/N)
+
+
+  Re120:
+    meta: dto -- 고객통화
+    fields:
+      callDate: string -- 통화일자	yyyymmdd
+      callTime: string -- 통화시간	hhmiss
+      bigo: string -- 통화내용
+
+  Re130:
+    meta: dto -- 배송완료
+    fields:
+      rentCompDate: string -- 완료일자	yyyymmdd
+      rentCompTime: string -- 완료시간	hhmiss
+      bigo: string -- 특이사항
+      rentInfo: List<PicInfo> -- 사진배열명
+
+  Re140:
+    meta: dto -- 반납완료
+    fields:
+      rentRecallDate: string -- 완료일자	yyyymmdd
+      rentRecallTime: string -- 완료시간	hhmiss
+      bigo: string -- 특이사항
+      rentUseDate: string -- 대차사용일수
+      rentInfo: List<RentInfo>
+
+  Re150:
+    meta: dto -- 기타메세지전송
+    fields:
+      bigo: string -- 기타메모
+
+
+  PicInfo:
+    meta: dto
+    fields:
+      rentPicPath: string -- 사진경로	/rent/yyyy/mm/dd/ + 대차접수번호
+      rentPicFilenm: string -- 사진명
+
+  RentInfo:
+    meta: dto
+    fields:
+      rentGb: string -- 정산구분	01:대차계약서/02:정비/03:유류비/04:통행료/05:탁송비/06:세차/07:기타
+      rentCost: string -- 정산비용
+      rentPicPath: string -- 사진경로	/rent/yyyy/mm/dd/ + 대차접수번호
+      rentPicFilenm: string -- 사진이름
+
+
+    
+    
+    

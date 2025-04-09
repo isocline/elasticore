@@ -259,6 +259,8 @@ public class StringUtils {
 
             case "%__%":
                 return "Field matches value (case-insensitive) with identical content between start and end.";
+            case "in":
+                return "Field matches any value in the given list.";
             default:
                 return "Use 'like' if value has %, else 'equal'";
         }

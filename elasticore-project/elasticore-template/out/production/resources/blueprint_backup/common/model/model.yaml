@@ -1,0 +1,92 @@
+
+entity:
+
+  BaseEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+
+  AuditEntity:
+    meta: entity @abstract @extend(BaseEntity)
+    fields:
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+      createIP: string(20) -- 시스템 입력 IP
+      lastModifiedIP: string(20) -- 시스템 수정 IP
+
+  LifecycleEntity:
+    meta: entity @abstract @extend(AuditEntity)
+    fields:
+      effectiveDate: string(8) @search(<=) -- 적용 시작일시 예)20240701
+      endDate: string(8) @search(>) @default(99991231) -- 정보 종료일시,null 또 공백시 설정 안됨. 예)20251201
+
+  TxLifecycleEntity:
+    meta: entity @abstract @extend(LifecycleEntity)
+    fields:
+      txId: string(12) -- 트랜잭션 아이디
+
+  TransactionEntity:
+    meta: entity @abstract @extend(BaseEntity)
+    fields:
+      txId: string(12) -- 트랜잭션 아이디
+
+
+
+  TxLog:
+    meta: entity  @dto @extend(BaseEntity) -- Transaction 로그
+    fields:
+      seq: Long @id @pk
+
+      txId: string @id @env:genid -- Transaction 아이디
+      txType: TxType @notnull
+      runnerId: string(500) -- podName 또는 server 아이디
+      txStatus: TxStatus @notnull
+      title: string(2000)  -- 주요 작업명
+      logTxt: text
+
+
+
+  CommonCode:
+    meta: entity  @extend(AuditEntity) -- 공통코드 | GA 시스템에서 공통적으로 사용되는 코드 정보를 관리하는 테이블
+    fields:
+      mainCode: string(16)! @id   -- 메인 코드
+
+      codeType: CodeType -- 코드 유형
+      upCode: string(16) -- 상위 코드
+      orderNo: int -- 정렬 순서
+      shortName: string(100) -- 코드 짧은 이름
+      longName: string(200) -- 코드 긴 이름
+      val: string(200) -- 코드값
+      useYn: Indicator @default(Indicator.YES) -- 사용여부
+
+
+  PhoneNumber:
+    meta: entity @embeddable @dto -- 전화번호
+    fields:
+      telNo1: string(4) -- 전화 1
+      telNo2: string(4) -- 전화 2
+      telNo3: string(4) -- 전화 3
+      
+  Address:
+    meta: entity @embeddable @dto -- 주소
+    fields:
+      postNo: string(5) -- 우편번호
+      postNo2: string(7) -- 우편번호 2
+      baseAddr: string(200) -- 기본 주소
+      detailAddr: string(300) -- 상세 주소
+
+  JobRole:
+    meta: entity @embeddable @dto -- 직무 역할 | 직위, 직급, 직책에 대한 역할 정보
+    fields:
+      jobPositionCd: string(20) -- 직위 코드
+      jobGradeCd: string(20) -- 직급 코드
+      jobTitleCd: string(20) -- 직책 코드
+      careerCd: string(20) -- 경력 코드
+
+  ImageInfo:
+    meta: entity @embeddable @dto -- 이미지 정보
+    fields:
+      fileName: string -- 이미지 파일명
+      url: string -- 이미지 url 경로

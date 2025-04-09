@@ -1,0 +1,41 @@
+entity:
+
+  UserCust:
+    fields:
+      id: long @id @seqeunce
+      email: string @notnull @length(50)
+      name: string @notnull
+      grpCd: int
+      description: string @text
+      posts: List<Post>
+
+
+  Post:
+    fields:
+      id: long @id
+      title: string
+      content: string
+      published: boolean @default(false)
+      author: UserCust
+
+  Vehicle:
+    meta: entity @abstract
+
+    fields:
+      id: long @id @sequence
+      manufacturer: string
+      vehicleType: string @discriminator
+
+  Car:
+    meta: entity @extend(Vehicle) @rollup(CAR)
+    fields:
+      seats: int
+
+  Bike:
+    meta: entity @extend(Vehicle) @rollup(BIKE)
+    fields:
+      hasSidecar: boolean
+
+
+
+

@@ -1,0 +1,100 @@
+dto:
+
+  CustUserDTO:
+    meta: dto @template('CustUser')
+    fields:
+      requestComId: string @ref(company.id)
+      comRespName: string @ref(company.respName)
+      comName: string @ref(company.comName) @label(업체명)
+      comGrpCode: CompanyGroupCode @ref(company.comGrpCode) @s(eq) @label(분류)
+      areaCodeList: List<AreaCode> @ref(company.areaCodeList) @label(관할지역)
+      areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList) )
+      comGrpCodeLabel: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getLabel(comGrpCode) )
+      roleCodeId: string @ref(roleCode.id) @label(권한그룹 ID)
+
+  CustUserSearchDTO:
+    meta: dto @searchable(entity=CustUser, pageSize=30)
+    fields:
+      requestComId: string @ref(company.id) @s(eq) @label(회사코드)
+      comName: string @ref(company.comName) @s(%%) @label(업체명)
+      comGrpCode: CompanyGroupCode @ref(company.comGrpCode) @s(eq) @label(분류)
+      createDate: date @s(~) -- 접수일자 비교
+      roleCodeId: string @ref(roleCode.id) @s(eq) @label(권한그룹 ID)
+
+  CustUserSrchResultDTO:
+    meta: dto @searchResult(CustUser)
+    fields:
+      comGrpCodeLabel: CompanyGroupCode @ref(company.comGrpCode) @label(업체 구분)
+      comName: string @ref(company.comName) @label(업체명)
+      centerName: string @ref(company.centerName) @label(업체명)
+      roleCodeNm: string @ref(roleCode.name) @label(권한 그룹명)
+      password: --
+
+  CompanyDTO:
+    meta: dto @template('Company')
+    fields:
+      userList: List<CustUserDTO> @ref(userList)
+      areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo ) -- 전체 지역정보 텍스트 형태
+      insureEmpList: List<CustUserDTO>  -- 보험 담당자 목록
+      partnerCustId: string @ref(partnerCust.id)
+      partnerCustNm: string @ref(partnerCust.comName)
+
+
+  CompanySearchDTO:
+    meta: dto @searchable(entity=Company, pageSize=30)
+    fields:
+      partnerCustId: string @s(%%) @ref(partnerCust.id)
+
+  CompanySearchResultDTO:
+    meta: dto @searchResult(Company)
+    fields:
+      areaTextInfo: string @function( get=com.mobillug.linkone.biz.util.DTOUtils.getAreaInfo(areaCodeList) ) -- 전체 지역정보 텍스트 형태
+      partnerCustId: string @ref(partnerCust.id)
+      partnerCustNm: string @ref(partnerCust.comName)
+      insureEmpList: List<CustUserDTO> @ref(insureEmpList) -- 보험 담당자 목록
+      lastModifiedBy: --
+
+  AreaCodeDetails:
+    meta: dto
+    fields:
+      code: string
+      msg: string
+
+  IdentifyUserDTO:
+    meta: dto
+    fields:
+      telNo: string -- 전화번호
+      name: string -- 성명
+      chkKey: string -- 값검증키
+
+  CarInfoDTO:
+    meta: dto @template('CarInfo')
+
+  CarInfoSrchDTO:
+    meta: dto @searchable(entity=CarInfo) @pageable
+
+
+  InsureCustUserMapDTO:
+    meta: dto @template('InsureCustUserMap')
+    fields:
+      custUser: CustUserDTO @ref(custUser)
+
+
+  InsureCustUserMapSrchDTO:
+    meta: dto @searchable(entity=InsureCustUserMap)
+
+  EmpAuthorizationDTO:
+    meta: dto @template('EmpAuthorization')
+    fields:
+      requestComId: string @ref(company.id)
+
+  EmpAuthorizationSearchDTO:
+    meta: dto @searchable(entity=EmpAuthorization, pageSize=10)
+    fields:
+      requestComId: string @ref(company.id) @s(eq)
+
+  EmpAuthorizationSearchResultDTO:
+    meta: dto @searchResult(EmpAuthorization)
+    fields:
+      requestComId: string @ref(company.id)
+      companyGrpCode: CompanyGroupCode @ref(company.comGrpCode)

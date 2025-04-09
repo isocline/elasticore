@@ -1,0 +1,13 @@
+dto:
+  LoanCarDTO:
+    meta: dto @template('LoanCar')
+    fields:
+      carSeq: int
+      contrNm: string
+
+
+
+  LoanCarSearchDTO:
+    meta: dto @searchable(entity=LoanCar,pageSize=30)
+    fields:
+      test: string

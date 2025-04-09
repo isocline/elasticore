@@ -1,0 +1,15 @@
+repository:
+  LoanCar:
+    methods:
+      - id: selectList
+        pageable: true
+        query: select a from LoanCar order by customName desc
+
+      - id: selectList2
+        pageable: true
+        query: |
+          select a from LoanCar a
+          where 1=1
+            and insuranceCode = :insuranceCode /* if:insuranceCode */
+            and lcRepairShopName = :lcRepairShopName /* if:lcRepairShopName */
+

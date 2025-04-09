@@ -112,6 +112,17 @@ public class TypeInfo {
         return getDefaultTypeName();
     }
 
+    public BaseFieldType getCoreItemBaseFieldType() {
+
+        String coreType =getCoreItemType();
+        BaseFieldType byName = BaseFieldType.findByName(coreType);
+        if(byName!=null && byName != BaseFieldType.UNKNOWN) {
+            return byName;
+        }
+
+        return null;
+    }
+
 
     public String getDefaultTypeName() {
         if(isBaseType() && !isList()) {

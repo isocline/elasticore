@@ -1,0 +1,70 @@
+dto:
+
+  Re100:
+    meta: dto @template('ReData100')
+    fields:
+      id: --
+      createDate: --
+      chkCd: --
+      nextIfCd: --
+
+
+  Re110:
+    meta: dto
+    fields:
+      rentCarFixCode : string -- 차량확정여부
+      rentCarFixNm : string -- 차량명
+      bigo : string -- 특이사항
+
+  Re120:
+    meta: dto -- 고객통화
+    fields:
+      callDate: string -- 통화일자	yyyymmdd
+      callTime: string -- 통화시간	hhmiss
+      bigo: string -- 통화내용
+
+  Re130:
+    meta: dto -- 배송완료
+    fields:
+      rentCompDate: string -- 완료일자	yyyymmdd
+      rentCompTime: string -- 완료시간	hhmiss
+      bigo: string -- 특이사항
+      rentInfo: List<PicInfo> -- 사진배열명
+
+  Re140:
+    meta: dto -- 반납완료
+    fields:
+      rentRecallDate: string -- 완료일자	yyyymmdd
+      rentRecallTime: string -- 완료시간	hhmiss
+      bigo: string -- 특이사항
+      rentUseDate: string -- 대차사용일수
+      rentInfo: List<RentInfo>
+
+  Re150:
+    meta: dto -- 기타메세지전송
+    fields:
+      bigo: string -- 기타메모
+
+
+  PicInfo:
+    meta: dto
+    fields:
+      rentPicPath: string -- 사진경로	/rent/yyyy/mm/dd/ + 대차접수번호
+      rentPicFilenm: string -- 사진명
+
+  RentInfo:
+    meta: dto
+    fields:
+      rentGb: string -- 정산구분	01:대차계약서/02:정비/03:유류비/04:통행료/05:탁송비/06:세차/07:기타
+      rentCost: string -- 정산비용
+      rentPicPath: string -- 사진경로	/rent/yyyy/mm/dd/ + 대차접수번호
+      rentPicFilenm: string -- 사진이름
+
+
+
+  Re100SrchDTO:
+    meta: dto @searchable(entity=ReData100, pageSize=30)
+    
+    
+    
+    

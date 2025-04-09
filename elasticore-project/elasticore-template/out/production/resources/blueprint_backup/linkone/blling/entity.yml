@@ -1,0 +1,19 @@
+entity:
+
+
+  CostTable:
+    meta: entity @extend(AuditEntity) -- 요금표
+    fields:
+      id: long @id @sequence -- 요금표 아이디
+
+#      costMgrCd: CostMgrCode @s(eq) -- 요금표 종류
+      costMgrCd: string @s(eq) -- 요금표 종류
+      vClassCd: CommonCode -- 차량등급코드
+      displacementCd: CommonCode -- 배기량정보 코드
+
+      mainCarNames: string(500) @s(%%) -- 대표 차종
+
+      prices: string[] @env:stringarray --  요금  리스트
+
+
+

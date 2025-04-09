@@ -1,0 +1,54 @@
+dto:
+
+
+
+  AiRequest:
+    meta: dto
+    fields:
+      question: string -- 질문내용
+      mode: string -- 모드 무심사인 경우 L
+
+  AiReqResult:
+    meta: dto
+    fields:
+      keyword: string -- 차량관련 메세지
+      isNeedSearch: boolean -- 추가 웹 검색이 필요한지 여부
+      extMsg: string -- 추가 처리 결과 메세지
+
+      whereSql: string -- 확장 SQL 조건 구문
+      sortSql: string -- 정렬 관련 정보
+      maxCount: int -- 최대 조회갯수
+
+
+
+
+
+
+
+enumeration:
+  InclusionType:
+    meta: enum @json(code) @db(code) -- 포함 여부
+    fields:
+      msg: string
+      code: string @length(2)
+    enum:
+      INCLUDED: 포함,Y
+      NOT_INCLUDED: 미포함,N
+
+  InclusionTexType:
+    meta: enum @json(code) @db(code) -- 포함 여부
+    fields:
+      msg: string
+      code: string @length(1)
+    enum:
+      INCLUDED: 포함,Y
+      EXCLUDED: 제외,N
+
+  MaintenanceType:
+    meta: enum @json(code) @db(code) -- 정비 유형
+    fields:
+      msg: string
+      code: string @length(2)
+    enum:
+      MAINTENANCE_EXCLUDED: 정비제외,01
+      ROUTINE_MAINTENANCE: 순회정비,02

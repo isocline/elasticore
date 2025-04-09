@@ -1,0 +1,102 @@
+
+enumeration:
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: Y
+      NO: N
+
+  FileKind:
+    meta: enum  @json(code) @db(code) -- 파일 류
+    fields:
+      code: string(2)
+      name: string(10)
+    enum:
+      CAR_IMG: CI,차량 이미지
+      LOGO: LG,브랜드이미지
+
+
+  BrandType:
+    meta: enum @json(code) @db(code) -- 브랜드 타입
+    fields:
+      code: string(1)
+      name: string
+    enum:
+      DOMESTIC: D,국산
+      IMPORTED: I,수입
+
+
+  SaleExtraOption:
+    meta: enum @json(code) @db(code) -- 판매추가옵션
+    fields:
+      code: string(2)
+      name: string
+    enum:
+      TINTING: TT,'썬팅'
+      BLACKBOX: BB,'블랙박스'
+
+
+  FuelType:
+    meta: enum @json(code) @db(code) -- 자동차 연료 종류
+    fields:
+      code: string @length(2)
+      name: string
+    enum:
+      HYBRID: HY,하이브리드
+      ELECTRIC: EL,전기
+      HYDROGEN: HD,수소
+      GASOLINE: GA,가솔린
+      LPG: LP,LPG
+      DIESEL: DS,디젤
+
+
+
+  CarClassType:
+    meta: enum @json(code) @db(code) -- 차량 분류 코드
+    fields:
+      code: string @length(3)
+      name: string
+    enum:
+      TRUCK_PICKUP_VAN: TPV,화물 (트럭/픽업+밴)
+      SEMI_MEDIUM: SMD,준중형
+      LARGE_SUV: LSV,대형SUV
+      SPORTS: SPT,스포츠카/슈퍼카
+      VAN: VAN,승합 (박스카/승합/버스)
+      LARGE: LRG,대형
+      SEMI_LARGE: SLG,준대형
+      SMALL_SUV: SSV,소형SUV
+      MEDIUM: MED, 중형
+      MEDIUM_SUV: MSV,중형SUV
+      SMALL: SML,소형
+      COMPACT: CMP,경차/경박스카
+      MPV: MPV,MPV
+
+
+  RecommendType:
+    meta: enum @json(code) @db(code) -- 기타 차량 정보 타입
+    fields:
+      code: string @length(2)
+      name: string
+    enum:
+      RECOMMEND: RM,추천차량
+      IN_STOCK: IS,즉시출고
+
+  TxType:
+    meta: enum @json(code) @db(code) -- 작업타입
+    fields:
+      code: string @length(2)
+      name: string
+    enum:
+      CAR_INFO: CI,차량정보 동기화
+
+  TxStatus:
+    meta: enum @json(code) @db(code) -- 작업 처리 상태
+    fields:
+      code: string @length(2)
+      name: string
+    enum:
+      SUCCESS: SC,성공
+      FAIL: FL,실패

@@ -1,0 +1,27 @@
+entity:
+
+  AlarmEvent:
+    meta: entity @extend(AuditEntity) -- 알림 정보
+    fields:
+      id: string(30) @id @env:genid  -- 알림 아이디
+      title: string(200)! @s(%%) -- 이벤트 제목
+      msg: string(2000)! @s(%%) -- 내용
+      alarmType: string -- 알람여부 ('1' 알람표시, '0' 알람 표시 안함)
+      mainTypeInfo: string(10) @s(eq) -- 주 타입정보
+      subTypeInfo: string(10) @s(eq) -- 서브 타입정보
+      loanCarId: string(30) @s(-%) -- 관련 대차코드
+      partnerComId: string(30) @s(%%) -- 대차 접수 고객사 정보
+      lcCode: string(50) @s(-%) -- 대차 접수번호
+      presentDateTime: string(18) @s(%%) -- 발생 시간(표시용)
+      isChecked: String(1) @s(%%) -- 알림 확인여부 코드
+
+
+
+dto:
+
+  AlarmEventDTO:
+    meta: dto @template(AlarmEvent) --  알림 정보 DTO
+    fields:
+
+  AlarmEventSrchDTO:
+    meta: dto @searchable(entity=AlarmEvent, pageSize=20) -- 알림 정보 검색 DTO

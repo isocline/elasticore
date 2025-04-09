@@ -1,5 +1,7 @@
 package io.elasticore.springboot3.entity;
 
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Sort;
 
@@ -11,11 +13,14 @@ public final class FieldInfo<T> {
     private final Class<?> type;
     private final Class<?> baseType;
 
-    public FieldInfo(Class<T> entityType, String name, Class<?> type, Class<?> baseType) {
+    private final FieldInfo parentFieldInfo;
+
+    public FieldInfo(Class<T> entityType, String name, Class<?> type, Class<?> baseType ,FieldInfo parentFieldInfo) {
         this.entityType = entityType;
         this.name = name;
         this.type = type;
         this.baseType = baseType;
+        this.parentFieldInfo = parentFieldInfo;
     }
 
     public Class<T> getEntityType() {
@@ -77,9 +82,30 @@ public final class FieldInfo<T> {
                 (value instanceof Collection<?> && ((Collection<?>) value).isEmpty()))) {
             return (root, query, cb) -> cb.conjunction();
         }
-        return (root, query, cb) -> op.toPredicate(cb, root.get(name), value);
+
+        return (root, query, cb) -> {
+            Path<?> path = resolvePath(root);
+            return op.toPredicate(cb, path, value);
+        };
     }
 
+    /**
+     * Recursively resolves the full path to the field using parentFieldInfo.
+     *
+     * For example, if parentFieldInfo represents "address" and name is "city",
+     * this returns root.get("address").get("city")
+     *
+     * @param root the root of the query
+     * @return the resolved Path
+     */
+    private Path<?> resolvePath(From<?, ?> root) {
+        if (parentFieldInfo == null) {
+            return root.get(name);
+        }
+
+        Path<?> parentPath = parentFieldInfo.resolvePath(root);
+        return parentPath.get(name);
+    }
     public Sort.Order getAscOrder() {
         return Sort.Order.asc(this.name);
     }

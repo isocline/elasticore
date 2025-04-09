@@ -1,0 +1,16 @@
+dto:
+  PagingInfo:
+    meta: dto
+    fields:
+      page: int @default(0) --현재 페이지 번호
+      perPage: int @default(10) --페이지당 로우수
+      rowCount: int -- 전체 로우 수
+      pageCount: int -- 전체 페이지 수
+
+
+  CommonCodeDTO:
+    meta: dto @template('CommonCode')
+
+  CommonCodeSearchDTO:
+    meta: dto @searchable(entity=CommonCode, pageSize=30)
+

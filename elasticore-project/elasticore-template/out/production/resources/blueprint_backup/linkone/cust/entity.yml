@@ -1,0 +1,78 @@
+entity:
+
+  Company:
+    meta: entity @extend(AuditEntity) -- 업체정보 | 대차 시스템에 등록된 업체 정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 업체아이디
+
+      comGrpCode: CompanyGroupCode @s(=) -- 업체그룹코드
+      areaCodeList: List<AreaCode> @s(in) -- 담당지역
+      partnerCust: Company -- 제휴고객사
+      comName: string(64) @s(%%) -- 업체명
+      respName: string(64) @s(%%)-- 담당자이름
+      respTel: string @s(%%) -- 담당자전화번호
+      respZone: string(100)  @s(%%)-- 소재지
+      useYn: Indicator @s(=) --업체활성화여부 Y:활성화 / N:비활성화
+      userList: List<CustUser> -- 해당업체 사용자목록
+      #07/09 추가건 ===================
+      centerName: string @s(%%) -- 센터명
+      wireTel: string  @s(%%) -- 업체 유선전화
+      managementArea: string  @s(%%) -- 관리지역
+      insureEmpId: string @s(=) -- 보험 담당자
+      logoImgUrl: string -- 로고 Url
+
+      #===============================
+
+
+  CustUser:
+    meta: entity @extend(AuditEntity) -- 고객정보 | 업체에 연관된 고객정보를 관리
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 사용자 내부아이디
+      company: Company -- 업체
+      usrId: string(20)! @s(%%) @unique -- 아이디
+      password: string(128)! -- 패스워드
+      name: string(64)! @s(%%) -- 이름
+      telNo: string(16)! @s(%%) -- 전화번호
+      workTelNo: string(16)! @s(%%) -- 업무용 전화번호
+      faxNo: string(16) -- 팩스번호
+      email: string(128)  @s(%%) -- 이메일
+      deptNm: string(60)  @s(%%) -- 부서
+      grade: string(60)  @s(%%) -- 직급
+      useYn: Indicator @s(=) -- 사용자 활성화여부 Y:활성 / N:차단
+      blockReason: string(300) -- 차단 사유
+      authDivision: AuthDivisionType @s(=) -- 권한 분류
+      claimPartTextInfo: string(16) @s(%%) -- 청구 파트 목록 텍스트형태
+
+      roleCode: EmpAuthorization -- role 코드 정보
+      permission: int -- 권한 코드 정보
+
+
+
+  EmpAuthorization:
+    meta: entity @extend(AuditEntity) -- 직원권한그룹정보
+    fields:
+      id: string(30) @id @genid(com.aventrix.jnanoid.jnanoid.NanoIdUtils.randomNanoId) -- 권한그룹 내부아이디
+      company: Company -- 업체
+      name: string(64)! @s(=) -- 이름
+      useYn: Indicator @default(Indicator.YES) @s(=) -- 권한 그룹 활성화여부 Y:활성 / N:차단
+      permission: int @default(0) -- 권한 코드 정보
+
+
+
+  CarInfo:
+    meta: entity @extend(AuditEntity) -- 차량정보
+    fields:
+      id: string(16) @id -- 차량 아이디(등록번호)
+      carRegNo: string(16) @s(-%)-- 차량 등록번호
+      companyId: string(30)! @s(eq) -- 업체 아이디
+      contractFileUrl: string(300) -- 차량등록증 url
+
+
+
+  InsureCustUserMap:
+    meta: entity @extend(AuditEntity) -- 회사와 보험 담당자 매핑
+    fields:
+      id: long @id @sequence -- 매핑 아이디
+      companyId: string(30) @s(eq) -- 업체 아이디
+      custUser: CustUser  -- 캐피탈 담당자
+

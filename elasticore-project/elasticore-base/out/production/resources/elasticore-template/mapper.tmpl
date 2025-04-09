@@ -11,6 +11,8 @@ import ${j2eePkgName}.persistence.criteria.Join;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import ${entityPackageName}.*;
 import ${dtoPackageName}.*;
 import ${enumPackageName}.*;
@@ -19,8 +21,13 @@ import ${importList};
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
- * <pre>${description}</pre>
- * hash:${hashCode}
+ * Provides transformation utilities between DTOs and entities,
+ * including conditional mapping, permission validation, and dynamic query support.
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
  */
 
 ${classAnnotationList}
@@ -43,6 +50,15 @@ public class ${className} {
 
     ${methodList}
 
+    protected static Specification setSpec(Specification sp, String fieldName, String value) {
+        if(hasValue(value)){
+            if(value.startsWith("%") || value.endsWith("%"))
+                return sp.and((r,q,c) -> c.like(r.get(fieldName),value));
+            else
+                return sp.and((r,q,c) -> c.equal(r.get(fieldName),value));
+        }
+        return sp;
+    }
 
     private static boolean hasValue(String val) {
         if(val != null && !val.isEmpty())
@@ -70,5 +86,31 @@ public class ${className} {
             return true;
 
         return false;
+    }
+
+
+    private static boolean isSkip(String fromClassName, String refClassName) {
+        return false;
+    }
+
+    public static void setVal(String value, Consumer<String> setter, boolean isSkipNull) {
+        if ((value != null && !value.isEmpty())  || !isSkipNull) {
+            Optional.ofNullable(value).ifPresent(setter);
+        }
+    }
+
+    public static <T> void setVal(T value, Consumer<T> setter, boolean isSkipNull) {
+        if (value != null || !isSkipNull) {
+            Optional.ofNullable(value).ifPresent(setter);
+        }
+    }
+
+
+    public static <T, R> void setVal(T value, Consumer<R> setter, boolean isSkipNull, Function<T, R> mapper) {
+
+
+        if (value != null || !isSkipNull) {
+            Optional.ofNullable(value).map(mapper).ifPresent(setter);
+        }
     }
 }

@@ -1,0 +1,17 @@
+dto:
+
+  MemberResponse:
+    meta:
+      rolldown: member
+      implements: member
+
+
+
+
+    fields:
+
+      isEnabled: Boolean @notNull @label('승인여부')
+      isCompanyOut: Boolean
+
+      memberMemo: string
+

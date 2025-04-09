@@ -320,8 +320,11 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     cb.line("});");
 
                 }else{
-                    cb.line("sp = sp.and((r, q, c) -> r.get(%s).in(%s));",quoteString(entityFieldNm),fieldNm);
-                    //cb.line("sp = sp.and((r,q,c) -> c.in(r.get(%s)%s,%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+                    if(childFieldName!=null && !childFieldName.isEmpty()) {
+                        cb.line("sp = sp.and((r,q,c) -> r.get(%s)%s.in(%s));", quoteString(entityFieldNm),childFieldName, fieldNm);
+                    }else {
+                        cb.line("sp = sp.and((r, q, c) -> r.get(%s).in(%s));",quoteString(entityFieldNm),fieldNm);
+                    }
                 }
 
 

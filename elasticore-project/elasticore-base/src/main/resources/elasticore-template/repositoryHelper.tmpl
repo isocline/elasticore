@@ -103,59 +103,60 @@ public class ${className} {
     }
 
     /**
-     * Executes a Criteria query to apply a string-based function (e.g. LOWER, GREATEST)
-     * on the specified field and returns the result.
+     * Executes a string function (e.g. LOWER, GREATEST) on a field of an entity using JPA Criteria API.
      *
-     * @param func  the string function to apply (from {@link StrFunc})
-     * @param field the target field information
-     * @param spec  optional specification (filter condition), can be null
-     * @param <T>   the expected result type (usually String)
-     * @return the result of applying the function, or null if no result
+     * @param func  the string function to apply
+     * @param field metadata describing the entity field
+     * @param spec  optional filter specification
+     * @param <E>   the entity type
+     * @return the result of the function, or null if no result
      */
-    public <T> T findStrFuncValue(StrFunc func, FieldInfo<T> field, Specification<T> spec) {
+    public <E> String findStrFuncValue(StrFunc func, FieldInfo<E> field, Specification<E> spec) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        Class<T> resultType = func.getResultType();
+        Class<?> resultType = func.getResultType();
 
-        CriteriaQuery<T> cq = cb.createQuery(resultType);
-        Root<T> root = cq.from(field.getEntityType());
+        CriteriaQuery<?> cq = cb.createQuery(resultType);
+        Root<E> root = cq.from(field.getEntityType());
 
-        if(spec!=null) {
+        if (spec != null) {
             Predicate predicate = spec.toPredicate(root, cq, cb);
             cq.where(predicate);
         }
+
         cq.select(func.apply(cb, root.get(field.getName())));
-        TypedQuery<T> query = entityManager.createQuery(cq);
-        List<T> result = query.getResultList();
-        return result.isEmpty() ? null : result.get(0);
+        TypedQuery<?> query = entityManager.createQuery(cq);
+        List<?> result = query.getResultList();
+        return result.isEmpty() ? null : (String) result.get(0);
     }
 
+
     /**
-     * Executes a Criteria query to apply a numeric function (e.g. MAX, COUNT, AVG)
-     * on the specified field and returns the result.
+     * Executes a numeric function (e.g. MAX, COUNT) on a field of an entity using JPA Criteria API.
      *
-     * @param func  the numeric function to apply (from {@link NumFunc})
-     * @param field the target field information
-     * @param spec  optional specification (filter condition), can be null
-     * @param <T>   the expected result type (e.g. Long, Double, BigDecimal)
-     * @return the result of applying the function, or null if no result
+     * @param func  the numeric function to apply
+     * @param field metadata describing the entity field
+     * @param spec  optional filter specification
+     * @param <E>   the entity type
+     * @return the result of the function, or null if no result
      */
-    public <T> T findNumFuncValue(NumFunc func, FieldInfo<T> field, Specification<T> spec) {
+    public <E> Number findNumFuncValue(NumFunc func, FieldInfo<E> field, Specification<E> spec) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        Class<T> resultType = func.getResultType();
+        Class<?> resultType = func.getResultType();
 
-        CriteriaQuery<T> cq = cb.createQuery(resultType);
-        Root<T> root = cq.from(field.getEntityType());
+        CriteriaQuery<?> cq = cb.createQuery(resultType);
+        Root<E> root = cq.from(field.getEntityType());
 
-        if(spec!=null) {
+        if (spec != null) {
             Predicate predicate = spec.toPredicate(root, cq, cb);
             cq.where(predicate);
         }
+
         cq.select(func.apply(cb, root.get(field.getName())));
-        TypedQuery<T> query = entityManager.createQuery(cq);
-        List<T> result = query.getResultList();
-        return result.isEmpty() ? null : result.get(0);
+        TypedQuery<?> query = entityManager.createQuery(cq);
+        List<?> result = query.getResultList();
+        return result.isEmpty() ? null : (Number) result.get(0);
     }
 
     protected Query createQuery(String sql, boolean isNativeQuery, Class clz, Pageable pageable) {

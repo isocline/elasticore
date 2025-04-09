@@ -1,0 +1,37 @@
+## model
+entity:
+
+
+
+
+  BaseEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @search(between) @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+
+  AuditEntity:
+    meta: entity @abstract @extend(BaseEntity)
+    fields:
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+      createIP: string(20) -- 시스템 입력 IP
+      lastModifiedIP: string(20) -- 시스템 수정 IP
+
+
+
+  Message:
+    meta: entity @expose(50) @extend(AuditEntity) -- 메시지 | 채널을 통해 전송된 메시지 정보
+    fields:
+      msgId: long @id @sequence -- 메세지 아이디
+      ccId: string(30) -- 고객 채널 아이디
+      sender: string(64) -- 발신자 정보(전화번호)
+      recipient: string(64)! -- 수신자 정보 (전화번호)
+      uuid: string(128) -- 발신 메시지 고유아이디
+      content: text -- 메시지 내용
+      status: MessageStatus -- 메시지 상태
+      msgType: MessageType -- 최종 전송 메세지 타입
+      errMsg: string(512) -- 에러시 에러 메세지
+      recvDatetime: datetime -- 수신일시
+      recvEndDatetime: datetime -- 수신(통화) 종료일시

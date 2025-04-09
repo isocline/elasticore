@@ -1,0 +1,40 @@
+---
+
+services:
+  _conf:
+    api:
+      path: /customer
+
+
+
+  SearchPartyInfoByPartyKey:
+    input: CustomerInput
+    output: CustomerResult
+    target: "%.persistence.Customer"
+
+
+    query:
+      findByLastnameOrFirstname: |
+        select u from Customer u where u.firstname = :firstname or u.lastname = :lastname
+
+      findByEmailAddress: |
+        select u from Customer u where u.emailAddress = ?1
+
+    script:
+        type: typescript
+        code: |
+          function process(input:CustomerInput, output:CustomerResult) {
+            output.name = input.name
+
+            Customer c = executeQuery("findByLastnameOrFirstname", input);
+            mapping(c, output);
+
+
+          }
+
+
+
+
+
+
+

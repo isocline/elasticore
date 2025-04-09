@@ -1,0 +1,11 @@
+entity:
+
+  UnitPrice:
+    meta: entity @dto @extend(LifecycleEntity) -- 단가 | 메시지의 단가 정보를 관리
+    fields:
+      id: string(30) @id @env:genid -- 단가 ID
+      msgType: MessageType -- 메시지 타입
+      price: int -- 단가(원단위)
+      description: string(200)! -- 가격 정책 설명
+      lengthMin: int -- 적용 대상 메시지 최소 크기
+      lengthMax: int -- 적용 대상 메시지 최대 크기

@@ -1,0 +1,46 @@
+entity:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+
+  BaseCarInfo:
+    meta: entity @extend(AuditEntity) -- 차량 정보 엔티티 @dto
+    fields:
+      carId: string(12) @id @genid -- 차량 아이디
+      type: string @discriminator('NORM')
+      displacement: long -- 배기량
+      fuelType: string(10) -- 연료 타입 // 예) LPG, 디젤
+
+
+  DefaultCarInfo:
+    meta: entity @rollup(entity=BaseCarInfo,type=BASE) @dto --일반 차량 정보
+    fields:
+      testRollup: string(100)
+
+
+  DefaultCarInfo2:
+    meta: entity @rollup(entity=BaseCarInfo,type=BASE2) @dto --일반 차량 정보
+    fields:
+      testRollup2: string(100)
+
+
+
+  ColorInfo:
+    meta: entity @Embeddable @dto
+    fields:
+      colorName: string(30) -- 색상명 // 예) 메탈 블루 펄, 스노우 화이트 펄
+      colorFrontCode: string(20) --  색상 프론트 코드 // 예) #FFFFFF, #000000 색상 이미지 데이터로 변경 한다면 URL로 변경 가능
+      colorCode: string(10)  -- 색상 코드 // 예) AAA1, BAA1 랜덤 생성
+      colorPrice: long -- 색상 가격
+
+
+  InnerColor:
+    meta: entity @dto -- 내부 색상 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 순번 아이디
+      color: ColorInfo @Embedded

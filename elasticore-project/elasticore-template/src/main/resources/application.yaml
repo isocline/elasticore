@@ -1,0 +1,48 @@
+
+spring:
+  application:
+    name: elcore_blueprint
+
+  sql:
+    init:
+      #data-locations: classpath:sql/initdata.sql
+      mode: always
+
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        hbm2ddl.auto: update
+    defer-datasource-initialization: true
+
+  datasource:
+    url: jdbc:postgresql://xsk-postgre-dev.postgres.database.azure.com:5432/elcore_sample
+    username: elcore_sample
+    password: elcore_sample
+    driver-class-name: org.postgresql.Driver
+
+
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  flyway:
+    enabled: false
+
+
+  jwt:
+    secret: S90UHhbi
+
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

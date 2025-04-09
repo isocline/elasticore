@@ -1,0 +1,23 @@
+
+env:
+  config:
+    mode: jpa
+    framework: springboot:2.7
+    lombok: true
+    domainName: productTest
+
+    template:
+      entity: elasticore-template/entity.tmpl
+
+
+  namespace:
+    entity: io.elasticore.demo.entity
+    dto: io.elasticore.demo.dto
+    enumeration: io.elasticore.demo.enums
+    repository: io.elasticore.demo.repository
+
+
+
+
+
+

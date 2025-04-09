@@ -1,0 +1,376 @@
+entity:
+
+  Company:
+    meta: entity @dto @extend(AuditEntity) -- 회사
+    fields:
+      cid: string(30) @id @genid -- PK
+      name: string -- 회사명
+
+      emps: List<Employee> -- 직원
+
+
+  Employee:
+    meta: entity @dto @extend(AuditEntity) -- 직원
+    fields:
+      id: string @id @genid
+      name: string @notnull @search(like) -- 직원명
+
+      company: Company @fetch(EAGER)-- 소속회사
+
+dto:
+
+  EmployeeCompanyDTO:
+    meta: dto -- 직원과 회사 정보 조회 결과
+    fields:
+      employeeId: string -- 직원 ID
+      employeeName: string -- 직원 이름
+      genderCode: GenderCode -- 성별 코드
+      employeeAge: int -- 직원 나이
+      employeeAddress: string -- 직원 주소
+      isAdult: Indicator -- 성인 여부
+
+      companyId: string -- 회사 ID
+      companyName: string -- 회사 이름
+      companyAddress: string -- 회사 주소
+      companyPhone: string -- 회사 전화번호
+      companyCapital: long -- 회사 자본금
+
+repository:
+  DBMS:
+    methods:
+      - id: selectJoinData
+        return: List<EmployeeCompanyDTO>
+        params:
+          minAge: int
+          maxAge: int
+
+        pageable: true
+        nativeQuery: true
+        query: |
+          SELECT 
+            emp.id AS employee_id,
+            emp.name AS employee_name,
+            emp.gender AS gender_code,
+            emp.age AS employee_age,
+            emp.addr AS employee_address,
+            emp.is_adult AS is_adult,
+            com.cid AS company_id,
+            com.name AS company_name,
+            com.addr AS company_address,
+            com.tel_no AS company_phone,
+            com.capital AS company_capital
+          FROM
+          Employee emp
+          INNER JOIN
+          Company com
+          ON
+          emp.company = com.cid
+          WHERE
+          emp.age BETWEEN :minAge AND :maxAge  
+          ORDER BY
+          emp.name ASC, com.name ASC;
+
+
+
+
+
+dto111:
+
+  CompanyDTO:
+    meta: dto @template(Company)
+    fields:
+
+
+
+  EmployeeDTO:
+    meta: dto @template(Employee)
+    fields:
+      genderName: string @ref(gender.label) -- 남여구분 문자
+      company: CompanyDTO
+
+dto_2:
+
+  BaseSearchInput:
+    meta: dto @implements(PageableObject)
+    fields:
+      pageNumber: int @default(0) @primitive
+      pageSize: int @default(50) @primitive
+      sortCode: string
+      sortColumn: string
+      sortAscending: boolean
+
+  SqlInputDTO:
+    meta: dto @extend(BaseSearchInput)
+    fields:
+      korNm: string
+      email: string
+      age: int
+
+  SqlTestDTO:
+    meta: dto
+    fields:
+      empId: string
+      bankCd: string
+      email: string
+      juminNo: string
+      korNm: string
+      bankNm: string
+    methods:
+      - id: testSql
+        params: SqlInputDTO
+        pageable: true
+
+        query: |
+          select
+           emp_id,
+           bank_cd,
+           email,
+           jumin_no,
+           kor_nm,
+           cc.long_name as bank_nm
+           from
+           employee e
+           left join common_code cc on
+           cc.main_code = e.bank_cd
+           where where 1=1
+           and :age = 10
+           and e.kor_nm like concat('%' ,:korNm,'%') /* if:input.getKorNm() != null */ 
+           and e.email like concat('%' ,:email,'%') /* if:email */ 
+
+
+entity22399:
+
+  Company:
+    meta: entity @dto -- 사용자 정보
+    fields:
+      comId: string @id @genid -- 사용자 ID
+      name: string(50)! -- 사용자 이름
+      testYn: Indicator
+
+entity_@34:
+
+  Company:
+    meta: entity -- 사용자 정보
+    fields:
+      comId: string @id @genid -- 사용자 ID
+      name: string(50)! -- 사용자 이름
+
+
+  User:
+    meta: entity -- 사용자 정보
+    fields:
+      userId: string @id @genid -- 사용자 ID
+      userName: string(50)! -- 사용자 이름
+      email: string(100)! -- 이메일 주소
+      company: Company
+
+
+
+
+entity_20205:
+
+  Product:
+    meta: entity @dto @searchable @extend(LifecycleEntity) - 상품
+    fields:
+      pid: string(30) @id @genid -- PK
+      name: string -- 상품명
+      engName: string -- 상품 영문명
+      desc: text -- 상품개요
+      price: long -- 상품가격
+      weight: double -- 상품 무게
+
+    methods:
+
+      - id: findByNameContaining
+        query: |
+          SELECT e FROM Product e WHERE e.name LIKE CONCAT('%', :name, '%')
+
+      - id: findByAgeRange
+        params:
+          minAge: int
+          maxAge: int
+        query: |
+          SELECT e FROM Product e WHERE e.age BETWEEN :minAge AND :maxAge
+
+      - id: updateAgeAndDescriptionByCompany
+        params:
+          increment: int
+          desc: string
+          companyId: string
+          minAge: int
+        query: |
+          UPDATE Product e SET e.age = e.age + :increment, e.desc = :desc WHERE  e.age >= :age
+
+
+
+
+
+
+
+entityxx:
+  User:
+    meta: entity @dto-- 사용자 정보
+    fields:
+      userId: long @id @sequence -- 사용자 ID
+      userName: string @length(50) -- 사용자 이름
+      email: string @length(100) -- 이메일 주소
+
+
+
+entity223:
+
+
+  BaseEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+
+  AuditEntity:
+    meta: entity @abstract @extend(BaseEntity)
+    fields:
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+      createIP: string(20) -- 시스템 입력 IP
+      lastModifiedIP: string(20) -- 시스템 수정 IP
+
+  LifecycleEntity:
+    meta: entity @abstract @extend(AuditEntity)
+    fields:
+      effectiveDate: string(8) @search(<=) -- 적용 시작일시 예)20240701
+      endDate: string(8) @search(>) @default(99991231) -- 정보 종료일시,null 또 공백시 설정 안됨. 예)20251201
+
+  TxLifecycleEntity:
+    meta: entity @abstract @extend(LifecycleEntity)
+    fields:
+      txId: string(12) -- 트랜잭션 아이디
+
+
+
+  FeeCalcContract:
+    meta: entity @dto @extend(TxLifecycleEntity) -- 계산결과
+    fields:
+      id: long @id @sequence
+      processMonth: string -- 마감월
+
+entity33:
+  ContractBase:
+    meta: entity @abstract
+    fields:
+
+      txId: string
+      age: int
+
+  Contract:
+    meta: entity @dto @extend(ContractBase)
+    fields:
+      policyNo: string! @id @genid -- 계약번호
+      name: string
+
+
+
+
+entity32:
+
+
+  Contract:
+    meta: entity @dto
+    fields:
+      policyNo: string! @id @genid -- 계약번호
+
+  Contract2:
+    meta: entity @dto @template(Contract)
+    fields:
+      policyNo2: string! @id @genid -- 계약번호
+
+dto32:
+  TestDTO:
+    meta: template
+    fields:
+      id: string
+      name: string
+      age: int
+
+  TestDTO2:
+    meta: template
+    fields:
+      addr: string
+
+  TestInputDTO:
+    meta: dto
+    fields:
+      name: string
+      age: int
+
+
+  TestImplDTO:
+    meta: dto @template(TestDTO,TestDTO2)
+
+    methods:
+      - id: selectTestQuery
+
+        params: TestInputDTO
+
+        query:
+          select id,name,age from Test where name = :name and age = :age
+
+
+entity2:
+  Article:
+    meta: entity @dto
+    fields:
+      id: string @id
+      name: string
+
+  TestUser:
+    meta: entity @dto
+    fields:
+      seq: long @id
+      name: string
+
+
+  CommonCode:
+    meta: entity  @dto @idx(name="test",columnList ="1") @idx(name="test2", columnList ="2", unique=true) -- 공통 코드 | 업무관련 주요 공통 코드 정보를 관리
+    fields:
+      codeSn: long  @sequence -- 코드 sequence
+      codeId: string(50)! @id  @s(eq) -- 코드 아이디
+      codePntId: string(50) @s(-%) -- 상위 코드 아이디
+      codeNm: string(50)! @s(%%) -- 코드명
+      codeValue: string(100)! @s(eq) -- 코드값
+
+      codeOptn1: String(50) -- 코드옵션1
+      codeOptn2: String(50) -- 코드옵션2
+      codeOptn3: String(50) -- 코드옵션3
+      numberOptn1: double -- 숫자옵션1
+      numberOptn2: double -- 숫자옵션2
+      numberOptn3: double -- 숫자옵션3
+
+      codeDepth: int @s(eq) -- 코드 depth
+      codeOrder: int @default(10) -- 순서 정보
+
+    methods:
+      - id: updateCodeValueWithCheckTime
+        params:
+          codeNm: string
+          codeVal: string
+        nativeQuery: true
+        query: update common_code set last_modified_date=NOW() ,code_value =:codeValue where code_id =:codeNm AND NOW() - last_modified_date > INTERVAL '5 seconds'
+
+
+dto2:
+  TrimIdMaxDTO:
+    meta: dto
+    fields:
+      id: string
+
+    methods:
+      - id: selectTrimMax
+        params:
+          param: string
+        return: string
+
+        query: |
+          SELECT max(a.car_id) as id
+          FROM base_car_info a
+          WHERE a.car_id LIKE :param

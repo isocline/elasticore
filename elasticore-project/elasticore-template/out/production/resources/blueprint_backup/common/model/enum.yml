@@ -1,0 +1,56 @@
+enumeration:
+
+  Indicator:
+    meta: enum @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+
+  GenderCode:
+    meta: enum @db(code)
+    fields:
+      code: String(1)
+      label: string
+    enum:
+      MALE: 1,남
+      FEMALE: 2,여
+
+  MemorialCode:
+    meta: enum @db(code)
+    fields:
+      code: String(1)
+      label: string
+    enum:
+      BIRTH: BT,생일
+      WEDDING: WD,결혼기념일
+
+  CodeType:
+    meta: enum @db(code)
+    fields:
+      code: string(2)
+      name: string
+    enum:
+      FOLDER: FD,폴더
+      STRCODE: SC,문자형코드값
+
+
+
+  TxType:
+    meta: enum @json(code) @db(code) -- 작업타입
+    fields:
+      code: string @length(3)
+      name: string
+    enum:
+      bATCH: BCH,배치
+      
+  TxStatus:
+    meta: enum @json(code) @db(code) -- 작업 처리 상태
+    fields:
+      code: string @length(2)
+      name: string
+    enum:
+      SUCCESS: SC,성공
+      FAIL: FL,실패
+

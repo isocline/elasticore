@@ -1,0 +1,24 @@
+entity:
+
+  RetrieveCarInfo:
+    meta: entity @extend(AuditEntity) -- 차량조회 정보 | 대차 시스템에 등록된 업체 정보를 관리
+    fields:
+
+      carNumber: string(10)  @id -- 차량 번호
+      capacity: string(100) -- 용량
+      carSize: string(10) -- 차량 크기
+      color: string(100) -- 색상
+      companyName: string(100) -- 제조사 이름
+      displacement: string(50) -- displacement
+      fuel: string(20) -- 연료 종류
+      gradeName: string(100) -- 등급 이름
+      id: int -- 차량 내부 ID
+      modelName: string(100)!  -- 모델 이름
+      modelType: string(50)  -- 모델 유형
+      overseas: boolean -- 해외 여부
+      payload: string -- 적재량
+      prdtYear: string(4) -- 제조 연도 yyyy
+      rgstYm: string(6) -- 등록 연월 yyyyMM
+      segmentCode: string(100) -- 세그먼트 코드
+      subGradeName: string(100) -- 하위 등급 이름
+      subModelName: string(100) -- 하위 모델 이름

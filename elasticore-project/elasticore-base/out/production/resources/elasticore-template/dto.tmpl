@@ -2,6 +2,7 @@ package ${packageName};
 
 import ${enumPackageName}.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ${j2eePkgName}.validation.constraints.NotBlank;
 import ${j2eePkgName}.validation.constraints.NotNull;
@@ -14,24 +15,25 @@ import ${importList};
 
 
 /**
- * <pre>${description}</pre>
- * hash:${hashCode}
-*/
-
+ * ${className}
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 ${classAnnotationList}
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
 
 	${fieldList}
 
-
 	/*-- print-if:${isSearchDTO} --*/
-    private String sortColumn; // 정렬 컬럼
-    private Boolean sortAscending; // sort ASC 정렬 여부 (true : ASC, false : DESC)
+    private String sortColumn; // Column to sort by
+    private Boolean sortAscending; // Sort order (true: ascending, false: descending)
     /*-- print-if:end --*/
-
-};
+}

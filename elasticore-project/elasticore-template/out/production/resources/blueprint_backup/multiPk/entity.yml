@@ -1,0 +1,31 @@
+entity:
+
+  EmpGroup:
+    meta: entity @dto
+    fields:
+      id: string @id @genid
+      name: string
+
+
+  Person:
+    meta: entity  @dto -- 사용자
+    fields:
+      id: string @id @genid -- 아이디
+      name: string @s(eq) -- 이름
+      age: int @s(between)
+      title: string @s -- 이름
+      name2: string @s(_%) -- 이름
+      name3: string @s(%_) -- 이름
+      empGrp: EmpGroup
+
+
+
+  PersonFamily:
+    meta: entity @dto
+    fields:
+      id: string @id
+      seq: long @id @seq
+      name: string -- 이름
+      revName: string -- 관계명
+
+

@@ -1,0 +1,64 @@
+
+entity2:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+
+  BaseResidualInfo:
+    meta: entity @abstract @extend(AuditEntity) -- 잔가 정보 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      type: string @discriminator('BASE') -- rollup 대응 discriminator 타입정보
+      division: string(4) -- 잔가구분
+
+  Person:
+    meta: entity  @embeddable
+    fields:
+      age: int
+
+  ExtPerson:
+    meta: entity @dto
+    fields:
+      id: string @id
+      person: Person @embedded
+      name: string
+
+  ResidualMobillug:
+    meta: entity @rollup(entity=BaseResidualInfo,type=MBLG) @dto -- 모빌러그 잔가
+    fields:
+      period36: float
+      period48: float
+      period60: float
+      person: Person
+      fuelType: FuelType
+
+
+entity:
+  Person:
+    meta: entity @dto
+    fields:
+      name: string
+      testList: List<Test>
+
+  Test:
+    meta: entity @dto
+    fields:
+      name: string
+      fuelType: FuelType
+      fuelTypeList: List<FuelType>
+
+enumeration:
+  FuelType:
+    meta: enum  @json(code) @db(code) -- 연료 타입
+    fields:
+      code: string(2)
+      name: string(10)
+    enum:
+      GASOLINE: G,가솔린
+      DIESEL: D,디젤
+      ELECTRIC: E,전기

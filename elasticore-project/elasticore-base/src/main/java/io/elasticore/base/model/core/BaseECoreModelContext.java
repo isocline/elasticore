@@ -31,7 +31,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
         this.loader = loader;
     }
 
-    public void load() {
+    public boolean load() {
 
         modelDomainMap.clear();
         defaultModelDomain = null;
@@ -54,6 +54,10 @@ public class BaseECoreModelContext implements ECoreModelContext {
                 defaultModelDomain = modelDomain;
             }
         }
+        if(defaultModelDomain==null)
+            return false;
+        else
+            return true;
     }
 
     public synchronized static ECoreModelContext getContext(ModelLoader loader) {
@@ -62,9 +66,12 @@ public class BaseECoreModelContext implements ECoreModelContext {
             //ConsoleLog.print("clear releation: "+name);
         });
 
-        context = new BaseECoreModelContext(loader);
-        context.load();
-        return context;
+        BaseECoreModelContext tmpCtx = new BaseECoreModelContext(loader);
+        if(tmpCtx.load()) {
+            context = tmpCtx;
+            return tmpCtx;
+        }
+        return null;
     }
 
     public synchronized static ECoreModelContext getContext() {

@@ -1,0 +1,343 @@
+
+dto:
+  EstimateTypeInfo:
+    meta: dto
+    fields:
+      ieEnableLowRent: boolean -- 무심사렌트 가능여부
+      ieEnableLowLease: boolean -- 무심사리스 가능여부
+      isEnableRent: boolean @default(true)  -- 일반렌트 가능여부
+      isEnableLease: boolean @default(true)  -- 일반리스 가능여부
+
+  BrandInfoDTO:
+    meta: dto @template(BrandInfo)
+    fields:
+      estimateType: EstimateTypeInfo @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.getEstimateTypeInfo(id) )
+
+  SeriesInfoResultDTO:
+    meta: dto @searchResult(SeriesInfo)
+    fields:
+      estimateType: EstimateTypeInfo @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.getEstimateTypeInfo(id) )
+
+  CarLineupInfoResultDTO:
+    meta: dto @searchResult(CarLineupInfo)
+    fields:
+      estimateType: EstimateTypeInfo @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.getEstimateTypeInfo(id) )
+
+  BaseCarInfoResultDTO:
+    meta: dto @searchResult(BaseCarInfo)
+    fields:
+      estimateType: EstimateTypeInfo @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.getEstimateTypeInfo(carId) )
+
+  BaseCarInfoDTO:
+    meta: dto @template(BaseCarInfo)
+    fields:
+      innerColors: List<ColorInfoDTO>
+      outsideColor: List<ColorInfoDTO> -- 외장 색상 정보
+      options: List<CarOptionDTO> -- 옵션정보
+      #estimateTypeList: List<EstimateType> -- 견적 수식 유무
+      lineupInfoId: string @ref(lineupInfo.id)
+
+  CarSmartSearchInputDTO:
+    meta: dto
+    fields:
+      keyword: string -- 검색 기본 키워드 (차량명)
+      mode: string -- 무심사인 경우:L
+
+      whereSql: string -- 확장 SQL 조건 구문
+      sortSql: string -- 정렬 관련 정보
+      maxCount: int -- 최대 출력 갯수
+      
+
+  CarSmartSearchListDTO:
+    meta: dto
+    fields:
+      results: List<CarInfoSrchResultDTO>
+      msg: string
+      query: CarSmartSearchInputDTO
+
+  CarInfoSrchResultDTO:
+    meta: dto
+    fields:
+      carId: string(12)
+      carBasePrice: long -- 차량 기본가
+      carFullName: string(500) @notnull -- 차량 풀네임
+      carModelCode: string(10) -- 차량 모델코드
+      classifyName: string -- 차량 타입
+      displacement: int -- 배기량
+      efficiency: float -- 연비
+      fuelName: string -- 연료타입
+      seater: int -- 인승
+      taxExempt: boolean -- 면세 여부
+      trim: string(100) -- 트림
+      curbWeight: int -- 공차중량
+      highOutput: int -- 최고출력
+      maxTorque: float -- 최대토크
+      overallHeight: int -- 전고
+      overallLength: int -- 전장
+      overallWidth: int -- 전폭
+      treadFront: int -- 전륜 윤거
+      treadRear: int -- 후륜 윤거
+      wheelbase: int -- 휠베이스
+      payment36m: long -- 36개월 예상 렌트료 (기본 렌트료)
+      payment48m: long -- 48개월 예상 렌트료
+      payment60m: long -- 60개월 예상 렌트료
+
+      totalStockQuantity: string -- 즉축 가능 재고량
+      recommendTypes: string --  즉시출고(IS)   추천차량(RM) 을 의미하는 필드, 두가지 모두 해당되면 'IS RM' 과 같이 공백으로 두개의 값이 모두 들어갈 수 있다.
+      estimateTypes: string -- 리스(L) , 렌탈(R),  리스렌탈(LR)
+      capitalIds: string -- 죽시출고되는 차량이 있는 캐피탈사의 ID 목록이 들어간다. 여러 캐피탈사 정보가 설정되는 경우 공백으로 설정
+      capitalNames: string -- 죽시출고되는 차량이 있는 캐피탈사의 이름 목록이 들어간다. 여러 캐피탈사 정보가 설정되는 경우 공백으로 설정
+
+      carMetaInfo: CarFullNameInfoDTO -- 차량 상위 상세 정보
+      estimateType: EstimateTypeInfo @function( get=com.mobillug.leaserent.estimator.common.utils.DTOUtils.getEstimateTypeInfo(carId) )
+
+    methods:
+      - id: findCarInfoByKeyword
+        params:
+          keyword: string
+          lowYn: String -- 무심사용 여부 Y:무심사용
+
+          whereSql: string
+          sortSql: string
+          limitSql: string
+
+        query: |
+          WITH search_query AS (
+            SELECT websearch_to_tsquery('simple', :keyword) AS query
+          ),
+          aggregated_rcmd_car_info AS (
+            SELECT
+              r.car_id,
+              STRING_AGG(DISTINCT r.estimate_type, ' ') AS estimate_types,
+              STRING_AGG(DISTINCT r.recommend_type, ' ') AS recommend_types,
+              SUM(r.stock_quantity) AS total_stock_quantity,
+              STRING_AGG(DISTINCT r.capital_id, ' ') AS capital_ids,
+              STRING_AGG(DISTINCT lr.name, ' ') AS capital_names
+            FROM
+              rcmd_car_info r
+            LEFT JOIN
+              Lease_Rental_Capital lr ON r.capital_id = lr.id
+            WHERE
+              r.effective_date <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD')
+              AND r.end_date > TO_CHAR(CURRENT_DATE, 'YYYYMMDD')
+            GROUP BY
+              r.car_id
+          )
+          SELECT
+            bfi.estimate_type,
+            c.car_id AS car_id,
+            c.car_base_price AS car_base_price,
+            c.car_full_name AS car_full_name,
+            c.car_model_code AS car_model_code,
+            c.classify_name AS classify_name,
+            c.displacement AS displacement,
+            c.efficiency AS efficiency,
+            c.fuel_name AS fuel_name,
+            c.seater AS seater,
+            c.tax_exempt AS tax_exempt,
+            c.trim AS trim,
+            c.curb_weight AS curb_weight,
+            c.high_output AS high_output,
+            c.max_torque AS max_torque,
+            c.overall_height AS overall_height,
+            c.overall_length AS overall_length,
+            c.overall_width AS overall_width,
+            c.tread_front AS tread_front,
+            c.tread_rear AS tread_rear,
+            c.wheelbase AS wheelbase,
+            c.payment36m AS payment36m,
+            c.payment48m AS payment48m,
+            c.payment60m AS payment60m,
+        
+            a.total_stock_quantity,
+            a.estimate_types,
+            a.recommend_types,
+            a.capital_ids,
+            a.capital_names,
+        
+            ts_rank_cd(to_tsvector('simple', c.car_full_name), query) AS ts_rank_cd_score,
+            ts_rank(to_tsvector('simple', c.car_full_name), query) AS rank
+          FROM
+            base_car_info c
+          LEFT JOIN
+            aggregated_rcmd_car_info a ON c.car_id = a.car_id
+          LEFT  JOIN LATERAL (
+            SELECT *
+            FROM Base_Formula_Info bfi
+            WHERE bfi.base_car_info_id = c.car_id
+              AND bfi.estimate_type IN ('LR', 'LL')
+          ) bfi ON :lowYn = 'Y'
+          CROSS JOIN
+            search_query
+          WHERE
+            (:lowYn = 'N' OR bfi.base_car_info_id IS NOT NULL)
+            AND c.effective_date <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD')
+            AND c.end_date > TO_CHAR(CURRENT_DATE, 'YYYYMMDD')
+            AND (:keyword IS NULL OR :keyword = '' OR (to_tsvector('simple', c.car_full_name) @@ query AND ts_rank(to_tsvector('simple', c.car_full_name), query) > 0))
+          
+            /*${whereSql}*/
+          
+          ORDER BY
+            /*${sortSql}*/ ts_rank_cd_score ASC, rank DESC
+          
+          /*${limitSql}*/;
+  
+  
+
+  BaseCarInfoSrchDTO:
+    meta: dto @searchable(entity=BaseCarInfo, pageSize=10000)
+    fields:
+      #estimateTypeList: List<EstimateType> -- 견적 수식 유무
+      lineupInfoId: string @s(eq) @ref(lineupInfo.id)
+
+  CarLineupInfoDTO:
+    meta: dto @template(CarLineupInfo)
+    fields:
+      estimateTypeList: List<EstimateType> -- 견적 수식 유무
+      seriesInfoId: string @ref(seriesInfo.id)
+
+  SaveEstimatorDTO:
+    meta: dto @template(SaveEstimator)
+    fields:
+      optionList: List<CarOptionDTO> @ref(optionList) -- 옵션정보
+      innerColor: ColorInfoDTO @ref(innerColor) -- 내부 외부 색상
+      outsideColor: ColorInfoDTO @ref(outsideColor) -- 선택 외부 색상
+      carMetaInfo: CarFullNameInfoDTO -- 차량 상위 상세 정보
+      customerInfo: CustomerInfoDTO @ref(customerInfo)
+
+
+
+  RcmdCarInfoDTO:
+    meta: dto @template(RcmdCarInfo)
+    fields:
+      optionList: List<CarOptionDTO> @ref(optionList) -- 옵션정보
+      innerColor: ColorInfoDTO @ref(innerColor) -- 내부 외부 색상
+      outsideColor: ColorInfoDTO @ref(outsideColor)-- 선택 외부 색상
+      capital: LeaseRentalCapitalDTO @ref(capital) -- 캐피탈
+
+  RcmdCarInfoSrchDTO:
+    meta: dto @searchable(RcmdCarInfo)
+    fields:
+      innerColorId: string @s(eq) @ref(innerColor.id) -- 선택 내부 색상
+      outsideColorId: string @s(eq) @ref(outsideColor.id) -- 선택 외부 색상
+      optionList: List<CarOptionDTO>
+
+
+
+  RecommendSrchDTO:
+    meta: dto
+    fields:
+      paymentFrom: long -- 월 렌트료 최저가
+      paymentTo: long -- 월 렌트료 최고가
+      estimateType: string -- 리스(L), 렌트(R) 구분, 전체면 빈값
+
+  EstimateTypeDTO:
+    meta: dto
+    fields:
+      baseCarId: string
+      lineupInfoId: string
+      seriesInfoId: string
+      brandInfoId: string
+      estimateType: string
+
+    methods:
+      - id: selectEstimateTypeInfo
+        query: |
+          SELECT 
+            bci.car_Id AS base_car_id,
+            bci.lineup_Info_id AS lineup_info_id,
+            cli.series_Info_id AS series_info_id,
+            si.brand_Info_id AS brand_info_id,
+            bfi.estimate_type AS estimate_type
+          FROM
+            Base_Car_Info bci
+          INNER JOIN
+            Car_Lineup_Info cli ON bci.lineup_Info_id = cli.id
+          INNER JOIN
+            Series_Info si ON cli.series_Info_id = si.id
+          INNER JOIN
+            Brand_Info bi ON si.brand_Info_id = bi.id
+          INNER JOIN (
+            SELECT base_car_info_id, estimate_type
+            FROM Base_Formula_Info
+            GROUP BY base_car_info_id, estimate_type
+          ) bfi ON bfi.base_car_info_id = bci.car_Id
+
+  CarLineupInfoSrchDTO:
+    meta: dto @searchable(entity=CarLineupInfo, pageSize=10000)
+    fields:
+      #estimateTypeList: List<EstimateType> -- 견적 수식 유무
+      seriesInfoId: string @ref(seriesInfo.id) @s(eq)
+
+  SeriesInfoDTO:
+    meta: dto @template(SeriesInfo)
+    fields:
+      #estimateTypeList: List<EstimateType> -- 견적 수식 유무
+      brandInfoId: string @ref(brandInfo.id) @s(eq)
+
+
+  SeriesInfoSrchDTO:
+    meta: dto @searchable(entity=SeriesInfo, pageSize=10000)
+    fields:
+      brandInfoId: string @ref(brandInfo.id) @s(eq)
+      #estimateTypeList: List<EstimateType> -- 견적 수식 유무
+
+  BrandInfoSrchDTO:
+    meta: dto @searchable(entity=BrandInfo, pageSize=10000)
+    fields:
+      #estimateTypeList: List<EstimateType> -- 견적 수식 유무
+
+  BrandInfoResultDTO:
+    meta: dto @searchResult(BrandInfo)
+    fields:
+
+
+  CarFullNameInfoDTO:
+    meta: dto
+    fields:
+      brandInfoId: string
+      brandName: string
+      brandImgUrl: string
+      seriesInfoId: string
+      seriesName: string
+      seriesImgUrl: string
+      lineupInfoId: string
+      lineupName: string
+      carId: string
+      carName: string
+
+    methods:
+      - id: getCarFullInfoDTO
+        params:
+          carId: string
+        query: |
+          SELECT
+            bi.id as brand_info_id ,
+            bi.brand_name AS brand_name,    
+            bi.img_url AS brand_img_url,   
+            cli.series_Info_id AS series_info_id,
+            si.series_name  AS series_name,
+            si.img_url AS series_img_url,
+            bci.lineup_Info_id AS lineup_info_id,
+            cli.name AS lineup_name,
+            bci.car_id AS car_id,
+            bci.trim AS car_name
+          FROM
+            Base_Car_Info bci
+            inner join
+            Car_Lineup_Info cli on
+            bci.lineup_Info_id = cli.id
+            inner join
+            Series_Info si on
+            cli.series_Info_id = si.id
+            inner join
+            Brand_Info bi on
+            si.brand_Info_id = bi.id
+          WHERE
+            bci.car_Id = :carId
+
+  SmartCarSrchDTO:
+    meta: dto -- 스마트 검색용 입력 DTO
+    fields:
+      keyword: string -- 차량 관련 정보(업체명 또는 모델명 라인업명등 공백으로 구분하여 설정)
+

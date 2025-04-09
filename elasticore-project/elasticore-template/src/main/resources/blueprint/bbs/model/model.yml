@@ -1,0 +1,43 @@
+## model
+entity:
+
+  BaseEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @search(between) @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+
+  AuditEntity:
+    meta: entity @abstract @extend(BaseEntity)
+    fields:
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+      createIP: string(20) -- 시스템 입력 IP
+      lastModifiedIP: string(20) -- 시스템 수정 IP
+
+
+
+  Board:
+    meta: entity @expose(50) @extend(AuditEntity) -- 게시판
+    fields:
+      bid: long @id @sequence -- 게시판 아이디
+      name: string -- 게시판 명
+      boardType: BoardType -- 게시판 타입
+      articles: List<Article>
+      
+ 
+  Article:
+    meta: entity @expose(50) @extend(AuditEntity) -- 게시물
+    fields:
+      aid: string @id @genid
+      title: string -- 제목
+      content: text -- 본문
+      board: Board -- 상위 게시판
+
+dto:
+  ArticleSrchDTO:
+    meta: dto @searchable(entity=Article, pageSize=50)
+    fields:
+      boardType: List<BoardType> @s(in)  @ref(board.boardType) -- 게시판 타입
+

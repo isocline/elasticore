@@ -111,7 +111,8 @@ public class ModelExtractor {
 
             ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
 
-            codePublishManager.deleteGenSource(ctx ,baseDir);
+            if(ctx!=null)
+                codePublishManager.deleteGenSource(ctx ,baseDir);
         }
 
     }
@@ -143,7 +144,8 @@ public class ModelExtractor {
 
 
             ECoreModelContext ctx = BaseECoreModelContext.getContext(loader);
-            contextList.add(ctx);
+            if(ctx!=null)
+                contextList.add(ctx);
         }
 
         // publish

@@ -6,12 +6,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.*;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Parameter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import ${j2eePkgName}.persistence.*;
 import java.util.*;
@@ -20,17 +15,21 @@ import ${importList};
 
 
 /**
- * <pre>${description}</pre>
- * hash:${hashCode}
-*/
+ * ${className}
+ *
+ * Modify this code only as specified in the ElastiCORE guidelines
+ * to avoid regeneration conflicts.
+ *
+ * Generated and managed by ElastiCORE.
+ */
 
 ${classAnnotationList}
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+
 @EntityListeners(AuditingEntityListener.class)
 public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
 
 	${fieldList}
-};
+}

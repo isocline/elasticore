@@ -1,0 +1,30 @@
+enumeration:
+
+
+  CompanyGroupCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      PARTNER_RENTCAR: 협력 렌트카,PR
+      ETC_RENTCAR: 기타 렌트카,ER
+      PARTNER_GARAGE: 협력 공업사,PG
+      ETC_GARAGE: 기타 공업사,EG
+      CUSTOMER_COMPANY: 고객사, PC
+      HEAD: 본사(관리자),HD
+
+  AreaCode:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: string
+      code: string(2)
+    enum:
+      SEOUL: 서울,SU
+      GYEONGGI: 경기,GG
+      INCHEON: 인천,IC
+      GANGWON: 강원,KW
+      CHUNGCHEONG: 충청,CC
+      JEOLLA: 전라,JL
+      GYEONGSANG: 경상,GS
+      JEJU: 제주,JJ

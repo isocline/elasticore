@@ -1,0 +1,65 @@
+dto:
+  BaseSearchInput:
+    meta: dto @implements(PageableObject)
+    fields:
+      pageNumber: int @default(0) @primitive
+      pageSize: int @default(50) @primitive
+      sortCode: string
+      sortColumn: string
+      sortAscending: boolean
+
+  CrmNotiInfoSrchDTO:
+    meta: dto @extend(BaseSearchInput)
+    fields:
+      fromDate: string
+      toDate: string
+      notiTy: string
+      custNm: string
+      contactName: string
+      contactTel: string
+
+  CustNoticesDTO:
+    meta: dto
+    fields:
+      notiSeq: long -- 알림 시퀀스
+      notiCpgSeq: long -- 알림 캠페인 시퀀스
+      insDtm: string -- 등록일시
+      notiTy: string -- 알림 유형
+      msg: string -- 메시지 내용
+      title: string -- 템플릿 제목
+      notiNm: string -- 알림 명칭
+      custNm: string -- 고객명
+
+    methods:
+      - id: getNotices
+        pageable: false
+        params: CrmNotiInfoSrchDTO
+
+        query: |
+          SELECT
+            A.NOTI_SEQ,
+            A.NOTI_CPG_SEQ,
+            DATE_FORMAT(A.INS_DTM, '%Y-%m-%d %H:%i:%s') AS INS_DTM,
+            A.NOTI_TY,
+            A.MSG,
+            C.TITLE,
+            (CASE A.NOTI_TY
+              WHEN 'CALL' THEN 'TTS'
+              WHEN 'KAKAO' THEN '카카오톡'
+              ELSE 'SMS'
+            END) AS NOTI_NM,
+            (CASE
+              WHEN JSON_VALID(A.PARAM_INFO) = 1 THEN JSON_UNQUOTE(JSON_EXTRACT(A.PARAM_INFO, '$.CUST_NM'))
+              ELSE NULL
+            END) AS CUST_NM
+          FROM
+            T_CUST_NOTICES A
+            LEFT OUTER JOIN T_NOTI_LIST B ON A.NOTI_CPG_SEQ = B.NOTI_CPG_SEQ
+            LEFT OUTER JOIN T_NOTIFY_TMPL C ON B.TMPL_SEQ = C.TMPL_SEQ
+          WHERE
+            1 = 1
+            AND DATE_FORMAT(A.INS_DTM, '%Y%m%d') BETWEEN :fromDate AND :toDate  /* if:input.getFromDate() != null && !input.getFromDate().isEmpty() */ 
+            AND A.NOTI_TY LIKE CONCAT('%',:notiTy, '%')  /* if:input.getNotiTy() != null && !input.getNotiTy().isEmpty() */ 
+            AND JSON_VALID(A.PARAM_INFO) = 1 AND JSON_UNQUOTE(JSON_EXTRACT(A.PARAM_INFO, :custNm )) LIKE CONCAT('%',:custNm, '%') /* if:input.getCustNm() != null && !input.getCustNm().isEmpty() */         
+            AND JSON_VALID(A.PARAM_INFO) = 1 AND JSON_UNQUOTE(JSON_EXTRACT(A.PARAM_INFO, :contactName )) LIKE CONCAT('%', :contactName, '%') /* if:input.getContactName() != null && !input.getContactName().isEmpty() */
+            AND JSON_VALID(A.PARAM_INFO) = 1 AND JSON_UNQUOTE(JSON_EXTRACT(A.PARAM_INFO, :contactTel)) LIKE CONCAT('%', :contactTel, '%') /* if:input.getContactTel() != null && !input.getContactTel().isEmpty() */

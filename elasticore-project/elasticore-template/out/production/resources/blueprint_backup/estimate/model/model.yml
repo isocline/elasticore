@@ -1,0 +1,320 @@
+
+entity:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+  LifecycleEntity:
+    meta: entity @abstract @extend(AuditEntity)
+    fields:
+      effectiveDate: string(8) @s(<=) -- 차량 정보 적용일시 예)20240701
+      endDate: string(8) @s(>) @default(99991231) -- 차량 정보 종료일시,null 또 공백시 설정 안됨. 예)20251201
+      txId: string(12) -- 트랜잭션 아이디
+
+  UploadFile:
+    meta: entity @extend(AuditEntity) @dto -- 업로드 파일 처리용
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      fileKind: FileKind  @s(eq) -- 업로드 종류
+      fileUrl: string(512)! @s(eq) -- 파일 (full url)
+      filePath: string(512) -- 경로정보
+      fileType: string(16) -- 파일 타입
+      size: long -- 파일 크기
+
+  BrandInfo:
+    meta: entity @extend(LifecycleEntity) -- 차량 브랜드 정보
+    fields:
+      id: string(12) @id @env:genid -- 브랜드 아이디
+      brandName: string(50) @notnull @notblank @s(eq) -- 브랜드명 // 예) 현대, 벤츠
+      brandType: BrandType -- 브랜드 타입 // 예) 국산, 수입
+      nation: string(2) -- 국가코드
+      imgUrl: string(512) -- 로고 이미지 url
+      logoImgFile: UploadFile -- 브랜드 로고 파일
+
+  SeriesInfo:
+    meta: entity @extend(LifecycleEntity) -- 차량 시리즈
+    fields:
+      id: string(12) @id @env:genid --  아이디
+      seriesName: string(50) @notnull -- 시리즈명 // 예) 아반떼, 그랜져
+      type: string -- 차종 // 예) SUV, 승용 등
+      brandInfo: BrandInfo -- 브랜드 정보 참조
+      imgUrl: string(512) -- 차량 대표 이미지 url
+      uploadImgFile: UploadFile -- 차량 이미지 파일
+
+  CarLineupInfo:
+    meta: entity @extend(LifecycleEntity) -- 차량 라인업 정보
+    fields:
+      id: string(12) @id @env:genid --  아이디
+      name: string(100) @notnull -- 시리즈명 // 예) 아반떼, 그랜져
+      seriesInfo: SeriesInfo -- 브랜드 정보 참조
+      modelName: string(100) @notnull -- 모델명 // 예) 가솔린 1.6 하이브리드, LPG 2.5 터보
+      displacement: long -- 배기량
+      fuelType: string -- 연료 타입 // 예) LPG, 디젤
+#      fuelType: FuelType -- 연료 타입 // 예) LPG, 디젤
+
+
+  BaseCarInfo:
+    meta: entity @extend(LifecycleEntity) -- 차량 정보 엔티티
+    fields:
+      carId: string(12) @id @env:genid -- 차량 아이디
+      type: string @discriminator('BASE') -- rollup 대응 discriminator 타입정보
+      lineupInfo: CarLineupInfo @notnull -- 라인업 정보 참조
+      taxExempt: boolean -- 면세 여부 // 예) TRUE - 면세 FALSE - 면세 X
+      carBasePrice: long -- 차량 기본가
+      seater: int @default(0) -- 인승
+      trim: string(100) -- 트림 // 예) 프레스티지, 노블레스
+      carFullName: string(500) @notnull -- 차량 풀네임 // 예) 현대 아반떼 가솔린 1.6 하이브리드 스마트 A/T
+
+      nation: string(2) -- 국가코드
+      carModelCode: string(10) -- 차량 모델코드 // 예) 순번 생성 -> AAAA000011
+      displacement: int @default(0) -- 배기량
+
+      efficiency: float -- 연비
+      fuelName: string -- 연료타입
+      classifyName: string -- 차량 타입
+
+      fuelType: FuelType -- 연료타입
+      carClassType: CarClassType -- 차량타입
+
+      innerColors: List<ColorInfo> -- 내장 색상정보
+      outsideColor: List<ColorInfo> -- 외장 색상 정보
+      options: List<CarOption> -- 옵션정보
+
+      overallLength: int -- 전장
+      overallWidth: int -- 전폭
+      overallHeight: int -- 전고
+      wheelbase: int -- 휠베이스
+      treadFront: int -- 전륜 윤거
+      treadRear: int -- 후륜 윤거
+      curbWeight: int -- 공차중량
+      highOutput: int -- 최고출력
+      maxTorque: float -- 최대토크
+
+      payment36M: long -- 36개월 예상 렌트료
+      payment48M: long -- 48개월 예상 렌트료
+      payment60M: long -- 60개월 예상 렌트료
+
+  DiscountInfo:
+    meta: entity @embeddable @dto -- 할인 정보
+    fields:
+      discountPrice: long -- 할인 금액(율)
+      discountRate: float -- 할인율
+      optName: string -- 옵션명
+      baseCarInfo: BaseCarInfo -- 차량 정보 참조
+
+  CarOption:
+    meta: entity @dto -- 차량 옵션
+    fields:
+      id: string(12) @id @env:genid -- 순번 아이디
+      optionName: string(500) -- 옵션명 // 예) 파노라마 선루프, 10인치 네비게이션
+      optionCode: string(10) -- 옵션 코드 // 예) OPT1, OPT2 랜덤 생성
+      optionPrice: long -- 옵션 가격
+      requiredOption: string[] @size(4000) @env:stringarray -- 필요 옵션 // 예) 이 옵션 선택 시 필수로 선택 해야 하는 옵션 OPT3, OPT4
+      optionDescription: text -- 옵션 설명
+      duplicatedOptionCode: string[] @size(4000) @env:stringarray -- 중복 불가 옵션 // 예) 이 옵션 선택 시 특정 옵션 선택 불가 OPT5, OPT6
+      carModelCode: string(10) -- 차량 모델코드
+      isTuneAcc: boolean -- 옵션 구분 // 예) TRUE - 튜닝 / 액세서리 FALSE - 일반 옵션
+
+
+      restriction: string -- temp
+
+
+  ColorInfo:
+    meta: entity @dto
+    fields:
+      id: string(12) @id @env:genid -- 순번 아이디
+      colorName: string(256) -- 색상명 // 예) 메탈 블루 펄, 스노우 화이트 펄
+      colorFrontCode: string(20) --  색상 프론트 코드 // 예) #FFFFFF, #000000 색상 이미지 데이터로 변경 한다면 URL로 변경 가능
+      colorCode: string(20)  -- 색상 코드 // 예) AAA1, BAA1 랜덤 생성
+      colorPrice: long -- 색상 가격
+      requiredOptions: string[] @size(4000) @env:stringarray -- 필요 옵션 // 예) OPT1, OPT2 이 색상 선택 시 필요한 옵션 코드
+      unavailableColorCodes: string[] @size(4000) @env:stringarray -- 특정 색상 선택 시 사용불가 코드 // 예) AAA1, BAA1
+
+
+
+
+  DirectReleaseInfo:
+    meta: entity @extend(AuditEntity) -- 즉시출고 차량 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 순번 아이디
+      baseCarInfo: BaseCarInfo -- 차량 정보 참조
+      choiceOptionCodeList: string[] @size(4000) @env:stringarray -- 선택 옵션 코드 리스트
+      choiceOutsideColorCode: string(10) -- 선택 외장 색상 코드
+      choiceInnerColorCode: string(10) -- 선택 내장 색상 코드
+      duplicatedCarCount: int -- 중복 차량 대수
+      companyName: string(20) -- 캐피탈사 명
+#      rentType: RentType -- 렌트 / 리스 타입
+
+
+  BaseCompany:
+    meta: entity -- 회사정보
+    fields:
+      comId: string(12) @id @env:genid -- 회사아이디
+      type: string(10) @discriminator('BASE')
+      name: string(256)! -- 회사명
+      logoImgUrl: string(512) -- 회사로고 이미지 url
+      uploadImgFile: UploadFile --  이미지 파일
+
+
+
+
+  BaseCompanyCarInfo:
+    meta: entity @extend(AuditEntity) @dto -- 차량 정보 엔티티
+    fields:
+      carId: string(12) @id @env:genid -- 차량 아이디
+      company: BaseCompany -- 차량 관리 업체
+      type: string @discriminator('BASE')
+      seriesInfo: SeriesInfo @notnull -- 시리즈 정보 참조
+      modelName: string(100) @notnull -- 모델명 // 예) 가솔린 1.6 하이브리드, LPG 2.5 터보
+#      fuelType: FuelType -- 연료 타입 // 예) LPG, 디젤
+      fuelType: string -- 연료 타입 // 예) LPG, 디젤
+      carBasePrice: long -- 차량 기본가
+      baseCarInfo: BaseCarInfo -- 기존 차량정보
+      similarity: double -- 유사도
+      similarityChkDate: datetime
+
+
+  SaveEstimator:
+    meta: entity @extend(AuditEntity) @dto @pageable -- 견적 저장 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 순번 아이디
+      customerInfo: CustomerInfo @embedded -- 고객 정보
+
+      baseCarPrice: long -- 기본 차량가격 (+색상)
+      optionPrice: long -- 옵션가격
+
+      carInfo: BaseCarInfo -- 선택 차량 정보
+      carId: string -- 선택 car ID
+      innerColor: ColorInfo -- 선택 내부 색상
+      outsideColor: ColorInfo -- 선택 외부 색상
+      optionList: List<CarOption> @jpa:JoinTable(name = "save_estimator_option_list")  -- 선택 옵션 리스트
+
+      innerColorName: string(100) -- 내장 색상명칭
+
+
+#      rentDetailsOne: RentDetails @embedded(prefix=RD1) -- 첫 번째 렌트 세부 정보
+#      rentDetailsTwo: RentDetails @embedded(prefix=RD2)-- 두 번째 렌트 세부 정보
+#      rentDetailsThree: RentDetails @embedded(prefix=RD3)-- 세 번째 렌트 세부 정보
+
+#      discountInfo: DiscountInfo @embedded -- 할인정보
+
+      extraOpts: List<SaleExtraOption> -- 추가 옵션 , ex) 썬팅, 블랙박스
+      consignmentPrice: long -- 탁송비
+      memo: string(150) -- 메모
+
+      estimateType: string(2) -- 견적분류  무심사렌트 LR / 무심사리스 LL / 일반렌트 RT  / 일반리스 LS
+      monthRentalPrice: long -- 월 렌트료
+#      releaseType: ReleaseType -- 출고 타입
+
+  CustomerInfo:
+    meta: entity @embeddable @dto -- 고객 정보
+    fields:
+      customerName: string(20) -- 고객 이름
+#      customerType: CustomerType -- 고객 타입
+#      driverAge: DriverAge -- 운전자 연령
+
+  RentDetails:
+    meta: entity @embeddable @dto -- 렌트 세부 정보
+    fields:
+#      rentPeriod: RentPeriod -- 약정 기간
+#      expirationType: ExpirationType -- 만기 처리 타입
+#      promiseDistance: PromiseDistance -- 약정 거리
+
+
+#      insureProperty: InsureProperty -- 대물 조건
+#      registerNameType: RegisterNameType -- 등록자 명의 타입
+
+      advancedPaymentPrice: long -- 선납금
+      depositPrice: long -- 보증금
+      agFeePercent: float -- AG 수수료 퍼센트
+      cmFeePercent: float -- CM 수수료 퍼센트
+
+
+  TransCity:
+    meta: entity @dto @searchResult -- 탁송 도시
+    fields:
+      seq: long @id @sequence
+      grpCd: string(20) -- 그룹 아이디 (CM:공통, 또는 차량코드)
+      cityIdx: string -- 도시 이이디
+      name: string -- 도시명
+      hasChild: Indicator @default(Indicator.YES) -- 자식 데이터 존재 여부
+
+  TransArea:
+    meta: entity @dto @searchResult -- 탁송 지역
+    fields:
+      seq: long @id @sequence
+      grpCd: string(20) -- 그룹 아이디 (CM:공통, 또는 차량코드)
+      cityIdx: string -- 도시 이이디
+      areaIdx: string -- 지역 아이디
+      name: string -- 지역명
+
+
+  RcmdCarInfo:
+    meta: entity @extend(LifecycleEntity) @dto -- 추천(즉출) 차량 정보
+    fields:
+      id: string(12) @id @env:genid -- 순번 아이디
+      recommendType: RecommendType -- 차량 정보 타입 (추천, 즉시출고)
+
+      capital: LeaseRentalCapital -- 캐피탈
+      estimateType: string(2) @s(eq) -- 렌트 R /리스 L /렌트리스 RL
+      carId: string @s(eq) -- 선택 car ID
+      innerColor: ColorInfo -- 선택 내부 색상
+      outsideColor: ColorInfo -- 선택 외부 색상
+      optionList: List<CarOption> -- 선택 옵션 리스트
+
+      baseCarPrice: long -- 기본 차량가격
+      consignmentPrice: long -- 탁송비
+
+      payment: long  @s(between)  -- 36개월 할부 월 렌트료
+      extraDesc: text -- 추가 부연 설명
+      takeover: long -- 만기 인수가
+      totalAmount: long -- 총비용
+      distance: long -- 약정거리
+      won: long -- 취득원가
+      deposit: long -- 보증금
+      preExp: long -- 선납금
+      em: string -- 면책금
+      ins: string -- 대물
+      penalty: string -- 위약금
+
+      stockQuantity: int -- 재고량
+
+
+
+
+  LeaseRentalCapital:
+    meta: entity @extend(LifecycleEntity) @dto -- 캐피탈사
+    fields:
+      id: string(12) @id -- 캐피탈 아이디
+      name: string 이름
+
+
+
+  SmartSearchLog:
+    meta: entity  @dto -- 스마트 검색 로그 | 사용자 검색어와 결과를 기록
+    fields:
+      logId: long @id @sequence -- 로그 아이디
+      searchQuery: string(2000) -- 검색어
+      searchResult: text -- 검색 결과
+      executionTime: long -- 수행 시간 (밀리세컨드)
+      resultCount: int -- 응답 건수
+
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate -- 생성일시
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy -- 사용자
+
+  TxLog:
+    meta: entity  @dto -- Transaction 로그
+    fields:
+      txId: string @id @env:genid -- Transaction 아이디
+      txType: TxType @notnull
+      podName: string(200) -- podName
+      txStatus: TxStatus @notnull
+      title: string(2000) @s(%__%)-- 주요 작업명
+      logTxt: text
+      startDate: datetime -- 작업 시작시간  @notnull
+      endDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate -- 생성일시
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy -- 사용자

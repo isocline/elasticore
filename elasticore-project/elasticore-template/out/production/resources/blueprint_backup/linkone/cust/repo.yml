@@ -1,0 +1,8 @@
+repository:
+  CustUser:
+    methods:
+      - id: selectByUsername
+        query: select a from CustUser where a.usrId = :usrId
+
+      - id: selectByNameAndPhone
+        query: select a from CustUser a where a.name = :name and a.telNo = :telNo

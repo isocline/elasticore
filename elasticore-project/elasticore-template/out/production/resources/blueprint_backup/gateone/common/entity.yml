@@ -1,0 +1,11 @@
+entity:
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:CreatedBy
+      lastModifiedBy: string(20)  @jpa:LastModifiedBy
+      lastModifiedDate: datetime   @jpa:LastModifiedDate
+
+
+

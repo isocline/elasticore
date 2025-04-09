@@ -1,0 +1,126 @@
+## SPI , Driven Port
+
+dto:
+
+  AuthProvider:
+    meta: dto
+    fields:
+      id: int
+      name: string
+
+  MsgInput:
+    meta: dto
+    fields:
+      id: int
+      name: string
+
+
+  MsgInput2:
+    meta: dto
+    fields:
+      id: int
+      name: string
+
+  MsgOutput:
+    meta: dto
+    fields:
+      id: int
+      name: string
+port2:
+  HttpTestPortService:
+    meta: http @url("https://echo.free.beeceptor.com") -- 안녕
+    methods:
+      listPlan:
+        meta: method @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST") --|
+          안녕하세요
+          테스트입니다.
+
+        params:
+          body: MsgInput2 @body
+        return: java.util.HashMap
+        
+port:
+  HttpTestPortService:
+    meta: http @url("https://echo.free.beeceptor.com")
+    methods:
+      listPlan:
+        meta: method @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST")
+        params:
+          body: MsgInput2 @body
+        return: java.util.HashMap
+
+  VonageService:
+    meta: vonage @custom @interface(test)
+    methods:
+      callsms:
+        params:
+          param: MsgInput @querystring
+          srch: MsgInput2 @body
+        return: java.util.HashMap
+
+  SfaPortService:
+    meta: http @url("http://server.com")
+    methods:
+      listPlan:
+       meta: method @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST")
+       params:
+         param: MsgInput @querystring
+         srch: MsgInput2 @body
+       return: java.util.HashMap
+
+
+  PurioPortService:
+    meta: http @url("http://server.com")
+
+    methods:
+      getToken:
+        meta: method @HttpEndpoint(url="/test", method="POST")
+        params:
+          authProvider: AuthProvider
+        return: TokenOutput
+
+      sendMessage:
+        meta: method  @HttpEndpoint(url = "/v3/message", method = "POST")
+        params:
+          authProvider: AuthProvider
+          message: MsgInput @body
+        return: MsgOutput
+
+
+  DataQueryPortService:
+    meta: dbms @datasource("test")
+    methods:
+
+
+      countAllMessagesByMonths2:
+        meta:
+        params:
+          input: MsgInput
+        return: MsgOutput
+        ref: countAllMessagesByMonths
+
+
+
+
+      countAllMessagesByMonths:
+        meta:
+        params:
+          input: MsgInput
+        return: MsgOutput
+        nativeQuery: true
+        query: |
+          select
+             f.id,
+             f.item_code,
+             f.item_name
+             from
+             fee_item f
+             where
+             1=1
+             and f.item_name like CONCAT('%',:name,'%') /* if:input.name != null */
+          
+             /* if:code */
+             and f.item_code like CONCAT('%',:code,'%')
+        
+        
+        

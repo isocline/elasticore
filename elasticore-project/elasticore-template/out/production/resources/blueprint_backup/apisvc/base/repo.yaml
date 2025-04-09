@@ -1,0 +1,12 @@
+repository:
+  ReData100:
+    methods:
+      - id: findBychkCd
+        query: select a from ReData100 where a.chkCd = :chkCd
+
+      - id: findByreceptNo
+        query: select a from ReData100 where a.receptNo = :receptNo
+
+      - id: findMaxId
+        return: Long
+        query: SELECT MAX(e.id) FROM ReData100 e

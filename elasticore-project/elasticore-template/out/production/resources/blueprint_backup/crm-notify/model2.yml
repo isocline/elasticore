@@ -1,0 +1,116 @@
+word:
+  insert: ins
+  modify: mod
+
+
+enum:
+  Mode:
+
+    fields:
+      carMaker: CarMaker
+      name: string
+      carModelType: CarModelType
+
+
+    items:
+      AUTO:
+      TOE:
+
+entity:
+  BaseModel:
+    meta: template
+    fields:
+      insertId: string @notnull @len(20) @label('등록자 Id')
+      insertDtm: datetime @notnull @label('등록일시')
+      modifyId: string @notnull @len(20) @label('수정자 Id')
+      modifyDtm: datetime @notnull @label('수정일시')
+
+
+  ContractGroup:
+    meta: entity @template(BaseModel)
+    fields:
+      grpSeq: int @id @sequence @labe('그릅 일련번호')
+      groupName: String @len(200) @label('그룹명')
+      contactInfoList: List<ContactInfo>
+
+  ContactInfo:
+      memta: entity @template(BaseModel)
+      fields:
+        grpSeq: int @id  @labe('그릅 일련번호')
+        contactSeq: int @id @sequence @labe('순번')
+        contractName: string @len(100) @labe('이용자명')
+        contractTel: string @len(20) @labe('연락처(전화번호)')
+
+  TemplateInfo:
+        fields:
+          id: int @id
+          title: string
+          content: text
+
+
+  NotiIfno:
+    fields:
+      id: int @id
+
+
+
+  ExtractInfo:
+    meta: dto  @template(conn)
+    fields:
+      test: string
+
+
+Repository:
+  person:
+    methods:
+      id: test
+      query: |
+        SELECT
+        			N.NOTI_CPG_SEQ,
+        			N.NOTI_MD_TY,
+        			N.TITLE,
+        			N.REPEAT_TY,
+        			N.REPEAT_CONDT AS REPEAT_CONDT_CD,
+        			CD2.CD_NM AS REPEAT_CONDT,
+        			N.NOTI_TY,
+        			N.TMPL_SEQ,
+        			COALESCE(T.TMPL_TEXT, N.TMPL_TEXT) AS TMPL_TEXT,
+        			T.KAKAO_TMPL_CD,
+        			N.NOTIFY_TM_CD,
+        			CD.CD_NM AS NOTIFY_TM_VAL,
+        			N.GRP_SEQ,
+        			N.ACT_YN,
+        			N.NOTI_DT,
+        			N.ACT_CHK_DTM,
+        			N.ACT_REG_DTM,
+        			CASE
+        				WHEN N.ACT_CHK_DTM IS NULL THEN 'Y'
+        				ELSE 'N'
+        				END AS CHK_DTM_NULL
+        		FROM
+        			T_NOTI_LIST N
+        				LEFT JOIN
+        			T_NOTIFY_TMPL T ON N.TMPL_SEQ = T.TMPL_SEQ
+        				LEFT JOIN
+        			Z_CODE CD ON N.NOTIFY_TM_CD=CD.CODE
+        				LEFT JOIN
+        			Z_CODE CD2 ON N.REPEAT_CONDT=CD2.CODE
+        		WHERE
+        			N.ACT_YN = 'Y'
+        		  AND N.NOTI_MD_TY	in ('R','A')
+        		  AND (N.ACT_CHK_DTM <  NOW() OR ACT_CHK_DTM IS NULL )
+        		  AND (
+        				N.ACT_REG_DTM IS NULL
+        				OR N.ACT_REG_DTM <  N.ACT_CHK_DTM
+        			);
+
+
+APIs:
+  TemplateInfo:
+    url: /template
+    act: crud
+
+desc:
+  기본 template 에서 정보를 가져오고, 추가적으로
+
+

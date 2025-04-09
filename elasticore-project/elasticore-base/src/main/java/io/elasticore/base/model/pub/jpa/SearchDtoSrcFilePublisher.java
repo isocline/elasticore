@@ -264,10 +264,12 @@ public class SearchDtoSrcFilePublisher extends SrcFilePublisher {
 
 
             if(f.getTypeInfo().isList() && enableSearch) {
-                String coreTypeNm = f.getTypeInfo().getCoreItemType();
-                EnumModel byName = this.publisher.getECoreModelContext().findModelComponent(coreTypeNm, EnumModel.class);
-                if(byName==null)
-                    continue;
+                if(f.getTypeInfo().getCoreItemBaseFieldType()==null) {
+                    String coreTypeNm = f.getTypeInfo().getCoreItemType();
+                    EnumModel byName = this.publisher.getECoreModelContext().findModelComponent(coreTypeNm, EnumModel.class);
+                    if (byName == null)
+                        continue;
+                }
 
             }
 

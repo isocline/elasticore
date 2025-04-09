@@ -1,0 +1,18 @@
+enumeration:
+
+  Indicator:
+    meta: enum @json(code) @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+
+  AuthDivisionType:
+    meta: enum @json(code) @db(code)
+    fields:
+      msg: String
+      code: String(2)
+    enum:
+      EMP: 사원,NE
+      CLAIM_EMP: 자차 담당자, CE

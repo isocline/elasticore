@@ -1,0 +1,179 @@
+package ${packageName};
+
+import ${entityPackageName}.*;
+import ${dtoPackageName}.*;
+import ${repositoryPackageName}.*;
+
+import ${j2eePkgName}.persistence.TypedQuery;
+import ${j2eePkgName}.persistence.criteria.*;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class ${className} {
+
+    protected final ${domainName}RepositoryHelper helper;
+
+    public List<${dtoClassName}> findAll() {
+        return helper.get${entityClassName}().findAll().stream()
+                .map(${mapperName}::toDTO)
+                .collect(Collectors.toList());
+    }
+
+/*-- print-if:${isListOutput} --*/
+    public List<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+        Sort sort = searchDTO.getSort();
+        if(sort ==null) {
+            return helper.get${entityClassName}().findAll(specification).stream()
+                        .map(${mapperName}::${toSearchListMappingName})
+                        .collect(Collectors.toList());
+        }
+        return helper.get${entityClassName}().findAll(specification, sort).stream()
+                .map(${mapperName}::${toSearchListMappingName})
+                .collect(Collectors.toList());
+    }
+/*-- print-if:end --*/
+
+
+/*-- print-if:${isPageOutput} --*/
+    public Page<${searchResultDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = ${mapperName}.toSpec(searchDTO);
+        Pageable pageable = searchDTO.getPageable();
+        Page<${entityClassName}> result = helper.get${entityClassName}().findAll(specification, pageable);
+        return result.map(${mapperName}::${toSearchListMappingName});
+    }
+/*-- print-if:end --*/
+
+
+    public Optional<${dtoClassName}> findById(${pkType} id) {
+        return helper.get${entityClassName}().findById(id).map(${mapperName}::toDTO);
+    }
+
+    public ${entityClassName}DTO save(${dtoClassName} dto) {
+        ${entityClassName} entity = ${mapperName}.toEntity(dto);
+        ${childRefInfo}
+
+        ${entityClassName} result = helper.get${entityClassName}().save(entity);
+        return ${mapperName}.toDTO(result);
+    }
+
+
+    public ${entityClassName}DTO update(${dtoClassName} dto) {
+        ${entityClassName} entity = helper.get${entityClassName}().findById(dto.get${pkName}()).orElse(null);
+        ${mapperName}.mapping(dto, entity, true);
+        ${childRefInfo}
+
+        ${entityClassName} result = helper.get${entityClassName}().save(entity);
+        return ${mapperName}.toDTO(result);
+    }
+
+
+    public void deleteById(${pkType} id) {
+        helper.get${entityClassName}().deleteById(id);
+    }
+
+
+/*-- print-if:${isCustomPageOutput} isCustomPageOutput--*/
+
+    public Page<${customListDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = LinkoneMapper.toSpec(searchDTO);
+        Pageable pageable = searchDTO.getPageable();
+
+        return searchList(specification, pageable);
+    }
+
+    public Page<${customListDTOClassName}> searchList(Specification<${entityClassName}> specification, Pageable pageable) {
+        CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
+
+        CriteriaQuery<${customListDTOClassName}> query = cb.createQuery(${customListDTOClassName}.class);
+        Root<${entityClassName}> root = query.from(${entityClassName}.class);
+
+        query.select(cb.construct(
+                ${customListDTOClassName}.class,
+
+                ${selectColumnNmList}
+        ));
+
+        if (specification != null) {
+            Predicate predicate = specification.toPredicate(root, query, cb);
+            if(predicate!=null)
+                query.where(predicate);
+        }
+
+        TypedQuery<${customListDTOClassName}> typedQuery = helper.getEntityManager().createQuery(query);
+        typedQuery.setFirstResult((int) pageable.getOffset());
+        typedQuery.setMaxResults(pageable.getPageSize());
+
+        List<${customListDTOClassName}> resultList = typedQuery.getResultList();
+
+
+
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<${entityClassName}> countRoot = countQuery.from(${entityClassName}.class);
+        countQuery.select(cb.count(countRoot));
+
+        if (specification != null) {
+            Predicate countPredicate = specification.toPredicate(countRoot, countQuery, cb);
+            if(countPredicate!=null)
+                countQuery.where(countPredicate);
+        }
+
+        Long count = helper.getEntityManager().createQuery(countQuery).getSingleResult();
+
+        return new PageImpl<${customListDTOClassName}>(resultList, pageable, count);
+    }
+/*-- print-if:end --*/
+
+
+/*-- print-if:${isCustomListOutput} isCustomListOutput--*/
+    public List<${customListDTOClassName}> findBySearch(${searchDTOClassName} searchDTO) {
+        Specification<${entityClassName}> specification = LinkoneMapper.toSpec(searchDTO);
+        Sort sort = searchDTO.getSort();
+
+        return searchList(specification, sort);
+    }
+
+    public List<${customListDTOClassName}> searchList(Specification<${entityClassName}> specification, Sort sort) {
+        CriteriaBuilder cb = helper.getEntityManager().getCriteriaBuilder();
+
+        CriteriaQuery<${customListDTOClassName}> query = cb.createQuery(${customListDTOClassName}.class);
+        Root<Company> root = query.from(${entityClassName}.class);
+
+        query.select(cb.construct(
+                ${customListDTOClassName}.class,
+
+                ${selectColumnNmList}
+        ));
+
+        if (specification != null) {
+            Predicate predicate = specification.toPredicate(root, query, cb);
+            if (predicate != null)
+                query.where(predicate);
+        }
+
+        // Apply sorting
+        if (sort != null) {
+            List<Order> orders = sort.stream()
+                    .map(order -> order.isAscending() ?
+                            cb.asc(root.get(order.getProperty())) :
+                            cb.desc(root.get(order.getProperty())))
+                    .toList();
+            query.orderBy(orders);
+        }
+        TypedQuery<${customListDTOClassName}> typedQuery = helper.getEntityManager().createQuery(query);
+        List<${customListDTOClassName}> resultList = typedQuery.getResultList();
+        return resultList;
+    }
+/*-- print-if:end --*/
+}

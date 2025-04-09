@@ -1,0 +1,8 @@
+dto:
+  RetrieveCarQueryDTO:
+    meta: dto
+    fields:
+      carNumber: string -- 차량번호
+
+  RetrieveCarInfoDTO:
+    meta: dto @template(RetrieveCarInfo)

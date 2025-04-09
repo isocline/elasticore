@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-template/elasticore-template.elasticore.elasticore-project.elasticore-template.main.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-template/elasticore-template.elasticore.elasticore-project.elasticore-template.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore.elasticore-project.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore.elasticore-project.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/elasticore.elasticore-project.elasticore-base.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/elasticore.elasticore-project.elasticore-base.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-template/elasticore.elasticore-project.elasticore-template.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-template/elasticore.elasticore-project.elasticore-template.iml" />
@@ -15,8 +14,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apiservice/gatehub.apiservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/apiservice/gatehub.apiservice.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apiservice/gatehub.apiservice.test.iml" filepath="$PROJECT_DIR$/.idea/modules/apiservice/gatehub.apiservice.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/webtool/gatehub.webtool.main.iml" filepath="$PROJECT_DIR$/.idea/modules/webtool/gatehub.webtool.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/io.elasticore.elasticore.elasticore-project.elasticore-base.main.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/io.elasticore.elasticore.elasticore-project.elasticore-base.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/io.elasticore.elasticore.elasticore-project.elasticore-base.test.iml" filepath="$PROJECT_DIR$/.idea/modules/elasticore-project/elasticore-base/io.elasticore.elasticore.elasticore-project.elasticore-base.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/pfg_sft_bnd.main.iml" filepath="$PROJECT_DIR$/.idea/modules/pfg_sft_bnd.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/pfg_sft_frt.main.iml" filepath="$PROJECT_DIR$/.idea/modules/pfg_sft_frt.main.iml" />
     </modules>

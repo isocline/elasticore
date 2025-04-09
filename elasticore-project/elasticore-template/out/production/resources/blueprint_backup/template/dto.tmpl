@@ -1,0 +1,38 @@
+package ${packageName};
+
+import ${enumPackageName}.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
+import ${j2eePkgName}.validation.constraints.NotBlank;
+import ${j2eePkgName}.validation.constraints.NotNull;
+import ${j2eePkgName}.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.*;
+import java.time.*;
+import ${importList};
+
+
+/**
+ * <pre>${description}</pre>
+ * hash:${hashCode}
+*/
+
+${classAnnotationList}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public ${abstract} class ${className} ${extendInfo} ${implementInfo}  {
+
+	${fieldList}
+
+
+	/*-- print-if:${isSearchDTO} --*/
+    private String sortColumn; // 정렬 컬럼
+    private Boolean sortAscending; // sort ASC 정렬 여부 (true : ASC, false : DESC)
+    /*-- print-if:end --*/
+};

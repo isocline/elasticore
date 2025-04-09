@@ -1,0 +1,19 @@
+
+transaction:
+  - id: test
+    meta:
+      name: 건별 유지 자료
+
+    input:
+      meta: test
+      fields:
+        id: string
+        name: string
+    output:
+      meta: test
+      fields:
+        yyyyMM: string @label(기준월) @size(20)
+        id: string
+
+
+

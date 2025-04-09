@@ -1,0 +1,84 @@
+dto:
+
+  BrandIdDTO:
+    meta: dto
+    fields:
+      id: string
+
+    methods:
+      - id: selectBrandList
+        params:
+          name: string
+        query: |
+          SELECT a.id 
+          FROM brand_info a
+          WHERE a.brand_name = :name
+
+  SeriesDTO:
+    meta: dto
+    fields:
+      id: string
+      seriesName: string
+
+    methods:
+      - id: selectSeriesList
+        params:
+          id: string
+        query: |
+          SELECT id, series_name
+          FROM series_info a
+          WHERE a.brand_info_id = :id
+
+  SeriesIdMaxDTO:
+    meta: dto
+    fields:
+      id: string
+
+    methods:
+      - id: selectSeriesMax
+        params:
+          param: string
+        query: |
+          SELECT max(a.id) as id
+          FROM series_info a
+          WHERE a.id LIKE :param
+
+  LineupIdMaxDTO:
+    meta: dto
+    fields:
+      id: string
+
+    methods:
+      - id: selectLineupMax
+        params:
+          param: string
+        query: |
+          SELECT max(a.id) as id
+          FROM car_lineup_info a
+          WHERE a.id LIKE :param
+
+  TrimIdMaxDTO:
+    meta: dto
+    fields:
+      id: string
+
+    methods:
+      - id: selectTrimMax
+        params:
+          param: string
+        query: |
+          SELECT max(a.car_id) as id
+          FROM base_car_info a
+          WHERE a.car_id LIKE :param
+          
+
+  
+
+  FormulaMobillugDTO:
+    meta: dto @template(FormulaMobillug)
+    fields:
+#      estimateType: string @ref(estimateType.code)
+      capitalCompanyId: string @ref(capitalCompany.id) -- 캐피탈사 정보
+      consignCompanyId: string @ref(consignCompany.id) -- 탁송사 정보
+      insureCompanyId: string @ref(insureCompany.id) -- 보험사 정보
+      internalRateGroupId: string @ref(internalRateGroup.id) -- 내부수익률 정보

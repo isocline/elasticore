@@ -1,0 +1,36 @@
+
+
+entity:
+  Person:
+    meta: entity @extend(AuditEntity) @dto
+    fields:
+      id: string @id
+      name: string(12)
+      age: int
+      company: Company
+
+  Person2:
+    meta: entity @extend(AuditEntity) @dto
+    fields:
+      id: string @id
+      name: string(12)
+
+
+enumeration:
+
+  Indicator:
+    meta: enum @db(code)
+    fields:
+      code: String(1)
+    enum:
+      YES: "Y"
+      NO: "N"
+
+  GenderCode:
+    meta: enum @db(code)
+    fields:
+      code: String(1)
+      label: string
+    enum:
+      MALE: 1,남
+      FEMALE: 2,여

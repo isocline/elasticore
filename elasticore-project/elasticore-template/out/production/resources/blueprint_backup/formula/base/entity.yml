@@ -1,0 +1,269 @@
+entity:
+
+  AuditEntity:
+    meta: entity @abstract
+    fields:
+      createDate: datetime @updatable(false) @jpa:org.springframework.data.annotation.CreatedDate
+      createdBy: string(20) @updatable(false) @jpa:org.springframework.data.annotation.CreatedBy
+      lastModifiedBy: string(20)  @jpa:org.springframework.data.annotation.LastModifiedBy
+      lastModifiedDate: datetime   @jpa:org.springframework.data.annotation.LastModifiedDate
+
+  CommonCode:
+    meta: entity @extend(AuditEntity) -- 공통 코드 | 업무관련 주요 공통 코드 정보를 관리
+    fields:
+      codeSn: long  @sequence -- 코드 sequence
+      codeId: string(50)! @id  @s(eq) -- 코드 아이디
+      codePntId: string(50) @s(-%) -- 상위 코드 아이디
+      codeNm: string(50)! @s(%%) -- 코드명
+      codeValue: string(100)! @s(eq) -- 코드값
+
+      codeOptn1: String(50) -- 코드옵션1
+      codeOptn2: String(50) -- 코드옵션2
+      codeOptn3: String(50) -- 코드옵션3
+      numberOptn1: double -- 숫자옵션1
+      numberOptn2: double -- 숫자옵션2
+      numberOptn3: double -- 숫자옵션3
+
+      codeDepth: int @s(eq) -- 코드 depth
+      codeOrder: int @default(10) -- 순서 정보
+
+  CapitalCompany:
+    meta: entity  -- 캐피탈사 정보
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      comName: string(50) -- 업체명
+      type: string @unique @s(eq) -- 업체 타입정보
+      logoImgUrl: string -- 로고 Url
+
+  InternalRateAddition:
+    meta: entity -- IRR 가산률
+    fields:
+      id: long @id @sequence -- 아이디
+      estimateType: EstimateType @s(eq) -- 견적분류
+      capitalCompany: CapitalCompany -- 캐피탈사 정보
+      limitRate: double -- 최대 보증+선수금율
+      extraConditions1: ExtraConditions @embedded(prefix=fst) -- 추가조건1
+
+  ResidualInfo:
+    meta: entity  -- 잔가 정보 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      type: string @s(eq)  -- 캐피탈분류
+      residualType: ResidualType -- 잔가구분
+      rentPeriod: RentPeriod -- 렌트기간
+      estimateType: EstimateType -- 견적구분
+      promiseAdd0: double -- 무제한 상향률
+      promiseAdd1: double -- 10000Km 상향률
+      promiseAdd2: double -- 20000Km 상향률
+      promiseAdd3: double -- 30000Km 상향률
+      promiseAdd4: double -- 40000Km 상향률
+      promiseAdd5: double -- 50000Km 상향률
+      minimumResidual: double -- 최저잔가
+      maximumPromise: int -- 최대약정거리
+      premiumResidualCommission: double @default(0.0) -- 고잔가 수수료
+      fixedPrice: int @default(0) -- 고정금액
+      takeOverAdditionalRate: double @default(0.0) -- 인수형 가산금액
+      groupA0: double -- 잔가군
+      groupA1: double -- 잔가군
+      groupA2: double -- 잔가군
+      groupA3: double -- 잔가군
+      groupA4: double -- 잔가군
+      groupA5: double -- 잔가군
+      groupA6: double -- 잔가군
+      groupA7: double -- 잔가군
+      groupA8: double -- 잔가군
+      groupA9: double -- 잔가군
+      groupB0: double -- 잔가군
+      groupB1: double -- 잔가군
+      groupB2: double -- 잔가군
+      groupB3: double -- 잔가군
+      groupB4: double -- 잔가군
+      groupB5: double -- 잔가군
+      groupB6: double -- 잔가군
+      groupB7: double -- 잔가군
+      groupB8: double -- 잔가군
+      groupB9: double -- 잔가군
+      groupC0: double -- 잔가군
+      groupC1: double -- 잔가군
+      groupC2: double -- 잔가군
+      groupC3: double -- 잔가군
+      groupC4: double -- 잔가군
+      groupC5: double -- 잔가군
+      groupC6: double -- 잔가군
+      groupC7: double -- 잔가군
+      groupC8: double -- 잔가군
+      groupC9: double -- 잔가군
+      groupD0: double -- 잔가군
+      groupD1: double -- 잔가군
+      groupD2: double -- 잔가군
+      groupD3: double -- 잔가군
+      groupD4: double -- 잔가군
+      groupD5: double -- 잔가군
+      groupD6: double -- 잔가군
+      groupD7: double -- 잔가군
+      groupD8: double -- 잔가군
+      groupD9: double -- 잔가군
+      groupE0: double -- 잔가군
+      groupE1: double -- 잔가군
+      groupE2: double -- 잔가군
+      groupE3: double -- 잔가군
+      groupE4: double -- 잔가군
+      groupE5: double -- 잔가군
+      groupE6: double -- 잔가군
+      groupE7: double -- 잔가군
+      groupE8: double -- 잔가군
+      groupE9: double -- 잔가군
+      groupF0: double -- 잔가군
+      groupF1: double -- 잔가군
+      groupF2: double -- 잔가군
+      groupF3: double -- 잔가군
+      groupF4: double -- 잔가군
+      groupF5: double -- 잔가군
+      groupF6: double -- 잔가군
+      groupF7: double -- 잔가군
+      groupF8: double -- 잔가군
+      groupF9: double -- 잔가군
+
+  BaseFormulaInfo:
+    meta: entity @api -- 캐피탈별 기준가 정보 엔티티
+    fields:
+      type: string @id @s(eq) -- 캐피탈분류
+      estimateType: string(2) @id @s(eq) -- 상품 타입
+      baseCarInfoId: string(12) @id @s(eq) -- 트림정보 Id
+      residualGroup1: string -- 잔가정보1
+      residualGroup2: string -- 잔가정보2
+      internalRateGroup: InternalRateGroup -- IRR 그룹 정보
+      seater: int -- 인승 정보
+      regulationCarGrade: RegulationCarGrade -- 차량규모분류
+
+      specialDiscountRate: double -- 특판할인율
+      capitalCompany: CapitalCompany -- 캐피탈사 정보
+      consignCompany: ConsignmentCompany -- 탁송사 정보
+      releaseArea: ReleaseArea -- 출고지 정보
+      insureCompany: InsureCompany -- 보험사 정보
+
+  ConsignmentCompany:
+    meta: entity -- 탁송사 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      type: string @s(eq)  -- 캐피탈분류
+      comName: string -- 탁송사명
+      estimateType: EstimateType -- 견적구분
+      classifyCode: text -- 분류코드
+
+  ConsignmentAccessory:
+    meta: entity -- 탁송 부대비용 엔티티
+    fields:
+      id: long @id @sequence -- 아이디
+      consignmentCompany: ConsignmentCompany -- 탁송사
+      releaseType: ReleaseType @s(eq) -- 출고구분
+      registerProxy: int -- 등록대행비
+      licensePlateFee: int -- 번호판 대금
+      subLicensePlateFee: int -- 보조번호판 대금
+      revenueStamp: int -- 증지대
+      carWash: int -- 세차비
+      baseConsignmentFee: int -- 탁송 기본료
+      productFee: int -- 용품비
+      extraConditions1: ExtraConditions @embedded(prefix=fst) -- 추가조건1
+      extraConditions2: ExtraConditions @embedded(prefix=sec) -- 추가조건2
+
+
+  ExtraConditions:
+    meta: entity @embeddable @dto -- 추가조건 및 계산
+    fields:
+      condition: string -- 조건
+      value: double -- 값
+      content: string -- 설명
+
+
+  ConsignmentFee:
+    meta: entity   -- 탁송 정보 엔티티
+    fields:
+      id: long @id @sequence -- 아이디
+      consignmentCompany: ConsignmentCompany  -- 탁송사
+      releaseArea: ReleaseArea @s(eq) -- 출고지 정보
+      areaIdx: string(10) @s(eq) -- 도착지 코드
+      areaName: string(10) -- 도착지 이름
+      deliveryFee: int -- 배송비
+
+  InternalRateGroup:
+    meta: entity   -- IRR 그룹 정보 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      type: string @s(eq)  -- 캐피탈분류
+      estimateType: EstimateType @s(eq) -- 견적 분류
+      groupCode: string(10) -- 분류 코드
+      groupName: string(10) -- IRR 그룹 이름
+      brandName: string(50) -- 브랜드명
+      seriesName: string(50) -- 모델명
+      irrRate: double @default(0.06) -- 내부수익률
+      procurementRate: double @default(0.0) -- 조달금리
+
+  InsureCompany:
+    meta: entity -- 보험사 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      type: string @s(eq)  -- 캐피탈분류
+      comName: string(20) -- 보험사명
+      estimateType: EstimateType @s(eq) -- 견적 구분
+      seriesInfoIdList: text -- 담당 시리즈 목록
+
+  InsureInfo:
+    meta: entity   -- 보험 정보 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      insureCompany: InsureCompany -- 보험사
+      releaseType: List<ReleaseType> @s(in) -- 출고 분류
+      customerType: List<CustomerType> @s(in) -- 고객 분류
+      driverAge: List<DriverAge> @s(in) -- 운전자 연령
+      empDiscount: List<Indicator> @s(in) -- 임직원 할인여부
+      insureCarGrade: InsureCarGrade @s(eq) -- 보험차량등급
+      personalFee1: int -- 대인/책임
+      personalFee2: int -- 대인/무한
+      selfFee3: int -- 자손 3천 보험료
+      selfFee5: int -- 자손 5천 보험료
+      selfFee10: int -- 자손 1억 보험료
+      propertyFee1: int -- 대물 1억 보험료
+      propertyFee2: int -- 대물 2억 보험료
+      propertyFee3: int -- 대물 3억 보험료
+      extraConditions1: ExtraConditions @embedded(prefix=fst) -- 추가조건
+      extraConditions2: ExtraConditions @embedded(prefix=sec) -- 추가조건
+
+  InsurePropertySelf:
+    meta: entity -- 자차 보험료 엔티티
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      insureCompany: InsureCompany -- 보험사
+      releaseType: List<ReleaseType> @s(in) -- 출고 분류
+      customerType: List<CustomerType> @s(in) -- 고객 분류
+      driverAge: List<DriverAge> @s(in) -- 운전자 연령
+      empDiscount: List<Indicator> @s(in) -- 임직원 할인여부
+      condition: string -- 조건값
+      calcRate: double  -- 비율계산 시 나누기 연산 값
+      sedan: int -- 승용
+      rv1: int -- RV_1
+      rv2: int -- RV_2
+      van: int -- 승합
+
+
+  MaintenanceInfo:
+    meta: entity   -- 정비 정보 엔티티
+    fields:
+      id: long @id @sequence -- 아이디
+      type: string @s(eq)
+      estimateType: EstimateType @s(eq) -- 견적 분류
+      productName: string @s(eq) -- 정비 상품명
+      rentPeriod36: int -- 정비 요금
+      rentPeriod48: int -- 정비 요금
+      rentPeriod60: int -- 정비 요금
+
+  PromotionRate:
+    meta: entity
+    fields:
+      id: string(12) @id @env:genid -- 아이디
+      dependenceId: string! -- 할인 종속 id
+      promotionType: PromotionType -- 할인 종속범위
+      promotionFee: int @default(0) -- 할인 금액
+      promotionRate: double @default(0.0) -- 할인율
+      startDate: datetime -- 유효일자(시작일)
+      endDate: datetime -- 유효일자(종료일)
