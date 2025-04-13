@@ -1,13 +1,9 @@
-//ecd:-640466591H20250412200533_V1.0
+//ecd:-1494704119H20250414001619_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import org.springframework.data.jpa.domain.Specification;
-import jakarta.persistence.criteria.Join;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,11 +11,9 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import io.elasticore.blueprint.domain.parts.entity.*;
-import io.elasticore.blueprint.domain.parts.dto.*;
 
 
-import io.elasticore.blueprint.domain.parts.entity.*;
-import io.elasticore.blueprint.domain.parts.dto.*;
+import io.elasticore.springboot3.mapper.MappingContext;
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
@@ -52,9 +46,15 @@ public class PartsMapper {
 
     
     public static void mapping(Catalog from, CatalogDTO to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(Catalog from, CatalogDTO to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("catalogId").checkEnable())
         setVal(from.getCatalogId(), to::setCatalogId, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
     }
     
@@ -62,19 +62,32 @@ public class PartsMapper {
     public static void mapping(Catalog from, CatalogDTO to){
         mapping(from,to,false);
     }
+    public static void mapping(Catalog from, CatalogDTO to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static CatalogDTO toDTO(Catalog from){
+        return toDTO(from,MappingContext.withGuard(2,null));
+    }
+    public static CatalogDTO toDTO(Catalog from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         CatalogDTO to = new CatalogDTO();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<CatalogDTO> toCatalogDTOList(List<Catalog> fromList){
+        return toCatalogDTOList(fromList,(MappingContext) null);
+    }
+    public static List<CatalogDTO> toCatalogDTOList(List<Catalog> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toDTO).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
     
     
@@ -93,13 +106,21 @@ public class PartsMapper {
     
     
     public static void mapping(CarModel from, CarModelDTO to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(CarModel from, CarModelDTO to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getCatalog(), to::setCatalog, isSkipNull, PartsMapper::toDTO);
+        if(c==null || c.fd("catalog").checkEnable())
+        setVal(from.getCatalog(), to::setCatalog, isSkipNull, e->toDTO(e,c));
         if(hasValue(from.getCatalog()))
             to.setCatalogCatalogId(from.getCatalog().getCatalogId());
+        if(c==null || c.fd("id").checkEnable())
         setVal(from.getId(), to::setId, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("img").checkEnable())
         setVal(from.getImg(), to::setImg, isSkipNull);
     }
     
@@ -107,19 +128,32 @@ public class PartsMapper {
     public static void mapping(CarModel from, CarModelDTO to){
         mapping(from,to,false);
     }
+    public static void mapping(CarModel from, CarModelDTO to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static CarModelDTO toDTO(CarModel from){
+        return toDTO(from,MappingContext.withGuard(2,null));
+    }
+    public static CarModelDTO toDTO(CarModel from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         CarModelDTO to = new CarModelDTO();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<CarModelDTO> toCarModelDTOList(List<CarModel> fromList){
+        return toCarModelDTOList(fromList,(MappingContext) null);
+    }
+    public static List<CarModelDTO> toCarModelDTOList(List<CarModel> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toDTO).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
     
     
@@ -138,16 +172,29 @@ public class PartsMapper {
     
     
     public static void mapping(CarInfo from, CarInfoDTO to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(CarInfo from, CarInfoDTO to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("id").checkEnable())
         setVal(from.getId(), to::setId, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("description").checkEnable())
         setVal(from.getDescription(), to::setDescription, isSkipNull);
+        if(c==null || c.fd("modelName").checkEnable())
         setVal(from.getModelName(), to::setModelName, isSkipNull);
+        if(c==null || c.fd("vin").checkEnable())
         setVal(from.getVin(), to::setVin, isSkipNull);
+        if(c==null || c.fd("frame").checkEnable())
         setVal(from.getFrame(), to::setFrame, isSkipNull);
+        if(c==null || c.fd("criteria").checkEnable())
         setVal(from.getCriteria(), to::setCriteria, isSkipNull);
+        if(c==null || c.fd("brand").checkEnable())
         setVal(from.getBrand(), to::setBrand, isSkipNull);
+        if(c==null || c.fd("groupTreeAvailables").checkEnable())
         setVal(from.getGroupTreeAvailables(), to::setGroupTreeAvailables, isSkipNull);
     }
     
@@ -155,19 +202,32 @@ public class PartsMapper {
     public static void mapping(CarInfo from, CarInfoDTO to){
         mapping(from,to,false);
     }
+    public static void mapping(CarInfo from, CarInfoDTO to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static CarInfoDTO toDTO(CarInfo from){
+        return toDTO(from,MappingContext.withGuard(2,null));
+    }
+    public static CarInfoDTO toDTO(CarInfo from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         CarInfoDTO to = new CarInfoDTO();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<CarInfoDTO> toCarInfoDTOList(List<CarInfo> fromList){
+        return toCarInfoDTOList(fromList,(MappingContext) null);
+    }
+    public static List<CarInfoDTO> toCarInfoDTOList(List<CarInfo> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toDTO).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
     
     
@@ -186,13 +246,23 @@ public class PartsMapper {
     
     
     public static void mapping(ParamInfo from, ParamInfoDTO to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(ParamInfo from, ParamInfoDTO to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("idx").checkEnable())
         setVal(from.getIdx(), to::setIdx, isSkipNull);
+        if(c==null || c.fd("key").checkEnable())
         setVal(from.getKey(), to::setKey, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("value").checkEnable())
         setVal(from.getValue(), to::setValue, isSkipNull);
+        if(c==null || c.fd("carId").checkEnable())
         setVal(from.getCarId(), to::setCarId, isSkipNull);
+        if(c==null || c.fd("sortOrder").checkEnable())
         setVal(from.getSortOrder(), to::setSortOrder, isSkipNull);
     }
     
@@ -200,19 +270,32 @@ public class PartsMapper {
     public static void mapping(ParamInfo from, ParamInfoDTO to){
         mapping(from,to,false);
     }
+    public static void mapping(ParamInfo from, ParamInfoDTO to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static ParamInfoDTO toDTO(ParamInfo from){
+        return toDTO(from,MappingContext.withGuard(2,null));
+    }
+    public static ParamInfoDTO toDTO(ParamInfo from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         ParamInfoDTO to = new ParamInfoDTO();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<ParamInfoDTO> toParamInfoDTOList(List<ParamInfo> fromList){
+        return toParamInfoDTOList(fromList,(MappingContext) null);
+    }
+    public static List<ParamInfoDTO> toParamInfoDTOList(List<ParamInfo> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toDTO).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
     
     
@@ -231,9 +314,15 @@ public class PartsMapper {
     
     
     public static void mapping(CatalogDTO from, Catalog to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(CatalogDTO from, Catalog to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("catalogId").checkEnable())
         setVal(from.getCatalogId(), to::setCatalogId, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
     }
     
@@ -241,19 +330,32 @@ public class PartsMapper {
     public static void mapping(CatalogDTO from, Catalog to){
         mapping(from,to,false);
     }
+    public static void mapping(CatalogDTO from, Catalog to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static Catalog toEntity(CatalogDTO from){
+        return toEntity(from,MappingContext.withGuard(2,null));
+    }
+    public static Catalog toEntity(CatalogDTO from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         Catalog to = new Catalog();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<Catalog> toCatalogList(List<CatalogDTO> fromList){
+        return toCatalogList(fromList,(MappingContext) null);
+    }
+    public static List<Catalog> toCatalogList(List<CatalogDTO> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toEntity).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
     
     
@@ -272,10 +374,17 @@ public class PartsMapper {
     
     
     public static void mapping(CarModelDTO from, CarModel to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(CarModelDTO from, CarModel to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("id").checkEnable())
         setVal(from.getId(), to::setId, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("img").checkEnable())
         setVal(from.getImg(), to::setImg, isSkipNull);
         
         
@@ -290,19 +399,32 @@ public class PartsMapper {
     public static void mapping(CarModelDTO from, CarModel to){
         mapping(from,to,false);
     }
+    public static void mapping(CarModelDTO from, CarModel to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static CarModel toEntity(CarModelDTO from){
+        return toEntity(from,MappingContext.withGuard(2,null));
+    }
+    public static CarModel toEntity(CarModelDTO from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         CarModel to = new CarModel();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<CarModel> toCarModelList(List<CarModelDTO> fromList){
+        return toCarModelList(fromList,(MappingContext) null);
+    }
+    public static List<CarModel> toCarModelList(List<CarModelDTO> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toEntity).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
     
     
@@ -321,16 +443,29 @@ public class PartsMapper {
     
     
     public static void mapping(CarInfoDTO from, CarInfo to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(CarInfoDTO from, CarInfo to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("id").checkEnable())
         setVal(from.getId(), to::setId, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("description").checkEnable())
         setVal(from.getDescription(), to::setDescription, isSkipNull);
+        if(c==null || c.fd("modelName").checkEnable())
         setVal(from.getModelName(), to::setModelName, isSkipNull);
+        if(c==null || c.fd("vin").checkEnable())
         setVal(from.getVin(), to::setVin, isSkipNull);
+        if(c==null || c.fd("frame").checkEnable())
         setVal(from.getFrame(), to::setFrame, isSkipNull);
+        if(c==null || c.fd("criteria").checkEnable())
         setVal(from.getCriteria(), to::setCriteria, isSkipNull);
+        if(c==null || c.fd("brand").checkEnable())
         setVal(from.getBrand(), to::setBrand, isSkipNull);
+        if(c==null || c.fd("groupTreeAvailables").checkEnable())
         setVal(from.getGroupTreeAvailables(), to::setGroupTreeAvailables, isSkipNull);
     }
     
@@ -338,19 +473,32 @@ public class PartsMapper {
     public static void mapping(CarInfoDTO from, CarInfo to){
         mapping(from,to,false);
     }
+    public static void mapping(CarInfoDTO from, CarInfo to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static CarInfo toEntity(CarInfoDTO from){
+        return toEntity(from,MappingContext.withGuard(2,null));
+    }
+    public static CarInfo toEntity(CarInfoDTO from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         CarInfo to = new CarInfo();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<CarInfo> toCarInfoList(List<CarInfoDTO> fromList){
+        return toCarInfoList(fromList,(MappingContext) null);
+    }
+    public static List<CarInfo> toCarInfoList(List<CarInfoDTO> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toEntity).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
     
     
@@ -369,13 +517,23 @@ public class PartsMapper {
     
     
     public static void mapping(ParamInfoDTO from, ParamInfo to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(ParamInfoDTO from, ParamInfo to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("idx").checkEnable())
         setVal(from.getIdx(), to::setIdx, isSkipNull);
+        if(c==null || c.fd("key").checkEnable())
         setVal(from.getKey(), to::setKey, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("value").checkEnable())
         setVal(from.getValue(), to::setValue, isSkipNull);
+        if(c==null || c.fd("carId").checkEnable())
         setVal(from.getCarId(), to::setCarId, isSkipNull);
+        if(c==null || c.fd("sortOrder").checkEnable())
         setVal(from.getSortOrder(), to::setSortOrder, isSkipNull);
     }
     
@@ -383,19 +541,32 @@ public class PartsMapper {
     public static void mapping(ParamInfoDTO from, ParamInfo to){
         mapping(from,to,false);
     }
+    public static void mapping(ParamInfoDTO from, ParamInfo to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static ParamInfo toEntity(ParamInfoDTO from){
+        return toEntity(from,MappingContext.withGuard(2,null));
+    }
+    public static ParamInfo toEntity(ParamInfoDTO from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         ParamInfo to = new ParamInfo();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<ParamInfo> toParamInfoList(List<ParamInfoDTO> fromList){
+        return toParamInfoList(fromList,(MappingContext) null);
+    }
+    public static List<ParamInfo> toParamInfoList(List<ParamInfoDTO> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(PartsMapper::toEntity).collect(Collectors.toList());
+        return fromList.stream().map(e->PartsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
     
     

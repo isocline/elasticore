@@ -118,7 +118,7 @@ public class BoardCoreService {
         Specification<Board> specification = BbsMapper.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
         Page<Board> result = helper.getBoard().findAll(specification, pageable);
-        return result.map(e -> BbsMapper.toDTO(e, MappingContext.start(1,
+        return result.map(e -> BbsMapper.toDTO(e, MappingContext.withGuard(1,
                         (c) -> {
                             if (c.getFieldName() == null) return true;
                             if ("name".equals(c.getFieldName()))

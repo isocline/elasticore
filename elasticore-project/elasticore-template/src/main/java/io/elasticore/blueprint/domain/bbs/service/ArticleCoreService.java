@@ -5,15 +5,13 @@ import io.elasticore.blueprint.domain.bbs.entity.*;
 import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.blueprint.domain.bbs.repository.*;
 
+import io.elasticore.springboot3.mapper.MappingContext;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -122,7 +120,7 @@ public class ArticleCoreService {
         Specification<Article> specification = BbsMapper.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
         Page<Article> result = helper.getArticle().findAll(specification, pageable);
-        return result.map(BbsMapper::toDTO);
+        return result.map(e->BbsMapper.toDTO(e, MappingContext.withGuard(2)));
     }
 
     /**

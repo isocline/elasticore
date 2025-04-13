@@ -1,7 +1,6 @@
-//ecd:-161092033H20250413000714_V1.0
+//ecd:1537816159H20250414001619_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
-import io.elasticore.springboot3.mapper.MappingContext;
 import org.springframework.dao.PermissionDeniedDataAccessException;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -14,6 +13,7 @@ import java.util.function.Function;
 import io.elasticore.blueprint.domain.bbs.entity.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
 
+import io.elasticore.springboot3.mapper.MappingContext;
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
@@ -46,76 +46,66 @@ public class BbsMapper {
 
     
     public static void mapping(Board from, BoardDTO to, boolean isSkipNull){
-        checkPermission(from, to);
-        if(from ==null || to ==null) return;
-        setVal(from.getBoardType(), to::setBoardType, isSkipNull);
-        setVal(from.getArticles(), to::setArticles, isSkipNull, BbsMapper::toArticleDTOList);
-        setVal(from.getBid(), to::setBid, isSkipNull);
-        setVal(from.getName(), to::setName, isSkipNull);
-        if(isSkip("Board","AuditEntity")) return;
-        setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
-        setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
-        setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
-        setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
-        if(isSkip("Board","BaseEntity")) return;
-        setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
-        setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
+        mapping(from,to,isSkipNull,null);
     }
-
-
-
-
-
     public static void mapping(Board from, BoardDTO to, boolean isSkipNull, MappingContext c){
         if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-
         if(c==null || c.fd("boardType").checkEnable())
         setVal(from.getBoardType(), to::setBoardType, isSkipNull);
         if(c==null || c.fd("articles").checkEnable())
-        setVal(from.getArticles(), to::setArticles, isSkipNull,  l -> BbsMapper.toArticleDTOList(l, c.getChild()));
-
+        setVal(from.getArticles(), to::setArticles, isSkipNull, e->toArticleDTOList(e,c));
         if(c==null || c.fd("bid").checkEnable())
         setVal(from.getBid(), to::setBid, isSkipNull);
         if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
         if(isSkip("Board","AuditEntity")) return;
+        if(c==null || c.fd("lastModifiedBy").checkEnable())
         setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        if(c==null || c.fd("lastModifiedDate").checkEnable())
         setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        if(c==null || c.fd("createIP").checkEnable())
         setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        if(c==null || c.fd("lastModifiedIP").checkEnable())
         setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
         if(isSkip("Board","BaseEntity")) return;
+        if(c==null || c.fd("createDate").checkEnable())
         setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        if(c==null || c.fd("createdBy").checkEnable())
         setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
     }
-
-
+    
+    
     public static void mapping(Board from, BoardDTO to){
         mapping(from,to,false);
     }
-
-    public static void mapping(Board from, BoardDTO to, MappingContext ctx){
-        mapping(from,to,false, ctx);
+    public static void mapping(Board from, BoardDTO to, MappingContext c){
+        mapping(from,to,false,c);
     }
     
     
     public static BoardDTO toDTO(Board from){
-        return toDTO(from , MappingContext.start(1, null));
+        return toDTO(from,MappingContext.withGuard(2,null));
     }
-
-    public static BoardDTO toDTO(Board from, MappingContext c){
+    public static BoardDTO toDTO(Board from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         BoardDTO to = new BoardDTO();
-
-        mapping(from, to, c);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<BoardDTO> toBoardDTOList(List<Board> fromList){
+        return toBoardDTOList(fromList,(MappingContext) null);
+    }
+    public static List<BoardDTO> toBoardDTOList(List<Board> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(BbsMapper::toDTO).collect(Collectors.toList());
+        return fromList.stream().map(e->BbsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
     
     
@@ -134,21 +124,35 @@ public class BbsMapper {
     
     
     public static void mapping(Article from, ArticleDTO to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(Article from, ArticleDTO to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
-        setVal(from.getBoard(), to::setBoard, isSkipNull, BbsMapper::toDTO);
+        if(c==null || c.fd("board").checkEnable())
+        setVal(from.getBoard(), to::setBoard, isSkipNull, e->toDTO(e,c));
         if(hasValue(from.getBoard()))
             to.setBoardBid(from.getBoard().getBid());
+        if(c==null || c.fd("aid").checkEnable())
         setVal(from.getAid(), to::setAid, isSkipNull);
+        if(c==null || c.fd("title").checkEnable())
         setVal(from.getTitle(), to::setTitle, isSkipNull);
+        if(c==null || c.fd("content").checkEnable())
         setVal(from.getContent(), to::setContent, isSkipNull);
         if(isSkip("Article","AuditEntity")) return;
+        if(c==null || c.fd("lastModifiedBy").checkEnable())
         setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        if(c==null || c.fd("lastModifiedDate").checkEnable())
         setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        if(c==null || c.fd("createIP").checkEnable())
         setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        if(c==null || c.fd("lastModifiedIP").checkEnable())
         setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
         if(isSkip("Article","BaseEntity")) return;
+        if(c==null || c.fd("createDate").checkEnable())
         setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        if(c==null || c.fd("createdBy").checkEnable())
         setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
     }
     
@@ -156,24 +160,32 @@ public class BbsMapper {
     public static void mapping(Article from, ArticleDTO to){
         mapping(from,to,false);
     }
+    public static void mapping(Article from, ArticleDTO to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static ArticleDTO toDTO(Article from){
+        return toDTO(from,MappingContext.withGuard(2,null));
+    }
+    public static ArticleDTO toDTO(Article from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         ArticleDTO to = new ArticleDTO();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<ArticleDTO> toArticleDTOList(List<Article> fromList){
-        return toArticleDTOList(fromList, (MappingContext) null);
+        return toArticleDTOList(fromList,(MappingContext) null);
     }
-
-    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, MappingContext c){
+    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
         if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(BbsMapper::toDTO).collect(Collectors.toList());
+        return fromList.stream().map(e->BbsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
     
     
@@ -192,16 +204,29 @@ public class BbsMapper {
     
     
     public static void mapping(BoardDTO from, Board to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(BoardDTO from, Board to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("bid").checkEnable())
         setVal(from.getBid(), to::setBid, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
         setVal(from.getName(), to::setName, isSkipNull);
+        if(c==null || c.fd("boardType").checkEnable())
         setVal(from.getBoardType(), to::setBoardType, isSkipNull);
+        if(c==null || c.fd("lastModifiedBy").checkEnable())
         setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        if(c==null || c.fd("lastModifiedDate").checkEnable())
         setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        if(c==null || c.fd("createIP").checkEnable())
         setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        if(c==null || c.fd("lastModifiedIP").checkEnable())
         setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
+        if(c==null || c.fd("createDate").checkEnable())
         setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        if(c==null || c.fd("createdBy").checkEnable())
         setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
     }
     
@@ -209,19 +234,32 @@ public class BbsMapper {
     public static void mapping(BoardDTO from, Board to){
         mapping(from,to,false);
     }
+    public static void mapping(BoardDTO from, Board to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static Board toEntity(BoardDTO from){
+        return toEntity(from,MappingContext.withGuard(2,null));
+    }
+    public static Board toEntity(BoardDTO from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         Board to = new Board();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<Board> toBoardList(List<BoardDTO> fromList){
+        return toBoardList(fromList,(MappingContext) null);
+    }
+    public static List<Board> toBoardList(List<BoardDTO> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(BbsMapper::toEntity).collect(Collectors.toList());
+        return fromList.stream().map(e->BbsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
     
     
@@ -240,16 +278,29 @@ public class BbsMapper {
     
     
     public static void mapping(ArticleDTO from, Article to, boolean isSkipNull){
+        mapping(from,to,isSkipNull,null);
+    }
+    public static void mapping(ArticleDTO from, Article to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
         checkPermission(from, to);
         if(from ==null || to ==null) return;
+        if(c==null || c.fd("aid").checkEnable())
         setVal(from.getAid(), to::setAid, isSkipNull);
+        if(c==null || c.fd("title").checkEnable())
         setVal(from.getTitle(), to::setTitle, isSkipNull);
+        if(c==null || c.fd("content").checkEnable())
         setVal(from.getContent(), to::setContent, isSkipNull);
+        if(c==null || c.fd("lastModifiedBy").checkEnable())
         setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        if(c==null || c.fd("lastModifiedDate").checkEnable())
         setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        if(c==null || c.fd("createIP").checkEnable())
         setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        if(c==null || c.fd("lastModifiedIP").checkEnable())
         setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
+        if(c==null || c.fd("createDate").checkEnable())
         setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        if(c==null || c.fd("createdBy").checkEnable())
         setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
         
         
@@ -264,19 +315,32 @@ public class BbsMapper {
     public static void mapping(ArticleDTO from, Article to){
         mapping(from,to,false);
     }
+    public static void mapping(ArticleDTO from, Article to, MappingContext c){
+        mapping(from,to,false,c);
+    }
     
     
     public static Article toEntity(ArticleDTO from){
+        return toEntity(from,MappingContext.withGuard(2,null));
+    }
+    public static Article toEntity(ArticleDTO from,MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(from==null) return null;
         Article to = new Article();
-        mapping(from, to);
+        mapping(from,to,c);
         return to;
     }
     
     
     public static List<Article> toArticleList(List<ArticleDTO> fromList){
+        return toArticleList(fromList,(MappingContext) null);
+    }
+    public static List<Article> toArticleList(List<ArticleDTO> fromList, MappingContext c1){
+        MappingContext c=c1!=null?c1.getChild():null;
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
-        return fromList.stream().map(BbsMapper::toEntity).collect(Collectors.toList());
+        return fromList.stream().map(e->BbsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
     
     

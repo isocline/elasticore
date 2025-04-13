@@ -14,11 +14,14 @@ spring:
     hibernate:
       ddl-auto:
     properties:
+      hibernate.default_batch_fetch_size: 100
       hibernate:
         format_sql: true
         show_sql: true
         hbm2ddl.auto: update
     defer-datasource-initialization: true
+
+
 
   datasource:
     url: jdbc:postgresql://xsk-postgre-dev.postgres.database.azure.com:5432/elcore_sample

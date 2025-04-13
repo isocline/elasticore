@@ -38,14 +38,17 @@ public class MappingContext {
 
     }
 
-    public static MappingContext start(int remainDepth, MappingGuard checker) {
+    public static MappingContext withGuard(int remainDepth, MappingGuard checker) {
         return new MappingContext(remainDepth, null, null, null,checker);
+    }
 
+    public static MappingContext withGuard(int remainDepth) {
+        return withGuard(remainDepth, null);
     }
 
 
     public boolean checkEnable() {
-        if(this.remainDepth<1) return false;
+        if(this.remainDepth<0) return false;
 
         if(checker!=null) {
             return checker.check(this);

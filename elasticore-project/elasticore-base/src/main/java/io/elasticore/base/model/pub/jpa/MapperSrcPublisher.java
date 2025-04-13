@@ -621,6 +621,11 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
         cb.line("public static void mapping(%s from, %s to, boolean isSkipNull)", fromClassNm, toClassNm).block();
+        cb.line("mapping(from,to,isSkipNull,null);");
+        cb.end();
+
+        cb.line("public static void mapping(%s from, %s to, boolean isSkipNull, MappingContext c)", fromClassNm, toClassNm).block();
+        cb.line("if(c!=null && !c.checkEnable()) return;");
         cb.line("checkPermission(from, to);");
         cb.line("if(from ==null || to ==null) return;");
 
@@ -746,11 +751,12 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                     if (fromField.hasAnnotation("password")) continue;
 
 
+                cb.line("if(c==null || c.fd(%s).checkEnable())", StringUtils.quoteString(fieldName));
                 if(fromField.hasAnnotation("forceupdate")) {
                     cb.line("to.set%s(%sfrom.get%s()%s);", fldNm,prefix, fldNm ,postfix);
                 }else {
                     if(mappingfunc!=null)
-                        cb.line("setVal(from.get%s(), to::set%s, isSkipNull, %s::%s);", fldNm, fldNm, this.className,mappingfunc);
+                        cb.line("setVal(from.get%s(), to::set%s, isSkipNull, e->%s(e,c));", fldNm, fldNm, mappingfunc);
                     else
                         cb.line("setVal(from.get%s(), to::set%s, isSkipNull);", fldNm, fldNm);
 
@@ -778,6 +784,11 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         cb_sub.line("mapping(from,to,false);");
         cb_sub.end();
 
+        cb_sub.line("public static void mapping(%s from, %s to, MappingContext c)", fromModel.getIdentity().getName(), toModel.getIdentity().getName()).block();
+        cb_sub.line("mapping(from,to,false,c);");
+        cb_sub.end();
+
+
         methodP.add(cb_sub);
         methodP.add("");
 
@@ -785,9 +796,16 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         CodeStringBuilder cb2 = new CodeStringBuilder("{", "}");
 
         cb2.line("public static %s %s(%s from)", toClassNm, toMethodName, fromClassNm).block();
+        cb2.line("return %s(from,MappingContext.start(2,null));",toMethodName);
+        cb2.end();
+
+
+        cb2.line("public static %s %s(%s from,MappingContext c1)", toClassNm, toMethodName, fromClassNm).block();
+        cb2.line("MappingContext c=c1!=null?c1.getChild():null;");
+        cb2.line("if(c!=null && !c.checkEnable()) return null;");
         cb2.line("if(from==null) return null;");
         cb2.line("%s to = new %s();", toClassNm, toClassNm);
-        cb2.line("mapping(from, to);");
+        cb2.line("mapping(from,to,c);");
         cb2.line("return to;");
         cb2.end();
 
@@ -819,10 +837,17 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         }
         CodeStringBuilder cb3 = new CodeStringBuilder("{", "}");
         cb3.line("public static List<%s> to%sList(List<%s> fromList)", toClassNm, toClassNm, fromClassNm).block();
+        cb3.line("return to%sList(fromList,(MappingContext) null);",toClassNm);
+        cb3.end();
+
+
+        cb3.line("public static List<%s> to%sList(List<%s> fromList, MappingContext c1)", toClassNm, toClassNm, fromClassNm).block();
+        cb3.line("MappingContext c=c1!=null?c1.getChild():null;");
+        cb3.line("if(c!=null && !c.checkEnable()) return null;");
 
         //return fromList.stream().map(LoanCarMapper::toLoanCarDTO).collect(Collectors.toList());
         cb3.line("if(fromList==null) return null;");
-        cb3.line("return fromList.stream().map(%s::%s).collect(Collectors.toList());", this.className, toMethodName);
+        cb3.line("return fromList.stream().map(e->%s.%s(e,c)).collect(Collectors.toList());", this.className, toMethodName);
 
         /*
         cb3.line("List<%s> toList = new java.util.ArrayList<>();",toClassNm);
