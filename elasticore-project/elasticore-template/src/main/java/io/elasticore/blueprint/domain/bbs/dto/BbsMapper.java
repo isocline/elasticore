@@ -1,13 +1,10 @@
-//ecd:-1046195600H20250409130647_V1.0
+//ecd:-161092033H20250413000714_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
+import io.elasticore.springboot3.mapper.MappingContext;
 import org.springframework.dao.PermissionDeniedDataAccessException;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import org.springframework.data.jpa.domain.Specification;
-import jakarta.persistence.criteria.Join;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,12 +12,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import io.elasticore.blueprint.domain.bbs.entity.*;
-import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
 
-import io.elasticore.blueprint.domain.bbs.enums.*;
-import io.elasticore.blueprint.domain.bbs.entity.*;
-import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
 /**
@@ -56,6 +49,7 @@ public class BbsMapper {
         checkPermission(from, to);
         if(from ==null || to ==null) return;
         setVal(from.getBoardType(), to::setBoardType, isSkipNull);
+        setVal(from.getArticles(), to::setArticles, isSkipNull, BbsMapper::toArticleDTOList);
         setVal(from.getBid(), to::setBid, isSkipNull);
         setVal(from.getName(), to::setName, isSkipNull);
         if(isSkip("Board","AuditEntity")) return;
@@ -67,17 +61,54 @@ public class BbsMapper {
         setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
         setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
     }
-    
-    
+
+
+
+
+
+    public static void mapping(Board from, BoardDTO to, boolean isSkipNull, MappingContext c){
+        if(c!=null && !c.checkEnable()) return;
+        checkPermission(from, to);
+        if(from ==null || to ==null) return;
+
+        if(c==null || c.fd("boardType").checkEnable())
+        setVal(from.getBoardType(), to::setBoardType, isSkipNull);
+        if(c==null || c.fd("articles").checkEnable())
+        setVal(from.getArticles(), to::setArticles, isSkipNull,  l -> BbsMapper.toArticleDTOList(l, c.getChild()));
+
+        if(c==null || c.fd("bid").checkEnable())
+        setVal(from.getBid(), to::setBid, isSkipNull);
+        if(c==null || c.fd("name").checkEnable())
+        setVal(from.getName(), to::setName, isSkipNull);
+        if(isSkip("Board","AuditEntity")) return;
+        setVal(from.getLastModifiedBy(), to::setLastModifiedBy, isSkipNull);
+        setVal(from.getLastModifiedDate(), to::setLastModifiedDate, isSkipNull);
+        setVal(from.getCreateIP(), to::setCreateIP, isSkipNull);
+        setVal(from.getLastModifiedIP(), to::setLastModifiedIP, isSkipNull);
+        if(isSkip("Board","BaseEntity")) return;
+        setVal(from.getCreateDate(), to::setCreateDate, isSkipNull);
+        setVal(from.getCreatedBy(), to::setCreatedBy, isSkipNull);
+    }
+
+
     public static void mapping(Board from, BoardDTO to){
         mapping(from,to,false);
+    }
+
+    public static void mapping(Board from, BoardDTO to, MappingContext ctx){
+        mapping(from,to,false, ctx);
     }
     
     
     public static BoardDTO toDTO(Board from){
+        return toDTO(from , MappingContext.start(1, null));
+    }
+
+    public static BoardDTO toDTO(Board from, MappingContext c){
         if(from==null) return null;
         BoardDTO to = new BoardDTO();
-        mapping(from, to);
+
+        mapping(from, to, c);
         return to;
     }
     
@@ -136,6 +167,11 @@ public class BbsMapper {
     
     
     public static List<ArticleDTO> toArticleDTOList(List<Article> fromList){
+        return toArticleDTOList(fromList, (MappingContext) null);
+    }
+
+    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, MappingContext c){
+        if(c!=null && !c.checkEnable()) return null;
         if(fromList==null) return null;
         return fromList.stream().map(BbsMapper::toDTO).collect(Collectors.toList());
     }

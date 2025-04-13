@@ -640,7 +640,7 @@ public class SrcFilePublisher {
         return false;
     }
 
-    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, String typeName, ComponentIdentity identity) {
+    protected boolean isEnableInDTO(ECoreModel eCoreModel, MetaInfo metaInfo, Field f ,String typeName, ComponentIdentity identity) {
 
         //////boolean isDTO = eCoreModel.getDataTransferModels().findByName(typeName)!=null;
         boolean isDTO = this.publisher.getECoreModelContext().findModelComponent(typeName, DataTransfer.class) != null;

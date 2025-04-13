@@ -1,4 +1,4 @@
-//ecd:1737902H20250409105850_V1.0
+//ecd:517361942H20250413000714_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -13,6 +13,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
 import java.time.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
+import io.elasticore.blueprint.domain.bbs.dto.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 
 /**
@@ -23,7 +26,7 @@ import io.elasticore.blueprint.domain.bbs.enums.*;
  *
  * Generated and managed by ElastiCORE.
  */
-
+@JsonInclude(Include.NON_NULL)
 @Getter
 @Setter
 @SuperBuilder
@@ -36,6 +39,9 @@ public  class BoardDTO  implements java.io.Serializable  {
 	*/
 	@Schema(description = "게시판 타입"  , example="PB: 공개 | PV: 개인")
 	private BoardType boardType;
+	
+	@Schema(description = "articles"  )
+	private List<ArticleDTO> articles;
 	
 	/*
 	  게시판 아이디

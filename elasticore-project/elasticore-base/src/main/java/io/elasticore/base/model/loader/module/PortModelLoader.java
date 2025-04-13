@@ -201,10 +201,7 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
             if (!queryInfo.isSelectQuery()) {
                 returnType = queryInfo.getReturnType();
             }
-
-
         }
-
 
         String requestType = mapWrapper.getString("input");
         Items<Field> fieldItems = null;
@@ -217,7 +214,6 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
         } else if (paramsObj != null) {
             requestType = paramsObj.toString();
         }
-
 
         return Method.builder()
                 .identity(BaseComponentIdentity.create(ComponentType.METHOD, ctx.getDomainId(), id))
@@ -232,7 +228,6 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
                 .build();
     }
 
-
     private String getMethodName(Select selectQuery) {
         StringBuilder sb = new StringBuilder();
 
@@ -246,20 +241,16 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
                 if (selectItem instanceof AllColumns) {
                     sb.append("findByAll");
 
-
                     Expression expression = plainSelect.getWhere();
                     sb.append("test");
 
                 }
             }
-
-
         }
         if (sb.length() == 0)
             return null;
 
         return sb.toString();
-
     }
 
 

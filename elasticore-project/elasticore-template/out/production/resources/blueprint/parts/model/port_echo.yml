@@ -1,0 +1,21 @@
+
+
+dto:
+
+  MsgInput2:
+    meta: dto
+    fields:
+      id: int
+      name: string
+
+
+port:
+
+  EchoService:
+    meta: http @url("https://echo.free.beeceptor.com")
+    methods:
+      testEcho:
+        meta: method @HttpEndpoint(url = "/gateway/chn-sfa/api/plan/list", method = "POST")
+        params:
+          body: MsgInput2 @body
+        return: java.util.HashMap

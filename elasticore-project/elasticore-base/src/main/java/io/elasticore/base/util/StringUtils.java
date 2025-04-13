@@ -1,11 +1,9 @@
 package io.elasticore.base.util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class StringUtils {
 
@@ -295,6 +293,34 @@ public class StringUtils {
         }
 
         return normalized.toString();
+    }
+
+
+    /**
+     * Adds a prefix to each line in the input string.
+     *
+     * Handles all standard line endings (\n, \r\n, \r), preserves empty lines,
+     * and avoids adding trailing newline if not present in the input.
+     *
+     * @param input The input multiline string.
+     * @param prefix The string to prepend to each line.
+     * @return A new string with the prefix added to the beginning of each line.
+     */
+    public static String addPrefixToEachLine(String input, String prefix) {
+        if (input == null || input.isEmpty()) return input;
+        return Arrays.stream(input.split("\\R", -1)) // \R handles \n, \r\n, \r — and -1 preserves empty trailing lines
+                .map(line -> prefix + line)
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    /**
+     * Checks whether a string contains non-whitespace characters.
+     *
+     * @param str the input string to check
+     * @return true if the string is not null and contains at least one non-whitespace character
+     */
+    public static boolean hasValue(String str) {
+        return str != null && !str.trim().isEmpty();
     }
 
 }

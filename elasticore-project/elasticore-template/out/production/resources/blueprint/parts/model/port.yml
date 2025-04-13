@@ -1,0 +1,102 @@
+
+
+dto:
+  PartInfo:
+    meta: dto
+    fields:
+      id: string
+      name: string
+      img: string
+
+
+
+port:
+  PartsCatalogAdapter:
+    meta: http @url("https://api.parts-catalogs.com") @auth(OEM-API-B8DC10AC-88BA-430B-9800-2A6D1DB6F95C)
+    methods:
+
+      getCatalogs:
+        meta: method @get("/v1/catalogs/")
+        params:
+
+        return: java.util.List
+
+      getCarModelList:
+        meta: method @get("/v1/catalogs/{catalogId}/models") -- 차량 모델 정보
+        params:
+          catalogId: String
+        return: java.util.List<PartInfo>
+
+
+      getCarInfoList:
+        meta: method @get("/v1/catalogs/{catalogId}/cars2")
+        params:
+          catalogId: String
+          modelId: string
+          page: int -- page number
+        return: java.util.List
+
+      getCarInfo:
+        meta: method @get("/v1/catalogs/{catalogId}/cars2/{carId}")
+        params:
+          catalogId: String
+          carId: string
+        return: java.util.Map
+
+      getCarParams:
+        meta: method @get("/v1/catalogs/{catalogId}/cars-parameters")
+        params:
+          catalogId: String -- Catalog id
+          modelIf: string -- Model id
+        return: java.util.Map
+
+      getCarInfoByVIN:
+        meta: method @get("/v1/car/info")
+        params:
+          q: String -- VIN or FRAME
+        return: java.util.List
+
+
+      ## Group
+
+
+
+      getCatalogGroupList:
+        meta: method @get("/v1/catalogs/{catalogId}/groups2")
+        params:
+          catalogId: String -- Catalog id
+        return: java.util.List
+
+      getCatalogGroupSuggestList:
+        meta: method @get("/v1/catalogs/{catalogId}/groups-suggest")
+        params:
+          catalogId: String -- Catalog id
+        return: java.util.List
+
+
+      ## Parts
+
+      getParts:
+        meta: method @get("/v1/catalogs/{catalogId}/parts")
+        params:
+          catalogId: String -- Catalog id
+        return: java.util.List
+
+
+
+
+
+      ## Groups tree
+
+      getGroupstree:
+        meta: method @get("/v1/catalogs/{catalogId}/groups-tree")
+        params:
+          catalogId: String -- Catalog id
+        return: java.util.List
+
+
+      getSchemas:
+        meta: method @get("/v1/catalogs/{catalogId}/schemas")
+        params:
+          catalogId: String -- Catalog id
+        return: java.util.Map

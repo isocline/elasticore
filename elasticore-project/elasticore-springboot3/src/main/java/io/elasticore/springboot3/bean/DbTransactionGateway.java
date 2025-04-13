@@ -6,7 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.elasticore.runtime.port.DbmsService;
 import io.elasticore.springboot3.dbms.DbmsSqlExecutor;
 import io.elasticore.springboot3.dbms.meta.SqlQueryInfo;
-import io.elasticore.springboot3.util.ReflectionUtils;
+import io.elasticore.springboot3.util.ReflectUtils;
 import jakarta.persistence.*;
 import org.apache.commons.jexl3.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -430,7 +430,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             O dto = outputType.getDeclaredConstructor().newInstance();
             for (TupleElement<?> element : tuple.getElements()) {
                 String fieldName = toCamelCase(element.getAlias());
-                Field field = ReflectionUtils.getField(outputType, fieldName);
+                Field field = ReflectUtils.getField(outputType, fieldName);
                 if (field != null) {
                     Object value = tuple.get(element);
                     Object convertedValue = convertValue(value, field.getType());

@@ -36,4 +36,7 @@ public @interface HttpEndpoint {
      * @return the content type
      */
     String contentType() default "application/json";
+
+
+    String paramNames() default "";
 }

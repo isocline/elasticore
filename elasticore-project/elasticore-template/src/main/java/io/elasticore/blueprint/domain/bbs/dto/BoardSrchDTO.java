@@ -1,4 +1,4 @@
-//ecd:2137760533H20250409143721_V1.0
+//ecd:1839301673H20250413000714_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
 import java.time.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
-import io.elasticore.blueprint.domain.bbs.entity.*;
 
 
 /**
@@ -49,9 +48,6 @@ public  class BoardSrchDTO  implements java.io.Serializable, SortableObject, Pag
 	*/
 	@Schema(description = "게시판 명 Use 'like' if value has %, else 'equal' field:name"  )
 	private String name;
-	
-	@Schema(description = "Field equals value. field:articles"  )
-	private Article articlesItem;
 	
 	@Schema(description = "Use 'like' if value has %, else 'equal' field:lastModifiedBy"  )
 	private String lastModifiedBy;

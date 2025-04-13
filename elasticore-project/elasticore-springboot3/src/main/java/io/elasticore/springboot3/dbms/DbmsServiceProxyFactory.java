@@ -2,7 +2,7 @@ package io.elasticore.springboot3.dbms;
 
 import io.elasticore.runtime.port.DbmsService;
 import io.elasticore.springboot3.bean.ApplicationContextProvider;
-import io.elasticore.springboot3.util.ReflectionUtils;
+import io.elasticore.springboot3.util.ReflectUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -112,18 +112,18 @@ public class DbmsServiceProxyFactory {
             }else {
                 try {
                     Class c = input.getClass();
-                    Field pageField = ReflectionUtils.getField(c,"pageNumber");
+                    Field pageField = ReflectUtils.getField(c,"pageNumber");
                     if(pageField==null)
-                        pageField = ReflectionUtils.getField(c,"page");
+                        pageField = ReflectUtils.getField(c,"page");
 
                     Object pageVal = pageField.get(input);
                     if (pageVal instanceof Integer)
                         defaultPage= (Integer) pageVal;
 
 
-                    Field sizeField = ReflectionUtils.getField(c,"sizeVal");
+                    Field sizeField = ReflectUtils.getField(c,"sizeVal");
                     if(sizeField==null)
-                        sizeField = ReflectionUtils.getField(c,"size");
+                        sizeField = ReflectUtils.getField(c,"size");
 
                     Object sizeVal = sizeField.get(input);
 

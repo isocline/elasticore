@@ -31,4 +31,9 @@ public @interface ExternalService {
 
     String url();
 
+
+    String authKey() default "";
+
+    String authHeaderName() default "";
+
 }

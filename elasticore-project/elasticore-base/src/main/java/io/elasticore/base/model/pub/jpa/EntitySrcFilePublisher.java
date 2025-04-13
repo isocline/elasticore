@@ -334,12 +334,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
         String entityClassNm = entity.getIdentity().getName();
-        p.add("public static Qx%s %s=new Qx%s();", entityClassNm, entityClassNm, entityClassNm);
-        p.add("public static class Qx%s {", entityClassNm);
+        p.add("public static $%s<%s> %s=new $%s<>();", entityClassNm, entityClassNm, entityClassNm, entityClassNm);
+        p.add("public static class $%s<T> {", entityClassNm);
         p.add("");
         p.add("    private FieldInfo p=null;");
-        p.add("    public Qx%s() {}", entityClassNm);
-        p.add("    public Qx%s(FieldInfo p) {this.p=p;}", entityClassNm);
+        p.add("    public $%s() {}", entityClassNm);
+        p.add("    public $%s(FieldInfo p) {this.p=p;}", entityClassNm);
 
         ListMap allFieldListMap = entity.getAllFieldListMap();
         List<Field> fieldList = allFieldListMap.getList();
@@ -359,9 +359,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             }
 
             p.add("");
-            p.add("    public final FieldInfo get%s() {return new FieldInfo<%s>(%s.class,%s,%s.class, %s,p);}"
+            p.add("    public final FieldInfo<T> get%s() {return new FieldInfo(%s.class,%s,%s.class, %s,p);}"
                     , StringUtils.capitalize(fieldName)
-                    , entityClassNm
+                    //, entityClassNm
                     , entityClassNm
                     , StringUtils.quoteString(fieldName)
                     , field.getTypeInfo().getCoreItemType()
@@ -376,13 +376,13 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             EnumModel enumModel = findEnumModel(typeNm);
 
             if (field.getTypeInfo().isBaseType() || enumModel != null) {
-                p.add("    public Specification<%s> %s(Op op,Object value) {return get%s().where(op,value);}"
-                        , entityClassNm
+                p.add("    public Specification<T> %s(Op op,Object value) {return get%s().where(op,value);}"
+                        //, entityClassNm
                         , fieldName
                         , StringUtils.capitalize(fieldName)
                 );
-                p.add("    public Specification<%s> %s(Op op,Object value,boolean chkEmpty) {return get%s().where(op,value,chkEmpty);}"
-                        , entityClassNm
+                p.add("    public Specification<T> %s(Op op,Object value,boolean chkEmpty) {return get%s().where(op,value,chkEmpty);}"
+                        //, entityClassNm
                         , fieldName
                         , StringUtils.capitalize(fieldName)
                 );
@@ -391,7 +391,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
                 {
                     String refEntityNm = refEntity.getIdentity().getName();
-                    p.add("    public final Qx%s %s() {return new Qx%s(get%s());}"
+                    p.add("    public final $%s<T> %s() {return new $%s(get%s());}"
                             , refEntityNm
                             , fieldName
                             , refEntityNm
@@ -822,9 +822,12 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                     extPropsTxt = extPropsTxt + ",mappedBy=\"" + mappedByName + "\"";
                 }
 
+                String relationType = "OneToMany";
+                if (field.hasAnnotation(EntityAnnotation.MANY_TO_MANY))
+                    relationType = "ManyToMany";
 
                 if (!field.hasAnnotation("jpa:onetomany")) {
-                    paragraph.add("@OneToMany(fetch = FetchType.%s %s)", fetchType, extPropsTxt);
+                    paragraph.add("@%s(fetch = FetchType.%s %s)",relationType, fetchType, extPropsTxt);
                 }
             }
 
@@ -835,19 +838,20 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             Entity entity = this.publisher.getECoreModelContext().findModelComponent(targetEntityName, Entity.class);
 
             if (entity != null) {
+
+                String relationType = "ManyToOne";
+                if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE))
+                    relationType = "OneToOne";
+                else if (field.hasAnnotation(EntityAnnotation.MANY_TO_MANY))
+                    relationType = "ManyToMany";
+
                 if (fetchType != null) {
                     fetchType = fetchType.toUpperCase();
-                    if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
-                        paragraph.add("@OneToOne(fetch = FetchType.%s)", fetchType);
-                    } else {
-                        paragraph.add("@ManyToOne(fetch = FetchType.%s)", fetchType);
-                    }
+                    paragraph.add("@%s(fetch = FetchType.%s)", relationType, fetchType);
+
+
                 } else {
-                    if (field.hasAnnotation(EntityAnnotation.ONE_TO_ONE)) {
-                        paragraph.add("@OneToOne");
-                    } else {
-                        paragraph.add("@ManyToOne");
-                    }
+                    paragraph.add("@%s", relationType);
                 }
 
 

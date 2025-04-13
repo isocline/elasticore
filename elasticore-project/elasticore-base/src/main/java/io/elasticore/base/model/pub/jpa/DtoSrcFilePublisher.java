@@ -173,6 +173,12 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
             importList.add(ns);
         }
 
+        if(!metaInfo.hasMetaAnnotation("includenull")) {
+            importList.add("com.fasterxml.jackson.annotation.JsonInclude");
+            importList.add("com.fasterxml.jackson.annotation.JsonInclude.Include");
+            this.paragraphForEntity.add("@JsonInclude(Include.NON_NULL)");
+        }
+
         p
                 .set("packageName", packageName)
                 .set("j2eePkgName",getPersistentPackageName(domain))
@@ -320,12 +326,22 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 if(f.getTypeInfo().isList()) {
                     String coreType = f.getTypeInfo().getCoreItemType();
                     checkTypeName = coreType;
+
+                    /***********************
+                    if(this.findEntityByName(checkTypeName) !=null) {
+                        String dtoName = checkTypeName+ComponentType.DTO.getSuffix();
+                        if(this.findDTO(dtoName)!=null) {
+                            checkTypeName = dtoName;
+                            typeName = "List<"+checkTypeName+">";
+                        }
+                    }
+                     *********************/
                 }else {
                 }
 
                 boolean hasRef = f.hasAnnotation(DataTransferAnnotation.REFERENCE);
 
-                if(!hasRef && !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), checkTypeName ,dto.getIdentity())) {
+                if(!hasRef && !this.isEnableInDTO(this.eCoreModel, dto.getMetaInfo(), f, checkTypeName ,dto.getIdentity())) {
                     // disable check
                     //f.getAnnotationMap().put("disable", Annotation.create("disable"));
                     continue;
@@ -339,6 +355,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 if(!isConvertFromEntity)
                     continue;
 
+                /***********************
                 try {
                     List<ModelRelationship> byFromNameAndType = relMgr.findByFromNameAndType(typeName, RelationType.TEMPLATE_TO);
                     if (byFromNameAndType != null && byFromNameAndType.size() == 1) {
@@ -349,6 +366,7 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
                 }catch (Throwable e){
                     e.printStackTrace();
                 }
+                 *************************/
 
 
             }

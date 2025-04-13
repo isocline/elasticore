@@ -109,6 +109,8 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
                             boolean isProcess = true;
 
+                            String newFieldType = field.getTypeInfo().getDefaultTypeName();
+
                             if(!fieldTypeInfo.isList()) {
                                 // 20241213 Enum 을 선별할기 전까지
                                 //if(ctx.getEnumModelItems().findByName(fieldTypeInfo.getInitTypeInfo())!=null)
@@ -119,6 +121,14 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                                 isProcess = true;
                             }else {
                                 isProcess = false;
+
+                                String dtoType = field.getAnnotationValue(EntityAnnotation.DTO_TYPE);
+                                if(StringUtils.hasValue(dtoType)) {
+                                    newFieldType = dtoType;
+                                    isProcess = true;
+                                }
+
+
                             }
 
                             if(isProcess) {
@@ -131,7 +141,7 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
                                         Field.builder()
                                                 .name(field.getName())
                                                 .parentMetaInfo(metaInfo)
-                                                .type(field.getTypeInfo().getDefaultTypeName())
+                                                .type(newFieldType)
                                                 .annotationMap(annotationMap).build()
                                 );
 

@@ -24,6 +24,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,17 +56,32 @@ public class ArticleController {
     public ResponseEntity<?> case1() {
 
         //Specification where = Q.Article.board().getBoardType().where(Op.EQ, BoardType.PUBLIC);
-        Specification where = Q.Article.board().boardType(Op.IN, List.of(BoardType.PUBLIC) );
+
+        Q.$Article<Article> q = Q.Article;
 
 
-        List<Article> all = repositoryHelper.getArticle().findAll(where);
 
+
+        Specification<Article> where = Q.Article.board().boardType(Op.IN, List.of(BoardType.PUBLIC) )
+                .and(Q.Article.content(Op.LIKE,"test"));
+
+
+        List<Article> all2 = repositoryHelper.getArticle().findAll(where);
+
+        Specification<Article> test = q.content(Op.LIKE, "test")
+                .and(q.createDate(Op.GT, LocalDateTime.now().minusHours(23)))
+                .and(q.board().boardType(Op.IN, List.of(BoardType.PUBLIC)));
+
+
+        List<Article> all = repositoryHelper.getArticle().findAll(test);
+
+        List<ArticleDTO> articleDTOList = BbsMapper.toArticleDTOList(all);
 
 
 
         //ArticleSrchDTO build = ArticleSrchDTO.builder().boardBid(1L).build();
 
-        return ResponseEntity.ok(all);
+        return ResponseEntity.ok(articleDTOList);
     }
 
 

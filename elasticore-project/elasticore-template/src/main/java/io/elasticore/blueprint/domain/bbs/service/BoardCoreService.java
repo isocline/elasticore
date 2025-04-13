@@ -5,15 +5,13 @@ import io.elasticore.blueprint.domain.bbs.entity.*;
 import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.blueprint.domain.bbs.repository.*;
 
+import io.elasticore.springboot3.mapper.MappingContext;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,14 +25,14 @@ import java.lang.reflect.Field;
 
 /**
  * Comprehensive service layer for managing Board entities.
- *
+ * <p>
  * Provides full CRUD operations, dynamic search with specification support,
  * pagination, sorting, and advanced query functions such as min/max/sum.
  * Delegates repository operations via BbsRepositoryHelper.
- *
+ * <p>
  * Modify this code only as specified in the ElastiCORE guidelines
  * to avoid regeneration conflicts.
- *
+ * <p>
  * Generated and managed by ElastiCORE.
  */
 
@@ -52,7 +50,7 @@ public class BoardCoreService {
      */
     public List<BoardDTO> findAll() {
         return helper.getBoard().findAll().stream()
-                 
+
                 .map(BbsMapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -66,7 +64,7 @@ public class BoardCoreService {
      */
     public List<BoardDTO> findAll(Sort sort) {
         return helper.getBoard().findAll(sort).stream()
-                 
+
                 .map(BbsMapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -85,8 +83,6 @@ public class BoardCoreService {
     }
 
 
-
-
     /**
      * Finds a list of Board entities that match the given search criteria
      * and returns them as a list of BoardDTO objects.
@@ -99,14 +95,14 @@ public class BoardCoreService {
     public List<BoardDTO> listBySearch(BoardSrchDTO searchDTO) {
         Specification<Board> specification = BbsMapper.toSpec(searchDTO);
         Sort sort = searchDTO.getSort();
-        if(sort ==null) {
+        if (sort == null) {
             return helper.getBoard().findAll(specification).stream()
-                        
-                        .map(BbsMapper::toDTO)
-                        .collect(Collectors.toList());
+
+                    .map(BbsMapper::toDTO)
+                    .collect(Collectors.toList());
         }
         return helper.getBoard().findAll(specification, sort).stream()
-                
+
                 .map(BbsMapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -122,7 +118,16 @@ public class BoardCoreService {
         Specification<Board> specification = BbsMapper.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
         Page<Board> result = helper.getBoard().findAll(specification, pageable);
-        return result.map(BbsMapper::toDTO);
+        return result.map(e -> BbsMapper.toDTO(e, MappingContext.start(1,
+                        (c) -> {
+                            if (c.getFieldName() == null) return true;
+                            if ("name".equals(c.getFieldName()))
+                                return true;
+                            return false;
+                        }
+                ))
+
+        );
     }
 
     /**
@@ -134,9 +139,9 @@ public class BoardCoreService {
      */
     public BoardDTO findFirstBySearch(BoardSrchDTO searchDTO) {
         searchDTO.setPageSize(1);
-        Page<BoardDTO> pages= findBySearch(searchDTO);
-        List<BoardDTO> list=pages.getContent();
-        if(list==null || list.size()==0)
+        Page<BoardDTO> pages = findBySearch(searchDTO);
+        List<BoardDTO> list = pages.getContent();
+        if (list == null || list.size() == 0)
             return null;
         return list.get(0);
     }
@@ -152,6 +157,7 @@ public class BoardCoreService {
         Specification<Board> specification = BbsMapper.toSpec(searchDTO);
         return helper.getBoard().count(specification);
     }
+
     /**
      * Finds a Board entity by its ID and converts it to a BoardDTO.
      *
@@ -172,8 +178,7 @@ public class BoardCoreService {
      */
     public BoardDTO save(BoardDTO dto) {
         Board entity = BbsMapper.toEntity(dto);
-        
-    
+
 
         Board result = helper.getBoard().save(entity);
         return BbsMapper.toDTO(result);
@@ -188,11 +193,9 @@ public class BoardCoreService {
      */
     public BoardDTO update(BoardDTO dto) {
         Board entity = helper.getBoard().findById(dto.getBid()).orElse(null);
-        if(entity==null)
+        if (entity == null)
             throw new EntityNotFoundException("Invalid BoardDTO ID");
         BbsMapper.mapping(dto, entity, true);
-        
-    
 
 
         Board result = helper.getBoard().save(entity);
@@ -205,7 +208,7 @@ public class BoardCoreService {
      *
      * @param dtoList the list of Board representing the entities to delete
      * @return a list of boolean values where each value represents the deletion success (true) or failure (false)
-     *         for the corresponding ContractRelated entity
+     * for the corresponding ContractRelated entity
      */
     public List<Boolean> delete(List<BoardKeyDTO> dtoList) {
         List<Boolean> result = new ArrayList<>();
@@ -226,9 +229,6 @@ public class BoardCoreService {
         helper.getBoard().deleteById(bid);
         return !helper.getBoard().existsById(bid);
     }
-
-
-
 
 
     /**
@@ -266,7 +266,8 @@ public class BoardCoreService {
                 Object value = field.get(dto);
                 if (value != null)
                     update.set(root.get(field.getName()), value);
-            } catch (IllegalAccessException e) { }
+            } catch (IllegalAccessException e) {
+            }
         }
         Predicate predicate = spec.toPredicate(root, cb.createQuery(Board.class), cb);
         if (predicate == null)

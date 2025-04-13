@@ -19,11 +19,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLException;
+import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,8 +115,22 @@ public class HttpApiClient {
         WebClient.RequestBodyUriSpec requestSpec = webClient.method(httpMethod);
 
         if (httpMethod == HttpMethod.GET) {
-            return configureRequest(requestSpec.uri(uriBuilder -> uriBuilder.path(path)
-                    .queryParams(getQueryParamConvert(sendObj)).build()), sendObj, headerMapList, mediaType)
+            URI inputUri = URI.create(path); // path가 "/v1/catalogs/bmw/cars2/?modelId=xxx&page=1" 형태여도 OK
+            String pathOnly = inputUri.getPath(); // "/v1/catalogs/bmw/cars2"
+
+            // 기존 sendObj로부터 추출한 쿼리 파라미터와, path에 포함된 쿼리 파라미터 병합
+            MultiValueMap<String, String> mergedParams = new LinkedMultiValueMap<>();
+            mergedParams.addAll(UriComponentsBuilder.fromUri(inputUri).build().getQueryParams()); // path의 쿼리
+            mergedParams.addAll(getQueryParamConvert(sendObj)); // sendObj에서 추출한 쿼리
+
+            return configureRequest(requestSpec.uri(uriBuilder -> {
+                URI uri = uriBuilder
+                        .path(pathOnly)
+                        .queryParams(mergedParams)
+                        .build();
+                log.debug("HTTP[GET] URI: {}", uri);
+                return uri;
+            }), sendObj, headerMapList, mediaType)
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse.bodyToMono(String.class)
                             .map(body -> new WebClientException(clientResponse.statusCode().value(), body)))

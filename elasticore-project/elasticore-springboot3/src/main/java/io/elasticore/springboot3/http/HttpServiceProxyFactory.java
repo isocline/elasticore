@@ -12,18 +12,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
+import java.io.FileNotFoundException;
+import java.lang.reflect.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,21 +85,149 @@ public class HttpServiceProxyFactory {
         private List<Map<String, String>> getHeaderMapList() {
             List<Map<String, String>> headerMapList = new ArrayList<>();
             Map<String, String> header = new HashMap<>();
-            header.put("Cookie", "_ga="); // for SFA
+           //header.put("Cookie", "_ga="); // for SFA
 
-            String apiKey = environment.getProperty("external.services." + this.externalService.id() + ".apiKey", "");
+
+            String authKey = environment.getProperty(this.externalService.id() + ".authKey"
+                    , this.externalService.authKey());
+            if(authKey!=null && authKey.length()>0) {
+                header.put("Authorization" ,authKey);
+            }
+
+            String apiKey = environment.getProperty(  this.externalService.id() + ".apiKey", "");
 
             if (apiKey != null && !apiKey.isEmpty()) {
-
-                header.put("Authorization", "Bearer " + apiKey);
-                headerMapList.add(header);
+                String authorization = header.put("Authorization", "Bearer " + apiKey);
             }
+            headerMapList.add(header);
+
+
 
             return headerMapList;
         }
-
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            Object preset = presetMethod(proxy, method, args);
+            if (preset != null)
+                return preset;
+
+            HttpEndpoint endpoint = method.getAnnotation(HttpEndpoint.class);
+            HttpMethod httpMethod = getHttpMethod(endpoint);
+            String callUrl = endpoint.url();
+            String contentType = endpoint.contentType();
+            String svrUrl = environment.getProperty(this.externalService.id() + ".url", this.externalService.url());
+            List<Map<String, String>> header = getHeaderMapList();
+
+            // paramNames 처리
+            String keyNames = endpoint.paramNames(); // e.g., "catalogId,modelId"
+            String[] paramNames = keyNames != null ? keyNames.split(",") : new String[0];
+
+            Map<String, Object> pathParams = new HashMap<>();
+            Map<String, Object> queryParams = new LinkedHashMap<>();
+            Object mainReqObject = null;
+            HttpAuthProvider authProvider = null;
+
+            if(args!=null) {
+                for (int i = 0; i < args.length; i++) {
+                    Object arg = args[i];
+
+                    if (arg instanceof HttpAuthProvider) {
+                        authProvider = (HttpAuthProvider) arg;
+                        continue;
+                    }
+
+                    String paramName = (i < paramNames.length) ? paramNames[i].trim() : "arg" + i;
+
+                    if (isPrimitiveOrWrapper(arg)) {
+                        if (callUrl.contains("{" + paramName + "}")) {
+                            pathParams.put(paramName, arg);
+                        } else {
+                            queryParams.put(paramName, arg);
+                        }
+                    } else {
+                        // Non-primitive 객체는 본문 객체로 설정
+                        mainReqObject = arg;
+                    }
+                }
+            }
+
+
+            // authProvider가 없으면 스프링 컨텍스트에서 가져옴
+            if (authProvider == null && getApplicationContext() != null) {
+                String authProviderBeanId = this.externalService.id() + ".httpAuthProvider";
+                try {
+                    authProvider = (HttpAuthProvider) getApplicationContext().getBean(authProviderBeanId);
+                } catch (BeansException | ClassCastException ex) {
+                    logger.warn(authProviderBeanId + " is not a valid HttpAuthProvider.");
+                }
+            }
+
+            // Path 변수 치환
+            for (Map.Entry<String, Object> entry : pathParams.entrySet()) {
+                callUrl = callUrl.replace("{" + entry.getKey() + "}", entry.getValue() != null ? entry.getValue().toString() : "");
+            }
+
+            // 매칭되지 않은 path 변수는 빈 값으로
+            callUrl = callUrl.replaceAll("\\{[^/]+}", "");
+
+            // GET 메소드일 경우 query param 추가
+            if (httpMethod == HttpMethod.GET && !queryParams.isEmpty()) {
+                String queryString = queryParams.entrySet().stream()
+                        .map(e -> e.getKey() + "=" + (e.getValue() != null ? e.getValue().toString() : ""))
+                        .collect(Collectors.joining("&"));
+
+                if (callUrl.contains("?")) {
+                    callUrl += "&" + queryString;
+                } else {
+                    callUrl += "?" + queryString;
+                }
+
+                // GET 방식이며 본문 객체 없고 path param도 없으면 mainReqObject로 전달
+                /*
+                if (mainReqObject == null && !callUrl.contains("{")) {
+                    mainReqObject = queryParams;
+                }
+
+                 */
+            }
+
+            // 응답 타입 정보 구성
+            ParameterizedTypeReference<?> responseType = new ParameterizedTypeReference<Object>() {
+                @Override
+                public Type getType() {
+                    return method.getGenericReturnType();
+                }
+            };
+            logger.debug("HTTP-CALL-PROXY: "+svrUrl+callUrl);
+
+            try {
+                Object response = HttpApiClient.exchange(httpMethod, svrUrl, callUrl,
+                                mainReqObject, responseType, header, authProvider, contentType)
+                        .onErrorMap(WebClientResponseException.class, ex ->
+                                new IllegalStateException("HTTP Error: " + ex.getStatusCode(), ex))
+                        .block();
+
+                return response;
+            }catch (HttpApiClient.WebClientException we) {
+                we.printStackTrace();
+                //throw new FileNotFoundException("xx");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "API 호출 실패: " + we.getMessage(), we);
+            }
+        }
+
+        // Helper: Checks if the object is primitive or a wrapper/string
+        private boolean isPrimitiveOrWrapper(Object obj) {
+            if (obj == null) return false;
+            Class<?> clazz = obj.getClass();
+            return clazz.isPrimitive()
+                    || clazz == String.class
+                    || Number.class.isAssignableFrom(clazz)
+                    || clazz == Boolean.class
+                    || clazz == Character.class;
+        }
+
+
+        public Object invoke_old(Object proxy, Method method, Object[] args) throws Throwable {
 
             Object preset = presetMethod(proxy, method, args);
             if (preset != null)
@@ -127,6 +252,8 @@ public class HttpServiceProxyFactory {
                     , this.externalService.url());
 
             List<Map<String, String>> header = getHeaderMapList();
+
+
 
             String callUrl = endpoint.url();
 

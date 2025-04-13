@@ -371,7 +371,7 @@ public class AbstractModelLoader implements ConstanParam {
         int p =type.indexOf("!");
         if(p>0) {
             type = type.replace("!", "");
-            fieldLine = fieldLine +" @notnull";
+            fieldLine = "@notnull "+ fieldLine;
         }
         // for length
         int p2 =type.indexOf("(");

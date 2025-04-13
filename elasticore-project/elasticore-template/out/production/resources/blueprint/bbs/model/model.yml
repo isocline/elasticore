@@ -24,7 +24,8 @@ entity:
       bid: long @id @sequence -- 게시판 아이디
       name: string -- 게시판 명
       boardType: BoardType -- 게시판 타입
-      articles: List<Article>
+      articles: List<Article> @dtype(List<ArticleDTO>)
+
       
  
   Article:

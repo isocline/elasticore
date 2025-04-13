@@ -186,6 +186,8 @@ public interface EntityAnnotation {
 
     String[] ONE_TO_ONE = new String[]{"onetoone"};
 
+    String[] MANY_TO_MANY = new String[]{"manytomany"};
+
 
     String[] NOT_NULL = new String[]{"notnull" ,"notblank" ,"required"};
 
@@ -197,4 +199,7 @@ public interface EntityAnnotation {
     String[] EMBEDDED_PREFIX = new String[] {"embedded.prefix", "embedded"};
 
     String[] PRIMITIVE = new String[]{"primitive", "prim"};
+
+
+    String[] DTO_TYPE = new String[]{"dtotype", "dtype"};
 }

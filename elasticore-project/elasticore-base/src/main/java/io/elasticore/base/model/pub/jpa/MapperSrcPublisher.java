@@ -673,7 +673,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
                         checkTypeName = coreType;
                     }
 
-                    if( !this.isEnableInDTO(model, toModel.getMetaInfo(), checkTypeName ,toModel.getIdentity()))
+                    if( !this.isEnableInDTO(model, toModel.getMetaInfo(), f, checkTypeName ,toModel.getIdentity()))
                         continue;
 
                 }
