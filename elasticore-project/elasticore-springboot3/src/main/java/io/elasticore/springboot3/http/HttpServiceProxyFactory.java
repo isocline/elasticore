@@ -13,6 +13,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -101,8 +102,6 @@ public class HttpServiceProxyFactory {
             }
             headerMapList.add(header);
 
-
-
             return headerMapList;
         }
         @Override
@@ -118,7 +117,6 @@ public class HttpServiceProxyFactory {
             String svrUrl = environment.getProperty(this.externalService.id() + ".url", this.externalService.url());
             List<Map<String, String>> header = getHeaderMapList();
 
-            // paramNames 처리
             String keyNames = endpoint.paramNames(); // e.g., "catalogId,modelId"
             String[] paramNames = keyNames != null ? keyNames.split(",") : new String[0];
 
@@ -145,14 +143,12 @@ public class HttpServiceProxyFactory {
                             queryParams.put(paramName, arg);
                         }
                     } else {
-                        // Non-primitive 객체는 본문 객체로 설정
                         mainReqObject = arg;
                     }
                 }
             }
 
 
-            // authProvider가 없으면 스프링 컨텍스트에서 가져옴
             if (authProvider == null && getApplicationContext() != null) {
                 String authProviderBeanId = this.externalService.id() + ".httpAuthProvider";
                 try {
@@ -162,15 +158,12 @@ public class HttpServiceProxyFactory {
                 }
             }
 
-            // Path 변수 치환
             for (Map.Entry<String, Object> entry : pathParams.entrySet()) {
                 callUrl = callUrl.replace("{" + entry.getKey() + "}", entry.getValue() != null ? entry.getValue().toString() : "");
             }
 
-            // 매칭되지 않은 path 변수는 빈 값으로
             callUrl = callUrl.replaceAll("\\{[^/]+}", "");
 
-            // GET 메소드일 경우 query param 추가
             if (httpMethod == HttpMethod.GET && !queryParams.isEmpty()) {
                 String queryString = queryParams.entrySet().stream()
                         .map(e -> e.getKey() + "=" + (e.getValue() != null ? e.getValue().toString() : ""))
@@ -182,7 +175,6 @@ public class HttpServiceProxyFactory {
                     callUrl += "?" + queryString;
                 }
 
-                // GET 방식이며 본문 객체 없고 path param도 없으면 mainReqObject로 전달
                 /*
                 if (mainReqObject == null && !callUrl.contains("{")) {
                     mainReqObject = queryParams;
@@ -191,7 +183,6 @@ public class HttpServiceProxyFactory {
                  */
             }
 
-            // 응답 타입 정보 구성
             ParameterizedTypeReference<?> responseType = new ParameterizedTypeReference<Object>() {
                 @Override
                 public Type getType() {
@@ -209,9 +200,10 @@ public class HttpServiceProxyFactory {
 
                 return response;
             }catch (HttpApiClient.WebClientException we) {
-                we.printStackTrace();
+                //we.printStackTrace();
+
                 //throw new FileNotFoundException("xx");
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "API 호출 실패: " + we.getMessage(), we);
+                throw new ResponseStatusException(HttpStatusCode.valueOf(we.getStatus()), "API CALL FAIL: " + we.getMessage(), we);
             }
         }
 

@@ -796,7 +796,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         CodeStringBuilder cb2 = new CodeStringBuilder("{", "}");
 
         cb2.line("public static %s %s(%s from)", toClassNm, toMethodName, fromClassNm).block();
-        cb2.line("return %s(from,MappingContext.start(2,null));",toMethodName);
+        cb2.line("return %s(from,MappingContext.withGuard(2,null));",toMethodName);
         cb2.end();
 
 

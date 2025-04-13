@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'io.elasticore.springboot3'
-version = '1.6.0'
+version = '1.6.0-SNAPSHOT'
 description = 'Spring Boot 3 Common Library'
 
 java {

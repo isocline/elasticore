@@ -64,7 +64,6 @@ public class MappingUtils {
             throw new IllegalArgumentException("Source and target objects must not be null");
         }
 
-        // fieldNames가 null이거나 비어 있으면 자동으로 전체 필드 사용
         List<String> fromNames = new ArrayList<>();
         if (fieldNames == null || fieldNames.isEmpty()) {
             if (from instanceof Map) {
@@ -88,7 +87,6 @@ public class MappingUtils {
             try {
                 Object value;
 
-                // 1. 값 읽기
                 if (from instanceof Map) {
                     value = ((Map<?, ?>) from).get(fromName);
                 } else {
@@ -97,7 +95,6 @@ public class MappingUtils {
                     value = sourceField.get(from);
                 }
 
-                // 2. 값 쓰기
                 if (to instanceof Map) {
                     ((Map<String, Object>) to).put(toName, value);
                 } else {
@@ -111,7 +108,7 @@ public class MappingUtils {
 
                         targetField.set(to, value);
                     } catch (NoSuchFieldException ignore) {
-                        // 대상 필드가 없으면 무시
+
                     }
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {

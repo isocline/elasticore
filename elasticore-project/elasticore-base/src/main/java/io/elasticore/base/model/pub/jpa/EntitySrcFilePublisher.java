@@ -316,6 +316,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         Set<String> namespaceSet = shadowModel.getNamespaceSet();
         for (String ns : namespaceSet) {
             importList.add(ns);
+
+            if(ns.indexOf(".entity.")>0) {
+                String nsQ = ns.replaceAll("\\*$", "") + "Q.*";
+                importList.add(nsQ);
+            }
         }
         p.set("importList", importList);
 

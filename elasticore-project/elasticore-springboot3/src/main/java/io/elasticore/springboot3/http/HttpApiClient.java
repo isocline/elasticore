@@ -115,13 +115,12 @@ public class HttpApiClient {
         WebClient.RequestBodyUriSpec requestSpec = webClient.method(httpMethod);
 
         if (httpMethod == HttpMethod.GET) {
-            URI inputUri = URI.create(path); // path가 "/v1/catalogs/bmw/cars2/?modelId=xxx&page=1" 형태여도 OK
+            URI inputUri = URI.create(path); // path  "/v1/catalogs/bmw/cars2/?modelId=xxx&page=1" OK
             String pathOnly = inputUri.getPath(); // "/v1/catalogs/bmw/cars2"
 
-            // 기존 sendObj로부터 추출한 쿼리 파라미터와, path에 포함된 쿼리 파라미터 병합
             MultiValueMap<String, String> mergedParams = new LinkedMultiValueMap<>();
-            mergedParams.addAll(UriComponentsBuilder.fromUri(inputUri).build().getQueryParams()); // path의 쿼리
-            mergedParams.addAll(getQueryParamConvert(sendObj)); // sendObj에서 추출한 쿼리
+            mergedParams.addAll(UriComponentsBuilder.fromUri(inputUri).build().getQueryParams()); // path query
+            mergedParams.addAll(getQueryParamConvert(sendObj)); // sendObj
 
             return configureRequest(requestSpec.uri(uriBuilder -> {
                 URI uri = uriBuilder
