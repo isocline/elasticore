@@ -1,13 +1,11 @@
 package io.elasticore.base.model.loader.module;
 
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
-import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.dto.DataTransferAnnotation;
-import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.entity.TypeInfo;
@@ -19,7 +17,7 @@ import io.elasticore.base.util.StringUtils;
 
 import java.util.*;
 
-public class DataTransferModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<DataTransfer> {
+public class DataTransferModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<DataTransfer> {
 
 
     public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
@@ -29,13 +27,13 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
 
 
-        if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
-            Map entityMap = map.get(ConstanParam.KEYNAME_DTO);
+        if (map.containsKey(ConstantParam.KEYNAME_DTO)) {
+            Map entityMap = map.get(ConstantParam.KEYNAME_DTO);
             loadModel(ctx, ctx.getDataTransferItems(), entityMap);
         }
 
-        if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {
-            Map entityMap = map.get(ConstanParam.KEYNAME_ENTITY);
+        if (map.containsKey(ConstantParam.KEYNAME_ENTITY)) {
+            Map entityMap = map.get(ConstantParam.KEYNAME_ENTITY);
             loadModel(ctx, ctx.getDataTransferItems(), entityMap);
         }
 
@@ -124,6 +122,8 @@ public class DataTransferModelLoader extends AbstractModelLoader implements Cons
 
                                 String dtoType = field.getAnnotationValue(EntityAnnotation.DTO_TYPE);
                                 if(StringUtils.hasValue(dtoType)) {
+                                    //TypeInfo dtoTypeInfo = new TypeInfo(dtoType);
+
                                     newFieldType = dtoType;
                                     isProcess = true;
                                 }

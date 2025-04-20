@@ -1,6 +1,6 @@
 package io.elasticore.base.model.loader.px;
 
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
@@ -14,18 +14,16 @@ import io.elasticore.base.util.StringUtils;
 import io.elasticore.base.util.XmlUtil;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 
-public class PxDataTransferModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<DataTransfer> {
+public class PxDataTransferModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<DataTransfer> {
 
     private ModelLoaderContext ctx;
 

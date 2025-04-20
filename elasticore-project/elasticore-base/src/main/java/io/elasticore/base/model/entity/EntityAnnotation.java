@@ -201,5 +201,10 @@ public interface EntityAnnotation {
     String[] PRIMITIVE = new String[]{"primitive", "prim"};
 
 
-    String[] DTO_TYPE = new String[]{"dtotype", "dtype"};
+    String[] DTO_TYPE = new String[]{"dtotype", "dtype","dto"};
+
+
+    String[] AUDITED = new String[]{"audited"};
+
+    String[] NOT_AUDITED = new String[]{"notaudited"};
 }

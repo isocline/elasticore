@@ -131,8 +131,12 @@ public class HttpApiClient {
                 return uri;
             }), sendObj, headerMapList, mediaType)
                     .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse.bodyToMono(String.class)
-                            .map(body -> new WebClientException(clientResponse.statusCode().value(), body)))
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
+                            Mono.error(new WebClientException(clientResponse.statusCode().value(), "4xx Client Error"))
+                    )
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
+                            Mono.error(new WebClientException(clientResponse.statusCode().value(), "5xx Server Error"))
+                    )
                     .bodyToMono(responseType);
         } else {
             String[] pathParts = path.split("\\?", 2);
@@ -159,8 +163,12 @@ public class HttpApiClient {
                     mediaType
             )
                     .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse.bodyToMono(String.class)
-                            .map(body -> new WebClientException(clientResponse.statusCode().value(), body)))
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
+                            Mono.error(new WebClientException(clientResponse.statusCode().value(), "4xx Client Error"))
+                    )
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
+                            Mono.error(new WebClientException(clientResponse.statusCode().value(), "5xx Server Error"))
+                    )
                     .bodyToMono(responseType);
         }
     }

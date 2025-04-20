@@ -1,4 +1,4 @@
-//ecd:419329332H20250413000312_V1.0
+//ecd:-1743787281H20250416183418_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
+import io.elasticore.blueprint.domain.parts.dto.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 

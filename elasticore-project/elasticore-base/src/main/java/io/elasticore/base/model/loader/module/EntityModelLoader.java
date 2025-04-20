@@ -1,31 +1,26 @@
 package io.elasticore.base.model.loader.module;
 
-import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
 import io.elasticore.base.model.entity.Field;
-import io.elasticore.base.model.enums.EnumConstant;
-import io.elasticore.base.model.enums.EnumModel;
 import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-public class EntityModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Entity> {
+public class EntityModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<Entity> {
 
     public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
         return loadModel(ctx, source.getInfoMap());
     }
 
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
-        if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {
-            Map entityMap = map.get(ConstanParam.KEYNAME_ENTITY);
+        if (map.containsKey(ConstantParam.KEYNAME_ENTITY)) {
+            Map entityMap = map.get(ConstantParam.KEYNAME_ENTITY);
 
             loadModel(ctx, ctx.getEntityItems(), entityMap);
             return true;
@@ -51,7 +46,7 @@ public class EntityModelLoader extends AbstractModelLoader implements ConstanPar
 
     protected Entity loadEntity(ModelLoaderContext ctx, String entityNm, Map<String, Object> entityMap) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap , ConstanParam.KEYNAME_ENTITY, entityNm);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap , ConstantParam.KEYNAME_ENTITY, entityNm);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;

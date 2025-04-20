@@ -1,4 +1,4 @@
-//ecd:-1595799032H20250412203017_V1.0
+//ecd:510599727H20250416202052_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -7,6 +7,7 @@ import io.elasticore.springboot3.entity.*;
 import org.springframework.data.jpa.domain.Specification;
 import java.util.*;
 import io.elasticore.blueprint.domain.parts.entity.*;
+import io.elasticore.blueprint.domain.parts.entity.Q.*;
 
 
 /**
@@ -94,16 +95,6 @@ public class Q {
 	    public final String modelName="modelName";
 	    public Specification<T> modelName(Op op,Object value) {return getModelName().where(op,value);}
 	    public Specification<T> modelName(Op op,Object value,boolean chkEmpty) {return getModelName().where(op,value,chkEmpty);}
-	
-	    public final FieldInfo<T> getVin() {return new FieldInfo(CarInfo.class,"vin",String.class, null,p);}
-	    public final String vin="vin";
-	    public Specification<T> vin(Op op,Object value) {return getVin().where(op,value);}
-	    public Specification<T> vin(Op op,Object value,boolean chkEmpty) {return getVin().where(op,value,chkEmpty);}
-	
-	    public final FieldInfo<T> getFrame() {return new FieldInfo(CarInfo.class,"frame",String.class, null,p);}
-	    public final String frame="frame";
-	    public Specification<T> frame(Op op,Object value) {return getFrame().where(op,value);}
-	    public Specification<T> frame(Op op,Object value,boolean chkEmpty) {return getFrame().where(op,value,chkEmpty);}
 	
 	    public final FieldInfo<T> getCriteria() {return new FieldInfo(CarInfo.class,"criteria",String.class, null,p);}
 	    public final String criteria="criteria";
@@ -203,6 +194,28 @@ public class Q {
 	    public final String carId="carId";
 	    public Specification<T> carId(Op op,Object value) {return getCarId().where(op,value);}
 	    public Specification<T> carId(Op op,Object value,boolean chkEmpty) {return getCarId().where(op,value,chkEmpty);}
+	}
+	
+	public static $CarProfile<CarProfile> CarProfile=new $CarProfile<>();
+	public static class $CarProfile<T> {
+	
+	    private FieldInfo p=null;
+	    public $CarProfile() {}
+	    public $CarProfile(FieldInfo p) {this.p=p;}
+	
+	    public final FieldInfo<T> getVin() {return new FieldInfo(CarProfile.class,"vin",String.class, null,p);}
+	    public final String vin="vin";
+	    public Specification<T> vin(Op op,Object value) {return getVin().where(op,value);}
+	    public Specification<T> vin(Op op,Object value,boolean chkEmpty) {return getVin().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getFrame() {return new FieldInfo(CarProfile.class,"frame",String.class, null,p);}
+	    public final String frame="frame";
+	    public Specification<T> frame(Op op,Object value) {return getFrame().where(op,value);}
+	    public Specification<T> frame(Op op,Object value,boolean chkEmpty) {return getFrame().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getCarInfo() {return new FieldInfo(CarProfile.class,"carInfo",CarInfo.class, null,p);}
+	    public final String carInfo="carInfo";
+	    public final $CarInfo<T> carInfo() {return new $CarInfo(getCarInfo());}
 	}
 	
 }

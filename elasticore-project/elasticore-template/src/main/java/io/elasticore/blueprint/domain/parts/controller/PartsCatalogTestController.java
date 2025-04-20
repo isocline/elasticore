@@ -57,6 +57,8 @@ public class PartsCatalogTestController {
         return ResponseEntity.ok(resultList);
     }
 
+
+    @Tag(name = "2. Cars")
     @GetMapping("/{catalogId}/cars/{carId}")
     @Operation(summary = "Get car detail", description = "Retrieve car info by catalog and car ID")
     public ResponseEntity<CarInfoDTO> getCarInfo(
@@ -66,6 +68,7 @@ public class PartsCatalogTestController {
         return ResponseEntity.ok(item);
     }
 
+    @Tag(name = "2. Cars")
     @GetMapping("/{catalogId}/parameters")
     @Operation(summary = "Get car parameters", description = "Retrieve parameters for a given catalog and modelIf")
     public ResponseEntity<Map<String, Object>> getCarParams(
@@ -74,10 +77,13 @@ public class PartsCatalogTestController {
         return ResponseEntity.ok(partsCatalogAdapter.getCarParams(catalogId, modelIf));
     }
 
+    @Tag(name = "2. Cars")
     @GetMapping("/vin")
     @Operation(summary = "Get car info by VIN", description = "Search car info by VIN number")
     public ResponseEntity<List<?>> getCarInfoByVIN(@RequestParam("q") String vin) {
-        return ResponseEntity.ok(partsCatalogAdapter.getCarInfoByVIN(vin));
+
+        List<CarProfileInfoDTO> result =partsCatalogsService.findVin(vin);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{catalogId}/groups")

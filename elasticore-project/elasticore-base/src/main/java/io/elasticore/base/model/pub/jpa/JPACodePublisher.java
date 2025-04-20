@@ -4,7 +4,7 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponent;
 import io.elasticore.base.model.ModelComponentItems;
@@ -60,13 +60,13 @@ public class JPACodePublisher implements CodePublisher {
 
     @Override
     public boolean deleteSource(ModelDomain domain, String rootDir) {
-        String entityNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_ENTITY);
+        String entityNs = domain.getModel().getNamespace(ConstantParam.KEYNAME_ENTITY);
 
-        String dtoNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_DTO);
-        String enumNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_ENUMERATION);
-        String repoNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_REPOSITORY);
-        String svcNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_SERVICE);
-        String controlNs = domain.getModel().getNamespace(ConstanParam.KEYNAME_CONTROL);
+        String dtoNs = domain.getModel().getNamespace(ConstantParam.KEYNAME_DTO);
+        String enumNs = domain.getModel().getNamespace(ConstantParam.KEYNAME_ENUMERATION);
+        String repoNs = domain.getModel().getNamespace(ConstantParam.KEYNAME_REPOSITORY);
+        String svcNs = domain.getModel().getNamespace(ConstantParam.KEYNAME_SERVICE);
+        String controlNs = domain.getModel().getNamespace(ConstantParam.KEYNAME_CONTROL);
 
 
         deleteFilesWithEcdStart( rootDir + convertToFilePath(entityNs) );

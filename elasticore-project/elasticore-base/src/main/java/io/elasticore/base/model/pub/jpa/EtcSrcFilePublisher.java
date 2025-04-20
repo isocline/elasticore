@@ -21,16 +21,7 @@ package io.elasticore.base.model.pub.jpa;
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
-import io.elasticore.base.model.core.Annotation;
-import io.elasticore.base.model.core.ListMap;
-import io.elasticore.base.model.dto.DataTransfer;
-import io.elasticore.base.model.entity.Entity;
-import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.util.CodeTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Handles the publishing of source files for entities.
@@ -64,10 +55,10 @@ public class EtcSrcFilePublisher extends SrcFilePublisher {
     public void publish(ModelDomain domain) {
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
 
-        if(model.getNamespace(ConstanParam.KEYNAME_ENTITY) == null)
+        if(model.getNamespace(ConstantParam.KEYNAME_ENTITY) == null)
             return;
 
-        String packageNm = model.getNamespace(ConstanParam.KEYNAME_DTO);
+        String packageNm = model.getNamespace(ConstantParam.KEYNAME_DTO);
 
         publishSrcFile(packageNm, "PageableObject", "template.etc.PageableObject", "java_PageableObject.tmpl");
         publishSrcFile(packageNm, "SortableObject", "template.etc.SortableObject" ,"java_SortableObject.tmpl");

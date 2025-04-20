@@ -8,8 +8,7 @@ import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import io.elasticore.base.model.ConstanParam;
-import io.elasticore.base.model.MetaInfo;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Entity;
@@ -18,16 +17,14 @@ import io.elasticore.base.model.loader.FileSource;
 import io.elasticore.base.model.loader.ModelLoader;
 import io.elasticore.base.model.loader.ModelLoaderContext;
 import io.elasticore.base.model.loader.module.AbstractModelLoader;
-import io.elasticore.base.util.ConsoleLog;
 import lombok.SneakyThrows;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class JavaSrcEntityModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Entity> {
+public class JavaSrcEntityModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<Entity> {
 
 
     @SneakyThrows

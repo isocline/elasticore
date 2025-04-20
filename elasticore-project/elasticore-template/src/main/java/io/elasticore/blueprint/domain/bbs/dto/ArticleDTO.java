@@ -1,4 +1,4 @@
-//ecd:-173749601H20250411121609_V1.0
+//ecd:-886307913H20250417102657_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
 import java.time.*;
 import io.elasticore.blueprint.domain.bbs.dto.*;
+import io.elasticore.blueprint.domain.parts.dto.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -36,8 +37,17 @@ public  class ArticleDTO  implements java.io.Serializable  {
 	@Schema(description = "board"  )
 	private BoardDTO board;
 	
+	@Schema(description = "carInfo"  )
+	private CarInfoDTO carInfo;
+	
 	@Schema(description = "boardBid"  )
 	private Long boardBid;
+	
+	@Schema(description = "typeInfoTid"  )
+	private Long typeInfoTid;
+	
+	@Schema(description = "carInfoId"  )
+	private String carInfoId;
 	
 	@Schema(description = "aid"  )
 	private String aid;

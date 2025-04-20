@@ -16,20 +16,19 @@ port:
     methods:
 
       getCatalogs:
-        meta: method @get("/v1/catalogs/")
+        meta: method @get("/v1/catalogs/") -- 차량 카탈로그(브랜드) 목록 정보
         params:
-
         return: java.util.List
 
       getCarModelList:
-        meta: method @get("/v1/catalogs/{catalogId}/models") -- 차량 모델 정보
+        meta: method @get("/v1/catalogs/{catalogId}/models") -- 브랜드별 차량 모델 목록 정보
         params:
           catalogId: String
         return: java.util.List<PartInfo>
 
 
       getCarInfoList:
-        meta: method @get("/v1/catalogs/{catalogId}/cars2")
+        meta: method @get("/v1/catalogs/{catalogId}/cars2") -- 모델별 차량 목록 정보
         params:
           catalogId: String
           modelId: string
@@ -37,21 +36,21 @@ port:
         return: java.util.List
 
       getCarInfo:
-        meta: method @get("/v1/catalogs/{catalogId}/cars2/{carId}")
+        meta: method @get("/v1/catalogs/{catalogId}/cars2/{carId}") -- 차량 상세 정보
         params:
           catalogId: String
           carId: string
         return: java.util.Map
 
       getCarParams:
-        meta: method @get("/v1/catalogs/{catalogId}/cars-parameters")
+        meta: method @get("/v1/catalogs/{catalogId}/cars-parameters") -- 차량 파라미터 정보
         params:
           catalogId: String -- Catalog id
           modelIf: string -- Model id
         return: java.util.Map
 
       getCarInfoByVIN:
-        meta: method @get("/v1/car/info")
+        meta: method @get("/v1/car/info") -- 대차 번호별 정보
         params:
           q: String -- VIN or FRAME
         return: java.util.List

@@ -833,4 +833,38 @@ public class SrcFilePublisher {
 
         return null;
     }
+
+    protected String getNamespace(String typeName) {
+        return getNamespace(typeName, null);
+    }
+
+    protected String getNamespace(String typeName, String componentType) {
+        DataModelComponent modelComponent = BaseECoreModelContext.getContext().findModelComponent(typeName);
+
+        if (modelComponent != null) {
+
+
+            String domainId = modelComponent.getIdentity().getDomainId();
+
+            if(componentType==null || componentType.isEmpty())
+                componentType = modelComponent.getIdentity().getComponentType().getName();
+
+            String ns = BaseECoreModelContext.getContext().getDomain(domainId).getModel()
+                    .getNamespace(componentType);
+            return ns;
+        }
+        return null;
+    }
+
+    protected void storeRefEntityInfo(String baseEntityName, String typEntityName) {
+        if(findEntityByName(typEntityName)==null) return;
+
+        String baseNS = getNamespace(baseEntityName);
+
+        String typeNs = getNamespace(typEntityName);
+        if(!baseNS.equals(typeNs)) {
+            this.publisher.getECoreModelContext().getDomain().getModel().addExternalEntity(typEntityName);
+        }
+
+    }
 }

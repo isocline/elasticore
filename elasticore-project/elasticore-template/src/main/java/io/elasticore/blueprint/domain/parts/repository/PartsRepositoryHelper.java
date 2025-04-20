@@ -1,4 +1,4 @@
-//ecd:-289018269H20250410161600_V1.0
+//ecd:-1781541365H20250416200627_V1.0
 package io.elasticore.blueprint.domain.parts.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -57,6 +57,8 @@ public class PartsRepositoryHelper {
     private final ParamInfoRepository paramInfo;
     
     private final PartGroupRepository partGroup;
+    
+    private final CarProfileRepository carProfile;
     
 
 

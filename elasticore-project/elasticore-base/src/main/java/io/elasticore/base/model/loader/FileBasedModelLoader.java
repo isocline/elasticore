@@ -1,7 +1,7 @@
 package io.elasticore.base.model.loader;
 
 import io.elasticore.base.ModelLoader;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.dto.DataTransfer;
 import io.elasticore.base.model.entity.Entity;
@@ -23,7 +23,7 @@ import io.elasticore.base.util.ConsoleLog;
 import java.io.File;
 import java.util.*;
 
-public class FileBasedModelLoader implements ModelLoader, ConstanParam {
+public class FileBasedModelLoader implements ModelLoader, ConstantParam {
 
     private static FileBasedModelLoader instance;
 

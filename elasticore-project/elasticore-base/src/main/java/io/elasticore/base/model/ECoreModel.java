@@ -36,7 +36,39 @@ public class ECoreModel {
 
     private Map<String, String> namespaceMap;
 
+    private Set<String> externalEntities;
+
     private static Map<String, ShadowModel> shadowModelMap = null;
+
+
+
+    /**
+     * Adds a non-null, non-empty entity name to the external entity set.
+     *
+     * @param entity the entity name to add
+     * @return true if the entity was added, false if it was null, empty, or already present
+     */
+    public boolean addExternalEntity(String entity) {
+        if (entity == null || entity.trim().isEmpty()) {
+            return false;
+        }
+        if(externalEntities==null)
+            externalEntities = new HashSet<>();
+        return externalEntities.add(entity.trim());
+    }
+
+    /**
+     * Returns a snapshot of the external entity names as a String array.
+     *
+     * @return a new array containing all external entity names
+     */
+    public String[] getExternalEntitiesAsArray() {
+        if(externalEntities==null)
+            return new String[0];
+        return externalEntities.toArray(new String[0]);
+    }
+
+
 
     public String getConfig(String key, String defualtValue) {
         String val = getConfig(key);

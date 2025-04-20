@@ -2,7 +2,7 @@ package io.elasticore.base.model.pub.mongodb;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Items;
@@ -42,12 +42,12 @@ public class RepositoryFilePublisher extends SrcFilePublisher {
         this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
-        this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
-        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_REPOSITORY);
+        this.entityPackageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
+        this.dtoPackageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
 
         if(model.getEnumModels().getItems().size()>0)
-            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+            this.enumPackageName = model.getNamespace(ConstantParam.KEYNAME_ENUMERATION);
         else
             this.enumPackageName = null;
 

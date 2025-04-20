@@ -1,6 +1,6 @@
 package io.elasticore.base.model;
 
-public interface ConstanParam {
+public interface ConstantParam {
 
 
     String KEYNAME_BASE = "base";

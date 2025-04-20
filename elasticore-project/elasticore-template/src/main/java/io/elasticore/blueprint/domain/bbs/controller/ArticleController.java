@@ -6,6 +6,7 @@ import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.blueprint.domain.bbs.entity.Article;
 import io.elasticore.blueprint.domain.bbs.entity.Q;
 import io.elasticore.blueprint.domain.bbs.enums.BoardType;
+import io.elasticore.blueprint.domain.bbs.port.CandleDbPort;
 import io.elasticore.blueprint.domain.bbs.repository.BbsRepositoryHelper;
 import io.elasticore.blueprint.domain.bbs.service.*;
 
@@ -50,6 +51,17 @@ public class ArticleController {
     private final ArticleService articleService;
 
     private final BbsRepositoryHelper repositoryHelper;
+
+
+    private final CandleDbPort candleDbPort;
+
+    @PostMapping("/findMaxPrice")
+    public Object searchDB(@RequestBody MaxPriceRequest req) {
+        MaxPriceResult maxPriceByMarket = candleDbPort.findMaxPriceByMarket(req);
+
+        return maxPriceByMarket;
+
+    }
 
 
     @GetMapping("/case1")

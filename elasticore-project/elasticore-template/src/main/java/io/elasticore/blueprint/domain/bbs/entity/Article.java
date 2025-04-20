@@ -1,4 +1,4 @@
-//ecd:-1564662960H20250410094431_V1.0
+//ecd:738739653H20250419002748_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -10,8 +10,10 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
+import io.elasticore.blueprint.domain.parts.entity.*;
 import io.elasticore.blueprint.domain.bbs.entity.*;
 import jakarta.persistence.Entity;
 
@@ -34,6 +36,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class Article extends AuditEntity implements java.io.Serializable  {
 
+	public Article(String aid) {
+	    this.aid = aid;
+	}
+	
 	@Id
 	@Column(name = "aid")
 	private String aid;
@@ -69,6 +75,16 @@ public  class Article extends AuditEntity implements java.io.Serializable  {
 	@ManyToOne
 	@JoinColumn(columnDefinition = "board_id")
 	private Board board;
+	
+	
+	@ManyToOne
+	@JoinColumn(columnDefinition = "typeInfo_id")
+	private TypeInfo typeInfo;
+	
+	
+	@ManyToOne
+	@JoinColumn(columnDefinition = "carInfo_id")
+	private CarInfo carInfo;
 	
 	
 }

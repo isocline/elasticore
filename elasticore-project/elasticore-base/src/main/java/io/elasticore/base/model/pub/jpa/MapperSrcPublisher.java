@@ -56,17 +56,17 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         this.relationshipManager = RelationshipManager.getInstance(modelDomain.getName());
 
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_MAPPER);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_MAPPER);
         if (this.packageName == null) {
-            if(model.getNamespace(ConstanParam.KEYNAME_ENTITY) !=null) {
-                this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+            if(model.getNamespace(ConstantParam.KEYNAME_ENTITY) !=null) {
+                this.packageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
             }
 
         } else {
 
         }
-        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
-        this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+        this.dtoPackageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
+        this.entityPackageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
 
         this.publisher = publisher;
 
@@ -94,7 +94,7 @@ public class MapperSrcPublisher extends SrcFilePublisher {
 
         String enumPackageName =null;
         if(model.getEnumModels().getItems().size()>0)
-            enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+            enumPackageName = model.getNamespace(ConstantParam.KEYNAME_ENUMERATION);
 
         params
                 .set("packageName", packageName)
@@ -841,9 +841,9 @@ public class MapperSrcPublisher extends SrcFilePublisher {
         cb3.end();
 
 
-        cb3.line("public static List<%s> to%sList(List<%s> fromList, MappingContext c1)", toClassNm, toClassNm, fromClassNm).block();
-        cb3.line("MappingContext c=c1!=null?c1.getChild():null;");
-        cb3.line("if(c!=null && !c.checkEnable()) return null;");
+        cb3.line("public static List<%s> to%sList(List<%s> fromList, MappingContext c)", toClassNm, toClassNm, fromClassNm).block();
+        //cb3.line("MappingContext c=c1!=null?c1.getChild():null;");
+        cb3.line("if(c!=null && !c.checkEnable(1)) return null;");
 
         //return fromList.stream().map(LoanCarMapper::toLoanCarDTO).collect(Collectors.toList());
         cb3.line("if(fromList==null) return null;");

@@ -6,7 +6,9 @@ import io.elasticore.blueprint.domain.parts.entity.*;
 import io.elasticore.blueprint.domain.parts.port.PartsCatalogAdapter;
 import io.elasticore.blueprint.domain.parts.repository.PartsRepositoryHelper;
 import io.elasticore.springboot3.entity.Op;
-import io.elasticore.springboot3.mapper.MappingUtils;
+import io.elasticore.springboot3.mapper.Mapper;
+import io.elasticore.springboot3.mapper.MappingContext;
+
 import io.elasticore.springboot3.util.ReflectUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -35,17 +37,18 @@ public class PartsCatalogsService {
             List<Map> catalogs = partsCatalogAdapter.getCatalogs();
             for (Map item : catalogs) {
                 Catalog catalog = new Catalog();
-                MappingUtils.copy(item, catalog
-                        , List.of("id", "name")
-                        , List.of(Q.Catalog.catalogId, Q.Catalog.name));
+                Mapper.of(item, catalog)
+                        .map("id", Q.Catalog.catalogId)
+                        .map("name", Q.Catalog.name)
+                        .includeUndefinedMap(false)
+                        .execute();
                 helper.getCatalog().save(catalog);
 
                 catalogList.add(catalog);
             }
 
         }
-
-        List<CatalogDTO> list = MappingUtils.toList(catalogList, CatalogDTO.class);
+        List<CatalogDTO> list = Mapper.of(catalogList, CatalogDTO.class).toList();
         return list;
     }
 
@@ -58,32 +61,40 @@ public class PartsCatalogsService {
         Specification<CarModel> sp = Q.CarModel.catalog().catalogId(Op.EQ, catalogId);
         Sort sort = Sort.by(Q.CarModel.getName().getAscOrder());
 
-        List<CarModel> carModelList = helper.getCarModel().findAll(sp, sort);
+        List<CarModel> carModelList = Optional.ofNullable(helper.getCarModel().findAll(sp, sort))
+                .orElseGet(ArrayList::new);
 
-        if (carModelList == null)
-            carModelList = new ArrayList<>();
-
-        if (carModelList.size() == 0) {
+        if (carModelList.isEmpty()) {
 
             Catalog catalog = new Catalog();
             catalog.setCatalogId(catalogId);
+
+            partsCatalogAdapter.getCarModelList(catalogId).forEach(partInfo -> {
+                CarModel carModel = Mapper.of(partInfo, CarModel.class)
+                        .map(Q.CarModel.id, Q.CarModel.name, Q.CarModel.img)
+                        .execute();
+                carModel.setCatalog(new Catalog(catalogId));
+                helper.getCarModel().save(carModel);
+                carModelList.add(carModel);
+            });
 
             List<PartInfo> carModelList1 = partsCatalogAdapter.getCarModelList(catalogId);
             for (PartInfo partInfo : carModelList1) {
                 CarModel carModel = new CarModel();
                 carModel.setCatalog(catalog);
-                carModel.setId(partInfo.getId());
-                carModel.setName(partInfo.getName());
-                carModel.setImg(partInfo.getImg());
+                Mapper.of(partInfo, carModel)
+                        .map(Q.CarModel.id, Q.CarModel.name, Q.CarModel.img)
+                        .execute();
 
                 helper.getCarModel().save(carModel);
                 carModelList.add(carModel);
             }
         }
 
-        List<CarModelDTO> resultList = MappingUtils.toList(carModelList, CarModelDTO.class, List.of(
-                Q.CarModel.id, Q.CarModel.name, Q.CarModel.img
-        ));
+        List<CarModelDTO> resultList = Mapper.of(carModelList, CarModelDTO.class)
+                .map(Q.CarModel.id, Q.CarModel.name, Q.CarModel.img)
+                .toList();
+
         return resultList;
     }
 
@@ -96,23 +107,25 @@ public class PartsCatalogsService {
         if (list == null)
             list = new ArrayList<>();
 
-        if (list.isEmpty() || list.size()<100) {
+        if (list.isEmpty() || list.size() < 10) {
             List<Map<String, Object>> rawList = partsCatalogAdapter.getCarInfoList(catalogId, modelId, page);
             for (Map<String, Object> item : rawList) {
                 CarInfo car = new CarInfo();
-                MappingUtils.copy(item, car,
-                        List.of("id", "name", "modelId", "modelName", "vin", "frame", "description", "criteria", "brand", "groupTreeAvailables"),
-                        List.of(Q.CarInfo.id, Q.CarInfo.name, Q.CarInfo.modelId, Q.CarInfo.modelName, Q.CarInfo.vin,
-                                Q.CarInfo.frame, Q.CarInfo.description, Q.CarInfo.criteria, Q.CarInfo.brand, Q.CarInfo.groupTreeAvailables));
+                Mapper.of(item, car)
+                        .map(Q.CarInfo.id, Q.CarInfo.name
+                                , Q.CarInfo.modelId, Q.CarInfo.modelName
+                                , Q.CarInfo.description, Q.CarInfo.criteria
+                                , Q.CarInfo.brand, Q.CarInfo.groupTreeAvailables)
+                        .execute();
 
                 List<Map> parames = (List) item.get("parameters");
-                if(parames!=null) {
+                if (parames != null) {
                     List<ParamInfo> paramInfoList = new ArrayList<>();
                     car.setParameters(paramInfoList);
-                    for(Map param : parames) {
+                    for (Map param : parames) {
                         ParamInfo paramInfo = new ParamInfo();
                         paramInfo.setCarId(car.getId());
-                        MappingUtils.copy(param, paramInfo);
+                        Mapper.copy(param, paramInfo);
 
                         paramInfoList.add(paramInfo);
                         helper.getParamInfo().save(paramInfo);
@@ -124,7 +137,8 @@ public class PartsCatalogsService {
             }
         }
 
-        return PartsMapper.toCarInfoDTOList(list);
+        return PartsMapper.toCarInfoDTOList(list, MappingContext.withGuard(2, c ->
+                "carId".equals(c.getFieldName()) ? false : true));
         //return ReflectUtils.toList(list, CarInfoDTO.class);
     }
 
@@ -137,31 +151,38 @@ public class PartsCatalogsService {
 
             Map<String, Object> raw = partsCatalogAdapter.getCarInfo(catalogId, carId);
             car = new CarInfo();
-            MappingUtils.copy(raw, car,
-                    List.of("id", "name", "modelId", "modelName", "vin", "frame", "description", "criteria", "brand", "groupTreeAvailables"),
-                    List.of(Q.CarInfo.id, Q.CarInfo.name, Q.CarInfo.modelId, Q.CarInfo.modelName, Q.CarInfo.vin,
-                            Q.CarInfo.frame, Q.CarInfo.description, Q.CarInfo.criteria, Q.CarInfo.brand, Q.CarInfo.groupTreeAvailables));
+
+
+            Mapper.of(raw, car)
+                    .map("id", Q.CarInfo.id)
+                    .map("name", Q.CarInfo.name)
+                    .map("modelId", Q.CarInfo.modelId)
+                    .map("description", Q.CarInfo.description)
+                    .map("brand", Q.CarInfo.brand)
+                    .map("groupTreeAvailables", Q.CarInfo.groupTreeAvailables)
+                    .execute();
+
 
             List<Map> parames = (List) raw.get("parameters");
-            if(parames!=null) {
+            if (parames != null) {
                 List<ParamInfo> paramInfoList = new ArrayList<>();
                 car.setParameters(paramInfoList);
-                for(Map param : parames) {
+                for (Map param : parames) {
                     ParamInfo paramInfo = new ParamInfo();
                     paramInfo.setCarId(car.getId());
-                    MappingUtils.copy(param, paramInfo);
+                    Mapper.copy(param, paramInfo);
                     helper.getParamInfo().save(paramInfo);
                     paramInfoList.add(paramInfo);
                 }
             }
 
             helper.getCarInfo().save(car);
-        }else {
+        } else {
             car = optional.get();
         }
 
         CarInfoDTO carInfoDTO = new CarInfoDTO();
-        MappingUtils.copy(car, carInfoDTO);
+        Mapper.copy(car, carInfoDTO);
 
         return carInfoDTO;
     }
@@ -176,17 +197,77 @@ public class PartsCatalogsService {
             List<Map<String, Object>> params = (List<Map<String, Object>>) raw.get("params");
             for (Map<String, Object> item : params) {
                 ParamInfo param = new ParamInfo();
-                MappingUtils.copy(item, param,
-                        List.of("idx", "key", "name", "value", "carId", "sortOrder"),
-                        List.of(Q.ParamInfo.idx, Q.ParamInfo.key, Q.ParamInfo.name, Q.ParamInfo.value,
-                                Q.ParamInfo.carId, Q.ParamInfo.sortOrder));
+                Mapper.of(item, param)
+                        .map(Q.ParamInfo.idx, Q.ParamInfo.key, Q.ParamInfo.name
+                                , Q.ParamInfo.value, Q.ParamInfo.carId, Q.ParamInfo.sortOrder)
+                        .execute();
                 helper.getParamInfo().save(param);
                 paramList.add(param);
             }
         }
 
-        return MappingUtils.toList(paramList, ParamInfoDTO.class);
+        return Mapper.of(paramList, ParamInfoDTO.class).toList();
     }
 
+
+    /**
+     * @param vinOrFrame
+     * @return
+     */
+    public List<CarProfileInfoDTO> findVin(String vinOrFrame) {
+
+
+        Specification<CarProfile> sp = Q.CarProfile.vin(Op.LIKE, vinOrFrame)
+                .or(Q.CarProfile.frame(Op.LIKE, vinOrFrame));
+
+        List<CarProfile> list = helper.getCarProfile().findAll(sp);
+
+        List<CarProfileInfoDTO> resultList = new ArrayList<>();
+        if (list == null || list.isEmpty()) {
+            List<Map> carInfoByVIN = partsCatalogAdapter.getCarInfoByVIN(vinOrFrame);
+            for (Map map : carInfoByVIN) {
+
+                CarInfo info = new CarInfo();
+                Mapper.of(map, info)
+                        .map("title", Q.CarInfo.name)
+                        .map("carId", Q.CarInfo.id)
+                        .execute();
+
+
+                Optional.ofNullable(info.getParameters())
+                        .ifPresent(params -> params.forEach(p -> p.setCarId(info.getId())));
+
+                helper.getCarInfo().save(info);
+
+                CarProfile carProfile = new CarProfile();
+                Mapper.copy(map, carProfile);
+                carProfile.setCarInfo(info);
+
+
+                helper.getCarProfile().save(carProfile);
+
+
+                CarProfileInfoDTO item = new CarProfileInfoDTO();
+                Mapper.copy(map, item);
+
+                resultList.add(item);
+            }
+        } else {
+            for (CarProfile carProfile : list) {
+
+                CarProfileInfoDTO item = new CarProfileInfoDTO();
+                Mapper.copy(carProfile, item);
+
+                Mapper.copy(carProfile.getCarInfo(), item);
+
+                item.setCarId(carProfile.getCarInfo().getId());
+                resultList.add(item);
+            }
+
+        }
+
+        return resultList;
+
+    }
 
 }

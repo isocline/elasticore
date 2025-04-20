@@ -2,7 +2,7 @@ package io.elasticore.base.model.pub.mongodb;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
@@ -52,13 +52,13 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         this.relationshipManager = RelationshipManager.getInstance(publisher.getECoreModelContext().getDomain().getName());
 
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_SERVICE);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_SERVICE);
 
         if (this.packageName == null) return;
 
-        this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
-        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
-        this.repoPackageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
+        this.entityPackageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
+        this.dtoPackageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
+        this.repoPackageName = model.getNamespace(ConstantParam.KEYNAME_REPOSITORY);
 
         this.publisher = publisher;
 
@@ -158,7 +158,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         String domainName = domain.getName();
         String entityClassName = entity.getIdentity().getName();
-        String className = entityClassName + ConstanParam.POSTFIX_SERVICE;
+        String className = entityClassName + ConstantParam.POSTFIX_SERVICE;
 
         String dtoClassName = dto.getIdentity().getName();
         String mapperName = findMapperClassName(dto);

@@ -1,4 +1,4 @@
-//ecd:1769322497H20250412232629_V1.0
+//ecd:-1608808725H20250417102657_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -7,7 +7,10 @@ import io.elasticore.springboot3.entity.*;
 import org.springframework.data.jpa.domain.Specification;
 import java.util.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
+import io.elasticore.blueprint.domain.parts.entity.*;
+import io.elasticore.blueprint.domain.parts.entity.Q.*;
 import io.elasticore.blueprint.domain.bbs.entity.*;
+import io.elasticore.blueprint.domain.bbs.entity.Q.*;
 
 
 /**
@@ -75,6 +78,24 @@ public class Q {
 	    public Specification<T> createdBy(Op op,Object value,boolean chkEmpty) {return getCreatedBy().where(op,value,chkEmpty);}
 	}
 	
+	public static $TypeInfo<TypeInfo> TypeInfo=new $TypeInfo<>();
+	public static class $TypeInfo<T> {
+	
+	    private FieldInfo p=null;
+	    public $TypeInfo() {}
+	    public $TypeInfo(FieldInfo p) {this.p=p;}
+	
+	    public final FieldInfo<T> getTid() {return new FieldInfo(TypeInfo.class,"tid",Long.class, null,p);}
+	    public final String tid="tid";
+	    public Specification<T> tid(Op op,Object value) {return getTid().where(op,value);}
+	    public Specification<T> tid(Op op,Object value,boolean chkEmpty) {return getTid().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getName() {return new FieldInfo(TypeInfo.class,"name",String.class, null,p);}
+	    public final String name="name";
+	    public Specification<T> name(Op op,Object value) {return getName().where(op,value);}
+	    public Specification<T> name(Op op,Object value,boolean chkEmpty) {return getName().where(op,value,chkEmpty);}
+	}
+	
 	public static $Article<Article> Article=new $Article<>();
 	public static class $Article<T> {
 	
@@ -100,6 +121,14 @@ public class Q {
 	    public final FieldInfo<T> getBoard() {return new FieldInfo(Article.class,"board",Board.class, null,p);}
 	    public final String board="board";
 	    public final $Board<T> board() {return new $Board(getBoard());}
+	
+	    public final FieldInfo<T> getTypeInfo() {return new FieldInfo(Article.class,"typeInfo",TypeInfo.class, null,p);}
+	    public final String typeInfo="typeInfo";
+	    public final $TypeInfo<T> typeInfo() {return new $TypeInfo(getTypeInfo());}
+	
+	    public final FieldInfo<T> getCarInfo() {return new FieldInfo(Article.class,"carInfo",CarInfo.class, null,p);}
+	    public final String carInfo="carInfo";
+	    public final $CarInfo<T> carInfo() {return new $CarInfo(getCarInfo());}
 	
 	    public final FieldInfo<T> getLastModifiedBy() {return new FieldInfo(Article.class,"lastModifiedBy",String.class, null,p);}
 	    public final String lastModifiedBy="lastModifiedBy";

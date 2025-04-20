@@ -22,7 +22,6 @@ import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.model.*;
 import io.elasticore.base.model.core.Annotation;
-import io.elasticore.base.model.core.BaseModelDomain;
 import io.elasticore.base.model.core.ListMap;
 import io.elasticore.base.model.core.RelationshipManager;
 import io.elasticore.base.model.entity.*;
@@ -83,10 +82,10 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
 
         if (model.getEnumModels().getItems().size() > 0)
-            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+            this.enumPackageName = model.getNamespace(ConstantParam.KEYNAME_ENUMERATION);
         else
             this.enumPackageName = null;
 
@@ -128,7 +127,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return "";
     }
 
-    private CodeTemplate.Paragraph getEntityAnnotation(Entity entity, String j2eePkgNm) {
+    private CodeTemplate.Paragraph getEntityAnnotation(Entity entity, String j2eePkgNm,CodeTemplate.Paragraph importList) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
 
@@ -148,6 +147,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 }
             }
         });
+
+        if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.AUDITED)) {
+            p.add("@Audited");
+            importList.add("org.hibernate.envers.Audited");
+        }
 
         boolean isEntityClass = true;
 
@@ -433,7 +437,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         CodeTemplate.Parameters p = CodeTemplate.newParameters();
         String classNm = entity.getIdentity().getName();
 
-        this.paragraphForEntity = getEntityAnnotation(entity, j2eePkgNm);
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+
+        this.paragraphForEntity = getEntityAnnotation(entity, j2eePkgNm ,importList);
 
         setNativeAnnotation(entity, this.paragraphForEntity);
 
@@ -441,9 +447,9 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         this.model.setShadowModel(shadowModel);
 
         // must call 'getFieldInfo' first
-        CodeTemplate.Paragraph pr = getFieldInfo(entity);
+        CodeTemplate.Paragraph pr = getFieldInfo(entity ,importList);
 
-        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+
 
         Set<String> namespaceSet = shadowModel.getNamespaceSet();
 
@@ -550,16 +556,16 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         return p;
     }
 
-    private CodeTemplate.Paragraph getFieldInfo(Entity entity) {
+    private CodeTemplate.Paragraph getFieldInfo(Entity entity ,CodeTemplate.Paragraph importList) {
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
 
-        loadFieldInfo(entity, p);
+        loadFieldInfo(entity, p,importList);
         return p;
     }
 
 
-    private void loadFieldInfo(Entity entity, CodeTemplate.Paragraph p) {
-        ModelComponentItems<Field> fields = entity.getItems();
+    private void loadFieldInfo(Entity entity, CodeTemplate.Paragraph p,CodeTemplate.Paragraph importList) {
+
 
         boolean isExtendIdentity = false;
         /*
@@ -581,7 +587,27 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
         boolean isMultiplePK = entity.getPkField() != null && entity.getPkField().isMultiple();
         CodeTemplate.Paragraph prePersist = CodeTemplate.newParagraph();
 
+        StringBuilder sb1 =new StringBuilder();
+        StringBuilder sb2 =new StringBuilder();
+        ModelComponentItems<Field> fieldsPre = entity.getItems();
+        while (fieldsPre.hasNext()) {
+            Field f = fieldsPre.next();
+            String fieldNm = f.getName();
+            if(f.isPrimaryKey()) {
+                if(sb1.length()>0) sb1.append(",");
+                sb1.append(f.getTypeInfo().getCoreItemType()).append(" ").append(fieldNm);
 
+                sb2.append("    this.").append(fieldNm).append(" = ").append(fieldNm).append(";");
+            }
+        }
+        if(sb1.length()>0) {
+            p.add("public %s(%s) {", entityName, sb1.toString());
+            p.add(sb2.toString());
+            p.add("}");
+            p.add("");
+        }
+
+        ModelComponentItems<Field> fields = entity.getItems();
         while (fields.hasNext()) {
             Field f = fields.next();
 
@@ -605,6 +631,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
 
             setEnumListAnnotation(entity, f, p);
 
+            if(f.hasAnnotation(EntityAnnotation.NOT_AUDITED)) {
+                p.add("@NotAudited");
+                importList.add("org.hibernate.envers.NotAudited");
+            }
+
 
             setJoinColumnAnnotation(f, p);
             setNativeAnnotation(f, p);
@@ -625,6 +656,8 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
              */
 
             shadowModel.addField(f);
+
+            storeRefEntityInfo(entity.getIdentity().getName(), f.getTypeInfo().getCoreItemType());
 
             p.add("%s %s %s%s;", "private", f.getTypeInfo().getDefaultTypeName(), f.getName(), defaultValDefined);
             p.add("");
@@ -677,7 +710,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 for (String templateNm : templateNmArray) {
                     Entity templateEntity = this.publisher.getECoreModelContext().findModelComponent(templateNm, Entity.class);
                     if (templateEntity != null)
-                        loadFieldInfo(templateEntity, p);
+                        loadFieldInfo(templateEntity, p, importList);
                 }
             }
         }

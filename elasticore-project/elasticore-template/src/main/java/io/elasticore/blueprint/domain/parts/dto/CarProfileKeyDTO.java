@@ -1,4 +1,4 @@
-//ecd:441675890H20250412002048_V1.0
+//ecd:-1222558023H20250416202052_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -12,28 +12,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
-
+import io.elasticore.blueprint.domain.parts.dto.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 
 /**
- * PartGroup
+ * CarProfileKeyDTO
  *
  * Modify this code only as specified in the ElastiCORE guidelines
  * to avoid regeneration conflicts.
  *
  * Generated and managed by ElastiCORE.
  */
-
+@JsonInclude(Include.NON_NULL)
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public  class PartGroup  implements java.io.Serializable, SortableObject  {
+public  class CarProfileKeyDTO  implements java.io.Serializable  {
 
+	/*
+	  VIN
+	*/
+	@Schema(description = "VIN" , requiredMode=Schema.RequiredMode.REQUIRED )
+	@NotNull
+	@Size(max=36)
+	private String vin;
 	
-	private String sortCode;
 
-    private String sortColumn; // Column to sort by
-    private Boolean sortAscending; // Sort order (true: ascending, false: descending)
 }

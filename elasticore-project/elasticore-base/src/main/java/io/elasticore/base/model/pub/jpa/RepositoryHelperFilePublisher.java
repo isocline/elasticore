@@ -2,7 +2,7 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.BaseModelDomain;
@@ -50,13 +50,13 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_REPOSITORY);
 
         if(eCoreModel.getEntityModels().getItems().size()>0)
-            this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+            this.entityPackageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
 
         if(eCoreModel.getDataTransferModels().getItems().size()>0)
-            this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+            this.dtoPackageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
 
     }
 
@@ -80,7 +80,15 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
 
         CodeTemplate.Paragraph fieldP = CodeTemplate.newParagraph();
         CodeTemplate.Paragraph methodP = CodeTemplate.newParagraph();
-        loadRepositoryInfo(repositoryModels, fieldP, methodP);
+        Set<String> namespaceSet = new HashSet<>();
+        loadRepositoryInfo(repositoryModels, fieldP, methodP ,namespaceSet);
+
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
+        params.set("importList",importList);
+
 
         if(fieldP.size()==0 && methodP.size()==0)
             return;
@@ -114,7 +122,7 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
         return true;
     }
 
-    private void loadRepositoryInfo(RepositoryModels repositoryModels, CodeTemplate.Paragraph fieldP, CodeTemplate.Paragraph methodP) {
+    private void loadRepositoryInfo(RepositoryModels repositoryModels, CodeTemplate.Paragraph fieldP, CodeTemplate.Paragraph methodP , Set<String> namespaceSet) {
         //private final ContactInfoRepository contactInfo;
         CodeTemplate.Paragraph p = CodeTemplate.newParagraph();
         ModelComponentItems<Repository> repoItems = repositoryModels.getItems();
@@ -181,6 +189,16 @@ public class RepositoryHelperFilePublisher extends SrcFilePublisher {
                 }
             }
 
+        }
+
+        String[] extEntities = this.publisher.getECoreModelContext().getDomain().getModel().getExternalEntitiesAsArray();
+        for(String extEntity : extEntities) {
+            String repoName = extEntity + "Repository";
+            fieldP.add("private final %s %s;", repoName, StringUtils.uncapitalize(extEntity));
+            fieldP.add("");
+
+            String ns = getNamespace(extEntity, "repository");
+            namespaceSet.add(ns+"."+repoName);
         }
     }
 

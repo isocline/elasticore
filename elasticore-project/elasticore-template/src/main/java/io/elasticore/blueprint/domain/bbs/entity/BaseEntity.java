@@ -1,4 +1,4 @@
-//ecd:-295482803H20250409104819_V1.0
+//ecd:241022102H20250417190806_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -10,6 +10,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
 

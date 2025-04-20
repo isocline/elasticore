@@ -62,12 +62,10 @@ classDiagram
         description: String //차량 상세 설명
         modelId: String //연결된 모델 ID
         modelName: String //모델 이름 (조회용)
-        vin: String //차량 식별 번호 (Vehicle Identification Number)
-        frame: String //차체 번호
         criteria: String //차량 등록 기준
         brand: String //차량 브랜드명
         groupTreeAvailables: Boolean //부품 그룹 트리 지원 여부
-        parameters: ParamInfo[] //파라미터
+        parameters: ParamInfo[] 
     }
     class ParamInfo{
         idx: String[PK] //파라미터 고유 ID (UUID)
@@ -86,6 +84,12 @@ classDiagram
         parentId: String //상위 그룹 ID
         carId: String //연결된 차량 ID
     }
+    class CarProfile{
+        vin: String[PK] //VIN
+        frame: String //frame
+        carInfo: CarInfo 
+    }
+    CarProfile --o "0..1" CarInfo : carInfo
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

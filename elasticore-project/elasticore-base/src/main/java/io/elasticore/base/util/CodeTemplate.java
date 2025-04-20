@@ -2,7 +2,7 @@ package io.elasticore.base.util;
 
 
 
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import lombok.SneakyThrows;
 
 import java.io.*;
@@ -58,7 +58,7 @@ public class CodeTemplate {
         }
         else if (resourcePath.indexOf("resource://") == 0) {
 
-            String path = getRootDir() + "/"+ ConstanParam.PROPERTY_ELCORE_HOME+"/" + resourcePath.substring(11);
+            String path = getRootDir() + "/"+ ConstantParam.PROPERTY_ELCORE_HOME+"/" + resourcePath.substring(11);
 
 
             ConsoleLog.storeLog("TEMPLATE",path);

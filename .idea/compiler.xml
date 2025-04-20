@@ -29,4 +29,14 @@
       <module name="xyroplug_svc.test" target="17" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cbh_jps_bnd" options="-parameters" />
+      <module name="cbh_jps_bnd.main" options="-parameters" />
+      <module name="cbh_jps_bnd.test" options="-parameters" />
+      <module name="elasticore-template.elasticore.elasticore-project.elasticore-template" options="-parameters -AprojectPath=C:\workspace\Isocline\elasticore\elasticore-project\elasticore-template -AgeneratedPath=src/main/java" />
+      <module name="elasticore-template.elasticore.elasticore-project.elasticore-template.main" options="-parameters -AprojectPath=C:\workspace\Isocline\elasticore\elasticore-project\elasticore-template -AgeneratedPath=src/main/java" />
+      <module name="elasticore-template.elasticore.elasticore-project.elasticore-template.test" options="-parameters -AprojectPath=C:\workspace\Isocline\elasticore\elasticore-project\elasticore-template -AgeneratedPath=src/main/java" />
+    </option>
+  </component>
 </project>

@@ -3,7 +3,7 @@ package io.elasticore.processor;
 
 import io.elasticore.base.extract.FileBasedSourceFileAccessFactory;
 import io.elasticore.base.extract.ModelExtractor;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.util.ConsoleLog;
 import lombok.SneakyThrows;
 
@@ -14,7 +14,6 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
-import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +37,7 @@ public class ElastiCoreProcessor extends AbstractProcessor {
         }
         this.projectPath = options.get("projectPath");
         this.generatedPath = options.get("generatedPath");
-        this.modelPath = this.projectPath + ConstanParam.PROPERTY_ELCORE_HOME;
+        this.modelPath = this.projectPath + ConstantParam.PROPERTY_ELCORE_HOME;
 
         //File f = new File(" C:\\workspace\\Isocline\\elasticore\\elasticore-project\\elasticore-template\\src\\main\\java\\io\\elasticore\\demo\\crm\\entity\\ContractGroup.java");
 

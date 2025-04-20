@@ -1,4 +1,4 @@
-//ecd:547449399H20250412203017_V1.0
+//ecd:1776665055H20250419002750_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -10,6 +10,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
 import jakarta.persistence.Entity;
@@ -33,6 +34,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class ParamInfo  implements java.io.Serializable  {
 
+	public ParamInfo(String idx) {
+	    this.idx = idx;
+	}
+	
 	/*
 	  파라미터 고유 ID (UUID)
 	*/

@@ -1,4 +1,4 @@
-//ecd:-1294664922H20250410163647_V1.0
+//ecd:1339781645H20250419002749_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -10,6 +10,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
 import jakarta.persistence.Entity;
@@ -33,6 +34,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class Catalog  implements java.io.Serializable  {
 
+	public Catalog(String catalogId) {
+	    this.catalogId = catalogId;
+	}
+	
 	/*
 	  고유 카탈로그 식별자
 	*/

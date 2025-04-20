@@ -1,4 +1,4 @@
-//ecd:54290779H20250412204313_V1.0
+//ecd:-1533935827H20250419002750_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -10,8 +10,11 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import io.elasticore.blueprint.domain.parts.entity.*;
 import jakarta.persistence.Entity;
 
@@ -25,6 +28,7 @@ import jakarta.persistence.Entity;
  * Generated and managed by ElastiCORE.
  */
 
+@Audited
 @Entity
 @org.hibernate.annotations.DynamicUpdate
 @Getter
@@ -34,6 +38,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class CarInfo  implements java.io.Serializable  {
 
+	public CarInfo(String id) {
+	    this.id = id;
+	}
+	
 	/*
 	  차량 ID (UUID)
 	*/
@@ -47,7 +55,7 @@ public  class CarInfo  implements java.io.Serializable  {
 	  차량 이름 또는 사용자 정의명
 	*/
 	@Comment("차량 이름 또는 사용자 정의명")
-	@Column(name = "name", nullable = false, length = 100)
+	@Column(name = "name", nullable = false, length = 300)
 	private String name;
 	
 	
@@ -71,31 +79,15 @@ public  class CarInfo  implements java.io.Serializable  {
 	  모델 이름 (조회용)
 	*/
 	@Comment("모델 이름 (조회용)")
-	@Column(name = "model_name", nullable = false, length = 100)
+	@Column(name = "model_name", length = 500)
 	private String modelName;
-	
-	
-	/*
-	  차량 식별 번호 (Vehicle Identification Number)
-	*/
-	@Comment("차량 식별 번호 (Vehicle Identification Number)")
-	@Column(name = "vin", length = 30)
-	private String vin;
-	
-	
-	/*
-	  차체 번호
-	*/
-	@Comment("차체 번호")
-	@Column(name = "frame", length = 50)
-	private String frame;
 	
 	
 	/*
 	  차량 등록 기준
 	*/
 	@Comment("차량 등록 기준")
-	@Column(name = "criteria", length = 100)
+	@Column(name = "criteria", length = 500)
 	private String criteria;
 	
 	
@@ -115,11 +107,8 @@ public  class CarInfo  implements java.io.Serializable  {
 	private Boolean groupTreeAvailables = false;
 	
 	
-	/*
-	  파라미터
-	*/
-	@Comment("파라미터")
-	@ManyToMany(fetch = FetchType.LAZY )
+	@ManyToMany(fetch = FetchType.LAZY ,cascade = CascadeType.ALL)
+	@NotAudited
 	private List<ParamInfo> parameters;
 	
 	

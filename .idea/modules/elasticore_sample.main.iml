@@ -5,4 +5,11 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../../xsko/elasticore_sample/build/generated/sources/annotationProcessor/java/main" isTestSource="false" generated="true" />
     </content>
   </component>
+  <component name="FacetManager">
+    <facet type="azure" name="Azure">
+      <configuration>
+        <option name="dotAzurePath" value="C:\workspace\xsko\elasticore_sample\src\main\.azure" />
+      </configuration>
+    </facet>
+  </component>
 </module>

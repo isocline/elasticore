@@ -2,7 +2,7 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
@@ -38,7 +38,7 @@ public class EnumFilePublisher extends SrcFilePublisher {
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_ENUMERATION);
     }
 
 

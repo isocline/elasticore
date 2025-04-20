@@ -81,10 +81,10 @@ public class DtoSrcFilePublisher extends SrcFilePublisher {
         this.javaClassTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
 
         if(model.getEnumModels().getItems().size()>0)
-            this.enumPackageName = model.getNamespace(ConstanParam.KEYNAME_ENUMERATION);
+            this.enumPackageName = model.getNamespace(ConstantParam.KEYNAME_ENUMERATION);
         else
             this.enumPackageName ="";
 

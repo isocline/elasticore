@@ -1,4 +1,4 @@
-//ecd:-1893772768H20250411111444_V1.0
+//ecd:-446380186H20250417104236_V1.0
 package io.elasticore.blueprint.domain.parts.service;
 
 import io.elasticore.blueprint.domain.parts.entity.*;
@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.lang.reflect.Field;
+
+import io.elasticore.blueprint.domain.parts.entity.Catalog;
 
 /**
  * Comprehensive service layer for managing CarModel entities.

@@ -1,7 +1,6 @@
 package io.elasticore.base.model.loader.module;
 
-import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Items;
 import io.elasticore.base.model.entity.Field;
@@ -15,7 +14,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EnumerationModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<EnumModel> {
+public class EnumerationModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<EnumModel> {
 
 
     public boolean loadModel(ModelLoaderContext ctx, FileSource source) {
@@ -23,8 +22,8 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
     }
 
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
-        if (map.containsKey(ConstanParam.KEYNAME_ENUMERATION)) {
-            Map entityMap = map.get(ConstanParam.KEYNAME_ENUMERATION);
+        if (map.containsKey(ConstantParam.KEYNAME_ENUMERATION)) {
+            Map entityMap = map.get(ConstantParam.KEYNAME_ENUMERATION);
 
             loadModel(ctx, ctx.getEnumModelItems(), entityMap);
             return true;
@@ -54,7 +53,7 @@ public class EnumerationModelLoader extends AbstractModelLoader implements Const
 
     protected EnumModel loadEnumModel(ModelLoaderContext ctx,String enumName, Map<String, Object> entityMap) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_ENUM, enumName);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstantParam.KEYNAME_ENUM, enumName);
 
         Map fields = (Map) entityMap.get(PROPERTY_FIELDS);
         Items<Field> fieldItems = null;

@@ -1,6 +1,6 @@
 package io.elasticore.base.model.loader.module;
 
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Abstract base class for model loaders.
  * Provides common functionalities to parse field information, annotations, and meta-information from entity maps.
  */
-public class AbstractModelLoader implements ConstanParam {
+public class AbstractModelLoader implements ConstantParam {
 
 
     protected ModelLoaderContext modelLoaderContext;

@@ -1,4 +1,4 @@
-//ecd:-238885207H20250412232629_V1.0
+//ecd:733151809H20250419002748_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -10,6 +10,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -35,6 +36,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class Board extends AuditEntity implements java.io.Serializable  {
 
+	public Board(Long bid) {
+	    this.bid = bid;
+	}
+	
 	/*
 	  게시판 아이디
 	*/

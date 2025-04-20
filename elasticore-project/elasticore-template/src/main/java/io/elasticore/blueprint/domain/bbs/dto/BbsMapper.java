@@ -1,9 +1,13 @@
-//ecd:1537816159H20250414001619_V1.0
+//ecd:2121007557H20250417102657_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Join;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,8 +15,14 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import io.elasticore.blueprint.domain.bbs.entity.*;
+import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
 
+import io.elasticore.blueprint.domain.bbs.enums.*;
+import io.elasticore.blueprint.domain.parts.entity.*;
+import io.elasticore.blueprint.domain.bbs.entity.*;
+import io.elasticore.blueprint.domain.bbs.dto.*;
+import io.elasticore.blueprint.domain.parts.dto.*;
 import io.elasticore.springboot3.mapper.MappingContext;
 import io.elasticore.runtime.security.TransformPermissionChecker;
 
@@ -101,9 +111,8 @@ public class BbsMapper {
     public static List<BoardDTO> toBoardDTOList(List<Board> fromList){
         return toBoardDTOList(fromList,(MappingContext) null);
     }
-    public static List<BoardDTO> toBoardDTOList(List<Board> fromList, MappingContext c1){
-        MappingContext c=c1!=null?c1.getChild():null;
-        if(c!=null && !c.checkEnable()) return null;
+    public static List<BoardDTO> toBoardDTOList(List<Board> fromList, MappingContext c){
+        if(c!=null && !c.checkEnable(1)) return null;
         if(fromList==null) return null;
         return fromList.stream().map(e->BbsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
@@ -134,6 +143,10 @@ public class BbsMapper {
         setVal(from.getBoard(), to::setBoard, isSkipNull, e->toDTO(e,c));
         if(hasValue(from.getBoard()))
             to.setBoardBid(from.getBoard().getBid());
+        if(hasValue(from.getTypeInfo()))
+            to.setTypeInfoTid(from.getTypeInfo().getTid());
+        if(hasValue(from.getCarInfo()))
+            to.setCarInfoId(from.getCarInfo().getId());
         if(c==null || c.fd("aid").checkEnable())
         setVal(from.getAid(), to::setAid, isSkipNull);
         if(c==null || c.fd("title").checkEnable())
@@ -181,9 +194,8 @@ public class BbsMapper {
     public static List<ArticleDTO> toArticleDTOList(List<Article> fromList){
         return toArticleDTOList(fromList,(MappingContext) null);
     }
-    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, MappingContext c1){
-        MappingContext c=c1!=null?c1.getChild():null;
-        if(c!=null && !c.checkEnable()) return null;
+    public static List<ArticleDTO> toArticleDTOList(List<Article> fromList, MappingContext c){
+        if(c!=null && !c.checkEnable(1)) return null;
         if(fromList==null) return null;
         return fromList.stream().map(e->BbsMapper.toDTO(e,c)).collect(Collectors.toList());
     }
@@ -255,9 +267,8 @@ public class BbsMapper {
     public static List<Board> toBoardList(List<BoardDTO> fromList){
         return toBoardList(fromList,(MappingContext) null);
     }
-    public static List<Board> toBoardList(List<BoardDTO> fromList, MappingContext c1){
-        MappingContext c=c1!=null?c1.getChild():null;
-        if(c!=null && !c.checkEnable()) return null;
+    public static List<Board> toBoardList(List<BoardDTO> fromList, MappingContext c){
+        if(c!=null && !c.checkEnable(1)) return null;
         if(fromList==null) return null;
         return fromList.stream().map(e->BbsMapper.toEntity(e,c)).collect(Collectors.toList());
     }
@@ -309,6 +320,20 @@ public class BbsMapper {
             t.setBid(from.getBoardBid());
             to.setBoard(t);
         }
+        
+        
+        if(hasValue(from.getTypeInfoTid())){
+            TypeInfo t = new TypeInfo();
+            t.setTid(from.getTypeInfoTid());
+            to.setTypeInfo(t);
+        }
+        
+        
+        if(hasValue(from.getCarInfoId())){
+            CarInfo t = new CarInfo();
+            t.setId(from.getCarInfoId());
+            to.setCarInfo(t);
+        }
     }
     
     
@@ -336,9 +361,8 @@ public class BbsMapper {
     public static List<Article> toArticleList(List<ArticleDTO> fromList){
         return toArticleList(fromList,(MappingContext) null);
     }
-    public static List<Article> toArticleList(List<ArticleDTO> fromList, MappingContext c1){
-        MappingContext c=c1!=null?c1.getChild():null;
-        if(c!=null && !c.checkEnable()) return null;
+    public static List<Article> toArticleList(List<ArticleDTO> fromList, MappingContext c){
+        if(c!=null && !c.checkEnable(1)) return null;
         if(fromList==null) return null;
         return fromList.stream().map(e->BbsMapper.toEntity(e,c)).collect(Collectors.toList());
     }

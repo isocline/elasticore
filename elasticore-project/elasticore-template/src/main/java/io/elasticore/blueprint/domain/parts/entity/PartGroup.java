@@ -1,4 +1,4 @@
-//ecd:-1604026480H20250410163649_V1.0
+//ecd:-1092437285H20250419002750_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -10,6 +10,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
 import jakarta.persistence.Entity;
@@ -33,6 +34,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class PartGroup  implements java.io.Serializable  {
 
+	public PartGroup(String id) {
+	    this.id = id;
+	}
+	
 	/*
 	  부품 그룹 ID
 	*/

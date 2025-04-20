@@ -1,0 +1,30 @@
+dto:
+  MaxPriceRequest:
+    meta: dto
+    fields:
+      market: string -- 마켓명 입력
+
+  MaxPriceResult:
+    meta: dto
+    fields:
+      high_price: double -- 최고가
+      candle_date_time_kst: string -- 해당 시간
+
+port:
+  CandleDbPort:
+    meta: dbms @datasource("main")
+    methods:
+      findMaxPriceByMarket:
+        meta: method -- 특정 마켓에서 최고가와 시간 조회
+        params:
+          input: MaxPriceRequest
+        return: MaxPriceResult
+        nativeQuery: true
+        query: |
+          SELECT 
+            c.high_price *4 as high_price,
+            c.candle_date_time_kst
+          FROM Candle c
+          WHERE c.market = :market
+          ORDER BY c.high_price DESC
+ 

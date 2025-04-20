@@ -17,8 +17,10 @@ import io.elasticore.base.util.CodeStringBuilder;
 import io.elasticore.base.util.CodeTemplate;
 import io.elasticore.base.util.StringUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 public class ServiceSrcPublisher extends SrcFilePublisher {
 
@@ -54,13 +56,13 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         this.relationshipManager = RelationshipManager.getInstance(publisher.getECoreModelContext().getDomain().getName());
 
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_SERVICE);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_SERVICE);
 
         if (this.packageName == null) return;
 
-        this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
-        this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
-        this.repoPackageName = model.getNamespace(ConstanParam.KEYNAME_REPOSITORY);
+        this.entityPackageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
+        this.dtoPackageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
+        this.repoPackageName = model.getNamespace(ConstantParam.KEYNAME_REPOSITORY);
 
         this.publisher = publisher;
 
@@ -145,7 +147,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             if(isDisableField(f))
                 continue;
             String coreItemType = f.getTypeInfo().getCoreItemType();
-            if(this.findEntity(coreItemType)!=null) continue;
+            if(this.findEntityByName(coreItemType)!=null) continue;
 
             if(sb.length()>0) sb.append("\n ,");
             sb.append("root.get(");
@@ -187,7 +189,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         String keyDtoClassName = orgEntityClassName+"Key"+"DTO";
 
-        String className = orgEntityClassName + ConstanParam.POSTFIX_SERVICE;
+        String className = orgEntityClassName + ConstantParam.POSTFIX_SERVICE;
 
         String dtoClassName = dto.getIdentity().getName();
         String mapperName = findMapperClassName(dto);
@@ -195,8 +197,11 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         String pkType = entity.getPkField().getType();
         String pkName = entity.getPkField().getName();
 
+        Set<String> namespaceSet = new HashSet<>();
+
+
         CodeStringBuilder cb = new CodeStringBuilder("{", "}");
-        makeChildRefCode(dto, entity, cb);
+        makeChildRefCode(dto, entity, cb,  namespaceSet);
 
         boolean isListOutput = false;
         boolean isPageOutput = false;
@@ -231,6 +236,12 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         }else {
             searchResultDTOClassName=dtoClassName;
         }
+
+
+
+
+
+
 
         boolean isSkipNull = true;
         if( "false".equals(entity.getMetaInfo().getMetaAnnotationValue("dynamicupdate"))) {
@@ -277,6 +288,11 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
             isListOutput = false;
         }
 
+        CodeTemplate.Paragraph importList = CodeTemplate.newParagraph();
+        for(String ns: namespaceSet) {
+            importList.add(ns);
+        }
+
         CodeTemplate.Parameters params = CodeTemplate.newParameters();
         params
                 .set("className", className)
@@ -284,6 +300,7 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
                 .set("entityClassName", entityClassName)
                 .set("orgEntityClassName", orgEntityClassName)
                 .set("orgEntityConvert", orgEntityConvert)
+                .set("importList",importList)
 
 
                 .set("keyDtoClassName", keyDtoClassName)
@@ -334,19 +351,17 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
         // for extended Service Code
         if(entity.getMetaInfo().hasMetaAnnotation(EntityAnnotation.META_EXPOSE)) {
             String extCode = this.extendSvcCodeTmpl.toString(params);
-            String extQualifiedClassName = packageName + "." + orgEntityClassName + ConstanParam.POSTFIX_EXT_SERVICE;
+            String extQualifiedClassName = packageName + "." + orgEntityClassName + ConstantParam.POSTFIX_EXT_SERVICE;
 
             this.writeSrcCode(this.publisher, null, extQualifiedClassName, extCode);
 
         }
     }
 
-    private void makeChildRefCode(DataTransfer dto, Entity entity, CodeStringBuilder cb) {
-
+    private void makeChildRefCode(DataTransfer dto, Entity entity, CodeStringBuilder cb, Set<String> namespaceSet) {
 
         cb.block("");
         cb.block("");
-
 
         ModelComponentItems<Field> items = dto.getItems();
 
@@ -369,8 +384,14 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
             String getTypeNm = targetField.getTypeInfo().getDefaultTypeName();
 
-            Entity targetEntity = findEntity(getTypeNm);
+            Entity targetEntity = findEntityByName(getTypeNm);
             if (targetEntity == null) continue;
+            String ns = getNamespace(getTypeNm);
+            if(ns!=null) {
+                namespaceSet.add(ns+"."+getTypeNm);
+            }
+
+
 
             String refClassPkNm2 = (targetEntity.getPkField()!=null)?targetEntity.getPkField().getName():null;
 
@@ -405,10 +426,6 @@ public class ServiceSrcPublisher extends SrcFilePublisher {
 
         cb.end("");
         cb.end("");
-    }
-
-    private Entity findEntity(String entityName) {
-        return this.model.getEntityModels().findByName(entityName);
     }
 
 

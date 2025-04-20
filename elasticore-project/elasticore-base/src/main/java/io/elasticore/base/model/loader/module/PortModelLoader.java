@@ -1,7 +1,7 @@
 package io.elasticore.base.model.loader.module;
 
 import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.BaseComponentIdentity;
@@ -19,10 +19,9 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.*;
 
-public class PortModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Port> {
+public class PortModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<Port> {
 
 
     private ModelLoaderContext ctx;
@@ -37,8 +36,8 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map, FileSource source) {
         this.ctx = ctx;
         boolean isProcess = false;
-        if (map.containsKey(ConstanParam.KEYNAME_PORT)) {
-            loadModel(ctx.getPortItems(), map.get(ConstanParam.KEYNAME_PORT), source);
+        if (map.containsKey(ConstantParam.KEYNAME_PORT)) {
+            loadModel(ctx.getPortItems(), map.get(ConstantParam.KEYNAME_PORT), source);
             isProcess = true;
         }
 
@@ -145,7 +144,7 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
 
     protected Port loadPort(String portAdapterName, Map<String, Object> entityMap, String sqlSource) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_PORT, portAdapterName, sqlSource);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstantParam.KEYNAME_PORT, portAdapterName, sqlSource);
 
         Map<String, LinkedHashMap> methods = (Map<String, LinkedHashMap>) entityMap.get(PROPERTY_METHODS);
 
@@ -169,7 +168,7 @@ public class PortModelLoader extends AbstractModelLoader implements ConstanParam
      */
     private Method loadMethodInfo(String rootObjName, Map<String, Object> map) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(map, ConstanParam.KEYNAME_METHOD, rootObjName);
+        MetaInfo metaInfo = parseMetaInfoObject(map, ConstantParam.KEYNAME_METHOD, rootObjName);
 
         MapWrapper mapWrapper = new MapWrapper(map);
         String id = mapWrapper.getString("id");

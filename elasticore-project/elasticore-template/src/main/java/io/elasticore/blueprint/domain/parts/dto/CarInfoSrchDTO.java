@@ -1,4 +1,4 @@
-//ecd:-466984947H20250411151033_V1.0
+//ecd:1714615857H20250416200627_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
-import io.elasticore.blueprint.domain.parts.entity.*;
+
 
 
 /**
@@ -62,18 +62,6 @@ public  class CarInfoSrchDTO  implements java.io.Serializable, SortableObject, P
 	private String modelName;
 	
 	/*
-	  차량 식별 번호 (Vehicle Identification Number)
-	*/
-	@Schema(description = "차량 식별 번호 (Vehicle Identification Number) Use 'like' if value has %, else 'equal' field:vin"  )
-	private String vin;
-	
-	/*
-	  차체 번호
-	*/
-	@Schema(description = "차체 번호 Use 'like' if value has %, else 'equal' field:frame"  )
-	private String frame;
-	
-	/*
 	  차량 등록 기준
 	*/
 	@Schema(description = "차량 등록 기준 Use 'like' if value has %, else 'equal' field:criteria"  )
@@ -90,12 +78,6 @@ public  class CarInfoSrchDTO  implements java.io.Serializable, SortableObject, P
 	*/
 	@Schema(description = "부품 그룹 트리 지원 여부 Field equals value. field:groupTreeAvailables"  )
 	private Boolean groupTreeAvailables;
-	
-	/*
-	  파라미터
-	*/
-	@Schema(description = "파라미터 Field equals value. field:parameters"  )
-	private ParamInfo parametersItem;
 	
 	
 	private String sortCode;

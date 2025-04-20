@@ -1,4 +1,4 @@
-//ecd:1554908595H20250411141022_V1.0
+//ecd:-1322794080H20250416121357_V1.0
 package io.elasticore.blueprint.domain.parts.port;
 
 import java.util.*;
@@ -25,37 +25,37 @@ import io.elasticore.runtime.port.*;
 public interface PartsCatalogAdapter   {
 
     /*
-     * getCatalogs
+     * 차량 카탈로그(브랜드) 목록 정보
     */
     @HttpEndpoint(url="/v1/catalogs/", method="GET", contentType="application/json", paramNames="")
     java.util.List getCatalogs();
     
     /*
-     * 차량 모델 정보
+     * 브랜드별 차량 모델 목록 정보
     */
     @HttpEndpoint(url="/v1/catalogs/{catalogId}/models", method="GET", contentType="application/json", paramNames="catalogId")
     java.util.List<PartInfo> getCarModelList(String catalogId);
     
     /*
-     * getCarInfoList
+     * 모델별 차량 목록 정보
     */
     @HttpEndpoint(url="/v1/catalogs/{catalogId}/cars2", method="GET", contentType="application/json", paramNames="catalogId,modelId,page")
     java.util.List getCarInfoList(String catalogId,String modelId,Integer page);
     
     /*
-     * getCarInfo
+     * 차량 상세 정보
     */
     @HttpEndpoint(url="/v1/catalogs/{catalogId}/cars2/{carId}", method="GET", contentType="application/json", paramNames="catalogId,carId")
     java.util.Map getCarInfo(String catalogId,String carId);
     
     /*
-     * getCarParams
+     * 차량 파라미터 정보
     */
     @HttpEndpoint(url="/v1/catalogs/{catalogId}/cars-parameters", method="GET", contentType="application/json", paramNames="catalogId,modelIf")
     java.util.Map getCarParams(String catalogId,String modelIf);
     
     /*
-     * getCarInfoByVIN
+     * 대차 번호별 정보
     */
     @HttpEndpoint(url="/v1/car/info", method="GET", contentType="application/json", paramNames="q")
     java.util.List getCarInfoByVIN(String q);

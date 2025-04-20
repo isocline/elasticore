@@ -1,4 +1,4 @@
-//ecd:-1461789217H20250410163647_V1.0
+//ecd:-176960831H20250419002750_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -10,6 +10,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
 import io.elasticore.blueprint.domain.parts.entity.*;
@@ -34,6 +35,10 @@ import jakarta.persistence.Entity;
 @EntityListeners(AuditingEntityListener.class)
 public  class CarModel  implements java.io.Serializable  {
 
+	public CarModel(String id) {
+	    this.id = id;
+	}
+	
 	/*
 	  차량 모델 ID (UUID)
 	*/

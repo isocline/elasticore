@@ -1,17 +1,19 @@
-//ecd:-611803764H20250409104819_V1.0
+//ecd:786979177H20250417114614_V1.0
 package io.elasticore.blueprint.domain.bbs.service;
 
 import io.elasticore.blueprint.domain.bbs.entity.*;
 import io.elasticore.blueprint.domain.bbs.dto.*;
 import io.elasticore.blueprint.domain.bbs.repository.*;
 
-import io.elasticore.springboot3.mapper.MappingContext;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,6 +24,10 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.lang.reflect.Field;
+
+import io.elasticore.blueprint.domain.parts.entity.CarInfo;
+import io.elasticore.blueprint.domain.bbs.entity.TypeInfo;
+import io.elasticore.blueprint.domain.bbs.entity.Board;
 
 /**
  * Comprehensive service layer for managing Article entities.
@@ -120,7 +126,7 @@ public class ArticleCoreService {
         Specification<Article> specification = BbsMapper.toSpec(searchDTO);
         Pageable pageable = searchDTO.getPageable();
         Page<Article> result = helper.getArticle().findAll(specification, pageable);
-        return result.map(e->BbsMapper.toDTO(e, MappingContext.withGuard(2)));
+        return result.map(BbsMapper::toDTO);
     }
 
     /**
@@ -175,6 +181,14 @@ public class ArticleCoreService {
             Board item = helper.getBoard().findById(dto.getBoardBid()).orElse(null);
             if(item!=null) entity.setBoard(item);
         }
+        if(dto.getTypeInfoTid()!=null){
+            TypeInfo item = helper.getTypeInfo().findById(dto.getTypeInfoTid()).orElse(null);
+            if(item!=null) entity.setTypeInfo(item);
+        }
+        if(dto.getCarInfoId()!=null){
+            CarInfo item = helper.getCarInfo().findById(dto.getCarInfoId()).orElse(null);
+            if(item!=null) entity.setCarInfo(item);
+        }
     
 
         Article result = helper.getArticle().save(entity);
@@ -197,6 +211,14 @@ public class ArticleCoreService {
         if(dto.getBoardBid()!=null){
             Board item = helper.getBoard().findById(dto.getBoardBid()).orElse(null);
             if(item!=null) entity.setBoard(item);
+        }
+        if(dto.getTypeInfoTid()!=null){
+            TypeInfo item = helper.getTypeInfo().findById(dto.getTypeInfoTid()).orElse(null);
+            if(item!=null) entity.setTypeInfo(item);
+        }
+        if(dto.getCarInfoId()!=null){
+            CarInfo item = helper.getCarInfo().findById(dto.getCarInfoId()).orElse(null);
+            if(item!=null) entity.setCarInfo(item);
         }
     
 

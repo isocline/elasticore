@@ -3,8 +3,7 @@ package io.elasticore.base.extract;
 import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
-import io.elasticore.base.model.ConstanParam;
-import io.elasticore.base.model.ECoreModel;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.core.BaseECoreModelContext;
 import io.elasticore.base.model.loader.FileBasedModelLoader;
 import io.elasticore.base.model.pub.CodePublishManager;
@@ -29,7 +28,7 @@ public class ModelExtractor {
 
 
     public ModelExtractor() {
-        this.modelResourcePath = getRootDir() + "/" + ConstanParam.PROPERTY_ELCORE_HOME;
+        this.modelResourcePath = getRootDir() + "/" + ConstantParam.PROPERTY_ELCORE_HOME;
     }
 
     public ModelExtractor(String modelResourcePath) {
@@ -131,7 +130,7 @@ public class ModelExtractor {
 
 
         if (sourceFileAccessFactory == null) {
-            sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir + "/" + ConstanParam.PROPERTY_JAVA_SRC_HOME);
+            sourceFileAccessFactory = new FileBasedSourceFileAccessFactory(rootDir + "/" + ConstantParam.PROPERTY_JAVA_SRC_HOME);
         }
 
         CodePublishManager codePublishManager = CodePublishManager.getInstance();

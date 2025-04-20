@@ -14,19 +14,17 @@ entity:
       catalog: Catalog @ -- 카탈로그 참조 ID
 
   CarInfo:
-    meta: entity @expose -- 실제 등록 차량 정보
+    meta: entity @audited @expose -- 실제 등록 차량 정보
     fields:
       id: string(36)! @id -- 차량 ID (UUID)
-      name: string(100)! -- 차량 이름 또는 사용자 정의명
+      name: string(300)! -- 차량 이름 또는 사용자 정의명
       description: string(500) -- 차량 상세 설명
       modelId: string(36)! @ref(CarModel.modelId) -- 연결된 모델 ID
-      modelName: string(100)! -- 모델 이름 (조회용)
-      vin: string(30) -- 차량 식별 번호 (Vehicle Identification Number)
-      frame: string(50) -- 차체 번호
-      criteria: string(100) -- 차량 등록 기준
+      modelName: string(500) -- 모델 이름 (조회용)
+      criteria: string(500) -- 차량 등록 기준
       brand: string(50) -- 차량 브랜드명
       groupTreeAvailables: boolean @default(false) -- 부품 그룹 트리 지원 여부
-      parameters: List<ParamInfo> @ManyToMany -- 파라미터
+      parameters: List<ParamInfo> @dtype('List<ParamInfoDTO>') @ManyToMany @cascade(ALL) @notaudited-- 파라미터
 
   ParamInfo:
     meta: entity @expose -- 차량별 설정된 파라미터 값 정보
@@ -39,7 +37,7 @@ entity:
       sortOrder: int(5) -- 정렬 순서
 
   PartGroup:
-    meta: entit @expose -- 차량 부품 그룹 정의
+    meta: entity @expose -- 차량 부품 그룹 정의
     fields:
       id: string(36)! @id -- 부품 그룹 ID
       name: string(100)! -- 부품 그룹 이름
@@ -48,3 +46,16 @@ entity:
       description: string(500) -- 그룹 설명
       parentId: string(36)  -- 상위 그룹 ID
       carId: string(36)!  -- 연결된 차량 ID
+
+  CarProfile:
+    meta: entity @expose -- 차량정보
+    fields:
+      vin: string(36)! @id -- VIN
+      frame: string(100) -- frame
+      carInfo: CarInfo
+
+dto:
+  CarProfileInfoDTO:
+    meta: dto @template(CarProfileDTO,CarInfoDTO)
+    fields:
+      carId: string

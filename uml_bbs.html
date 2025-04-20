@@ -45,6 +45,17 @@ init: {
 }%%
 
 classDiagram
+    class CarInfo{
+        id: String[PK] //차량 ID (UUID)
+        name: String //차량 이름 또는 사용자 정의명
+        description: String //차량 상세 설명
+        modelId: String //연결된 모델 ID
+        modelName: String //모델 이름 (조회용)
+        criteria: String //차량 등록 기준
+        brand: String //차량 브랜드명
+        groupTreeAvailables: Boolean //부품 그룹 트리 지원 여부
+        parameters: ParamInfo[] 
+    }
     class BaseEntity:::abstract{
         &lt;&lt;Abstract &gt;&gt;
         createDate: java.time.LocalDateTime 
@@ -66,14 +77,22 @@ classDiagram
     }
     AuditEntity <|-- Board : extend
     Board --o "0..*" Article : articles
+    class TypeInfo{
+        tid: Long[PK] 
+        name: String 
+    }
     class Article{
         aid: String[PK] 
         title: String //제목
         content: String //본문
         board: Board //상위 게시판
+        typeInfo: TypeInfo 
+        carInfo: CarInfo 
     }
     AuditEntity <|-- Article : extend
     Article --o "0..1" Board : board
+    Article --o "0..1" TypeInfo : typeInfo
+    Article --o "0..1" CarInfo : carInfo
 
 
     classDef abstract fill:#ffb,stroke:#663,stroke-width:2px,color:#000,stroke-dasharray: 5 5

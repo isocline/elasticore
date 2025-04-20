@@ -429,8 +429,10 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
         try {
             O dto = outputType.getDeclaredConstructor().newInstance();
             for (TupleElement<?> element : tuple.getElements()) {
-                String fieldName = toCamelCase(element.getAlias());
+                String colName = element.getAlias();
+                String fieldName = toCamelCase(colName);
                 Field field = ReflectUtils.getField(outputType, fieldName);
+                if(field==null) field = ReflectUtils.getField(outputType, colName);
                 if (field != null) {
                     Object value = tuple.get(element);
                     Object convertedValue = convertValue(value, field.getType());

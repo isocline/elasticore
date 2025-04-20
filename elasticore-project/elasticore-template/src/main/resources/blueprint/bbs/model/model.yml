@@ -26,6 +26,11 @@ entity:
       boardType: BoardType -- 게시판 타입
       articles: List<Article> @dtype(List<ArticleDTO>)
 
+  TypeInfo:
+    meta: entity
+    fields:
+      tid: long @id @sequence
+      name: string
       
  
   Article:
@@ -35,6 +40,8 @@ entity:
       title: string -- 제목
       content: text -- 본문
       board: Board -- 상위 게시판
+      typeInfo: TypeInfo
+      carInfo: CarInfo
 
 dto:
   ArticleSrchDTO:

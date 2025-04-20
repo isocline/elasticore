@@ -2,20 +2,17 @@ package io.elasticore.base.model.pub.jpa;
 
 import io.elasticore.base.CodePublisher;
 import io.elasticore.base.ModelDomain;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.ModelComponentItems;
 import io.elasticore.base.model.core.Annotation;
 import io.elasticore.base.model.core.Items;
-import io.elasticore.base.model.entity.Entity;
-import io.elasticore.base.model.entity.EntityAnnotation;
 import io.elasticore.base.model.entity.Field;
 import io.elasticore.base.model.port.Port;
 import io.elasticore.base.model.port.PortAnnotation;
 import io.elasticore.base.model.repo.Method;
 import io.elasticore.base.util.CodeTemplate;
-import io.elasticore.base.util.ConsoleLog;
 import io.elasticore.base.util.StringUtils;
 
 import java.util.List;
@@ -54,13 +51,13 @@ public class PortSrcPublisher extends SrcFilePublisher {
         this.baseCodeTmpl = CodeTemplate.newInstance(templatePath);
 
         ECoreModel model = publisher.getECoreModelContext().getDomain().getModel();
-        this.packageName = model.getNamespace(ConstanParam.KEYNAME_PORT);
+        this.packageName = model.getNamespace(ConstantParam.KEYNAME_PORT);
 
         if (eCoreModel.getEntityModels().getItems().size() > 0)
-            this.entityPackageName = model.getNamespace(ConstanParam.KEYNAME_ENTITY);
+            this.entityPackageName = model.getNamespace(ConstantParam.KEYNAME_ENTITY);
 
         if (eCoreModel.getDataTransferModels().getItems().size() > 0)
-            this.dtoPackageName = model.getNamespace(ConstanParam.KEYNAME_DTO);
+            this.dtoPackageName = model.getNamespace(ConstantParam.KEYNAME_DTO);
 
     }
 

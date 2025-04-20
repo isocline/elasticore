@@ -1,7 +1,7 @@
 package io.elasticore.base.model.loader.module;
 
 import io.elasticore.base.model.ComponentType;
-import io.elasticore.base.model.ConstanParam;
+import io.elasticore.base.model.ConstantParam;
 import io.elasticore.base.model.MetaInfo;
 import io.elasticore.base.model.core.BaseComponentIdentity;
 import io.elasticore.base.model.core.Items;
@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RepositoryModelLoader extends AbstractModelLoader implements ConstanParam, ModelLoader<Repository> {
+public class RepositoryModelLoader extends AbstractModelLoader implements ConstantParam, ModelLoader<Repository> {
 
 
     private ModelLoaderContext ctx;
@@ -37,19 +37,19 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
     public boolean loadModel(ModelLoaderContext ctx, Map<String, Map> map) {
         this.ctx = ctx;
         boolean isProcess = false;
-        if (map.containsKey(ConstanParam.KEYNAME_REPOSITORY)) {
-            loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_REPOSITORY));
+        if (map.containsKey(ConstantParam.KEYNAME_REPOSITORY)) {
+            loadModel(ctx.getRepositoryItems(), map.get(ConstantParam.KEYNAME_REPOSITORY));
             isProcess = true;
         }
 
-        if (map.containsKey(ConstanParam.KEYNAME_ENTITY)) {
-            loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_ENTITY));
+        if (map.containsKey(ConstantParam.KEYNAME_ENTITY)) {
+            loadModel(ctx.getRepositoryItems(), map.get(ConstantParam.KEYNAME_ENTITY));
             isProcess = true;
         }
 
 
-        if (map.containsKey(ConstanParam.KEYNAME_DTO)) {
-            loadModel(ctx.getRepositoryItems(), map.get(ConstanParam.KEYNAME_DTO));
+        if (map.containsKey(ConstantParam.KEYNAME_DTO)) {
+            loadModel(ctx.getRepositoryItems(), map.get(ConstantParam.KEYNAME_DTO));
             isProcess = true;
         }
 
@@ -88,7 +88,7 @@ public class RepositoryModelLoader extends AbstractModelLoader implements Consta
 
     protected Repository loadRepository(String entityNm, Map<String, Object> entityMap) {
 
-        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstanParam.KEYNAME_REPOSITORY, entityNm);
+        MetaInfo metaInfo = parseMetaInfoObject(entityMap, ConstantParam.KEYNAME_REPOSITORY, entityNm);
 
         List<Map> methods = (List) entityMap.get(PROPERTY_METHODS);
 
