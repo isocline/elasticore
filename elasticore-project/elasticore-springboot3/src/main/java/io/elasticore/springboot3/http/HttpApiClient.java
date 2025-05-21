@@ -27,6 +27,8 @@ import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLException;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +44,10 @@ public class HttpApiClient {
     public static WebClient createWebClient(String url, boolean ignoreSSL) {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                .responseTimeout(Duration.ofMillis(20000))
+                .responseTimeout(Duration.ofMillis(60000))
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS))
-                        .addHandlerLast(new WriteTimeoutHandler(10000, TimeUnit.MILLISECONDS)));
+                        .addHandlerLast(new ReadTimeoutHandler(90, TimeUnit.SECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(90, TimeUnit.SECONDS)));
 
         if (ignoreSSL) {
             httpClient = httpClient.secure(sslContextSpec -> {
@@ -110,6 +112,14 @@ public class HttpApiClient {
         return exchange(httpMethod, createWebClient(url), path, sendObj, responseType, headerMapList, mediaType);
     }
 
+    private static String decode(String value) {
+        try {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            throw new RuntimeException("URL decode fail", e);
+        }
+    }
+
     public static <V, T> Mono<T> exchange(HttpMethod httpMethod, WebClient webClient, String path, V sendObj, ParameterizedTypeReference<T> responseType,
                                           List<Map<String, String>> headerMapList, MediaType mediaType) {
         WebClient.RequestBodyUriSpec requestSpec = webClient.method(httpMethod);
@@ -119,8 +129,14 @@ public class HttpApiClient {
             String pathOnly = inputUri.getPath(); // "/v1/catalogs/bmw/cars2"
 
             MultiValueMap<String, String> mergedParams = new LinkedMultiValueMap<>();
-            mergedParams.addAll(UriComponentsBuilder.fromUri(inputUri).build().getQueryParams()); // path query
+            //mergedParams.addAll(UriComponentsBuilder.fromUri(inputUri).build().getQueryParams()); // path query
             mergedParams.addAll(getQueryParamConvert(sendObj)); // sendObj
+
+            UriComponentsBuilder.fromUri(inputUri).build().getQueryParams().forEach((key, values) -> {
+                for (String value : values) {
+                    mergedParams.add(key, decode(value));
+                }
+            });
 
             return configureRequest(requestSpec.uri(uriBuilder -> {
                 URI uri = uriBuilder

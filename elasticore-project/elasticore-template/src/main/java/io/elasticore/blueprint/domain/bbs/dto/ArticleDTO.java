@@ -1,4 +1,4 @@
-//ecd:-886307913H20250417102657_V1.0
+//ecd:-769122772H20250520114848_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -12,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
-import io.elasticore.blueprint.domain.bbs.dto.*;
-import io.elasticore.blueprint.domain.parts.dto.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -34,20 +32,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @AllArgsConstructor
 public  class ArticleDTO  implements java.io.Serializable  {
 
-	@Schema(description = "board"  )
-	private BoardDTO board;
-	
-	@Schema(description = "carInfo"  )
-	private CarInfoDTO carInfo;
-	
-	@Schema(description = "boardBid"  )
-	private Long boardBid;
-	
-	@Schema(description = "typeInfoTid"  )
-	private Long typeInfoTid;
-	
-	@Schema(description = "carInfoId"  )
-	private String carInfoId;
+	@Schema(description = "boardTestId"  )
+	private String boardTestId;
 	
 	@Schema(description = "aid"  )
 	private String aid;
@@ -86,11 +72,6 @@ public  class ArticleDTO  implements java.io.Serializable  {
 	@Schema(description = "시스템 수정 IP"  )
 	@Size(max=20)
 	private String lastModifiedIP;
-	
-	@Schema(description = "createDate"  , example="yyyy-MM-dd HH:mm:ss")
-	@org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private java.time.LocalDateTime createDate;
 	
 	@Schema(description = "createdBy"  )
 	@Size(max=20)

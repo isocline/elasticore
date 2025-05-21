@@ -227,7 +227,7 @@ public class DbTransactionGateway implements DbmsSqlExecutor {
             bindQueryParameters(query, processedQuery, input);
             List<Tuple> resultList = query.getResultList();
 
-            if (outputType == Map.class) {
+            if (Map.class.isAssignableFrom(outputType)) {
                 return (List<O>) resultList.stream()
                         .map(this::convertTupleToCamelCaseMap)
                         .collect(Collectors.toList());

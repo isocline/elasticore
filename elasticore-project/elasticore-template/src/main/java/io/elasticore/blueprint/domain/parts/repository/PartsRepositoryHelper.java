@@ -1,4 +1,4 @@
-//ecd:-1781541365H20250416200627_V1.0
+//ecd:-683498387H20250422163832_V1.0
 package io.elasticore.blueprint.domain.parts.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -31,6 +31,7 @@ import io.elasticore.blueprint.domain.parts.entity.*;
 import io.elasticore.blueprint.domain.parts.dto.*;
 
 
+
 /**
  * Helper class for managing multiple JPA repositories and providing
  * support functions such as paginated and sorted query creation.
@@ -56,9 +57,17 @@ public class PartsRepositoryHelper {
     
     private final ParamInfoRepository paramInfo;
     
+    private final CarProfileRepository carProfile;
+    
     private final PartGroupRepository partGroup;
     
-    private final CarProfileRepository carProfile;
+    private final PartPositionRepository partPosition;
+    
+    private final CarPartRepository carPart;
+    
+    private final SuggestGroupRepository suggestGroup;
+    
+    private final PartGroupInfoRepository partGroupInfo;
     
 
 

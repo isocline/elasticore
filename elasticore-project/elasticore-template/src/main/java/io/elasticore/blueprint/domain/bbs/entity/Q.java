@@ -1,4 +1,4 @@
-//ecd:-1608808725H20250417102657_V1.0
+//ecd:1947085350H20250521114807_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -7,8 +7,6 @@ import io.elasticore.springboot3.entity.*;
 import org.springframework.data.jpa.domain.Specification;
 import java.util.*;
 import io.elasticore.blueprint.domain.bbs.enums.*;
-import io.elasticore.blueprint.domain.parts.entity.*;
-import io.elasticore.blueprint.domain.parts.entity.Q.*;
 import io.elasticore.blueprint.domain.bbs.entity.*;
 import io.elasticore.blueprint.domain.bbs.entity.Q.*;
 
@@ -22,6 +20,34 @@ import io.elasticore.blueprint.domain.bbs.entity.Q.*;
 
 public class Q {
 
+	public static $Message<Message> Message=new $Message<>();
+	public static class $Message<T> {
+	
+	    private FieldInfo p=null;
+	    public $Message() {}
+	    public $Message(FieldInfo p) {this.p=p;}
+	
+	    public final FieldInfo<T> getMsgId() {return new FieldInfo(Message.class,"msgId",Long.class, null,p);}
+	    public final String msgId="msgId";
+	    public Specification<T> msgId(Op op,Object value) {return getMsgId().where(op,value);}
+	    public Specification<T> msgId(Op op,Object value,boolean chkEmpty) {return getMsgId().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getCcId() {return new FieldInfo(Message.class,"ccId",String.class, null,p);}
+	    public final String ccId="ccId";
+	    public Specification<T> ccId(Op op,Object value) {return getCcId().where(op,value);}
+	    public Specification<T> ccId(Op op,Object value,boolean chkEmpty) {return getCcId().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getChId() {return new FieldInfo(Message.class,"chId",String.class, null,p);}
+	    public final String chId="chId";
+	    public Specification<T> chId(Op op,Object value) {return getChId().where(op,value);}
+	    public Specification<T> chId(Op op,Object value,boolean chkEmpty) {return getChId().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getSender() {return new FieldInfo(Message.class,"sender",String.class, null,p);}
+	    public final String sender="sender";
+	    public Specification<T> sender(Op op,Object value) {return getSender().where(op,value);}
+	    public Specification<T> sender(Op op,Object value,boolean chkEmpty) {return getSender().where(op,value,chkEmpty);}
+	}
+	
 	public static $Board<Board> Board=new $Board<>();
 	public static class $Board<T> {
 	
@@ -43,6 +69,9 @@ public class Q {
 	    public final String boardType="boardType";
 	    public Specification<T> boardType(Op op,Object value) {return getBoardType().where(op,value);}
 	    public Specification<T> boardType(Op op,Object value,boolean chkEmpty) {return getBoardType().where(op,value,chkEmpty);}
+	
+	    public final FieldInfo<T> getBoardTypeList() {return new FieldInfo(Board.class,"boardTypeList",BoardType.class, List.class,p);}
+	    public final String boardTypeList="boardTypeList";
 	
 	    public final FieldInfo<T> getArticles() {return new FieldInfo(Board.class,"articles",Article.class, List.class,p);}
 	    public final String articles="articles";
@@ -128,7 +157,6 @@ public class Q {
 	
 	    public final FieldInfo<T> getCarInfo() {return new FieldInfo(Article.class,"carInfo",CarInfo.class, null,p);}
 	    public final String carInfo="carInfo";
-	    public final $CarInfo<T> carInfo() {return new $CarInfo(getCarInfo());}
 	
 	    public final FieldInfo<T> getLastModifiedBy() {return new FieldInfo(Article.class,"lastModifiedBy",String.class, null,p);}
 	    public final String lastModifiedBy="lastModifiedBy";
@@ -159,6 +187,22 @@ public class Q {
 	    public final String createdBy="createdBy";
 	    public Specification<T> createdBy(Op op,Object value) {return getCreatedBy().where(op,value);}
 	    public Specification<T> createdBy(Op op,Object value,boolean chkEmpty) {return getCreatedBy().where(op,value,chkEmpty);}
+	}
+	
+	public static $ArticlePart<ArticlePart> ArticlePart=new $ArticlePart<>();
+	public static class $ArticlePart<T> {
+	
+	    private FieldInfo p=null;
+	    public $ArticlePart() {}
+	    public $ArticlePart(FieldInfo p) {this.p=p;}
+	
+	    public final FieldInfo<T> getArticle() {return new FieldInfo(ArticlePart.class,"article",Article.class, null,p);}
+	    public final String article="article";
+	    public final $Article<T> article() {return new $Article(getArticle());}
+	
+	    public final FieldInfo<T> getPartnerArticle() {return new FieldInfo(ArticlePart.class,"partnerArticle",Article.class, null,p);}
+	    public final String partnerArticle="partnerArticle";
+	    public final $Article<T> partnerArticle() {return new $Article(getPartnerArticle());}
 	}
 	
 }

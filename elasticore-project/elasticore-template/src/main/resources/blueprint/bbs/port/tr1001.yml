@@ -1,0 +1,33 @@
+
+transaction:
+
+  dto:
+    BoardInfo:
+      fields:
+        brand: string -- 브랜드명
+
+    CarInfoOutput:
+      fields:
+        brand: string -- 브랜드명
+        description: string -- 설명
+        modelId: string -- 모델 ID
+
+  port:
+    BoardService:
+      meta: dbms @datasource("main")
+      methods:
+
+        getBoardInfo:
+          params:
+            input: CarInfoInput
+          return: BoardInfo
+
+        getArticleList:
+          params:
+            page: int
+            count: int
+          return: List<Article>
+
+
+
+

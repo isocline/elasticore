@@ -8,6 +8,33 @@ dto:
       name: string
       img: string
 
+  CatalogSchemaDTO:
+    meta: dto
+    fields:
+      group: GroupInfoDTO -- 그룹 정보
+      list: List<PartGroupSchemaDTO> -- 리스트 항목
+
+
+  GroupInfoDTO:
+    meta: dto
+    fields:
+      id: string -- 그룹 ID
+      name: string -- 그룹 이름
+
+  PartGroupSchemaDTO:
+    meta: dto
+    fields:
+      groupId: string -- 리스트 그룹 ID
+      img: string -- 이미지 경로
+      name: string -- 리스트 이름
+      description: string -- 설명
+      partNames: List<PartNameDTO> -- 부품 이름 리스트
+
+  PartNameDTO:
+    meta: dto
+    fields:
+      id: string -- 부품 ID
+      name: string -- 부품 이름
 
 
 port:
@@ -46,8 +73,11 @@ port:
         meta: method @get("/v1/catalogs/{catalogId}/cars-parameters") -- 차량 파라미터 정보
         params:
           catalogId: String -- Catalog id
-          modelIf: string -- Model id
-        return: java.util.Map
+          modelId: string -- Model id
+          parameter: String[] -- parameters
+        return: java.util.List
+
+
 
       getCarInfoByVIN:
         meta: method @get("/v1/car/info") -- 대차 번호별 정보
@@ -64,22 +94,30 @@ port:
         meta: method @get("/v1/catalogs/{catalogId}/groups2")
         params:
           catalogId: String -- Catalog id
+          carId: String --Catalog id
+          groupId: String -- Group id
+          criteria: String -- Additional criteria string
         return: java.util.List
+
 
       getCatalogGroupSuggestList:
         meta: method @get("/v1/catalogs/{catalogId}/groups-suggest")
         params:
           catalogId: String -- Catalog id
+          q: String -- First letters of searching part
         return: java.util.List
 
 
       ## Parts
 
       getParts:
-        meta: method @get("/v1/catalogs/{catalogId}/parts")
+        meta: method @get("/v1/catalogs/{catalogId}/parts2")
         params:
           catalogId: String -- Catalog id
-        return: java.util.List
+          carId: String -- Car id
+          groupId: String -- Group id
+          criteria: String -- Additional criteria string
+        return: java.util.Map
 
 
 
@@ -87,15 +125,27 @@ port:
 
       ## Groups tree
 
-      getGroupstree:
+      getGroupsTree:
         meta: method @get("/v1/catalogs/{catalogId}/groups-tree")
         params:
           catalogId: String -- Catalog id
+          carId: String -- Car id
+          criteria: String -- Additional criteria string
+          cached: boolean
         return: java.util.List
 
 
       getSchemas:
         meta: method @get("/v1/catalogs/{catalogId}/schemas")
         params:
+          carId: String -- Car Id
           catalogId: String -- Catalog id
+          branchId: String -- Branch id
+          criteria: String -- Additional criteria string
+          page: int  -- page number
+          partNameIds: String
+          partName: String  -- Part name ids for filter schemas
+
         return: java.util.Map
+
+

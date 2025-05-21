@@ -59,6 +59,9 @@ public class SrcFilePublisher {
         }
     }
 
+
+
+
     protected void writeSrcCode(CodePublisher publisher, ModelComponent modelComponent, String qualifiedClassName, String content) {
         writeSrcCode(publisher, modelComponent, qualifiedClassName, content, true);
     }

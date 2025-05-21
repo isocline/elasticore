@@ -1,4 +1,4 @@
-//ecd:1230766783H20250417102657_V1.0
+//ecd:-70332142H20250520114848_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -12,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
-import io.elasticore.blueprint.domain.bbs.dto.*;
-import io.elasticore.blueprint.domain.parts.dto.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 

@@ -104,6 +104,18 @@ public class HttpServiceProxyFactory {
 
             return headerMapList;
         }
+
+
+        private static String encode(String value) {
+            try {
+                return URLEncoder.encode(value, StandardCharsets.UTF_8.toString())
+                        .replace("+", "%20");
+            } catch (Exception e) {
+                throw new RuntimeException("URL encoding fail", e);
+            }
+        }
+
+
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Object preset = presetMethod(proxy, method, args);
@@ -137,10 +149,23 @@ public class HttpServiceProxyFactory {
                     String paramName = (i < paramNames.length) ? paramNames[i].trim() : "arg" + i;
 
                     if (isPrimitiveOrWrapper(arg)) {
+
+                        Object value = arg;
+                        if (arg != null && arg.getClass().isArray()) {
+                            int length = Array.getLength(arg);
+                            List<String> items = new ArrayList<>();
+                            for (int k = 0; k < length; k++) {
+                                Object element = Array.get(arg, k);
+                                items.add(String.valueOf(element));
+                            }
+                            value = String.join(",", items);
+                        }
+
+
                         if (callUrl.contains("{" + paramName + "}")) {
-                            pathParams.put(paramName, arg);
+                            pathParams.put(paramName, value);
                         } else {
-                            queryParams.put(paramName, arg);
+                            queryParams.put(paramName, value);
                         }
                     } else {
                         mainReqObject = arg;
@@ -164,9 +189,9 @@ public class HttpServiceProxyFactory {
 
             callUrl = callUrl.replaceAll("\\{[^/]+}", "");
 
-            if (httpMethod == HttpMethod.GET && !queryParams.isEmpty()) {
+            if (!queryParams.isEmpty()) {
                 String queryString = queryParams.entrySet().stream()
-                        .map(e -> e.getKey() + "=" + (e.getValue() != null ? e.getValue().toString() : ""))
+                        .map(e -> e.getKey() + "=" + (e.getValue() != null ? encode(e.getValue().toString()) : ""))
                         .collect(Collectors.joining("&"));
 
                 if (callUrl.contains("?")) {
@@ -211,12 +236,23 @@ public class HttpServiceProxyFactory {
         private boolean isPrimitiveOrWrapper(Object obj) {
             if (obj == null) return false;
             Class<?> clazz = obj.getClass();
+
+            if (clazz.isArray()) {
+                Class<?> componentType = clazz.getComponentType();
+                return componentType.isPrimitive()
+                        || componentType == String.class
+                        || Number.class.isAssignableFrom(componentType)
+                        || componentType == Boolean.class
+                        || componentType == Character.class;
+            }
+
             return clazz.isPrimitive()
                     || clazz == String.class
                     || Number.class.isAssignableFrom(clazz)
                     || clazz == Boolean.class
                     || clazz == Character.class;
         }
+
 
 
         public Object invoke_old(Object proxy, Method method, Object[] args) throws Throwable {

@@ -58,7 +58,9 @@ public class PortServiceRegistrar implements ImportBeanDefinitionRegistrar, Envi
             }
         }
 
-        throw new IllegalStateException("Could not detect main package");
+        return "com.gesa";
+
+        //throw new IllegalStateException("Could not detect main package");
     }
 
 

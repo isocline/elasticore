@@ -81,6 +81,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
         ECoreModel tmpModel = ECoreModel.builder()
                 .entityModels(entityModels)
                 .enumModels(enumModels)
+                .internalDomainName(context.getDomainId())
                 .dataTransferModels(dataTransferModels).build();
         BaseModelDomain.setCurrentModel(tmpModel);
 
@@ -100,6 +101,7 @@ public class YamlFileMainModelLoader implements MainModelLoader {
                 .portModels(portModels)
                 .configMap(context.getConfigMap())
                 .namespaceMap(context.getNsMap())
+                .internalDomainName(context.getDomainId())
                 .build();
     }
 

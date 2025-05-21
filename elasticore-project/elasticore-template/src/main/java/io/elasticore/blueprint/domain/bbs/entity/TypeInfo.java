@@ -1,4 +1,4 @@
-//ecd:-1244014785H20250419002748_V1.0
+//ecd:-1244014785H20250422185309_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;

@@ -37,7 +37,10 @@ public final class BaseModelDomain implements ModelDomain {
     }
 
     public static BaseModelDomain newInstance(String name, ECoreModel model) {
-        return new BaseModelDomain(name, model);
+        String configDomainName = model.getConfigDomainName();
+        if(configDomainName==null)
+            configDomainName = name;
+        return new BaseModelDomain(configDomainName, model);
     }
 
     @Override

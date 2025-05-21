@@ -1,4 +1,4 @@
-//ecd:-818382055H20250409104819_V1.0
+//ecd:-818382055H20250520131253_V1.0
 package io.elasticore.blueprint.domain.bbs.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;

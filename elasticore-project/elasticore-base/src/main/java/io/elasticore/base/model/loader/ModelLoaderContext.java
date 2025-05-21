@@ -27,11 +27,24 @@ public class ModelLoaderContext {
 
     private Items<Port> portItems = Items.create(Port.class);
 
+    private String baseFilePath;
 
     ModelLoaderContext(String domainId, Map<String, Object> configMap, Map<String, String> nsMap) {
         this.domainId = domainId;
         this.configMap = configMap;
         this.nsMap = nsMap;
+    }
+
+
+    ModelLoaderContext(String domainId, Map<String, Object> configMap, Map<String, String> nsMap, String baseFilePath) {
+        this.domainId = domainId;
+        this.configMap = configMap;
+        this.nsMap = nsMap;
+        this.baseFilePath = baseFilePath;
+    }
+
+    public String getBaseFilePath() {
+        return this.baseFilePath;
     }
 
     public String getDomainId() {
@@ -62,8 +75,8 @@ public class ModelLoaderContext {
                 } else {
                     return null;
                 }
-            } else {
-                return value instanceof String ? (String) value : null;
+            } else if(value!=null){
+                return value instanceof String ? (String) value : value.toString();
             }
         }
         return null;

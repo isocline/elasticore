@@ -1,0 +1,42 @@
+enumeration:
+  BoardType:
+    meta: enum @db(code) @json(code)  --  타입
+    fields:
+      code: string(2) @length(3) -- 타입코드
+      name: string(50) -- 이름
+    enum:
+      PUBLIC: PB,공개
+      PRIVATE: PV,개인
+
+
+
+
+dto:
+  CarInfo2Input:
+    meta: dto
+    fields:
+      brand: string -- 브랜드명
+      inputType: CarInfo23Input
+      boType: BoardType
+
+  CarInfo23Input:
+    meta: dto
+    fields:
+      brand: string -- 브랜드명
+
+  CarInfo2Output:
+    meta: dto
+    fields:
+      brand: string -- 브랜드명
+      description: string -- 설명
+      modelId: string -- 모델 ID
+
+port:
+  CarInfoPortService:
+    meta: proto @server @client
+    methods:
+      findByBrand:
+        meta: method -- 브랜드별 차량 정보 조회
+        params:
+          input: CarInfo2Input
+        return: CarInfo2Output

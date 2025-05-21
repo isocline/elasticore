@@ -18,12 +18,21 @@ entity:
 
 
 
+  Message:
+    meta: entity  @Index(name = "idx_msg_create_date", columnList = "create_date")  -- 메시지 | 채널을 통해 전송된 메시지 정보
+    fields:
+      msgId: long @id @sequence -- 메세지 아이디
+      ccId: string(30) -- 고객 채널 아이디
+      chId: string(30) -- 외부 채널 ID
+      sender: string(64) -- 발신자 정보(전화번호)
+
   Board:
     meta: entity @expose(50) @extend(AuditEntity) -- 게시판
     fields:
       bid: long @id @sequence -- 게시판 아이디
       name: string -- 게시판 명
       boardType: BoardType -- 게시판 타입
+      boardTypeList : List<BoardType> -- 테스트
       articles: List<Article> @dtype(List<ArticleDTO>)
 
   TypeInfo:
@@ -44,8 +53,27 @@ entity:
       carInfo: CarInfo
 
 dto:
+  ArticleDTO:
+    meta: dto @template(Article)
+    fields:
+      boardTestId: string @ref(board.name)
+      createDate: --
+
+
   ArticleSrchDTO:
     meta: dto @searchable(entity=Article, pageSize=50)
     fields:
       boardType: List<BoardType> @s(in)  @ref(board.boardType) -- 게시판 타입
+
+
+
+
+repository_test:
+  Article:
+    methods:
+      - id: selectArticleByTitle
+        query: select a from Article where a.title = :title
+
+      - id: selectArticleByName
+        query: select a from Article where a.name = :name
 

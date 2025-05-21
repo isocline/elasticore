@@ -13,12 +13,16 @@ import io.elasticore.springboot3.util.ReflectUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 
 @Service
 @AllArgsConstructor
@@ -28,12 +32,14 @@ public class PartsCatalogsService {
 
     private final PartsRepositoryHelper helper;
 
+    private final static boolean FORCE_CAL_API = true;
+
 
     public List<CatalogDTO> getCatalogs() {
         List<Catalog> catalogList = helper.getCatalog().findAll();
         if (catalogList == null)
             catalogList = new ArrayList<>();
-        if (catalogList.size() < 10) {
+        if (FORCE_CAL_API || catalogList.size() < 10) {
             List<Map> catalogs = partsCatalogAdapter.getCatalogs();
             for (Map item : catalogs) {
                 Catalog catalog = new Catalog();
@@ -64,19 +70,26 @@ public class PartsCatalogsService {
         List<CarModel> carModelList = Optional.ofNullable(helper.getCarModel().findAll(sp, sort))
                 .orElseGet(ArrayList::new);
 
-        if (carModelList.isEmpty()) {
+        if (FORCE_CAL_API || carModelList.isEmpty()) {
 
-            Catalog catalog = new Catalog();
-            catalog.setCatalogId(catalogId);
+            Catalog catalog = new Catalog(catalogId);
 
-            partsCatalogAdapter.getCarModelList(catalogId).forEach(partInfo -> {
+            if(helper.getCatalog().findById(catalogId).isEmpty()) {
+                catalog.setName("undifiend");
+                helper.getCatalog().save(catalog);
+            }
+
+            List<PartInfo> carModelList2 = partsCatalogAdapter.getCarModelList(catalogId);
+
+            for(PartInfo partInfo : carModelList2) {
                 CarModel carModel = Mapper.of(partInfo, CarModel.class)
                         .map(Q.CarModel.id, Q.CarModel.name, Q.CarModel.img)
                         .execute();
-                carModel.setCatalog(new Catalog(catalogId));
+                carModel.setCatalog(catalog);
                 helper.getCarModel().save(carModel);
                 carModelList.add(carModel);
-            });
+            }
+
 
             List<PartInfo> carModelList1 = partsCatalogAdapter.getCarModelList(catalogId);
             for (PartInfo partInfo : carModelList1) {
@@ -107,7 +120,7 @@ public class PartsCatalogsService {
         if (list == null)
             list = new ArrayList<>();
 
-        if (list.isEmpty() || list.size() < 10) {
+        if (FORCE_CAL_API || list.isEmpty() || list.size() < 10) {
             List<Map<String, Object>> rawList = partsCatalogAdapter.getCarInfoList(catalogId, modelId, page);
             for (Map<String, Object> item : rawList) {
                 CarInfo car = new CarInfo();
@@ -115,7 +128,7 @@ public class PartsCatalogsService {
                         .map(Q.CarInfo.id, Q.CarInfo.name
                                 , Q.CarInfo.modelId, Q.CarInfo.modelName
                                 , Q.CarInfo.description, Q.CarInfo.criteria
-                                , Q.CarInfo.brand, Q.CarInfo.groupTreeAvailables)
+                                , Q.CarInfo.brand, Q.CarInfo.groupsTreeAvailable)
                         .execute();
 
                 List<Map> parames = (List) item.get("parameters");
@@ -146,7 +159,7 @@ public class PartsCatalogsService {
     public CarInfoDTO getCarInfo(String catalogId, String carId) {
         Optional<CarInfo> optional = helper.getCarInfo().findById(carId);
         CarInfo car = null;
-        if (!optional.isPresent()) {
+        if (FORCE_CAL_API || !optional.isPresent()) {
 
 
             Map<String, Object> raw = partsCatalogAdapter.getCarInfo(catalogId, carId);
@@ -159,7 +172,7 @@ public class PartsCatalogsService {
                     .map("modelId", Q.CarInfo.modelId)
                     .map("description", Q.CarInfo.description)
                     .map("brand", Q.CarInfo.brand)
-                    .map("groupTreeAvailables", Q.CarInfo.groupTreeAvailables)
+                    .map("groupTreeAvailables", Q.CarInfo.groupsTreeAvailable)
                     .execute();
 
 
@@ -188,12 +201,15 @@ public class PartsCatalogsService {
     }
 
     // 5. 파라미터 정보 저장
-    public List<ParamInfoDTO> getCarParams(String catalogId, String modelIf) {
+    public List<ParamInfoDTO> getCarParams(String catalogId, String modelIf, List<String> parameter) {
+
+        /*
         Specification<ParamInfo> spec = Q.ParamInfo.carId(Op.EQ, modelIf);
+
         List<ParamInfo> paramList = helper.getParamInfo().findAll(spec);
 
-        if (paramList.isEmpty()) {
-            Map<String, Object> raw = partsCatalogAdapter.getCarParams(catalogId, modelIf);
+        if (FORCE_CAL_API || paramList.isEmpty()) {
+            Map<String, Object> raw = partsCatalogAdapter.getCarParams(catalogId, modelIf ,parameter);
             List<Map<String, Object>> params = (List<Map<String, Object>>) raw.get("params");
             for (Map<String, Object> item : params) {
                 ParamInfo param = new ParamInfo();
@@ -207,6 +223,10 @@ public class PartsCatalogsService {
         }
 
         return Mapper.of(paramList, ParamInfoDTO.class).toList();
+        */
+
+        return null;
+
     }
 
 
@@ -216,14 +236,13 @@ public class PartsCatalogsService {
      */
     public List<CarProfileInfoDTO> findVin(String vinOrFrame) {
 
-
         Specification<CarProfile> sp = Q.CarProfile.vin(Op.LIKE, vinOrFrame)
                 .or(Q.CarProfile.frame(Op.LIKE, vinOrFrame));
 
         List<CarProfile> list = helper.getCarProfile().findAll(sp);
 
         List<CarProfileInfoDTO> resultList = new ArrayList<>();
-        if (list == null || list.isEmpty()) {
+        if (FORCE_CAL_API || list == null || list.isEmpty()) {
             List<Map> carInfoByVIN = partsCatalogAdapter.getCarInfoByVIN(vinOrFrame);
             for (Map map : carInfoByVIN) {
 
@@ -268,6 +287,128 @@ public class PartsCatalogsService {
 
         return resultList;
 
+    }
+
+
+    public List<PartGroupDTO> getCatalogGroups(String catalogId, String carId, String groupId, String criteria) {
+
+        Specification<PartGroup> sp = Q.PartGroup.carId(Op.EQ, carId, true)
+                .and(Q.PartGroup.id(Op.EQ, groupId, true))
+                .and(Q.PartGroup.criteria(Op.LIKE, criteria, true));
+
+
+        List<PartGroup> dbList = helper.getPartGroup().findAll(sp);
+        if (FORCE_CAL_API || dbList == null || dbList.size() < 2 ) {
+            dbList = new ArrayList<>();
+            List<Map> catalogGroupList = partsCatalogAdapter.getCatalogGroupList(catalogId, carId, groupId, criteria);
+
+            for (Map map : catalogGroupList) {
+
+                PartGroup item = new PartGroup();
+                Mapper.of(map, item).execute();
+                item.setCarId(carId);
+
+                helper.getPartGroup().save(item);
+                dbList.add(item);
+            }
+        }
+
+        List<PartGroupDTO> resp = Mapper.of(dbList, PartGroupDTO.class).toList();
+        return resp;
+
+    }
+
+
+    public List getSuggestedGroupsString(String catalogId, String q) {
+        Specification<SuggestGroup> sp = Q.SuggestGroup.catalogId(Op.EQ, catalogId);
+
+        List<SuggestGroup> respList = helper.getSuggestGroup().findAll(sp);
+        if (FORCE_CAL_API || respList == null || respList.isEmpty()) {
+            List<Map> apiList = partsCatalogAdapter.getCatalogGroupSuggestList(catalogId, q);
+
+            for (Map item : apiList) {
+                SuggestGroup entity = new SuggestGroup();
+                Mapper.of(item, entity).execute();
+
+
+                helper.getSuggestGroup().save(entity);
+                respList.add(entity);
+            }
+        }
+
+        List<SuggestGroupDTO> response = Mapper.of(respList, SuggestGroupDTO.class).toList();
+        return response;
+    }
+
+
+    public PartGroupInfoDTO getParts(String catalogId
+            , String carId
+            , String groupId
+            , String criteria
+
+    ) {
+
+        Specification<PartGroupInfo> sp = Q.PartGroupInfo.carId(Op.EQ, groupId)
+                .and(Q.PartGroupInfo.groupId(Op.EQ, groupId));
+
+        List<PartGroupInfo> respList = null; //helper.getPartGroupInfo().findAll(sp );
+
+        PartGroupInfo respObj = new PartGroupInfo(carId, groupId);
+
+        PartGroup entity = null;
+        if (FORCE_CAL_API || respList == null || respList.isEmpty())
+        {
+            Map apiResp = partsCatalogAdapter.getParts(catalogId, carId, groupId, criteria);
+
+            Mapper.of(apiResp, respObj).skipNull(true).execute();
+
+            if(respObj.getPartGroups()!=null) {
+                for(PartGroup pargGroup : respObj.getPartGroups()) {
+                    pargGroup.setId(groupId);
+                    pargGroup.setCarId(carId);
+                }
+            }
+
+            if(respObj.getPositions()!=null) {
+                for(PartPosition pp : respObj.getPositions()) {
+                    pp.setId(groupId);
+                }
+            }
+            //helper.getPartGroupInfo().save(respObj);
+        }
+        else {
+
+        }
+
+        PartGroupInfoDTO resp = Mapper.of(respObj, PartGroupInfoDTO.class).toObject();
+
+        return resp;
+    }
+
+
+    public List getGroupTree(String catalogId
+            , String carId
+            , String criteria
+            , Boolean cached
+    ) {
+        List resp = partsCatalogAdapter.getGroupsTree(catalogId, carId, criteria, cached);
+
+        return resp;
+    }
+
+
+    public CatalogSchemaDTO getSchemas(String catalogId
+            , String carId
+            , String branchId
+            , String criteria
+            , int page
+            , String partNameIds
+            , String partName
+
+    ) {
+
+        CatalogSchemaDTO resp = partsCatalogAdapter.getSchemas(carId, catalogId, branchId, criteria, page, partNameIds, partName);
+        return resp;
     }
 
 }

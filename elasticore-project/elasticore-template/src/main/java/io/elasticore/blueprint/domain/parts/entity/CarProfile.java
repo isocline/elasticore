@@ -1,4 +1,4 @@
-//ecd:-1727365162H20250419002750_V1.0
+//ecd:-1496527089H20250422232619_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -27,6 +27,7 @@ import jakarta.persistence.Entity;
  */
 
 @Entity
+@jakarta.persistence.Table(name="epc_car_profile")
 @org.hibernate.annotations.DynamicUpdate
 @Getter
 @Setter

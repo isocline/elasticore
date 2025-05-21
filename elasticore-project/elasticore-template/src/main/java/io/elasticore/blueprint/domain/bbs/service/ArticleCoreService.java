@@ -1,4 +1,4 @@
-//ecd:786979177H20250417114614_V1.0
+//ecd:18509068H20250520114849_V1.0
 package io.elasticore.blueprint.domain.bbs.service;
 
 import io.elasticore.blueprint.domain.bbs.entity.*;
@@ -25,8 +25,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.lang.reflect.Field;
 
-import io.elasticore.blueprint.domain.parts.entity.CarInfo;
-import io.elasticore.blueprint.domain.bbs.entity.TypeInfo;
 import io.elasticore.blueprint.domain.bbs.entity.Board;
 
 /**
@@ -177,18 +175,6 @@ public class ArticleCoreService {
     public ArticleDTO save(ArticleDTO dto) {
         Article entity = BbsMapper.toEntity(dto);
         
-        if(dto.getBoardBid()!=null){
-            Board item = helper.getBoard().findById(dto.getBoardBid()).orElse(null);
-            if(item!=null) entity.setBoard(item);
-        }
-        if(dto.getTypeInfoTid()!=null){
-            TypeInfo item = helper.getTypeInfo().findById(dto.getTypeInfoTid()).orElse(null);
-            if(item!=null) entity.setTypeInfo(item);
-        }
-        if(dto.getCarInfoId()!=null){
-            CarInfo item = helper.getCarInfo().findById(dto.getCarInfoId()).orElse(null);
-            if(item!=null) entity.setCarInfo(item);
-        }
     
 
         Article result = helper.getArticle().save(entity);
@@ -208,18 +194,6 @@ public class ArticleCoreService {
             throw new EntityNotFoundException("Invalid ArticleDTO ID");
         BbsMapper.mapping(dto, entity, true);
         
-        if(dto.getBoardBid()!=null){
-            Board item = helper.getBoard().findById(dto.getBoardBid()).orElse(null);
-            if(item!=null) entity.setBoard(item);
-        }
-        if(dto.getTypeInfoTid()!=null){
-            TypeInfo item = helper.getTypeInfo().findById(dto.getTypeInfoTid()).orElse(null);
-            if(item!=null) entity.setTypeInfo(item);
-        }
-        if(dto.getCarInfoId()!=null){
-            CarInfo item = helper.getCarInfo().findById(dto.getCarInfoId()).orElse(null);
-            if(item!=null) entity.setCarInfo(item);
-        }
     
 
 

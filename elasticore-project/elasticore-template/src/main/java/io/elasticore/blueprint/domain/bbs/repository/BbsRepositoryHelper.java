@@ -1,4 +1,4 @@
-//ecd:-1342836125H20250417114233_V1.0
+//ecd:-15569365H20250521114808_V1.0
 package io.elasticore.blueprint.domain.bbs.repository;
 
 import io.elasticore.base.util.ModelTransList;
@@ -29,7 +29,7 @@ import io.elasticore.springboot3.entity.StrFunc;
 
 import io.elasticore.blueprint.domain.bbs.entity.*;
 import io.elasticore.blueprint.domain.bbs.dto.*;
-import io.elasticore.blueprint.domain.parts.repository.CarInfoRepository;
+
 
 
 /**
@@ -49,13 +49,15 @@ public class BbsRepositoryHelper {
 
     private final EntityManager entityManager;
 
+    private final MessageRepository message;
+    
     private final BoardRepository board;
     
     private final TypeInfoRepository typeInfo;
     
     private final ArticleRepository article;
     
-    private final CarInfoRepository carInfo;
+    private final ArticlePartRepository articlePart;
     
 
 

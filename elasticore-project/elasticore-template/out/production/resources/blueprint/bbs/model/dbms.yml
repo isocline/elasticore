@@ -28,3 +28,5 @@ port:
           WHERE c.market = :market
           ORDER BY c.high_price DESC
  
+
+

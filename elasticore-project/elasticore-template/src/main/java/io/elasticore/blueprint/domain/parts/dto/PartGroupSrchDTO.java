@@ -1,4 +1,4 @@
-//ecd:-770831741H20250416200627_V1.0
+//ecd:946170351H20250425124038_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -43,10 +43,7 @@ public  class PartGroupSrchDTO  implements java.io.Serializable, SortableObject,
 	@Schema(description = "부품 그룹 이름 Use 'like' if value has %, else 'equal' field:name"  )
 	private String name;
 	
-	/*
-	  하위 그룹 존재 여부
-	*/
-	@Schema(description = "하위 그룹 존재 여부 Field equals value. field:hasSubgroups"  )
+	@Schema(description = "Field equals value. field:hasSubgroups"  )
 	private Boolean hasSubgroups;
 	
 	/*
@@ -72,6 +69,18 @@ public  class PartGroupSrchDTO  implements java.io.Serializable, SortableObject,
 	*/
 	@Schema(description = "연결된 차량 ID Use 'like' if value has %, else 'equal' field:carId"  )
 	private String carId;
+	
+	/*
+	  차량 등록 기준
+	*/
+	@Schema(description = "차량 등록 기준 Use 'like' if value has %, else 'equal' field:criteria"  )
+	private String criteria;
+	
+	@Schema(description = "Use 'like' if value has %, else 'equal' field:brand"  )
+	private String brand;
+	
+	@Schema(description = "Use 'like' if value has %, else 'equal' field:imgDescription"  )
+	private String imgDescription;
 	
 	
 	private String sortCode;

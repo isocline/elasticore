@@ -341,7 +341,15 @@ public abstract class AbstractDataModel<T extends AbstractReplaceableModel<T>> e
 
     protected DataModelComponent findModelFromAllDomain(String name) {
 
-        ECoreModelContext context = BaseECoreModelContext.getContext();
+        ECoreModelContext context = BaseECoreModelContext.getTempContext();
+
+
+        if(context==null) {
+            System.err.println("test");
+            System.err.println("test1");
+            System.err.println("test2");
+            System.err.println("tes3t");
+        }
 
         String[] domainNames = context.getAllDomainNames();
 

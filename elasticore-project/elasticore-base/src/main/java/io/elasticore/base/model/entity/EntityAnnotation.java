@@ -207,4 +207,7 @@ public interface EntityAnnotation {
     String[] AUDITED = new String[]{"audited"};
 
     String[] NOT_AUDITED = new String[]{"notaudited"};
+
+
+    String[] MAPPED_BY = new String[]{"mappedby" , "mapped", "mapping"};
 }

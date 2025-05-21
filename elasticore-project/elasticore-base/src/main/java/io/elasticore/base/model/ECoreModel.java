@@ -40,6 +40,8 @@ public class ECoreModel {
 
     private static Map<String, ShadowModel> shadowModelMap = null;
 
+    private String internalDomainName;
+
 
 
     /**
@@ -150,7 +152,11 @@ public class ECoreModel {
         if(items.length==2) {
             targetDomainName = getConfig(items[0]);
             modelName = modelName;
-        }else {
+        }
+        else if(this.internalDomainName!=null) {
+            targetDomainName = this.internalDomainName;
+        }
+        else {
             targetDomainName = getConfig("domainName");
         }
 
@@ -158,6 +164,10 @@ public class ECoreModel {
         return findModelByName(targetDomainName ,modelName);
     }
 
+
+    public String getConfigDomainName() {
+        return  getConfig("domainName");
+    }
 
     /**
      *

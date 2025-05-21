@@ -1,7 +1,6 @@
 package io.elasticore.springboot3.mapper;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,7 +60,7 @@ class MappingUtils {
     }
 
 
-    private static List<String> extractFieldNames(Object obj) {
+    private static List<String> extractFieldNames_old(Object obj) {
         if (obj instanceof Map) {
             return ((Map<?, ?>) obj).keySet().stream()
                     .map(Object::toString)
@@ -73,6 +72,82 @@ class MappingUtils {
             }
             return result;
         }
+    }
+
+
+
+    private static List<String> extractFieldNames(Object obj) {
+        return extractFieldNames(obj, null);
+    }
+
+
+
+    public static List<String> extractFieldNames(Object obj, String methodType) {
+        Set<String> result = new LinkedHashSet<>();
+
+        if (obj instanceof Map) {
+            result.addAll(((Map<?, ?>) obj).keySet().stream()
+                    .map(Object::toString)
+                    .collect(Collectors.toSet()));
+        } else {
+            Class<?> clazz = obj.getClass();
+
+            if ("get".equalsIgnoreCase(methodType) || "set".equalsIgnoreCase(methodType)) {
+                for (Method method : clazz.getMethods()) {
+                    String name = method.getName();
+                    if (method.getParameterCount() == 0 && name.startsWith("get") && "get".equalsIgnoreCase(methodType)) {
+                        result.add(decapitalize(name.substring(3)));
+                    } else if (method.getParameterCount() == 1 && name.startsWith("set") && "set".equalsIgnoreCase(methodType)) {
+                        result.add(decapitalize(name.substring(3)));
+                    }
+                }
+            } else {
+                for (Field field : clazz.getDeclaredFields()) {
+                    result.add(field.getName());
+                }
+            }
+        }
+
+        return new ArrayList<>(result);
+    }
+
+
+    public static Map<String, Object> extractFieldNameMap(Object obj, String methodType) {
+        Map<String, Object> result = new LinkedHashMap<>();
+
+        if (obj instanceof Map) {
+            ((Map<?, ?>) obj).keySet().forEach(k -> result.put(k.toString(), k.toString()));
+        } else {
+            Class<?> clazz = obj.getClass();
+
+            for (Field field : clazz.getDeclaredFields()) {
+                result.putIfAbsent(field.getName(), field);
+            }
+
+            if ("get".equalsIgnoreCase(methodType) || "set".equalsIgnoreCase(methodType)) {
+                for (Method method : clazz.getMethods()) {
+                    String name = method.getName();
+                    if (method.getParameterCount() == 0 && name.startsWith("get") && "get".equalsIgnoreCase(methodType)) {
+                        String fieldName = decapitalize(name.substring(3));
+                        result.put(fieldName, method);
+                    } else if (method.getParameterCount() == 1 && name.startsWith("set") && "set".equalsIgnoreCase(methodType)) {
+                        String fieldName = decapitalize(name.substring(3));
+                        result.put(fieldName, method);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+    private static String decapitalize(String name) {
+        if (name == null || name.isEmpty()) return name;
+        if (name.length() > 1 && Character.isUpperCase(name.charAt(1)) && Character.isUpperCase(name.charAt(0))) {
+            return name;
+        }
+        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
     /**
@@ -115,13 +190,16 @@ class MappingUtils {
 
         Set<String> allTargetFieldNames = new LinkedHashSet<>(definedMappings.values());
 
+        Map<String, Object> fromFieldInfoMap = extractFieldNameMap(from, "get");
+        Map<String, Object> toFieldInfoMap = extractFieldNameMap(to, "set");
+
         if (isIncludeUndefined) {
-            List<String> fromFieldList = extractFieldNames(from);
-            List<String> toFieldList = extractFieldNames(to);
+            //List<String> fromFieldList = extractFieldNames(from, "get");
+            //List<String> toFieldList = extractFieldNames(to ,"set");
 
             if(to instanceof Map) {
 
-                for(String keyNm : fromFieldList) {
+                for(String keyNm : fromFieldInfoMap.keySet()) {
 
                     if(!definedMappings.containsKey(keyNm)) {
                         definedMappings.put(keyNm, keyNm);
@@ -130,8 +208,8 @@ class MappingUtils {
 
                 }
             }else {
-                for (String name : toFieldList) {
-                    if (!allTargetFieldNames.contains(name) && fromFieldList.contains(name)) {
+                for (String name : toFieldInfoMap.keySet()) {
+                    if (!allTargetFieldNames.contains(name) && fromFieldInfoMap.containsKey(name)) {
                         definedMappings.put(name, name);
                         allTargetFieldNames.add(name);
                     }
@@ -161,44 +239,99 @@ class MappingUtils {
                     if (!((Map<?, ?>) from).containsKey(fromName)) continue;
                     value = ((Map<?, ?>) from).get(fromName);
                 } else {
-                    try {
-                        Field sourceField = from.getClass().getDeclaredField(fromName);
-                        sourceField.setAccessible(true);
-                        value = sourceField.get(from);
-                    } catch (NoSuchFieldException ignore) {
+
+                    Object refType = fromFieldInfoMap.get(fromName);
+
+                    if(refType==null) {
                         continue;
                     }
+
+                    else if(refType instanceof Field) {
+                        Field sourceField = (Field) refType;
+                        sourceField.setAccessible(true);
+                        value = sourceField.get(from);
+
+                    }
+                    else if(refType instanceof Method) {
+                        Method getter = (Method) refType;
+                        value = getter.invoke(from);
+                    }
+
                 }
 
                 if (to instanceof Map) {
                     ((Map<String, Object>) to).put(toName, value);
                 } else {
-                    Field targetField;
-                    try {
-                        targetField = to.getClass().getDeclaredField(toName);
-                    } catch (NoSuchFieldException e) {
+
+                    Object refToType = toFieldInfoMap.get(toName);
+                    Field targetField2 = null;
+                    Method setter = null;
+
+                    Class fieldType = null;
+                    if(refToType==null) {
                         continue;
                     }
+                    else if(refToType instanceof Field) {
+                        targetField2 = (Field) refToType;
+                        targetField2.setAccessible(true);
 
-                    targetField.setAccessible(true);
+                        fieldType = targetField2.getType();
+
+
+                    }
+                    else if(refToType instanceof Method) {
+                        setter  = (Method) refToType;
+
+                        Class<?>[] parameterTypes = setter.getParameterTypes();
+                        if(parameterTypes==null ||parameterTypes.length>1) {
+                            continue;
+                        }
+
+                        fieldType = parameterTypes[0];
+                    }
+
 
                     if (value == null) {
-                        targetField.set(to, null);
+                        setValue(to, null, targetField2, setter);
                         continue;
                     }
 
-                    if (List.class.isAssignableFrom(targetField.getType()) && value instanceof List) {
-                        ParameterizedType genericType = (ParameterizedType) targetField.getGenericType();
+                    if (fieldType !=null && List.class.isAssignableFrom(fieldType) && value instanceof List) {
+
+                        ParameterizedType genericType = null;
+                        if(targetField2!=null) {
+                            genericType = (ParameterizedType) targetField2.getGenericType();
+                        }
+                        else {
+                            Type parameterType = setter.getGenericParameterTypes()[0];
+                            if(parameterType instanceof ParameterizedType) {
+                                genericType = (ParameterizedType)parameterType;
+                            }
+
+                        }
+
+
                         Class<?> itemType = (Class<?>) genericType.getActualTypeArguments()[0];
 
                         List<?> sourceList = (List<?>) value;
                         List<Object> targetList = new ArrayList<>();
 
+                        Class tmpType = null;
                         for (Object item : sourceList) {
 
+                            if(tmpType==null && item!=null) {
+                                tmpType = item.getClass();
 
-
+                            }
+                            boolean needClassMapping = false;
                             if (item instanceof Map) {
+                                needClassMapping = true;
+                            }else if(!isPrimitiveOrWrapperOrString(itemType) && itemType != tmpType) {
+                                needClassMapping = true;
+                            }
+
+
+                            if (needClassMapping) {
                                 Object targetItem = itemType.getDeclaredConstructor().newInstance();
                                 copy(item, targetItem, null, null, isIncludeUndefined ,guardMap);
 
@@ -220,37 +353,74 @@ class MappingUtils {
                             }
                         }
 
-                        targetField.set(to, targetList);
+                        setValue(to, targetList, targetField2, setter);
+                        //targetField.set(to, targetList);
 
-                    } else if (value instanceof Map && !targetField.getType().isAssignableFrom(Map.class)) {
-                        Object nestedObj = targetField.getType().getDeclaredConstructor().newInstance();
+                    } else if (value instanceof Map && !fieldType.isAssignableFrom(Map.class)) {
+                        Object nestedObj = fieldType.getDeclaredConstructor().newInstance();
                         copy(value, nestedObj, null, null, isIncludeUndefined);
-                        targetField.set(to, nestedObj);
+                        setValue(to, nestedObj, targetField2, setter);
+                        //targetField.set(to, nestedObj);
 
                     } else {
                         /*
                         if (!targetField.getType().isAssignableFrom(value.getClass())) {
                             continue;
                         }
-
                          */
 
-                        Class targetClass =targetField.getType();
-                        if( !isPrimitiveOrWrapperOrString(targetClass) && targetClass!= value.getClass()) {
-                            Object nestedObj = targetClass.newInstance();
-                            copy(value, nestedObj, null, null, isIncludeUndefined);
-                            targetField.set(to, nestedObj);
+                        //Class targetClass =targetField.getType();
+                        if( !isPrimitiveOrWrapperOrString(fieldType) && fieldType!= value.getClass()) {
+                            if(fieldType.isArray()) {
+                                Class<?> componentType = fieldType.getComponentType();
+
+                                if (value instanceof List) {
+                                    List<?> list = (List<?>) value;
+                                    Object array = java.lang.reflect.Array.newInstance(componentType, list.size());
+
+                                    for (int i = 0; i < list.size(); i++) {
+                                        Object elem = list.get(i);
+                                        java.lang.reflect.Array.set(array, i, elem);
+                                    }
+                                    setValue(to, array, targetField2, setter);
+                                    //targetField.set(to, array);
+                                }
+
+                            }else {
+                                Object nestedObj = fieldType.newInstance();
+                                copy(value, nestedObj, null, null, isIncludeUndefined);
+                                setValue(to, nestedObj, targetField2, setter);
+                                //targetField.set(to, nestedObj);
+                            }
+
                         }else {
-                            targetField.set(to, value);
+                            setValue(to, value, targetField2, setter);
+                            //targetField.set(to, value);
                         }
-
-
                     }
                 }
 
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException("copy error: " + fromName + " -> " + toName, e);
             }
+        }
+    }
+
+
+    private static void setValue(Object target, Object value, Field field, Method method) {
+        try {
+            if (method != null) {
+                method.invoke(target, value);
+            }
+            else if (field != null) {
+                field.set(target, value);
+            }
+            else if( target instanceof  Map) {
+                Map tartgetMap = (Map) target;
+            }
+        }catch (RuntimeException | IllegalAccessException | InvocationTargetException re) {
+
         }
     }
 
@@ -267,176 +437,8 @@ class MappingUtils {
                 || clazz == String.class;
     }
 
-    private static void copy_20250417(Object from, Object to, List<String> fieldNames, List<String> toFieldNames) {
-        if (from == null || to == null) {
-            throw new IllegalArgumentException("Source and target must not be null");
-        }
-
-        List<String> targetFieldNames = new ArrayList<>();
-
-        if (to instanceof Map) {
-
-            if (fieldNames != null && !fieldNames.isEmpty()) {
-                targetFieldNames.addAll(fieldNames);
-            } else if (from instanceof Map) {
-                targetFieldNames.addAll(((Map<?, ?>) from).keySet().stream().map(Object::toString).toList());
-            } else {
-                for (Field field : from.getClass().getDeclaredFields()) {
-                    targetFieldNames.add(field.getName());
-                }
-            }
-        } else {
-
-            if (toFieldNames != null && !toFieldNames.isEmpty()) {
-                targetFieldNames.addAll(toFieldNames);
-            } else {
-                for (Field field : to.getClass().getDeclaredFields()) {
-                    targetFieldNames.add(field.getName());
-                }
-            }
-        }
-
-        boolean hasCustomFromNames = (fieldNames != null && !fieldNames.isEmpty());
-
-        for (int i = 0; i < targetFieldNames.size(); i++) {
-            String toName = targetFieldNames.get(i);
-            String fromName = hasCustomFromNames ? fieldNames.get(i) : toName;
-
-            try {
-                Object value = null;
 
 
-                if (from instanceof Map) {
-                    if (!((Map<?, ?>) from).containsKey(fromName)) continue;
-                    value = ((Map<?, ?>) from).get(fromName);
-                } else {
-                    try {
-                        Field sourceField = from.getClass().getDeclaredField(fromName);
-                        sourceField.setAccessible(true);
-                        value = sourceField.get(from);
-                    } catch (NoSuchFieldException ignore) {
-                        continue;
-                    }
-                }
-
-                if (to instanceof Map) {
-                    ((Map<String, Object>) to).put(toName, value);
-                } else {
-                    Field targetField;
-                    try {
-                        targetField = to.getClass().getDeclaredField(toName);
-                    } catch (NoSuchFieldException e) {
-                        continue;
-                    }
-
-                    targetField.setAccessible(true);
-
-                    if (value == null) {
-                        targetField.set(to, null);
-                        continue;
-                    }
-
-
-                    if (List.class.isAssignableFrom(targetField.getType()) && value instanceof List) {
-                        ParameterizedType genericType = (ParameterizedType) targetField.getGenericType();
-                        Class<?> itemType = (Class<?>) genericType.getActualTypeArguments()[0];
-
-                        List<?> sourceList = (List<?>) value;
-                        List<Object> targetList = new ArrayList<>();
-
-                        for (Object item : sourceList) {
-                            if (item instanceof Map) {
-                                Object targetItem = itemType.getDeclaredConstructor().newInstance();
-                                copy(item, targetItem, null, null);
-                                targetList.add(targetItem);
-                            } else {
-                                targetList.add(item);
-                            }
-                        }
-
-                        targetField.set(to, targetList);
-                    }
-
-                    else if (value instanceof Map && !targetField.getType().isAssignableFrom(Map.class)) {
-                        Object nestedObj = targetField.getType().getDeclaredConstructor().newInstance();
-                        copy(value, nestedObj, null, null);
-                        targetField.set(to, nestedObj);
-                    }
-
-                    else {
-                        if (!targetField.getType().isAssignableFrom(value.getClass())) {
-                            continue;
-                        }
-                        targetField.set(to, value);
-                    }
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException("copy error: " + fromName + " -> " + toName, e);
-            }
-        }
-    }
-
-
-
-
-    public static void copy_2(Object from, Object to, List<String> fieldNames, List<String> toFieldNames) {
-        if (from == null || to == null) {
-            throw new IllegalArgumentException("Source and target objects must not be null");
-        }
-
-        List<String> fromNames = new ArrayList<>();
-        if (fieldNames == null || fieldNames.isEmpty()) {
-            if (from instanceof Map) {
-                fromNames.addAll(((Map<?, ?>) from).keySet().stream()
-                        .map(Object::toString)
-                        .toList());
-            } else {
-                for (Field field : from.getClass().getDeclaredFields()) {
-                    fromNames.add(field.getName());
-                }
-            }
-        } else {
-            fromNames.addAll(fieldNames);
-        }
-
-        boolean hasCustomTargetFields = (toFieldNames != null && !toFieldNames.isEmpty());
-        for (int i = 0; i < fromNames.size(); i++) {
-            String fromName = fromNames.get(i);
-            String toName = hasCustomTargetFields ? toFieldNames.get(i) : fromName;
-
-            try {
-                Object value;
-
-                if (from instanceof Map) {
-                    value = ((Map<?, ?>) from).get(fromName);
-                } else {
-                    Field sourceField = from.getClass().getDeclaredField(fromName);
-                    sourceField.setAccessible(true);
-                    value = sourceField.get(from);
-                }
-
-                if (to instanceof Map) {
-                    ((Map<String, Object>) to).put(toName, value);
-                } else {
-                    try {
-                        Field targetField = to.getClass().getDeclaredField(toName);
-                        targetField.setAccessible(true);
-
-                        if (value != null && !targetField.getType().isAssignableFrom(value.getClass())) {
-                            throw new IllegalArgumentException("Type mismatch: " + fromName + " -> " + toName);
-                        }
-
-                        targetField.set(to, value);
-                    } catch (NoSuchFieldException ignore) {
-
-                    }
-                }
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new RuntimeException("Failed to copy: " + fromName + " -> " + toName, e);
-            }
-        }
-    }
 
 
     /**

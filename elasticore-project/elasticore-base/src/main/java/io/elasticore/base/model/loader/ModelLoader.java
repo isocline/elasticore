@@ -15,4 +15,6 @@ public interface ModelLoader<T extends ModelComponent> {
     //void loadModel(Items<T> items, Map<String, LinkedHashMap> enumMap);
 
     void completeLoad();
+
+
 }

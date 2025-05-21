@@ -4,12 +4,11 @@ package io.elasticore.blueprint.domain.parts.controller;
 
 import io.elasticore.blueprint.domain.parts.dto.MsgInput2;
 import io.elasticore.blueprint.domain.parts.port.*;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +32,31 @@ public class PartsTestController {
 
     private final EchoService echoService;
 
+    private final AligoHttpPortAdapter aligoHttpPortAdapter;
+
+
+    private final String apiKey = "o4ocydls3wz5acrjney79s4j65a4f3xf";
+    private final String userId = "mobillug";
+
+
+
+    @GetMapping("/{catalogId}/parameters")
+    @Operation(summary = "Get car parameters", description = "Retrieve parameters for a given catalog and modelId")
+    public ResponseEntity<List> getCarParams(
+            @PathVariable("catalogId") String catalogId,
+            @RequestParam("modelId") String modelId,
+            @RequestParam(name = "parameter", required = false) String[] parameter) {
+        List carParams = partsCatalogAdapter.getCarParams(catalogId, modelId, parameter);
+
+        return ResponseEntity.ok(carParams);
+    }
+
+
+    @GetMapping("/dummy2")
+    public void testtest() {
+        HashMap token = aligoHttpPortAdapter.createToken(apiKey, userId);
+        System.err.println(token);
+    }
 
     @GetMapping("/case1")
     public ResponseEntity<?> case1() {

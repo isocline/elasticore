@@ -1,4 +1,4 @@
-//ecd:1714615857H20250416200627_V1.0
+//ecd:-959679983H20250421132301_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -76,8 +76,8 @@ public  class CarInfoSrchDTO  implements java.io.Serializable, SortableObject, P
 	/*
 	  부품 그룹 트리 지원 여부
 	*/
-	@Schema(description = "부품 그룹 트리 지원 여부 Field equals value. field:groupTreeAvailables"  )
-	private Boolean groupTreeAvailables;
+	@Schema(description = "부품 그룹 트리 지원 여부 Field equals value. field:groupsTreeAvailable"  )
+	private Boolean groupsTreeAvailable;
 	
 	
 	private String sortCode;

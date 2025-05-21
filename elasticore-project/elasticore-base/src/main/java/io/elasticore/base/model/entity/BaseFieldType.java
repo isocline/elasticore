@@ -14,34 +14,35 @@ import java.util.stream.Stream;
 public enum BaseFieldType {
 
 
-    OBJECT("Object", null, "Object"),
-    STRING("String", null, "String"),
-    STRINGARRAY("String[]", null, "String[]"),
-    P_INT("int", "int", "Integer"),
-    P_LONG("long", "long", "Long"),
-    P_FLOAT("float", "float", "Float"),
-    P_DOUBLE("double", "double", "Double"),
-    P_BOOLEAN("boolean", "boolean", "Boolean"),
+    OBJECT("Object", null, "Object" , null),
+    STRING("String", null, "String" ,"string"),
+    STRINGARRAY("String[]", null, "String[]" ,null),
+    INTEGERARRAY("int[]", null, "Integer[]",null),
+    P_INT("int", "int", "Integer" ,"int64"),
+    P_LONG("long", "long", "Long" ,"uint64"),
+    P_FLOAT("float", "float", "Float" ,"float"),
+    P_DOUBLE("double", "double", "Double" ,"double"),
+    P_BOOLEAN("boolean", "boolean", "Boolean" ,"bool"),
 
-    DATETIME("DateTime", null, "java.time.LocalDateTime"),
-    TIME("Time", null, "java.time.LocalTime"),
-    DATE("Date", null, "java.time.LocalDate"),
+    DATETIME("DateTime", null, "java.time.LocalDateTime" , null),
+    TIME("Time", null, "java.time.LocalTime", null),
+    DATE("Date", null, "java.time.LocalDate", null),
 
-    LIST("List", null, "java.util.List"),
+    LIST("List", null, "java.util.List", null),
     //MAP("Map", null, "java.util.Map"),
 
-    INTEGER("Integer", "int", "Integer"),
-    LONG("Long", "long", "Long"),
-    FLOAT("Float", "float", "Float"),
-    DOUBLE("Double", "double", "Double"),
-    BOOLEAN("boolean", "boolean", "Boolean"),
+    INTEGER("Integer", "int", "Integer", null),
+    LONG("Long", "long", "Long", "long"),
+    FLOAT("Float", "float", "Float", "float"),
+    DOUBLE("Double", "double", "Double", "double"),
+    BOOLEAN("boolean", "boolean", "Boolean", "bool"),
 
-    LocalDateTime("LocalDateTime", null, "java.time.LocalDateTime"),
-    LocalDate("LocalDate", null, "java.time.LocalDate"),
-    LocalTime("LocalTime", null, "java.time.LocalTime"),
+    LocalDateTime("LocalDateTime", null, "java.time.LocalDateTime", null),
+    LocalDate("LocalDate", null, "java.time.LocalDate", null),
+    LocalTime("LocalTime", null, "java.time.LocalTime", null),
 
 
-    UNKNOWN("unknown", null, null);
+    UNKNOWN("unknown", null, null, null);
 
 
     private final String name;
@@ -49,11 +50,14 @@ public enum BaseFieldType {
     private final String primitiveTypeName;
     private final String wrapperClassName;
 
+    private final String protoType;
 
-    BaseFieldType(String name, String primitiveTypeName, String wrapperClassName) {
+
+    BaseFieldType(String name, String primitiveTypeName, String wrapperClassName, String protoType) {
         this.name = name;
         this.primitiveTypeName = primitiveTypeName;
         this.wrapperClassName = wrapperClassName;
+        this.protoType = protoType;
     }
 
 

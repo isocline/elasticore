@@ -1,4 +1,4 @@
-//ecd:-1533935827H20250419002750_V1.0
+//ecd:2055651747H20250422232619_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -30,6 +30,7 @@ import jakarta.persistence.Entity;
 
 @Audited
 @Entity
+@jakarta.persistence.Table(name="epc_car_info")
 @org.hibernate.annotations.DynamicUpdate
 @Getter
 @Setter
@@ -103,8 +104,8 @@ public  class CarInfo  implements java.io.Serializable  {
 	  부품 그룹 트리 지원 여부
 	*/
 	@Comment("부품 그룹 트리 지원 여부")
-	@Column(name = "group_tree_availables")
-	private Boolean groupTreeAvailables = false;
+	@Column(name = "groups_tree_available")
+	private Boolean groupsTreeAvailable = false;
 	
 	
 	@ManyToMany(fetch = FetchType.LAZY ,cascade = CascadeType.ALL)

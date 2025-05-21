@@ -153,8 +153,8 @@ public class ModelExtractor {
 
             //ECoreModel model = defaultDomain.getModel();
 
+            codePublishManager.setSourceBasePath(rootDir);
 
-            codePublishManager.setSrcCodeWriterFactory(sourceFileAccessFactory);
             codePublishManager.publish(ctx);
         }
 

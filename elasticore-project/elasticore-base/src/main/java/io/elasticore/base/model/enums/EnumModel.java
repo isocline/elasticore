@@ -5,6 +5,8 @@ import io.elasticore.base.model.core.*;
 import io.elasticore.base.model.entity.Field;
 import lombok.Getter;
 
+import java.util.Objects;
+
 
 @Getter
 public class EnumModel extends AbstractReplaceableModel implements DataModelComponent {
@@ -73,5 +75,17 @@ public class EnumModel extends AbstractReplaceableModel implements DataModelComp
         String ns = getEcoreModel().getNamespace(componentType.getName());
 
         return ns+"."+this.getIdentity().getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        EnumModel enumModel = (EnumModel) o;
+        return Objects.equals(getIdentity().getId(), enumModel.getIdentity().getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getIdentity().getId());
     }
 }

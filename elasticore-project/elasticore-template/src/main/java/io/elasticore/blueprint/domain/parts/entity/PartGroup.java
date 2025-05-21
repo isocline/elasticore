@@ -1,4 +1,4 @@
-//ecd:-1092437285H20250419002750_V1.0
+//ecd:-173081843H20250422232619_V1.0
 package io.elasticore.blueprint.domain.parts.entity;
 
 
@@ -13,6 +13,7 @@ import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
+import io.elasticore.blueprint.domain.parts.entity.*;
 import jakarta.persistence.Entity;
 
 
@@ -26,6 +27,7 @@ import jakarta.persistence.Entity;
  */
 
 @Entity
+@jakarta.persistence.Table(name="epc_part_group")
 @org.hibernate.annotations.DynamicUpdate
 @Getter
 @Setter
@@ -43,7 +45,7 @@ public  class PartGroup  implements java.io.Serializable  {
 	*/
 	@Id
 	@Comment("부품 그룹 ID")
-	@Column(name = "id", nullable = false, length = 36)
+	@Column(name = "id", nullable = false, length = 50)
 	private String id;
 	
 	
@@ -51,16 +53,12 @@ public  class PartGroup  implements java.io.Serializable  {
 	  부품 그룹 이름
 	*/
 	@Comment("부품 그룹 이름")
-	@Column(name = "name", nullable = false, length = 100)
+	@Column(name = "name", length = 100)
 	private String name;
 	
 	
-	/*
-	  하위 그룹 존재 여부
-	*/
-	@Comment("하위 그룹 존재 여부")
 	@Column(name = "has_subgroups", nullable = false)
-	private Boolean hasSubgroups;
+	private Boolean hasSubgroups = false;
 	
 	
 	/*
@@ -75,7 +73,7 @@ public  class PartGroup  implements java.io.Serializable  {
 	  그룹 설명
 	*/
 	@Comment("그룹 설명")
-	@Column(name = "description", length = 500)
+	@Column(name = "description", length = 1000)
 	private String description;
 	
 	
@@ -93,6 +91,30 @@ public  class PartGroup  implements java.io.Serializable  {
 	@Comment("연결된 차량 ID")
 	@Column(name = "car_id", nullable = false, length = 36)
 	private String carId;
+	
+	
+	/*
+	  차량 등록 기준
+	*/
+	@Comment("차량 등록 기준")
+	@Column(name = "criteria", length = 500)
+	private String criteria;
+	
+	
+	@Column(name = "brand", length = 100)
+	private String brand;
+	
+	
+	@Column(name = "img_description", length = 1000)
+	private String imgDescription;
+	
+	
+	@OneToMany(fetch = FetchType.LAZY ,cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CarPart> parts;
+	
+	
+	@OneToMany(fetch = FetchType.LAZY ,cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PartPosition> positions;
 	
 	
 }

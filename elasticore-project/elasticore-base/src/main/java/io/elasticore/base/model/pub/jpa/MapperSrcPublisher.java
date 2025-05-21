@@ -645,10 +645,21 @@ public class MapperSrcPublisher extends SrcFilePublisher {
             ConsoleLog.printWarn(toShadowModel+" not found");
         }
 
+
         String parentName = null;
         for (Field f : list) {
 
             if(!f.hasAnnotation(EntityAnnotation.REFERENCE)) {
+
+                if(isEntityTarget) {
+                    if( fromShadowModel !=null && !fromShadowModel.hasField(f))
+                        continue;
+                }
+                else {
+                    if(toShadowModel !=null &&  !toShadowModel.hasField(f) )
+                        continue;
+                }
+
                 /*
                 if( fromShadowModel !=null && !fromShadowModel.hasField(f))
                     continue;

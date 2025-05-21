@@ -1,4 +1,4 @@
-//ecd:118055390H20250417100604_V1.0
+//ecd:1479911374H20250421132301_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -111,7 +111,7 @@ public  class CarProfileInfoDTO  implements java.io.Serializable  {
 	*/
 	@Schema(description = "부품 그룹 트리 지원 여부"  )
 	@Builder.Default
-	private Boolean groupTreeAvailables = false;
+	private Boolean groupsTreeAvailable = false;
 	
 
 }

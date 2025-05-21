@@ -7,6 +7,7 @@ import io.elasticore.base.model.DataModelComponent;
 import io.elasticore.base.model.ECoreModel;
 import io.elasticore.base.model.ShadowModel;
 import io.elasticore.base.model.listener.ModelObjectListener;
+import io.elasticore.base.model.loader.ModelLoaderContext;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,6 +28,10 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
     private static BaseECoreModelContext context;
 
+    private static BaseECoreModelContext tmpCtx;
+
+    private ModelLoaderContext modelLoaderContext;
+
     private BaseECoreModelContext(ModelLoader loader) {
         this.loader = loader;
     }
@@ -41,11 +46,20 @@ public class BaseECoreModelContext implements ECoreModelContext {
 
             ModelObjectListener.getInstance().clear();
 
-            ECoreModel model = this.loader.load(domainNm);
+            modelLoaderContext = this.loader.getModelLoaderContext(domainNm);
+
+            if(modelLoaderContext==null)
+                continue;
+
+            ECoreModel model = this.loader.load(modelLoaderContext);
             if(model==null)
                 continue;
 
             ModelDomain modelDomain = BaseModelDomain.newInstance(domainNm, model);
+            String configDomainNm = modelDomain.getModel().getConfigDomainName();
+            if(configDomainNm!=null){
+                domainNm = configDomainNm;
+            }
             modelDomainMap.put(domainNm, modelDomain);
 
             STATIC_DOMAIN_MAP.put(domainNm, modelDomain);
@@ -66,7 +80,7 @@ public class BaseECoreModelContext implements ECoreModelContext {
             //ConsoleLog.print("clear releation: "+name);
         });
 
-        BaseECoreModelContext tmpCtx = new BaseECoreModelContext(loader);
+        tmpCtx = new BaseECoreModelContext(loader);
         if(tmpCtx.load()) {
             context = tmpCtx;
             return tmpCtx;
@@ -74,11 +88,18 @@ public class BaseECoreModelContext implements ECoreModelContext {
         return null;
     }
 
+    public ModelLoaderContext getModelLoaderContext() {
+        return this.modelLoaderContext;
+    }
+
     public synchronized static ECoreModelContext getContext() {
         return context;
     }
 
 
+    public synchronized static ECoreModelContext getTempContext() {
+        return tmpCtx;
+    }
 
 
     @Override

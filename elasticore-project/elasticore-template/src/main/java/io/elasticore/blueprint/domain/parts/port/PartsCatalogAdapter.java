@@ -1,4 +1,4 @@
-//ecd:-1322794080H20250416121357_V1.0
+//ecd:-1802340135H20250429110146_V1.0
 package io.elasticore.blueprint.domain.parts.port;
 
 import java.util.*;
@@ -51,8 +51,8 @@ public interface PartsCatalogAdapter   {
     /*
      * 차량 파라미터 정보
     */
-    @HttpEndpoint(url="/v1/catalogs/{catalogId}/cars-parameters", method="GET", contentType="application/json", paramNames="catalogId,modelIf")
-    java.util.Map getCarParams(String catalogId,String modelIf);
+    @HttpEndpoint(url="/v1/catalogs/{catalogId}/cars-parameters", method="GET", contentType="application/json", paramNames="catalogId,modelId,parameter")
+    java.util.List getCarParams(String catalogId,String modelId,String[] parameter);
     
     /*
      * 대차 번호별 정보
@@ -63,32 +63,32 @@ public interface PartsCatalogAdapter   {
     /*
      * getCatalogGroupList
     */
-    @HttpEndpoint(url="/v1/catalogs/{catalogId}/groups2", method="GET", contentType="application/json", paramNames="catalogId")
-    java.util.List getCatalogGroupList(String catalogId);
+    @HttpEndpoint(url="/v1/catalogs/{catalogId}/groups2", method="GET", contentType="application/json", paramNames="catalogId,carId,groupId,criteria")
+    java.util.List getCatalogGroupList(String catalogId,String carId,String groupId,String criteria);
     
     /*
      * getCatalogGroupSuggestList
     */
-    @HttpEndpoint(url="/v1/catalogs/{catalogId}/groups-suggest", method="GET", contentType="application/json", paramNames="catalogId")
-    java.util.List getCatalogGroupSuggestList(String catalogId);
+    @HttpEndpoint(url="/v1/catalogs/{catalogId}/groups-suggest", method="GET", contentType="application/json", paramNames="catalogId,q")
+    java.util.List getCatalogGroupSuggestList(String catalogId,String q);
     
     /*
      * getParts
     */
-    @HttpEndpoint(url="/v1/catalogs/{catalogId}/parts", method="GET", contentType="application/json", paramNames="catalogId")
-    java.util.List getParts(String catalogId);
+    @HttpEndpoint(url="/v1/catalogs/{catalogId}/parts2", method="GET", contentType="application/json", paramNames="catalogId,carId,groupId,criteria")
+    java.util.Map getParts(String catalogId,String carId,String groupId,String criteria);
     
     /*
-     * getGroupstree
+     * getGroupsTree
     */
-    @HttpEndpoint(url="/v1/catalogs/{catalogId}/groups-tree", method="GET", contentType="application/json", paramNames="catalogId")
-    java.util.List getGroupstree(String catalogId);
+    @HttpEndpoint(url="/v1/catalogs/{catalogId}/groups-tree", method="GET", contentType="application/json", paramNames="catalogId,carId,criteria,cached")
+    java.util.List getGroupsTree(String catalogId,String carId,String criteria,Boolean cached);
     
     /*
      * getSchemas
     */
-    @HttpEndpoint(url="/v1/catalogs/{catalogId}/schemas", method="GET", contentType="application/json", paramNames="catalogId")
-    java.util.Map getSchemas(String catalogId);
+    @HttpEndpoint(url="/v1/catalogs/{catalogId}/schemas", method="GET", contentType="application/json", paramNames="carId,catalogId,branchId,criteria,page,partNameIds,partName")
+    CatalogSchemaDTO  getSchemas(String carId,String catalogId,String branchId,String criteria,Integer page,String partNameIds,String partName);
     
 
 }

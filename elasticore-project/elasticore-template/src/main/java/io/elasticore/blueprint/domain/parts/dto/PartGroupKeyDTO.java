@@ -1,4 +1,4 @@
-//ecd:1633473332H20250416200627_V1.0
+//ecd:910401335H20250425124038_V1.0
 package io.elasticore.blueprint.domain.parts.dto;
 
 
@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
 import java.time.*;
+import io.elasticore.blueprint.domain.parts.dto.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -37,7 +38,7 @@ public  class PartGroupKeyDTO  implements java.io.Serializable  {
 	*/
 	@Schema(description = "부품 그룹 ID" , requiredMode=Schema.RequiredMode.REQUIRED )
 	@NotNull
-	@Size(max=36)
+	@Size(max=50)
 	private String id;
 	
 

@@ -209,23 +209,33 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
                 idxPara.add("  }");
             }
 
+            String tbl_prefix = this.publisher.getECoreModelContext().getDomain().getModel().getConfig("table.prefix");
+
             String tblNameInfo = null;
             Annotation tblAnnotation = metaInfo.getMetaAnnotation(EntityAnnotation.META_TABLE);
             if (tblAnnotation != null) {
                 String dbTblNm = tblAnnotation.getValue();
-                tblNameInfo = "name=\"" + dbTblNm + "\"";
+                tblNameInfo = dbTblNm;
+            }
 
-
+            if(tbl_prefix!=null && !tbl_prefix.isEmpty()) {
+                if(tblNameInfo==null)
+                    tblNameInfo = entity.getTableName();
+                tblNameInfo = tbl_prefix + tblNameInfo;
+            }
+            if(tblNameInfo!=null) {
+                tblNameInfo = "name=\"" + tblNameInfo + "\"";
             }
 
             if (idxPara.size() > 0 || tblNameInfo != null) {
                 if (idxPara.size() > 0) {
                     if (tblNameInfo == null)
                         tblNameInfo = "";
+                    else
+                        tblNameInfo = tblNameInfo+",";
                     p.add("@" + j2eePkgNm + ".persistence.Table(%s", tblNameInfo);
                     p.add(idxPara);
                     p.add("  )");
-
                 } else {
                     p.add("@" + j2eePkgNm + ".persistence.Table(%s)", tblNameInfo);
                 }
@@ -767,6 +777,11 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
     }
 
     private String getMappedByName(Field field, Entity entity) {
+
+        String mappedBy = field.getAnnotationValue(EntityAnnotation.MAPPED_BY);
+        if(StringUtils.hasValue(mappedBy))
+            return mappedBy;
+
         if (field.getTypeInfo().isList()) {
             String fieldCoreType = field.getTypeInfo().getCoreItemType();
 
@@ -1002,7 +1017,7 @@ public class EntitySrcFilePublisher extends SrcFilePublisher {
             list4Enum.add("length = " + lengthVal);
             isLengthDefine = true;
         } else {
-            if (enumModel != null) {
+            if (!field.getTypeInfo().isList() && enumModel != null) {
                 Annotation dbAnt = enumModel.getMetaInfo().getMetaAnnotation("db");
                 if (dbAnt != null) {
                     String dbFieldNm = dbAnt.getValue();

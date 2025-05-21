@@ -5,6 +5,7 @@ import io.elasticore.base.ECoreModelContext;
 import io.elasticore.base.ModelDomain;
 import io.elasticore.base.SourceFileAccessFactory;
 import io.elasticore.base.exeption.ProcessException;
+import io.elasticore.base.extract.MultiFileBasedSourceFileAccessFactory;
 import io.elasticore.base.model.pub.dsl.DslCodePublihser;
 import io.elasticore.base.model.pub.jpa.JPACodePublisher;
 import io.elasticore.base.model.pub.mermaid.MermaidCodePublisher;
@@ -18,6 +19,8 @@ public class CodePublishManager {
 
     private SourceFileAccessFactory sourceFileAccessFactory;
 
+    private String sourceBasePath;
+
     private CodePublishManager() {
     }
 
@@ -29,10 +32,13 @@ public class CodePublishManager {
         return Holder.INSTANCE;
     }
 
-    public void setSrcCodeWriterFactory(SourceFileAccessFactory sourceFileAccessFactory) {
+    private void setSrcCodeWriterFactory(SourceFileAccessFactory sourceFileAccessFactory) {
         this.sourceFileAccessFactory = sourceFileAccessFactory;
     }
 
+    public void setSourceBasePath(String basePath) {
+        this.sourceBasePath = basePath;
+    }
 
     public boolean deleteGenSource(ECoreModelContext ctx, String baseDir) throws ProcessException {
 
@@ -84,6 +90,7 @@ public class CodePublishManager {
                 codePublisher = JPACodePublisher.newInstance();
 
             }
+
             else if("mongo".equals(eachMode)) {
                 codePublisher = MongoDbCodePublisher.newInstance();
 
@@ -98,8 +105,11 @@ public class CodePublishManager {
                 codePublisher = new DslCodePublihser();
             }
             if(codePublisher!=null) {
-                codePublisher.setSrcCodeWriterFactory(this.sourceFileAccessFactory);
+                codePublisher.setSrcCodeWriterFactory(
+                        new MultiFileBasedSourceFileAccessFactory(this.sourceBasePath));
+            }
 
+            if(codePublisher!=null) {
                 codePublishers.add(codePublisher);
             }
         }

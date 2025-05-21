@@ -1,4 +1,4 @@
-//ecd:733151809H20250419002748_V1.0
+//ecd:1129940134H20250519114537_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -65,6 +65,17 @@ public  class Board extends AuditEntity implements java.io.Serializable  {
 	@Column(length = 2)
 	@Convert(converter = BoardType.EntityConverter.class)
 	private BoardType boardType;
+	
+	
+	/*
+	  테스트
+	*/
+	@Comment("테스트")
+	@ElementCollection( fetch = FetchType.EAGER)
+	@CollectionTable(name = "board_board_type_list", joinColumns = @JoinColumn(name = "map_seq"))
+	@Column(name = "code")
+	@Convert(converter = BoardType.EntityConverter.class)
+	private List<BoardType> boardTypeList;
 	
 	
 	@OneToMany(fetch = FetchType.LAZY ,mappedBy="board")

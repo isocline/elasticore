@@ -1,4 +1,4 @@
-//ecd:738739653H20250419002748_V1.0
+//ecd:-344910261H20250521114807_V1.0
 package io.elasticore.blueprint.domain.bbs.entity;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -13,7 +13,6 @@ import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import java.util.*;
 import java.time.*;
-import io.elasticore.blueprint.domain.parts.entity.*;
 import io.elasticore.blueprint.domain.bbs.entity.*;
 import jakarta.persistence.Entity;
 
@@ -82,8 +81,6 @@ public  class Article extends AuditEntity implements java.io.Serializable  {
 	private TypeInfo typeInfo;
 	
 	
-	@ManyToOne
-	@JoinColumn(columnDefinition = "carInfo_id")
 	private CarInfo carInfo;
 	
 	

@@ -463,7 +463,15 @@ public class SqlQueryInfo {
 
             // TODO
             // NOT SUPPORT named query not yet
-            isJpaQueryAnnotationNeed = true;
+            //isJpaQueryAnnotationNeed = true;
+
+            ModelLoaderContext modelLoaderContext = BaseECoreModelContext.getTempContext().getModelLoaderContext();
+
+            String useQueryMethod =modelLoaderContext.getConfig("jpa.useQueryMethod","false");
+            if("false".equals(useQueryMethod)) {
+                isJpaQueryAnnotationNeed = true;
+            }
+
             this.jpaMethodName = this.repositoryContext.getString("id");
 
 
@@ -567,7 +575,7 @@ public class SqlQueryInfo {
 
         int pkCount = 0;
 
-        PkField pk = this.targetEntity.findPkField(BaseECoreModelContext.getContext().getDomain());
+        PkField pk = this.targetEntity.findPkField(BaseECoreModelContext.getTempContext().getDomain());
         if (pk != null) {
             pkCount = pk.getKeyCount();
         }

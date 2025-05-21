@@ -1,4 +1,4 @@
-//ecd:517361942H20250413000714_V1.0
+//ecd:-1136327321H20250519113437_V1.0
 package io.elasticore.blueprint.domain.bbs.dto;
 
 import io.elasticore.blueprint.domain.bbs.enums.*;
@@ -54,6 +54,12 @@ public  class BoardDTO  implements java.io.Serializable  {
 	*/
 	@Schema(description = "게시판 명"  )
 	private String name;
+	
+	/*
+	  테스트
+	*/
+	@Schema(description = "테스트"  , example="PB: 공개 | PV: 개인")
+	private List<BoardType> boardTypeList;
 	
 	@Schema(description = "lastModifiedBy"  )
 	@Size(max=20)

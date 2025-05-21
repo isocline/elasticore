@@ -1,0 +1,30 @@
+dto:
+  CarInfoInput:
+    meta: dto
+    fields:
+      brand: string -- 브랜드명
+
+  CarInfoOutput:
+    meta: dto
+    fields:
+      brand: string -- 브랜드명
+      description: string -- 설명
+      modelId: string -- 모델 ID
+
+port:
+  CarInfoPortService:
+    meta: dbms @datasource("main")
+    methods:
+      findByBrand:
+        meta: method -- 브랜드별 차량 정보 조회
+        params:
+          input: CarInfoInput
+        return: List<CarInfoOutput>
+        nativeQuery: true
+        query: |
+          select 
+            brand, 
+            description, 
+            model_id 
+          from car_info
+          where brand = :brand

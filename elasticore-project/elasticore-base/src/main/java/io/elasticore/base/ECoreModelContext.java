@@ -1,6 +1,7 @@
 package io.elasticore.base;
 
 import io.elasticore.base.model.DataModelComponent;
+import io.elasticore.base.model.loader.ModelLoaderContext;
 
 /**
  * Represents the context of an ECore model, providing access to model domains
@@ -47,5 +48,8 @@ public interface ECoreModelContext {
 
 
     <T> T findModelComponent(String modelName, Class<T> type);
+
+
+    ModelLoaderContext getModelLoaderContext();
 
 }

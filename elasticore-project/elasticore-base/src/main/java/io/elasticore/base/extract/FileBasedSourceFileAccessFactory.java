@@ -7,21 +7,21 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
+@Deprecated
 public class FileBasedSourceFileAccessFactory implements SourceFileAccessFactory {
 
-    private String baseDir;
+    protected String baseDir;
 
     public FileBasedSourceFileAccessFactory(String baseDir) {
         this.baseDir = baseDir;
     }
 
 
-    private static String convertToFilePath(String qualifiedClassName, String extName) {
+    protected static String convertToFilePath(String qualifiedClassName, String extName) {
         return qualifiedClassName.replace('.', '/') + "." + extName;
     }
 
-    private File getFile(String qualifiedClassName, boolean makeDirs) {
+    protected File getFile(String qualifiedClassName, boolean makeDirs) {
         String srcFileName = convertToFilePath(qualifiedClassName, "java");
 
         String srcPath = baseDir + "/" + srcFileName;
@@ -53,8 +53,8 @@ public class FileBasedSourceFileAccessFactory implements SourceFileAccessFactory
         return new FileWriter(f);
     }
 
-    private static String userHome = System.getProperty("user.dir");
-    private  String getFilePathInfo(String path) {
+    protected static String userHome = System.getProperty("user.dir");
+    protected String getFilePathInfo(String path) {
 
 
         Path input = Paths.get(path);

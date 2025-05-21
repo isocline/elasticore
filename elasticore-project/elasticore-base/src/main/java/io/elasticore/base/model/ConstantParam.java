@@ -25,6 +25,8 @@ public interface ConstantParam {
 
     String KEYNAME_METHOD = "method";
 
+    String KEYNAME_PROTO = "proto";
+
 
 
 
@@ -48,5 +50,7 @@ public interface ConstantParam {
     String PROPERTY_ELCORE_HOME = "src/main/resources/blueprint";
 
     String PROPERTY_JAVA_SRC_HOME = "src/main/java";
+
+    String PROPERTY_PROTO_SRC_HOME = "src/main/proto";
     
 }

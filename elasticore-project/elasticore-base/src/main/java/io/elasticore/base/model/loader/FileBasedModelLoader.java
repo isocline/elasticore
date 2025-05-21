@@ -23,6 +23,8 @@ import io.elasticore.base.util.ConsoleLog;
 import java.io.File;
 import java.util.*;
 
+//import static io.elasticore.base.model.core.BaseECoreModelContext.context;
+
 public class FileBasedModelLoader implements ModelLoader, ConstantParam {
 
     private static FileBasedModelLoader instance;
@@ -93,7 +95,7 @@ public class FileBasedModelLoader implements ModelLoader, ConstantParam {
     }
 
 
-    private ECoreModel load(ModelLoaderContext context) {
+    private ECoreModel load2(ModelLoaderContext context) {
 
 
         File f = new File(templateFileDirPath);
@@ -140,12 +142,12 @@ public class FileBasedModelLoader implements ModelLoader, ConstantParam {
                 .repositoryModels(repositoryModels)
                 .configMap(context.getConfigMap())
                 .namespaceMap(context.getNsMap())
+                .internalDomainName(domainNmList.get(0))
                 .build();
     }
 
 
-    @Override
-    public ECoreModel load(String domainName) {
+    public ModelLoaderContext getModelLoaderContext(String domainName) {
         //test();
         List<FileSource> fileSources = new ArrayList<>();
 
@@ -175,9 +177,26 @@ public class FileBasedModelLoader implements ModelLoader, ConstantParam {
         Map<String, String> nsMap = (Map) envMap.get("namespace");
 
 
-        ModelLoaderContext context = new ModelLoaderContext(domainName, configMap, nsMap);
+        String userDefinedDomainName = (String) configMap.get("domainName");
+        if(userDefinedDomainName!=null)
+            domainName = userDefinedDomainName;
 
-        MainModelLoader loader = getMainModelLoader(context, templateFileDirPath);
+        ModelLoaderContext context = new ModelLoaderContext(domainName, configMap, nsMap,templateFileDirPath);
+
+        return context;
+    }
+    @Override
+    public ECoreModel load(ModelLoaderContext modelLoaderContext) {
+        MainModelLoader loader = getMainModelLoader(modelLoaderContext, modelLoaderContext.getBaseFilePath());
+        return loader.load(modelLoaderContext);
+    }
+
+
+    public ECoreModel load(String domainName) {
+
+        ModelLoaderContext context = getModelLoaderContext(domainName);
+
+        MainModelLoader loader = getMainModelLoader(context, context.getBaseFilePath());
 
         return loader.load(context);
         //return load(context);
@@ -204,4 +223,5 @@ public class FileBasedModelLoader implements ModelLoader, ConstantParam {
         }
         return false;
     }
+
 }

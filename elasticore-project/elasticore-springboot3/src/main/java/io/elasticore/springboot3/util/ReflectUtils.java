@@ -1,6 +1,7 @@
 package io.elasticore.springboot3.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.util.*;
 
 
@@ -36,8 +37,11 @@ public class ReflectUtils {
             Field[] fds = c.getDeclaredFields();
             for (Field f : fds) {
                 String lowcaseFieldNm = f.getName().toLowerCase();
-                f.setAccessible(true);
-                fieldMap.put(lowcaseFieldNm, f);
+                try {
+                    f.setAccessible(true);
+                    fieldMap.put(lowcaseFieldNm, f);
+                }catch (InaccessibleObjectException ie) {
+                }
             }
         }
 

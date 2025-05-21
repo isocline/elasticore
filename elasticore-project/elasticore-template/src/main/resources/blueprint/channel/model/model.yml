@@ -1,9 +1,6 @@
 ## model
 entity:
 
-
-
-
   BaseEntity:
     meta: entity @abstract
     fields:
@@ -35,3 +32,7 @@ entity:
       errMsg: string(512) -- 에러시 에러 메세지
       recvDatetime: datetime -- 수신일시
       recvEndDatetime: datetime -- 수신(통화) 종료일시
+
+
+
+

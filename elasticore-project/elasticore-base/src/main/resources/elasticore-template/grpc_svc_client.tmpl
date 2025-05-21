@@ -1,0 +1,27 @@
+package ${packageName};
+
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.elasticore.springboot3.mapper.Mapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import ${importList};
+
+
+@Component
+public class ${gRpcServiceName}Client {
+
+    private final ${gRpcServiceName}Grpc.${gRpcServiceName}BlockingStub blockingStub;
+
+    public ${gRpcServiceName}Client(@Value("${gRpcServiceIp}") String grpcSvcIp
+                          ,@Value("${gRpcServicePort}") int grpcPort) {
+        ManagedChannel channel = ManagedChannelBuilder
+                .forAddress(grpcSvcIp, grpcPort)
+                .usePlaintext()
+                .build();
+        blockingStub = ${gRpcServiceName}Grpc.newBlockingStub(channel);
+    }
+
+    ${gRpcMethodList}
+}

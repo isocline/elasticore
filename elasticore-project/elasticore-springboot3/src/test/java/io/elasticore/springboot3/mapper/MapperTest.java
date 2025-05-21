@@ -131,12 +131,40 @@ class MapperTest {
         assertEquals(0, target.getAge());
     }
 
+
+    @Test
+    @DisplayName("배열(String[], int[]) 필드 매핑 테스트")
+    void testArrayFieldMapping() {
+        SourceDAO source = new SourceDAO();
+        source.setName("Test Name");
+        source.setDesc("Test Desc");
+        source.setAge(99);
+        source.setTags(new String[]{"tag1", "tag2"});
+        source.setScores(new int[]{100, 90, 80});
+
+        TargetDAO target = new TargetDAO();
+
+        Mapper.of(source, target)
+                .map("name", "title")
+                .execute();
+
+        assertEquals("Test Name", target.getTitle());
+        assertEquals("Test Desc", target.getDesc());
+        assertEquals(99, target.getAge());
+
+        assertArrayEquals(new String[]{"tag1", "tag2"}, target.getTags());
+        assertArrayEquals(new int[]{100, 90, 80}, target.getScores());
+    }
+
+
     // ==== 서브 클래스 ====
 
     public static class SourceDAO {
         private String name;
         private String desc;
         private int age;
+        private String[] tags;  // 추가
+        private int[] scores;   // 추가
 
         public SourceDAO() {}
 
@@ -154,12 +182,20 @@ class MapperTest {
 
         public int getAge() { return age; }
         public void setAge(int age) { this.age = age; }
+
+        public String[] getTags() { return tags; }
+        public void setTags(String[] tags) { this.tags = tags; }
+
+        public int[] getScores() { return scores; }
+        public void setScores(int[] scores) { this.scores = scores; }
     }
 
     public static class TargetDAO {
         private String title;
         private String desc;
         private int age;
+        private String[] tags;   // 추가
+        private int[] scores;    // 추가
 
         public String getTitle() { return title; }
         public void setTitle(String title) { this.title = title; }
@@ -169,5 +205,48 @@ class MapperTest {
 
         public int getAge() { return age; }
         public void setAge(int age) { this.age = age; }
+
+        public String[] getTags() { return tags; }
+        public void setTags(String[] tags) { this.tags = tags; }
+
+        public int[] getScores() { return scores; }
+        public void setScores(int[] scores) { this.scores = scores; }
+    }
+
+
+    @Test
+    @DisplayName("기본 매핑")
+    void testBasic() {
+
+        HelloRequest request = new HelloRequest();
+
+        TestInputDTO input = new TestInputDTO();
+
+        Mapper.of(request, input).execute();
+
+
+        assertEquals("Test", input.getName());
+
+
+    }
+
+
+    public static class HelloRequest {
+        public String getName() {
+            return "Test";
+        }
+    }
+
+    public static class TestInputDTO {
+        private String name = null;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+
+        }
     }
 }
