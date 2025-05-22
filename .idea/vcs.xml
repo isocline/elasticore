@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../xsko/cbh_jps_bnd" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../../workspace2/prototype/jps-poc" vcs="Git" />
   </component>
 </project>

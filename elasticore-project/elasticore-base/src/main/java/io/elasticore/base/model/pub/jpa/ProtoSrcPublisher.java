@@ -316,8 +316,8 @@ public class ProtoSrcPublisher extends SrcFilePublisher {
         params
                 .set("packageName", packageName)
                 .set("gRpcServiceName", svcName)
-                .set("gRpcServiceIp", configPropertyName+".ip:localhost")
-                .set("gRpcServicePort", configPropertyName+".port:9090");
+                .set("gRpcServiceIp", "${"+configPropertyName+".ip:localhost}")
+                .set("gRpcServicePort", "${"+configPropertyName+".port:9090}");
 
         CodeTemplate.Paragraph msgP = CodeTemplate.newParagraph();
         makeGrpcMethodForClient(portService, msgP);
@@ -356,8 +356,8 @@ public class ProtoSrcPublisher extends SrcFilePublisher {
             methodP.add("*/");
 
             methodP.add("public void  %s(%s request, StreamObserver<%s> responseObserver) {", methodName, inputType, returnType);
-            methodP.add("    // TODO: implements");
-            methodP.add("  %s.Builder builder = %s.newBuilder();", rpcReturnType,rpcReturnType);
+            methodP.add("    // TODO: implement for gRPC service");
+            methodP.add("    %s.Builder builder = %s.newBuilder();", rpcReturnType,rpcReturnType);
             methodP.add("    //Mapper.of(output, builder).execute();");
             methodP.add("    %s response = builder.build();",rpcReturnType);
             methodP.add("    responseObserver.onNext(response);");
@@ -401,11 +401,16 @@ public class ProtoSrcPublisher extends SrcFilePublisher {
             methodP.add("    Mapper.of(input, builder).execute();");
             methodP.add("    %s request = builder.build();" ,rpcInputType);
             methodP.add("    %s response = blockingStub.%s(request);", rpcReturnType, methodName);
+            methodP.add("    %s output = new %s();",returnDtoType, returnDtoType);
+            methodP.add("    Mapper.of(response, output).execute();");
+            methodP.add("    return output;");
+
+            /*
             methodP.add("    %s.%sBuilder respBuilder = ",returnDtoType, returnType);
             methodP.add("        %s.builder();",returnDtoType);
             methodP.add("    Mapper.of(response, respBuilder).execute();");
-
             methodP.add("    return respBuilder.build();");
+             */
             methodP.add("}");
         }
     }

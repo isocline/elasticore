@@ -33,7 +33,7 @@ entity:
       name: string -- 게시판 명
       boardType: BoardType -- 게시판 타입
       boardTypeList : List<BoardType> -- 테스트
-      articles: List<Article> @dtype(List<ArticleDTO>)
+      articles: List<Article> @dtype(List<ArticleDTO>) @mappedby(companyId)
 
   TypeInfo:
     meta: entity
